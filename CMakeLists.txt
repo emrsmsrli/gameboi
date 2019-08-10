@@ -2,6 +2,19 @@ cmake_minimum_required(VERSION 3.14)
 project(GameBoy)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG}
+                            -O0
+                            -Wall
+                            -pedantic
+                            -Wextra
+                            -Wnon-virtual-dtor
+                            -Wold-style-cast
+                            -Wnull-dereference
+                            -Wsign-conversion
+                            -Wconversion
+                            -Wunused
+                            -Wshadow")
+set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -O3 -Wall")
 
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
