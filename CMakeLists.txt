@@ -30,7 +30,7 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
 
 include_directories(include)
 
-add_executable(GameBoy src/main.cpp include/int_types.h include/Register.h src/Register.cpp)
+add_executable(GameBoy src/main.cpp include/Register.h src/Register.cpp)
 target_link_libraries(GameBoy ${CONAN_LIBS})
 
 add_executable(GameBoy-test test/main.cpp test/test1.cpp)
