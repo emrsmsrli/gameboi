@@ -19,12 +19,14 @@ namespace gameboy {
         [[nodiscard]] bool any() const;
         [[nodiscard]] bool none() const;
 
-        friend bool operator==(const HalfRegister& rl, const HalfRegister& rr);
-        friend bool operator!=(const HalfRegister& rl, const HalfRegister& rr);
+        bool operator==(int8_t value) const { return get() == value; }
+        bool operator!=(int8_t value) const { return get() != value; }
+        bool operator==(const HalfRegister& r) const;
+        bool operator!=(const HalfRegister& r) const;
 
     private:
         Register& reg;
-        uint8_t offset = 0u;
+        uint8_t offset;
 
         explicit HalfRegister(Register& reg, uint8_t offset)
             : reg(reg), offset(offset) {}
@@ -60,8 +62,10 @@ namespace gameboy {
         Register& operator+=(uint16_t value);
         Register& operator-=(uint16_t value);
 
-        friend bool operator==(const Register& rl, const Register& rr) { return rl.bits == rr.bits; }
-        friend bool operator!=(const Register& rl, const Register& rr) { return !(rl == rr); }
+        bool operator==(int16_t value) const { return bits == value; }
+        bool operator!=(int16_t value) const { return bits != value; }
+        bool operator==(const Register& r) const { return bits == r.bits; }
+        bool operator!=(const Register& r) const { return !(*this == r); }
 
     private:
         uint16_t bits = 0;

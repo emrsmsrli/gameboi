@@ -41,14 +41,14 @@ uint8_t gameboy::HalfRegister::get() const
     return ((reg.bits >> offset) & 0x0F);
 }
 
-bool gameboy::operator==(const gameboy::HalfRegister& rl, const gameboy::HalfRegister& rr)
+bool gameboy::HalfRegister::operator==(const gameboy::HalfRegister& r) const
 {
-    return rl.get() == rr.get();
+    return get() == r.get();
 }
 
-bool gameboy::operator!=(const gameboy::HalfRegister& rl, const gameboy::HalfRegister& rr)
+bool gameboy::HalfRegister::operator!=(const gameboy::HalfRegister& r) const
 {
-    return !(rl == rr);
+    return !(*this == r);
 }
 
 void gameboy::Register::set(uint8_t index)
