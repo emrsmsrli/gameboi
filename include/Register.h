@@ -39,6 +39,8 @@ namespace gameboy {
 
     public:
         Register() = default;
+        explicit Register(uint16_t initial_value)
+            : bits(initial_value) {}
 
         [[nodiscard]] const HalfRegister& get_high() const { return high; }
         [[nodiscard]] const HalfRegister& get_low() const { return low; }
@@ -68,7 +70,7 @@ namespace gameboy {
         bool operator!=(const Register& r) const { return bits != r.bits; }
 
     private:
-        uint16_t bits = 0;
+        uint16_t bits = 0x0000;
         HalfRegister high{*this, 8};
         HalfRegister low{*this, 0};
     };
