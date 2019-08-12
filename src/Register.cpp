@@ -23,7 +23,7 @@ bool gameboy::HalfRegister::test(uint8_t index) const
 
 bool gameboy::HalfRegister::all() const
 {
-    return get() == 0x0F;
+    return get() == 0xFF;
 }
 
 bool gameboy::HalfRegister::any() const
@@ -63,7 +63,7 @@ bool gameboy::Register::test(uint8_t index) const
 
 bool gameboy::Register::all() const
 {
-    return bits == 0xFF;
+    return bits == 0xFFFF;
 }
 
 bool gameboy::Register::any() const
