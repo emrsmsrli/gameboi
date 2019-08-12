@@ -1,5 +1,5 @@
 
-#include "Register.h"
+#include <Register.h>
 
 void gameboy::HalfRegister::set(uint8_t index)
 {

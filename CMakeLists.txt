@@ -58,9 +58,14 @@ else()
             )
 endif()
 
-add_executable(GameBoy src/main.cpp include/Register.h src/Register.cpp)
+include_directories(include)
+include(src/CMakeLists.txt)
+add_library(GB SHARED ${GAMEBOY_SRC})
+
+add_executable(GameBoy main.cpp)
 target_compile_features(GameBoy PRIVATE cxx_std_17)
 target_link_libraries(GameBoy PRIVATE
+        GB
         ${CONAN_LIBS}
         project_warnings
         --coverage
@@ -68,11 +73,14 @@ target_link_libraries(GameBoy PRIVATE
 
 enable_testing()
 
-add_executable(GameBoy-test test/main.cpp test/test1.cpp)
+include(test/CMakeLists.txt)
+add_executable(GameBoy-test ${TEST_SRC})
+target_compile_features(GameBoy-test PRIVATE cxx_std_17)
 target_link_libraries(GameBoy-test PRIVATE
+        GB
         ${CONAN_LIBS}
-        gtest_main
         project_warnings
+        gtest_main
         --coverage
         )
 add_test(Tester GameBoy-test)
