@@ -19,8 +19,8 @@ namespace gameboy {
         [[nodiscard]] bool any() const;
         [[nodiscard]] bool none() const;
 
-        bool operator==(int8_t value) const { return get() == value; }
-        bool operator!=(int8_t value) const { return get() != value; }
+        bool operator==(uint8_t value) const { return get() == value; }
+        bool operator!=(uint8_t value) const { return get() != value; }
         bool operator==(const HalfRegister& r) const { return get() == r.get(); }
         bool operator!=(const HalfRegister& r) const { return get() != r.get(); }
 
@@ -61,11 +61,11 @@ namespace gameboy {
         Register& operator++();
         Register& operator--();
 
-        Register& operator+=(uint16_t value);
-        Register& operator-=(uint16_t value);
+        Register& operator+=(int16_t value);
+        Register& operator-=(int16_t value);
 
-        bool operator==(int16_t value) const { return bits == value; }
-        bool operator!=(int16_t value) const { return bits != value; }
+        bool operator==(uint16_t value) const { return bits == value; }
+        bool operator!=(uint16_t value) const { return bits != value; }
         bool operator==(const Register& r) const { return bits == r.bits; }
         bool operator!=(const Register& r) const { return bits != r.bits; }
 
