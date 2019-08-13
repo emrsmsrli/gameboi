@@ -38,7 +38,7 @@ bool gameboy::HalfRegister::none() const
 
 uint8_t gameboy::HalfRegister::get() const
 {
-    return ((reg.bits >> offset) & 0x0F);
+    return ((reg.bits >> offset) & 0xFF);
 }
 
 void gameboy::Register::set(uint8_t index)
