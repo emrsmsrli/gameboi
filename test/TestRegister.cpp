@@ -29,27 +29,6 @@ TEST(Register, Flip) {
     ASSERT_EQ(r, 0x0001);
 }
 
-TEST(Register, All) {
-    gameboy::Register r(0x0000);
-    ASSERT_FALSE(r.all());
-    r = 0xFFFF;
-    ASSERT_TRUE(r.all());
-}
-
-TEST(Register, None) {
-    gameboy::Register r(0x0000);
-    ASSERT_TRUE(r.none());
-    r = 0xFFFF;
-    ASSERT_FALSE(r.none());
-}
-
-TEST(Register, Any) {
-    gameboy::Register r(0x0D00);
-    ASSERT_TRUE(r.any());
-    r = 0x0000;
-    ASSERT_FALSE(r.any());
-}
-
 TEST(Register, IncDec) {
     gameboy::Register r(0x0000);
     ++r;

@@ -15,10 +15,6 @@ namespace gameboy {
         void flip(uint8_t index);
         [[nodiscard]] bool test(uint8_t index) const;
 
-        [[nodiscard]] bool all() const;
-        [[nodiscard]] bool any() const;
-        [[nodiscard]] bool none() const;
-
         HalfRegister& operator=(uint8_t value);
 
         HalfRegister& operator++();
@@ -60,10 +56,6 @@ namespace gameboy {
         void reset(uint8_t index);
         void flip(uint8_t index);
         [[nodiscard]] bool test(uint8_t index) const;
-
-        [[nodiscard]] bool all() const;
-        [[nodiscard]] bool any() const;
-        [[nodiscard]] bool none() const;
 
         Register& operator=(uint16_t value);
 

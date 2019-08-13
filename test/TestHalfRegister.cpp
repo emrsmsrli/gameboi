@@ -33,28 +33,6 @@ TEST(HalfRegister, Flip) {
     ASSERT_EQ(r.get_high(), 0x00);
 }
 
-TEST(HalfRegister, All) {
-    gameboy::Register r(0x0000);
-    ASSERT_FALSE(r.get_high().all());
-    r = 0xFF00;
-    ASSERT_TRUE(r.get_high().all());
-}
-
-TEST(HalfRegister, Any) {
-    gameboy::Register r(0x0000);
-    ASSERT_FALSE(r.get_high().any());
-    r = 0xDE00;
-    ASSERT_TRUE(r.get_high().any());
-}
-
-TEST(HalfRegister, None) {
-    gameboy::Register r(0x0000);
-    ASSERT_TRUE(r.get_high().none());
-    r = 0xEC00;
-    ASSERT_FALSE(r.get_high().none());
-    ASSERT_TRUE(r.get_low().none());
-}
-
 TEST(HalfRegister, Assignment) {
     gameboy::Register r(0xEECB);
     r.get_low() = 0xDE;
