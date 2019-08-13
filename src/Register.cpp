@@ -43,9 +43,7 @@ uint8_t gameboy::HalfRegister::get() const
 
 gameboy::HalfRegister& gameboy::HalfRegister::operator=(uint8_t value)
 {
-    const auto prev = reg.bits & ~(0xFF << offset);
-    const auto newo = (value << offset);
-    reg.bits = prev | newo;
+    reg.bits = reg.bits & ~(0xFF << offset) | (value << offset);
     return *this;
 }
 

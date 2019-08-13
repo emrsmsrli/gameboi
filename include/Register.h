@@ -19,6 +19,8 @@ namespace gameboy {
         [[nodiscard]] bool any() const;
         [[nodiscard]] bool none() const;
 
+        HalfRegister& operator=(uint8_t value);
+
         bool operator==(uint8_t value) const { return get() == value; }
         bool operator!=(uint8_t value) const { return get() != value; }
         bool operator==(const HalfRegister& r) const { return get() == r.get(); }
