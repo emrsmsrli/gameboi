@@ -23,7 +23,7 @@ bool gameboy::HalfRegister::test(uint8_t index) const
 
 bool gameboy::HalfRegister::all() const
 {
-    return get() == 0xFF;
+    return get_value() == 0xFF;
 }
 
 bool gameboy::HalfRegister::any() const
@@ -33,10 +33,10 @@ bool gameboy::HalfRegister::any() const
 
 bool gameboy::HalfRegister::none() const
 {
-    return get() == 0x00;
+    return get_value() == 0x00;
 }
 
-uint8_t gameboy::HalfRegister::get() const
+uint8_t gameboy::HalfRegister::get_value() const
 {
     return ((reg.bits >> offset) & 0xFF);
 }
@@ -45,6 +45,11 @@ gameboy::HalfRegister& gameboy::HalfRegister::operator=(uint8_t value)
 {
     reg.bits = reg.bits & ~(0xFF << offset) | (value << offset);
     return *this;
+}
+
+gameboy::HalfRegister& gameboy::HalfRegister::operator++()
+{
+    return <#initializer#>;
 }
 
 void gameboy::Register::set(uint8_t index)
