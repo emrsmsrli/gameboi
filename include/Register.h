@@ -21,6 +21,12 @@ namespace gameboy {
 
         HalfRegister& operator=(uint8_t value);
 
+        HalfRegister& operator++();
+        HalfRegister& operator--();
+
+        HalfRegister& operator+=(int8_t value);
+        HalfRegister& operator-=(int8_t value);
+
         bool operator==(uint8_t value) const { return get_value() == value; }
         bool operator!=(uint8_t value) const { return get_value() != value; }
         bool operator==(const HalfRegister& r) const { return get_value() ==r.get_value(); }
@@ -34,6 +40,7 @@ namespace gameboy {
             : reg(reg), offset(offset) {}
 
         [[nodiscard]] uint8_t get_value() const;
+        void set_value(uint8_t value);
     };
 
     class Register {

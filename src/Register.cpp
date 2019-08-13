@@ -41,15 +41,39 @@ uint8_t gameboy::HalfRegister::get_value() const
     return ((reg.bits >> offset) & 0xFF);
 }
 
-gameboy::HalfRegister& gameboy::HalfRegister::operator=(uint8_t value)
+void gameboy::HalfRegister::set_value(uint8_t value)
 {
     reg.bits = reg.bits & ~(0xFF << offset) | (value << offset);
+}
+
+gameboy::HalfRegister& gameboy::HalfRegister::operator=(uint8_t value)
+{
+    set_value(value);
     return *this;
 }
 
 gameboy::HalfRegister& gameboy::HalfRegister::operator++()
 {
-    return <#initializer#>;
+    set_value(get_value() + 1);
+    return *this;
+}
+
+gameboy::HalfRegister& gameboy::HalfRegister::operator--()
+{
+    set_value(get_value() - 1);
+    return *this;
+}
+
+gameboy::HalfRegister& gameboy::HalfRegister::operator+=(int8_t value)
+{
+    set_value(get_value() + value);
+    return *this;
+}
+
+gameboy::HalfRegister& gameboy::HalfRegister::operator-=(int8_t value)
+{
+    set_value(get_value() - value);
+    return *this;
 }
 
 void gameboy::Register::set(uint8_t index)
