@@ -61,6 +61,7 @@ endif()
 include_directories(include)
 include(src/CMakeLists.txt)
 add_library(GB SHARED ${GAMEBOY_SRC})
+target_compile_features(GB PRIVATE cxx_std_17)
 
 add_executable(GameBoy main.cpp)
 target_compile_features(GameBoy PRIVATE cxx_std_17)
