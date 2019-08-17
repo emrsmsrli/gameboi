@@ -1,5 +1,6 @@
 
 #include "cpu/Register16.h"
+#include "memory/Address.h"
 
 uint16_t gameboy::cpu::Register16::get_value() const
 {
@@ -11,6 +12,12 @@ gameboy::cpu::Register16& gameboy::cpu::Register16::operator=(uint16_t value)
 {
     low = value & 0xFF;
     high = (value >> 8) & 0xFF;
+    return *this;
+}
+
+gameboy::cpu::Register16& gameboy::cpu::Register16::operator=(const memory::Address16& address)
+{
+    *this = address.get_value();
     return *this;
 }
 
@@ -32,9 +39,15 @@ gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(uint16_t value)
     return *this;
 }
 
-gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(const gameboy::cpu::Register16& r)
+gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(const gameboy::cpu::Register16& reg)
 {
-    *this += r.get_value();
+    *this += reg.get_value();
+    return *this;
+}
+
+gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(const memory::Address16& address)
+{
+    *this += address.get_value();
     return *this;
 }
 
@@ -44,9 +57,15 @@ gameboy::cpu::Register16& gameboy::cpu::Register16::operator-=(uint16_t value)
     return *this;
 }
 
-gameboy::cpu::Register16& gameboy::cpu::Register16::operator-=(const gameboy::cpu::Register16& r)
+gameboy::cpu::Register16& gameboy::cpu::Register16::operator-=(const gameboy::cpu::Register16& reg)
 {
-    *this -= r.get_value();
+    *this -= reg.get_value();
+    return *this;
+}
+
+gameboy::cpu::Register16& gameboy::cpu::Register16::operator-=(const memory::Address16& address)
+{
+    *this -= address.get_value();
     return *this;
 }
 
@@ -62,6 +81,12 @@ uint32_t gameboy::cpu::Register16::operator+(const gameboy::cpu::Register16& reg
     return this_value + reg.get_value();
 }
 
+uint32_t gameboy::cpu::Register16::operator+(const memory::Address16& address) const
+{
+    uint32_t this_value = get_value();
+    return this_value + address.get_value();
+}
+
 uint32_t gameboy::cpu::Register16::operator-(uint32_t value) const
 {
     uint32_t this_value = get_value();
@@ -72,6 +97,12 @@ uint32_t gameboy::cpu::Register16::operator-(const gameboy::cpu::Register16& reg
 {
     uint32_t this_value = get_value();
     return this_value - reg.get_value();
+}
+
+uint32_t gameboy::cpu::Register16::operator-(const memory::Address16& address) const
+{
+    uint32_t this_value = get_value();
+    return this_value - address.get_value();
 }
 
 gameboy::cpu::Register16& gameboy::cpu::Register16::operator&=(uint16_t value)
@@ -155,6 +186,11 @@ bool gameboy::cpu::Register16::operator==(const gameboy::cpu::Register16& reg) c
     return get_value() == reg.get_value();
 }
 
+bool gameboy::cpu::Register16::operator==(const memory::Address16& address) const
+{
+    return get_value() == address.get_value();
+}
+
 bool gameboy::cpu::Register16::operator!=(uint16_t value) const
 {
     return get_value() != value;
@@ -163,6 +199,11 @@ bool gameboy::cpu::Register16::operator!=(uint16_t value) const
 bool gameboy::cpu::Register16::operator!=(const gameboy::cpu::Register16& reg) const
 {
     return get_value() != reg.get_value();
+}
+
+bool gameboy::cpu::Register16::operator!=(const memory::Address16& address) const
+{
+    return get_value() != address.get_value();
 }
 
 bool gameboy::cpu::Register16::operator>(uint16_t value) const
@@ -175,6 +216,11 @@ bool gameboy::cpu::Register16::operator>(const gameboy::cpu::Register16& reg) co
     return get_value() > reg.get_value();
 }
 
+bool gameboy::cpu::Register16::operator>(const memory::Address16& address) const
+{
+    return get_value() > address.get_value();
+}
+
 bool gameboy::cpu::Register16::operator<(uint16_t value) const
 {
     return get_value() < value;
@@ -183,6 +229,11 @@ bool gameboy::cpu::Register16::operator<(uint16_t value) const
 bool gameboy::cpu::Register16::operator<(const gameboy::cpu::Register16& reg) const
 {
     return get_value() < reg.get_value();
+}
+
+bool gameboy::cpu::Register16::operator<(const memory::Address16& address) const
+{
+    return get_value() < address.get_value();
 }
 
 bool gameboy::cpu::Register16::operator>=(uint16_t value) const
@@ -195,6 +246,11 @@ bool gameboy::cpu::Register16::operator>=(const gameboy::cpu::Register16& reg) c
     return get_value() >= reg.get_value();
 }
 
+bool gameboy::cpu::Register16::operator>=(const memory::Address16& address) const
+{
+    return get_value() >= address.get_value();
+}
+
 bool gameboy::cpu::Register16::operator<=(uint16_t value) const
 {
     return get_value() <= value;
@@ -203,4 +259,9 @@ bool gameboy::cpu::Register16::operator<=(uint16_t value) const
 bool gameboy::cpu::Register16::operator<=(const gameboy::cpu::Register16& reg) const
 {
     return get_value() <= reg.get_value();
+}
+
+bool gameboy::cpu::Register16::operator<=(const memory::Address16& address) const
+{
+    return get_value() <= address.get_value();
 }

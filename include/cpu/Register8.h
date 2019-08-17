@@ -3,6 +3,10 @@
 
 #include <cstdint>
 
+namespace gameboy::memory {
+    class Address8;
+}
+
 namespace gameboy::cpu {
     class Register8 {
     public:
@@ -13,9 +17,9 @@ namespace gameboy::cpu {
 
         [[nodiscard]] uint16_t get_value() const { return bits; }
 
-        // todo add address variants
         /* assignment */
         Register8& operator=(uint8_t value);
+        Register8& operator=(const memory::Address8& address);
         Register8& operator=(const Register8& reg) = default;
 
         /* math ops */
@@ -24,13 +28,17 @@ namespace gameboy::cpu {
 
         Register8& operator+=(uint8_t value);
         Register8& operator+=(const Register8& reg);
+        Register8& operator+=(const memory::Address8& address);
         Register8& operator-=(uint8_t value);
         Register8& operator-=(const Register8& reg);
+        Register8& operator-=(const memory::Address8& address);
 
         [[nodiscard]] uint16_t operator+(uint16_t value) const;
         [[nodiscard]] uint16_t operator+(const Register8& reg) const;
+        [[nodiscard]] uint16_t operator+(const memory::Address8& address) const;
         [[nodiscard]] uint16_t operator-(uint16_t value) const;
         [[nodiscard]] uint16_t operator-(const Register8& reg) const;
+        [[nodiscard]] uint16_t operator-(const memory::Address8& address) const;
 
         /* logical */
         Register8& operator&=(uint8_t value);
@@ -46,22 +54,29 @@ namespace gameboy::cpu {
         Register8 operator|(const Register8& reg) const;
         Register8 operator^(uint8_t value) const;
         Register8 operator^(const Register8& reg) const;
+
         Register8 operator~() const;
 
         /* comparison */
         bool operator==(uint8_t value) const;
         bool operator==(const Register8& reg) const;
+        bool operator==(const memory::Address8& address) const;
         bool operator!=(uint8_t value) const;
         bool operator!=(const Register8& reg) const;
+        bool operator!=(const memory::Address8& address) const;
 
         bool operator>(uint8_t value) const;
         bool operator>(const Register8& reg) const;
+        bool operator>(const memory::Address8& address) const;
         bool operator<(uint8_t value) const;
         bool operator<(const Register8& reg) const;
+        bool operator<(const memory::Address8& address) const;
         bool operator>=(uint8_t value) const;
         bool operator>=(const Register8& reg) const;
+        bool operator>=(const memory::Address8& address) const;
         bool operator<=(uint8_t value) const;
         bool operator<=(const Register8& reg) const;
+        bool operator<=(const memory::Address8& address) const;
 
     private:
         uint8_t bits = 0x00;
