@@ -1,3 +1,4 @@
 
 set(GAMEBOY_SRC
-        src/Register.cpp)
+        src/cpu/Register8.cpp
+        src/cpu/Register16.cpp)
