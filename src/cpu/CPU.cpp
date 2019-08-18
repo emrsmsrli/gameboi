@@ -718,8 +718,8 @@ uint16_t gameboy::cpu::CPU::read_immidiate(gameboy::cpu::tag::Imm16)
     const auto lsb = read_immidiate(tag::Imm8{});
     const auto msb = read_immidiate(tag::Imm8{});
 
-    const uint16_t imm_16 = lsb;
-    return (imm_16 << 8) | msb;
+    const uint16_t imm_16 = msb;
+    return (imm_16 << 8) | lsb;
 }
 
 uint8_t gameboy::cpu::CPU::nop() const
