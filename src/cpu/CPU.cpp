@@ -1,6 +1,7 @@
 
 #include "cpu/CPU.h"
 #include "memory/Address.h"
+#include "util/Log.h"
 
 void gameboy::cpu::CPU::step()
 {
@@ -422,8 +423,8 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         }
         case 0xFF: { return rst(memory::Address8(0x38)); }
         default:
-            // todo logger.error(unknown instruction)
-            break;
+            log::error("unknown instruction: {x}, address: {x}", inst, stack_pointer.get_value() - 1);
+            std::abort();
     }
 }
 
@@ -685,8 +686,8 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::ExtendedInst
         }
 
         default:
-            // todo logger.error(unknown instruction)
-            break;
+            log::error("unknown instruction: {x}, address: {x}", inst, stack_pointer.get_value() - 1);
+            std::abort();
     }
 }
 
