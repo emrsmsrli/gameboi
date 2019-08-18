@@ -33,7 +33,6 @@ namespace gameboy::memory {
 
     Address8 make_address(uint8_t address);
     Address16 make_address(uint16_t address);
-    Address8 make_address(const cpu::Register8& reg);
     Address16 make_address(const cpu::Register16& reg);
 }
 
