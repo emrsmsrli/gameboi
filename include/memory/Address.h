@@ -3,6 +3,11 @@
 
 #include <cstdint>
 
+namespace gameboy::cpu {
+    class Register8;
+    class Register16;
+}
+
 namespace gameboy::memory {
     class Address8 {
     public:
@@ -25,6 +30,11 @@ namespace gameboy::memory {
     private:
         uint8_t value = 0x0000;
     };
+
+    Address8 make_address(uint8_t address);
+    Address16 make_address(uint16_t address);
+    Address8 make_address(const cpu::Register8& reg);
+    Address16 make_address(const cpu::Register16& reg);
 }
 
 #endif //GAMEBOY_ADDRESS_H
