@@ -8,6 +8,9 @@ namespace gameboy::memory {
 }
 
 namespace gameboy::cpu {
+    /**
+     * Represents an 8-bit register in the CPU
+     */
     class Register8 {
     public:
         Register8() = default;

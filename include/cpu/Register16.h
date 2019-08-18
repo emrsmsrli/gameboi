@@ -9,6 +9,9 @@ namespace gameboy::memory {
 }
 
 namespace gameboy::cpu {
+    /**
+     * Represents a 16-bit register in the CPU
+     */
     class Register16 {
     public:
         Register16() = default;
@@ -18,10 +21,16 @@ namespace gameboy::cpu {
 
         [[nodiscard]] uint16_t get_value() const;
 
+        /** @return most significant half of the register */
         [[nodiscard]] Register8& get_high() { return high; }
+
+        /** @return most significant half of the register */
         [[nodiscard]] const Register8& get_high() const { return high; }
 
+        /** @return least significant half of the register */
         [[nodiscard]] Register8& get_low() { return low; }
+
+        /** @return least significant half of the register */
         [[nodiscard]] const Register8& get_low() const { return low; }
 
         /* assignment */
