@@ -62,8 +62,8 @@ namespace gameboy::cpu {
         void write_data(const memory::Address16& address, uint16_t data);
 
         uint8_t read_data(const memory::Address16& address);
-        uint8_t read_immidiate(tag::Imm8);
-        uint16_t read_immidiate(tag::Imm16);
+        uint8_t read_immediate(tag::Imm8);
+        uint16_t read_immediate(tag::Imm16);
 
         /* instructions */
         [[nodiscard]] uint8_t nop() const;

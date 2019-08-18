@@ -7,11 +7,11 @@ void gameboy::cpu::CPU::step()
 {
     const auto cycle_count = [&]() {
         if(!is_halted) {
-            const auto opcode = read_immidiate(tag::Imm8{});
+            const auto opcode = read_immediate(tag::Imm8{});
             if(opcode != 0xCB) {
                 return decode(opcode, tag::StandardInstructionSet{});
             } else {
-                return decode(read_immidiate(tag::Imm8{}), tag::ExtendedInstructionSet{});
+                return decode(read_immediate(tag::Imm8{}), tag::ExtendedInstructionSet{});
             }
         } else {
             return static_cast<uint8_t>(0x1);
@@ -55,31 +55,31 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
 {
     switch(inst) {
         case 0x00: { return nop(); }
-        case 0x01: { return load(b_c, read_immidiate(tag::Imm16{})); } // todo 12
+        case 0x01: { return load(b_c, read_immediate(tag::Imm16{})); } // todo 12
         case 0x02: { return store(memory::make_address(b_c), a_f.get_high()); } // todo 8
         case 0x03: { return alu.increment(b_c); }
         case 0x04: { return alu.increment(b_c.get_high()); }
         case 0x05: { return alu.decrement(b_c.get_high()); }
-        case 0x06: { return load(b_c.get_high(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x06: { return load(b_c.get_high(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x07: { return alu.rotate_left_c_acc(); }
-        case 0x08: { return store(memory::make_address(read_immidiate(tag::Imm16{})), stack_pointer); } // todo 20
+        case 0x08: { return store(memory::make_address(read_immediate(tag::Imm16{})), stack_pointer); } // todo 20
         case 0x09: { return alu.add(h_l, b_c); }
         case 0x0A: { return load(a_f.get_high(), read_data(memory::make_address(b_c))); } // todo 8
         case 0x0B: { return alu.decrement(b_c); }
         case 0x0C: { return alu.increment(b_c.get_low()); }
         case 0x0D: { return alu.decrement(b_c.get_low()); }
-        case 0x0E: { return load(b_c.get_low(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x0E: { return load(b_c.get_low(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x0F: { return alu.rotate_right_c_acc(); }
         case 0x10: { return stop(); }
-        case 0x11: { load(d_e, read_immidiate(tag::Imm16{})); } // todo 12
+        case 0x11: { load(d_e, read_immediate(tag::Imm16{})); } // todo 12
         case 0x12: { return store(memory::make_address(d_e), a_f.get_high()); } // todo 8
         case 0x13: { return alu.increment(d_e); }
         case 0x14: { return alu.increment(d_e.get_high()); }
         case 0x15: { return alu.decrement(d_e.get_high()); }
-        case 0x16: { return load(d_e.get_high(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x16: { return load(d_e.get_high(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x17: { return alu.rotate_left_acc(); }
         case 0x18: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return jump_relative(memory::make_address(data));
         }
         case 0x19: { return alu.add(h_l, d_e); }
@@ -87,21 +87,21 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0x1B: { return alu.decrement(d_e); }
         case 0x1C: { return alu.increment(d_e.get_low()); }
         case 0x1D: { return alu.decrement(d_e.get_low()); }
-        case 0x1E: { return load(d_e.get_low(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x1E: { return load(d_e.get_low(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x1F: { return alu.rotate_right_acc();}
         case 0x20: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return jump_relative(!test_flag(Flag::zero), memory::make_address(data));
         }
-        case 0x21: { load(h_l, read_immidiate(tag::Imm16{})); } // todo 12
+        case 0x21: { load(h_l, read_immediate(tag::Imm16{})); } // todo 12
         case 0x22: { return store_i(); } // todo 8
         case 0x23: { return alu.increment(h_l); }
         case 0x24: { return alu.increment(h_l.get_high()); }
         case 0x25: { return alu.decrement(h_l.get_high()); }
-        case 0x26: { return load(h_l.get_high(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x26: { return load(h_l.get_high(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x27: { return alu.decimal_adjust(); }
         case 0x28: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return jump_relative(test_flag(Flag::zero), memory::make_address(data));
         }
         case 0x29: { return alu.add(h_l, h_l); }
@@ -109,13 +109,13 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0x2B: { return alu.decrement(h_l); }
         case 0x2C: { return alu.increment(h_l.get_low()); }
         case 0x2D: { return alu.decrement(h_l.get_low()); }
-        case 0x2E: { return load(h_l.get_low(), read_immidiate(tag::Imm8{})); }
+        case 0x2E: { return load(h_l.get_low(), read_immediate(tag::Imm8{})); }
         case 0x2F: { return alu.complement(); }
         case 0x30: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return jump_relative(!test_flag(Flag::carry), memory::make_address(data));
         }
-        case 0x31: { return load(stack_pointer, read_immidiate(tag::Imm16{})); } // todo 12
+        case 0x31: { return load(stack_pointer, read_immediate(tag::Imm16{})); } // todo 12
         case 0x32: { return store_d(); } // todo 8
         case 0x33: { return alu.increment(stack_pointer); }
         case 0x34: {
@@ -132,7 +132,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             write_data(address, data);
             return dec_cycles + 8;
         }
-        case 0x36: { return store(memory::make_address(h_l), read_immidiate(tag::Imm8{})); } // todo 12
+        case 0x36: { return store(memory::make_address(h_l), read_immediate(tag::Imm8{})); } // todo 12
         case 0x37: { /* SCF */
             reset_flag(Flag::subtract);
             reset_flag(Flag::half_carry);
@@ -140,7 +140,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             return 4;
         }
         case 0x38: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return jump_relative(test_flag(Flag::carry), memory::make_address(data));
         }
         case 0x39: { return alu.add(h_l, stack_pointer); }
@@ -148,7 +148,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0x3B: { return alu.decrement(stack_pointer); }
         case 0x3C: { return alu.increment(a_f.get_high()); }
         case 0x3D: { return alu.decrement(a_f.get_high()); }
-        case 0x3E: { return load(a_f.get_high(), read_immidiate(tag::Imm8{})); } // todo 8
+        case 0x3E: { return load(a_f.get_high(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x3F: { /* CPL */
             reset_flag(Flag::subtract);
             reset_flag(Flag::half_carry);
@@ -310,70 +310,70 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0xC0: { return ret(!test_flag(Flag::zero)); }
         case 0xC1: { return pop(b_c); }
         case 0xC2: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return jump(!test_flag(Flag::zero), memory::make_address(data));
         }
         case 0xC3: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return jump(memory::make_address(data));
         }
         case 0xC4: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return call(!test_flag(Flag::zero), memory::make_address(data));
         }
         case 0xC5: { return push(b_c); }
         case 0xC6: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.add(data) + 4;
         }
         case 0xC7: { return rst(memory::Address8(0x00)); }
         case 0xC8: { return ret(test_flag(Flag::zero)); }
         case 0xC9: { return ret(); }
         case 0xCA: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return jump(test_flag(Flag::zero), memory::make_address(data));
         }
         case 0xCC: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return call(test_flag(Flag::zero), memory::make_address(data));
         }
         case 0xCD: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return call(memory::make_address(data));
         }
         case 0xCE: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.add_c(data) + 4;
         }
         case 0xCF: { return rst(memory::Address8(0x08)); }
         case 0xD0: { return ret(!test_flag(Flag::carry)); }
         case 0xD1: { return pop(d_e); }
         case 0xD2: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return jump(!test_flag(Flag::carry), memory::make_address(data));
         }
         case 0xD4: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return call(!test_flag(Flag::carry), memory::make_address(data));
         }
         case 0xD5: { return push(d_e); }
         case 0xD6: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.subtract(data) + 4;
         }
         case 0xD7: { return rst(memory::Address8(0x10)); }
         case 0xD8: { return ret(test_flag(Flag::carry)); }
         case 0xD9: { return reti(); }
         case 0xDA: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return jump(test_flag(Flag::carry), memory::make_address(data));
         }
         case 0xDC: {
-            const auto data = read_immidiate(tag::Imm16{});
+            const auto data = read_immediate(tag::Imm16{});
             return call(test_flag(Flag::carry), memory::make_address(data));
         }
         case 0xDE: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.subtract_c(data) + 4;
         }
         case 0xDF: { return rst(memory::Address8(0x18)); }
@@ -382,18 +382,18 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0xE2: { return 1; } // todo LD (C),A
         case 0xE5: { return push(h_l); }
         case 0xE6: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.logical_and(data) + 4;
         }
         case 0xE7: { return rst(memory::Address8(0x20)); }
         case 0xE8: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.add_to_stack_pointer(data);
         }
         case 0xE9: { return jump(h_l); }
         case 0xEA: { return 1; } // todo LD (a16),A
         case 0xEE: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.logical_xor(data) + 4;
         }
         case 0xEF: { return rst(memory::Address8(0x28)); }
@@ -406,7 +406,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         }
         case 0xF5: { return push(a_f); }
         case 0xF6: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.logical_or(data) + 4;
         }
         case 0xF7: { return rst(memory::Address8(0x30)); }
@@ -418,7 +418,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             return 4;
         }
         case 0xFE: {
-            const auto data = read_immidiate(tag::Imm8{});
+            const auto data = read_immediate(tag::Imm8{});
             return alu.logical_compare(data) + 4;
         }
         case 0xFF: { return rst(memory::Address8(0x38)); }
@@ -706,17 +706,17 @@ uint8_t gameboy::cpu::CPU::read_data(const gameboy::memory::Address16& address)
     return memory->read(address);
 }
 
-uint8_t gameboy::cpu::CPU::read_immidiate(gameboy::cpu::tag::Imm8)
+uint8_t gameboy::cpu::CPU::read_immediate(gameboy::cpu::tag::Imm8)
 {
     const auto data = read_data(memory::make_address(program_counter));
     ++program_counter;
     return data;
 }
 
-uint16_t gameboy::cpu::CPU::read_immidiate(gameboy::cpu::tag::Imm16)
+uint16_t gameboy::cpu::CPU::read_immediate(gameboy::cpu::tag::Imm16)
 {
-    const auto lsb = read_immidiate(tag::Imm8{});
-    const auto msb = read_immidiate(tag::Imm8{});
+    const auto lsb = read_immediate(tag::Imm8{});
+    const auto msb = read_immediate(tag::Imm8{});
 
     const uint16_t imm_16 = msb;
     return (imm_16 << 8) | lsb;
