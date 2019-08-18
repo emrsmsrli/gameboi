@@ -71,7 +71,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0x0E: { return load(b_c.get_low(), read_immediate(tag::Imm8{})); } // todo 8
         case 0x0F: { return alu.rotate_right_c_acc(); }
         case 0x10: { return stop(); }
-        case 0x11: { load(d_e, read_immediate(tag::Imm16{})); } // todo 12
+        case 0x11: { return load(d_e, read_immediate(tag::Imm16{})); } // todo 12
         case 0x12: { return store(memory::make_address(d_e), a_f.get_high()); } // todo 8
         case 0x13: { return alu.increment(d_e); }
         case 0x14: { return alu.increment(d_e.get_high()); }
@@ -93,7 +93,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return jump_relative(!test_flag(Flag::zero), memory::make_address(data));
         }
-        case 0x21: { load(h_l, read_immediate(tag::Imm16{})); } // todo 12
+        case 0x21: { return load(h_l, read_immediate(tag::Imm16{})); } // todo 12
         case 0x22: { return store_i(); } // todo 8
         case 0x23: { return alu.increment(h_l); }
         case 0x24: { return alu.increment(h_l.get_high()); }
