@@ -430,7 +430,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
 
 uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::ExtendedInstructionSet)
 {
-    const auto get_set_mask = [&]() -> uint8_t {
+    const auto get_bitop_mask = [&]() -> uint8_t {
         return 0x1 << (inst >> 0x3 & 0x7);
     };
 
@@ -557,132 +557,132 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::ExtendedInst
 
         case 0x40: case 0x50: case 0x60: case 0x70:
         case 0x48: case 0x58: case 0x68: case 0x78: {
-            return alu.bit_test(b_c.get_high(), get_set_mask());
+            return alu.bit_test(b_c.get_high(), get_bitop_mask());
         }
 
         case 0x41: case 0x51: case 0x61: case 0x71:
         case 0x49: case 0x59: case 0x69: case 0x79: {
-            return alu.bit_test(b_c.get_low(), get_set_mask());
+            return alu.bit_test(b_c.get_low(), get_bitop_mask());
         }
 
         case 0x42: case 0x52: case 0x62: case 0x72:
         case 0x4A: case 0x5A: case 0x6A: case 0x7A: {
-            return alu.bit_test(d_e.get_high(), get_set_mask());
+            return alu.bit_test(d_e.get_high(), get_bitop_mask());
         }
 
         case 0x43: case 0x53: case 0x63: case 0x73:
         case 0x4B: case 0x5B: case 0x6B: case 0x7B: {
-            return alu.bit_test(d_e.get_low(), get_set_mask());
+            return alu.bit_test(d_e.get_low(), get_bitop_mask());
         }
 
         case 0x44: case 0x54: case 0x64: case 0x74:
         case 0x4C: case 0x5C: case 0x6C: case 0x7C: {
-            return alu.bit_test(h_l.get_high(), get_set_mask());
+            return alu.bit_test(h_l.get_high(), get_bitop_mask());
         }
 
         case 0x45: case 0x55: case 0x65: case 0x75:
         case 0x4D: case 0x5D: case 0x6D: case 0x7D: {
-            return alu.bit_test(h_l.get_low(), get_set_mask());
+            return alu.bit_test(h_l.get_low(), get_bitop_mask());
         }
 
         case 0x46: case 0x56: case 0x66: case 0x76:
         case 0x4E: case 0x5E: case 0x6E: case 0x7E: {
             const auto data = read_data(memory::make_address(h_l));
-            const auto cycles = alu.bit_test(data, get_set_mask());
+            const auto cycles = alu.bit_test(data, get_bitop_mask());
             return cycles + 8;
         }
 
         case 0x47: case 0x57: case 0x67: case 0x77:
         case 0x4F: case 0x5F: case 0x6F: case 0x7F: {
-            return alu.bit_test(a_f.get_high(), get_set_mask());
+            return alu.bit_test(a_f.get_high(), get_bitop_mask());
         }
 
         case 0x80: case 0x90: case 0xA0: case 0xB0:
         case 0x88: case 0x98: case 0xA8: case 0xB8: {
-            return alu.bit_reset(b_c.get_high(), get_set_mask());
+            return alu.bit_reset(b_c.get_high(), get_bitop_mask());
         }
 
         case 0x81: case 0x91: case 0xA1: case 0xB1:
         case 0x89: case 0x99: case 0xA9: case 0xB9: {
-            return alu.bit_reset(b_c.get_low(), get_set_mask());
+            return alu.bit_reset(b_c.get_low(), get_bitop_mask());
         }
 
         case 0x82: case 0x92: case 0xA2: case 0xB2:
         case 0x8A: case 0x9A: case 0xAA: case 0xBA: {
-            return alu.bit_reset(d_e.get_high(), get_set_mask());
+            return alu.bit_reset(d_e.get_high(), get_bitop_mask());
         }
 
         case 0x83: case 0x93: case 0xA3: case 0xB3:
         case 0x8B: case 0x9B: case 0xAB: case 0xBB: {
-            return alu.bit_reset(d_e.get_low(), get_set_mask());
+            return alu.bit_reset(d_e.get_low(), get_bitop_mask());
         }
 
         case 0x84: case 0x94: case 0xA4: case 0xB4:
         case 0x8C: case 0x9C: case 0xAC: case 0xBC: {
-            return alu.bit_reset(h_l.get_high(), get_set_mask());
+            return alu.bit_reset(h_l.get_high(), get_bitop_mask());
         }
 
         case 0x85: case 0x95: case 0xA5: case 0xB5:
         case 0x8D: case 0x9D: case 0xAD: case 0xBD: {
-            return alu.bit_reset(h_l.get_low(), get_set_mask());
+            return alu.bit_reset(h_l.get_low(), get_bitop_mask());
         }
 
         case 0x86: case 0x96: case 0xA6: case 0xB6:
         case 0x8E: case 0x9E: case 0xAE: case 0xBE: {
             const auto address = memory::make_address(h_l);
             auto data = read_data(address);
-            const auto cycles = alu.bit_reset(data, get_set_mask());
+            const auto cycles = alu.bit_reset(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
 
         case 0x87: case 0x97: case 0xA7: case 0xB7:
         case 0x8F: case 0x9F: case 0xAF: case 0xBF: {
-            return alu.bit_reset(a_f.get_high(), get_set_mask());
+            return alu.bit_reset(a_f.get_high(), get_bitop_mask());
         }
 
         case 0xC0: case 0xD0: case 0xE0: case 0xF0:
         case 0xC8: case 0xD8: case 0xE8: case 0xF8: {
-            return alu.bit_set(b_c.get_high(), get_set_mask());
+            return alu.bit_set(b_c.get_high(), get_bitop_mask());
         }
 
         case 0xC1: case 0xD1: case 0xE1: case 0xF1:
         case 0xC9: case 0xD9: case 0xE9: case 0xF9: {
-            return alu.bit_set(b_c.get_low(), get_set_mask());
+            return alu.bit_set(b_c.get_low(), get_bitop_mask());
         }
 
         case 0xC2: case 0xD2: case 0xE2: case 0xF2:
         case 0xCA: case 0xDA: case 0xEA: case 0xFA: {
-            return alu.bit_set(d_e.get_high(), get_set_mask());
+            return alu.bit_set(d_e.get_high(), get_bitop_mask());
         }
 
         case 0xC3: case 0xD3: case 0xE3: case 0xF3:
         case 0xCB: case 0xDB: case 0xEB: case 0xFB: {
-            return alu.bit_set(d_e.get_low(), get_set_mask());
+            return alu.bit_set(d_e.get_low(), get_bitop_mask());
         }
 
         case 0xC4: case 0xD4: case 0xE4: case 0xF4:
         case 0xCC: case 0xDC: case 0xEC: case 0xFC: {
-            return alu.bit_set(h_l.get_high(), get_set_mask());
+            return alu.bit_set(h_l.get_high(), get_bitop_mask());
         }
 
         case 0xC5: case 0xD5: case 0xE5: case 0xF5:
         case 0xCD: case 0xDD: case 0xED: case 0xFD: {
-            return alu.bit_set(h_l.get_low(), get_set_mask());
+            return alu.bit_set(h_l.get_low(), get_bitop_mask());
         }
 
         case 0xC6: case 0xD6: case 0xE6: case 0xF6:
         case 0xCE: case 0xDE: case 0xEE: case 0xFE: {
             const auto address = memory::make_address(h_l);
             auto data = read_data(address);
-            const auto cycles =  alu.bit_set(data, get_set_mask());
+            const auto cycles =  alu.bit_set(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
 
         case 0xC7: case 0xD7: case 0xE7: case 0xF7:
         case 0xCF: case 0xDF: case 0xEF: case 0xFF: {
-            return alu.bit_set(a_f.get_high(), get_set_mask());
+            return alu.bit_set(a_f.get_high(), get_bitop_mask());
         }
 
         default:
