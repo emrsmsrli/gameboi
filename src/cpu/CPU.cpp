@@ -326,7 +326,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.add(data) + 4;
         }
-        case 0xC7: { return rst(memory::Address8(0x00)); }
+        case 0xC7: { return rst(memory::make_address(0x00)); }
         case 0xC8: { return ret(test_flag(Flag::zero)); }
         case 0xC9: { return ret(); }
         case 0xCA: {
@@ -345,7 +345,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.add_c(data) + 4;
         }
-        case 0xCF: { return rst(memory::Address8(0x08)); }
+        case 0xCF: { return rst(memory::make_address(0x08)); }
         case 0xD0: { return ret(!test_flag(Flag::carry)); }
         case 0xD1: { return pop(d_e); }
         case 0xD2: {
@@ -361,7 +361,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.subtract(data) + 4;
         }
-        case 0xD7: { return rst(memory::Address8(0x10)); }
+        case 0xD7: { return rst(memory::make_address(0x10)); }
         case 0xD8: { return ret(test_flag(Flag::carry)); }
         case 0xD9: { return reti(); }
         case 0xDA: {
@@ -376,7 +376,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.subtract_c(data) + 4;
         }
-        case 0xDF: { return rst(memory::Address8(0x18)); }
+        case 0xDF: { return rst(memory::make_address(0x18)); }
         case 0xE0: { return 1; } // todo LDH (a8),A
         case 0xE1: { return pop(h_l); }
         case 0xE2: { return 1; } // todo LD (C),A
@@ -385,7 +385,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.logical_and(data) + 4;
         }
-        case 0xE7: { return rst(memory::Address8(0x20)); }
+        case 0xE7: { return rst(memory::make_address(0x20)); }
         case 0xE8: {
             const auto data = read_immediate(tag::Imm8{});
             return alu.add_to_stack_pointer(data);
@@ -396,7 +396,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.logical_xor(data) + 4;
         }
-        case 0xEF: { return rst(memory::Address8(0x28)); }
+        case 0xEF: { return rst(memory::make_address(0x28)); }
         case 0xF0: { return 1; } // todo LDH A,(a8)
         case 0xF1: { return pop(a_f); }
         case 0xF2: { return 1; } // todo LD A,(C)
@@ -409,7 +409,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.logical_or(data) + 4;
         }
-        case 0xF7: { return rst(memory::Address8(0x30)); }
+        case 0xF7: { return rst(memory::make_address(0x30)); }
         case 0xF8: { return 1; } // todo LD HL,SP+r8
         case 0xF9: { return 1; } // todo LD SP,HL
         case 0xFA: { return 1; } // todo LD A,(a16)
@@ -421,7 +421,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
             const auto data = read_immediate(tag::Imm8{});
             return alu.logical_compare(data) + 4;
         }
-        case 0xFF: { return rst(memory::Address8(0x38)); }
+        case 0xFF: { return rst(memory::make_address(0x38)); }
         default:
             log::error("unknown instruction: {x}, address: {x}", inst, stack_pointer.get_value() - 1);
             std::abort();
