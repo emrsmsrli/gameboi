@@ -423,7 +423,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         }
         case 0xFF: { return rst(memory::Address8(0x38)); }
         default:
-            log::error("unknown instruction: {x}, address: {x}", inst, stack_pointer.get_value() - 1);
+            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer.get_value() - 1);
             std::abort();
     }
 }
@@ -686,7 +686,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::ExtendedInst
         }
 
         default:
-            log::error("unknown instruction: {x}, address: {x}", inst, stack_pointer.get_value() - 1);
+            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer.get_value() - 1);
             std::abort();
     }
 }
