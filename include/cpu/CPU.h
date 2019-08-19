@@ -89,20 +89,23 @@ namespace gameboy::cpu {
         [[nodiscard]] uint8_t ret();
         [[nodiscard]] uint8_t ret(bool condition);
 
-        uint8_t store(const memory::Address16& address, uint8_t data);
-        uint8_t store(const memory::Address16& address, const Register8& reg);
-        uint8_t store(const memory::Address16& address, const Register16& reg);
+        [[nodiscard]] uint8_t store(const memory::Address16& address, uint8_t data);
+        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register8& reg);
+        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register16& reg);
 
-        uint8_t load(Register8& reg, uint8_t data);
-        uint8_t load(Register8& r_left, const Register8& r_right);
+        [[nodiscard]] uint8_t load(Register8& reg, uint8_t data) const;
+        [[nodiscard]] uint8_t load(Register8& r_left, const Register8& r_right) const;
 
-        uint8_t load(Register16& reg, uint16_t data);
+        [[nodiscard]] uint8_t load(Register16& reg, uint16_t data) const;
+        [[nodiscard]] uint8_t load(Register16& r_left, const Register16& r_right) const;
 
-        uint8_t store_i();
-        uint8_t store_d();
+        [[nodiscard]] uint8_t store_i();
+        [[nodiscard]] uint8_t store_d();
 
-        uint8_t load_i();
-        uint8_t load_d();
+        [[nodiscard]] uint8_t load_i();
+        [[nodiscard]] uint8_t load_d();
+
+        [[nodiscard]] uint8_t load_hlsp();
     };
 }
 
