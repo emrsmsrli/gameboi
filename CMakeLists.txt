@@ -4,6 +4,8 @@ project(GameBoy)
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
+add_compile_definitions(DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
+
 # configure gtest
 configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
