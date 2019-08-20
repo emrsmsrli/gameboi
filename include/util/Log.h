@@ -7,17 +7,23 @@
 namespace gameboy::log {
     template<typename String, typename... Args>
     void info(const String& format, Args... args) {
-        std::cout << "[I] - " << fmt::format(format, args...) << '\n';
+        if constexpr(DEBUG) {
+            std::cout << "[I] - " << fmt::format(format, args...) << '\n';
+        }
     }
 
     template<typename String, typename... Args>
     void warn(const String& format, Args... args) {
-        std::cout << "[W] - " << fmt::format(format, args...) << '\n';
+        if constexpr(DEBUG) {
+            std::cout << "[W] - " << fmt::format(format, args...) << '\n';
+        }
     }
 
     template<typename String, typename... Args>
     void error(const String& format, Args... args) {
-        std::cerr << "[E] - " << fmt::format(format, args...) << '\n';
+        if constexpr(DEBUG) {
+            std::cerr << "[E] - " << fmt::format(format, args...) << '\n';
+        }
     }
 }
 
