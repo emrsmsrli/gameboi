@@ -1,5 +1,6 @@
 
 set(GAMEBOY_SRC
+        src/GameBoy.cpp
         src/cpu/Register8.cpp
         src/cpu/Register16.cpp
         src/cpu/CPU.cpp
