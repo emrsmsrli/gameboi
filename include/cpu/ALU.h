@@ -15,7 +15,7 @@ namespace gameboy::cpu {
 
     class ALU {
     public:
-        explicit ALU(CPU& cpu) : cpu{cpu} {}
+        explicit ALU(CPU& cpu_ref) : cpu{cpu_ref} {}
 
         /* arithmetics */
         [[nodiscard]] uint8_t increment(uint8_t& value);
