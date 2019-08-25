@@ -9,7 +9,7 @@
 namespace gameboy {
     class GameBoy {
     public:
-        explicit GameBoy(std::string_view cartridge_path);
+        explicit GameBoy(std::string_view rom_path);
 
         void start();
 

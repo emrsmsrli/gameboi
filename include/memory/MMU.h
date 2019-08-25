@@ -10,7 +10,7 @@ namespace gameboy::memory {
     class MMU {
     public:
         void write(const Address16& address, uint8_t data);
-        uint8_t read(const Address16& address);
+        [[nodiscard]] uint8_t read(const Address16& address) const;
 
     private:
         std::vector<uint8_t> memory;
