@@ -1,5 +1,6 @@
 
 #include "GameBoy.h"
+#include "util/RomLoader.h"
 
 namespace {
     constexpr auto max_cycles = 70224;
@@ -7,9 +8,11 @@ namespace {
     constexpr auto delay = 1000.f / fps;
 }
 
-gameboy::GameBoy::GameBoy(std::string_view cartridge_path)
+gameboy::GameBoy::GameBoy(std::string_view rom_path) :
+    cpu(std::make_unique<cpu::CPU>()),
+    memory(std::make_unique<memory::MMU>(rom_path))
 {
-
+    const auto rom_data = util::rom_loader::load(rom_path);
 }
 
 void gameboy::GameBoy::start()
