@@ -29,7 +29,7 @@ namespace gameboy::memory {
     class Address16 {
     public:
         constexpr Address16() = default;
-        explicit constexpr Address16(uint16_t default_value) : value(default_value) {}
+        constexpr explicit Address16(uint16_t default_value) : value(default_value) {}
 
         [[nodiscard]] constexpr uint16_t get_value() const { return value; }
 
