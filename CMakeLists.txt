@@ -64,6 +64,11 @@ include_directories(include)
 include(src/CMakeLists.txt)
 add_library(GB SHARED ${GAMEBOY_SRC})
 target_compile_features(GB PRIVATE cxx_std_17)
+target_link_libraries(GB PRIVATE
+        ${CONAN_LIBS}
+        project_warnings
+        --coverage
+        )
 
 add_executable(GameBoy main.cpp)
 target_compile_features(GameBoy PRIVATE cxx_std_17)
