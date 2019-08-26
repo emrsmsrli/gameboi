@@ -2,7 +2,7 @@
 #include "memory/Address.h"
 #include "cpu/Register16.h"
 
-gameboy::memory::Address16 gameboy::memory::make_address(MemoryMapLocation location)
+gameboy::memory::Address16 gameboy::memory::make_address(Map location)
 {
     return make_address(static_cast<uint16_t>(location));
 }
