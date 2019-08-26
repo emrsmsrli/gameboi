@@ -34,7 +34,7 @@ namespace gameboy::memory {
         [[nodiscard]] constexpr uint16_t get_value() const { return value; }
 
     private:
-        uint8_t value = 0x0000;
+        uint16_t value = 0x0000;
     };
 
     enum class MemoryMapLocation : uint16_t {
