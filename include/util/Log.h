@@ -1,29 +1,34 @@
 #ifndef GAMEBOY_LOG_H
 #define GAMEBOY_LOG_H
 
-#include <fmt/core.h>
 #include <iostream>
+#include <string_view>
+#include <fmt/core.h>
 
 namespace gameboy::log {
-    template<typename String, typename... Args>
-    void info(const String& format, Args... args) {
+    template<typename... Args>
+    void info(std::string_view format, const Args&... args) {
         if constexpr(DEBUG) {
             std::cout << "[I] - " << fmt::format(format, args...) << '\n';
         }
     }
 
-    template<typename String, typename... Args>
-    void warn(const String& format, Args... args) {
+    template<typename... Args>
+    void warn(std::string_view format, const Args&... args) {
         if constexpr(DEBUG) {
             std::cout << "[W] - " << fmt::format(format, args...) << '\n';
         }
     }
 
-    template<typename String, typename... Args>
-    void error(const String& format, Args... args) {
+    template<typename... Args>
+    void error(std::string_view format, const Args&... args) {
+        const auto log = fmt::format(format, args...);
+
         if constexpr(DEBUG) {
-            std::cerr << "[E] - " << fmt::format(format, args...) << '\n';
+            std::cout << "[E] - " << log << '\n';
         }
+
+        throw std::runtime_error{log};
     }
 }
 
