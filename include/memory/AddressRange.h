@@ -16,15 +16,15 @@ namespace gameboy::memory {
     public:
         class Iter {
         public:
-            explicit Iter(uint16_t val) : value(val) {}
-            [[nodiscard]] uint16_t operator*() const { return value; }
-            [[nodiscard]] Iter operator++() const { return Iter(value + 1); }
+            constexpr explicit Iter(uint16_t val) : value(val) {}
+            [[nodiscard]] constexpr uint16_t operator*() const { return value; }
+            [[nodiscard]] constexpr Iter operator++() const { return Iter(value + 1); }
 
         private:
             uint16_t value;
         };
 
-        AddressRange(uint16_t begin, uint16_t end) :
+        constexpr AddressRange(uint16_t begin, uint16_t end) :
                 low(begin), high(end)
         {
             if(high < low) {
@@ -32,13 +32,13 @@ namespace gameboy::memory {
             }
         }
 
-        AddressRange(const Address16& begin, const Address16& end) :
+        constexpr AddressRange(const Address16& begin, const Address16& end) :
             AddressRange(begin.get_value(), end.get_value()) {}
 
-        [[nodiscard]] uint16_t get_low() const { return low; }
-        [[nodiscard]] uint16_t get_high() const { return high; }
+        [[nodiscard]] constexpr uint16_t get_low() const { return low; }
+        [[nodiscard]] constexpr uint16_t get_high() const { return high; }
 
-        [[nodiscard]] bool contains(const Address16& address) const {
+        [[nodiscard]] constexpr bool contains(const Address16& address) const {
             return low <= address.get_value()
                 && high >= address.get_value();
         }
@@ -48,15 +48,15 @@ namespace gameboy::memory {
         uint16_t high;
     };
 
-    AddressRange::Iter begin(const AddressRange& address_range) {
+    constexpr AddressRange::Iter begin(const AddressRange& address_range) {
         return AddressRange::Iter(address_range.get_low());
     }
 
-    AddressRange::Iter end(const AddressRange& address_range) {
+    constexpr AddressRange::Iter end(const AddressRange& address_range) {
         return AddressRange::Iter(address_range.get_high() + 1);
     }
 
-    bool operator!=(const AddressRange::Iter& left, const AddressRange::Iter& right) {
+    constexpr bool operator!=(const AddressRange::Iter& left, const AddressRange::Iter& right) {
         return *left != *right;
     }
 }
