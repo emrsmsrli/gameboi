@@ -1,5 +1,5 @@
 
-#include "util/RomLoader.h"
+#include "util/DataLoader.h"
 #include <fstream>
 #include <iterator>
 
@@ -11,7 +11,7 @@ namespace {
     }
 }
 
-std::vector<uint8_t> gameboy::util::rom_loader::load(std::string_view path)
+std::vector<uint8_t> gameboy::util::data_loader::load(std::string_view path)
 {
     std::ifstream rom_file(path.data(), std::ios::binary | std::ios::ate);
     rom_file.unsetf(std::ios::skipws);
@@ -20,7 +20,7 @@ std::vector<uint8_t> gameboy::util::rom_loader::load(std::string_view path)
 
     std::vector<uint8_t> bytes(rom_size);
 
-    // read the data:
+    // read the data
     bytes.insert(bytes.begin(),
             std::istream_iterator<uint8_t>(rom_file),
             std::istream_iterator<uint8_t>());
