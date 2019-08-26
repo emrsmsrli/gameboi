@@ -770,19 +770,26 @@ uint8_t gameboy::cpu::CPU::stop()
 
 uint8_t gameboy::cpu::CPU::push(const gameboy::cpu::Register16& reg)
 {
-    --stack_pointer;
-    // todo memory->write(memory::Address16(stack_pointer.get_value()), reg.get_high().get_value());
-    --stack_pointer;
-    // todo memory->write(memory::Address16(stack_pointer.get_value()), reg.get_high().get_value());
+    const auto write_to_stack = [&](const Register8& reg_8) {
+        --stack_pointer;
+        write_data(memory::make_address(stack_pointer), reg_8.get_value());
+    };
+
+    write_to_stack(reg.get_high());
+    write_to_stack(reg.get_low());
     return 16;
 }
 
 uint8_t gameboy::cpu::CPU::pop(gameboy::cpu::Register16& reg)
 {
-    // todo reg.get_low() = memory->read(MemoryAddress{stack_pointer});
-    ++stack_pointer;
-    // todo reg.get_high() = memory->read(MemoryAddress{stack_pointer});
-    ++stack_pointer;
+    const auto read_from_stack = [&]() {
+        const auto data = read_data(memory::make_address(stack_pointer));
+        ++stack_pointer;
+        return data;
+    };
+
+    reg.get_low() = read_from_stack();
+    reg.get_high() = read_from_stack();
     return 12;
 }
 
@@ -867,13 +874,13 @@ uint8_t gameboy::cpu::CPU::ret(bool condition)
 
 uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, uint8_t data)
 {
-    // memory->write(address, data);
+    write_data(address, data);
     return 12;
 }
 
 uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const gameboy::cpu::Register8& reg)
 {
-    // memory->write(address, reg.get_value());
+    write_data(address, reg.get_value());
     return 8;
 }
 
