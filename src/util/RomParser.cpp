@@ -1,5 +1,6 @@
 
 #include <numeric>
+#include "util/Log.h"
 #include "util/RomParser.h"
 #include "memory/AddressMap.h"
 #include "memory/AddressRange.h"
@@ -26,7 +27,9 @@ gameboy::CartridgeInfo gameboy::util::rom_parser::parse(const std::vector<uint8_
                 return acc - rom_data[addr] - 1;
             });
 
-    info.is_checksum_correct = checksum == rom_data[memory::Map::rom_header_checksum];
+    if(checksum != rom_data[memory::Map::rom_header_checksum]) {
+        log::error("rom checksum is not correct");
+    }
 
     return info;
 }

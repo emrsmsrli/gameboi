@@ -76,7 +76,6 @@ namespace gameboy {
         Type cartridge_type{Type::rom_only};
         RomSize rom_size{RomSize::kb_32};
         RamSize ram_size{RamSize::none};
-        bool is_checksum_correct = false;
     };
 }
 
