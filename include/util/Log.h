@@ -9,20 +9,20 @@ namespace gameboy::log {
     template<typename... Args>
     void info(std::string_view format, const Args&... args) {
         if constexpr(DEBUG) {
-            std::cout << "[I] - " << fmt::format(format, args...) << '\n';
+            std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
         }
     }
 
     template<typename... Args>
     void warn(std::string_view format, const Args&... args) {
         if constexpr(DEBUG) {
-            std::cout << "[W] - " << fmt::format(format, args...) << '\n';
+            std::cout << "[W] - " << fmt::format(format.data(), args...) << '\n';
         }
     }
 
     template<typename... Args>
     void error(std::string_view format, const Args&... args) {
-        const auto log = fmt::format(format, args...);
+        const auto log = fmt::format(format.data(), args...);
 
         if constexpr(DEBUG) {
             std::cout << "[E] - " << log << '\n';
