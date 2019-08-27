@@ -58,6 +58,8 @@ else()
             -Wdouble-promotion # warn if float is implicit promoted to double
             -Wformat=2 # warn on security issues around functions that format output (ie printf)
             )
+    # todo modify compiler specific warnings
+    # https://clang.llvm.org/docs/DiagnosticsReference.html
 endif()
 
 include_directories(include)
