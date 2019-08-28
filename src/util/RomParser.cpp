@@ -1,4 +1,5 @@
 
+#include <cstdint>
 #include <numeric>
 #include "util/Log.h"
 #include "util/RomParser.h"
