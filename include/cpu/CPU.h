@@ -5,7 +5,7 @@
 #include "cpu/ALU.h"
 
 namespace gameboy::cpu {
-
+    // todo remove tag namespaces
     namespace tag {
         struct StandardInstructionSet{};
         struct ExtendedInstructionSet{};
@@ -26,10 +26,7 @@ namespace gameboy::cpu {
         friend ALU;
 
     public:
-
-        // Instruction fetch_next_instruction() const;
-        [[nodiscard]] uint8_t decode(uint16_t inst, tag::StandardInstructionSet);
-        [[nodiscard]] uint8_t decode(uint16_t inst, tag::ExtendedInstructionSet);
+        void step();
 
     private:
         ALU alu{*this};
@@ -51,7 +48,8 @@ namespace gameboy::cpu {
         bool is_halted = false;
         bool is_halt_bug_triggered = false;
 
-        void step();
+        [[nodiscard]] uint8_t decode(uint16_t inst, tag::StandardInstructionSet);
+        [[nodiscard]] uint8_t decode(uint16_t inst, tag::ExtendedInstructionSet);
 
         void set_flag(Flag flag);
         void reset_flag(Flag flag);
