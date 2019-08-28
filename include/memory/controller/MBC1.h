@@ -5,6 +5,7 @@
 #ifndef GAMEBOY_MBC1_H
 #define GAMEBOY_MBC1_H
 
+#include <cstdint>
 #include "MBC.h"
 
 /**
@@ -35,7 +36,19 @@
  */
 namespace gameboy::memory::controller {
     class MBC1 : public MBC {
+    public:
+        MBC1(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header);
 
+        [[nodiscard]] uint8_t read(const Address16& address) const override;
+        void write(const Address16& address, uint8_t data) override;
+
+    private:
+        enum class Mode {
+            rom_banking,
+            ram_banking
+        };
+
+        Mode mode{Mode::rom_banking};
     };
 }
 
