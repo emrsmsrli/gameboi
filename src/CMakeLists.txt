@@ -7,5 +7,7 @@ set(GAMEBOY_SRC
         src/cpu/ALU.cpp
         src/memory/Address.cpp
         src/memory/MMU.cpp
+        src/memory/controller/MBC.cpp
+        src/memory/controller/MBC1.cpp
         src/util/DataLoader.cpp
         src/util/RomParser.cpp)
