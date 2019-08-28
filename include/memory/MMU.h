@@ -3,6 +3,8 @@
 
 #include <cstdint>
 #include <vector>
+#include <memory>
+#include "memory/controller/MBC.h"
 
 namespace gameboy::memory {
     class Address16;
@@ -13,7 +15,7 @@ namespace gameboy::memory {
         [[nodiscard]] uint8_t read(const Address16& address) const;
 
     private:
-        std::vector<uint8_t> memory;
+        std::unique_ptr<controller::MBC> mbc;
     };
 }
 
