@@ -12,7 +12,9 @@
  */
 namespace gameboy::memory::controller {
     class NullController : public MBC {
-
+    public:
+        NullController(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header)
+                : MBC(rom, rom_header) { }
     };
 }
 
