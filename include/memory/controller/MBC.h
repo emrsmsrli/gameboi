@@ -35,6 +35,10 @@ namespace gameboy::memory::controller {
 
         [[nodiscard]] Address16 to_physical_address(const Address16& virtual_address) const;
     };
+
+    constexpr size_t operator""_kb(unsigned long long bytes) {
+        return bytes * 1024;
+    }
 }
 
 #endif //GAMEBOY_MBC_H
