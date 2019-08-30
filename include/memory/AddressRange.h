@@ -5,6 +5,7 @@
 #ifndef GAMEBOY_ADDRESSRANGE_H
 #define GAMEBOY_ADDRESSRANGE_H
 
+#include <type_traits>
 #include "memory/Address.h"
 
 namespace gameboy::memory {
