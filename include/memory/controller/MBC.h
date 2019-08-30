@@ -10,7 +10,7 @@
 #include "memory/Address.h"
 
 namespace gameboy {
-    class CartridgeInfo;
+    struct CartridgeInfo;
 }
 
 namespace gameboy::memory::controller {
