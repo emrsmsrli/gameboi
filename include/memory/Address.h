@@ -1,6 +1,7 @@
 #ifndef GAMEBOY_ADDRESS_H
 #define GAMEBOY_ADDRESS_H
 
+#include <type_traits>
 #include <cstdint>
 #include "AddressMap.h"
 
@@ -10,33 +11,41 @@ namespace gameboy::cpu {
 }
 
 namespace gameboy::memory {
+    template<typename T>
+    class Address {
+        static_assert(std::is_unsigned_v<T>);
+
+    public:
+        using size_type = T;
+
+        constexpr Address() = default;
+        constexpr explicit Address(T default_value) : value(default_value) {}
+
+        [[nodiscard]] constexpr T get_value() const { return value; }
+
+    private:
+        T value = 0x0u;
+    };
+
     /**
      * Represents an 8-bit memory address in the memory
      */
-    class Address8 {
-    public:
-        constexpr Address8() = default;
-        constexpr explicit Address8(uint8_t default_value) : value(default_value) {}
-
-        [[nodiscard]] constexpr uint8_t get_value() const { return value; }
-
-    private:
-        uint8_t value = 0x00;
-    };
+    using Address8 = Address<uint8_t>;
 
     /**
      * Represents a 16-bit memory address in the memory
      */
-    class Address16 {
-    public:
-        constexpr Address16() = default;
-        constexpr explicit Address16(uint16_t default_value) : value(default_value) {}
+    using Address16 = Address<uint16_t>;
 
-        [[nodiscard]] constexpr uint16_t get_value() const { return value; }
-
-    private:
-        uint16_t value = 0x0000;
-    };
+    /**
+     * Makes an address object
+     * @param address an address value
+     * @return An address object
+     */
+    template<typename T>
+    Address<T> make_address(T address) {
+        return Address<T>(address);
+    }
 
     /**
      * Makes an address object
@@ -44,20 +53,6 @@ namespace gameboy::memory {
      * @return An address object
      */
     Address16 make_address(Map location);
-
-    /**
-     * Makes an address object
-     * @param address one byte address value
-     * @return An address object
-     */
-    Address8 make_address(uint8_t address);
-
-    /**
-     * Makes an address object
-     * @param address two byte address value
-     * @return An address object
-     */
-    Address16 make_address(uint16_t address);
 
     /**
      * Makes an address object using a 16-bit register
