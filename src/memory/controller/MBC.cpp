@@ -13,18 +13,16 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 
     is_cgb = rom_header.cgb_support != CartridgeInfo::GameBoyColorSupport::no_support;
 
-    n_rom_banks = rom_size_to_banks[static_cast<std::size_t>(rom_header.rom_size)] - 1;
+    n_rom_banks = rom_size_to_banks[static_cast<std::size_t>(rom_header.rom_size)];
     n_video_ram_banks = is_cgb ? 2 : 1;
     n_external_ram_banks = rom_header.ram_size == CartridgeInfo::RamSize::kb_32 ? 4 : 1;
-    n_working_ram_banks = is_cgb ? 7 : 1;
+    n_working_ram_banks = is_cgb ? 8 : 2;
 
     const auto total_memory_size =
-            16_kb +                         // 0000-3FFF - rom bank 0
-            16_kb * n_rom_banks +           // 4000-7FFF - rom bank 1-n
+            16_kb * n_rom_banks +           // 0000-7FFF - rom bank 0-n
             8_kb * n_video_ram_banks +      // 8000-9FFF - vram bank 0-1
             8_kb * n_external_ram_banks +   // A000-BFFF - xram bank 0-n
-            4_kb +                          // C000-CFFF - wram bank 0
-            4_kb * n_working_ram_banks +    // D000-DFFF - wram bank 1-7
+            4_kb * n_working_ram_banks +    // C000-DFFF - wram bank 0-7
             8_kb;                           // E000-FFFF - high ram
 
     memory.reserve(total_memory_size);
