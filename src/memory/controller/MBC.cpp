@@ -11,10 +11,12 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 {
     constexpr std::array<uint32_t, 11> rom_size_to_banks{2, 4, 8, 16, 32, 64, 128, 256, 72, 80, 96};
 
+    is_cgb = rom_header.cgb_support != CartridgeInfo::GameBoyColorSupport::no_support;
+
     n_rom_banks = rom_size_to_banks[static_cast<std::size_t>(rom_header.rom_size)] - 1;
-    n_video_ram_banks = rom_header.cgb_support != CartridgeInfo::GameBoyColorSupport::no_support ? 2 : 1;
+    n_video_ram_banks = is_cgb ? 2 : 1;
     n_external_ram_banks = rom_header.ram_size == CartridgeInfo::RamSize::kb_32 ? 4 : 1;
-    n_working_ram_banks = rom_header.cgb_support != CartridgeInfo::GameBoyColorSupport::no_support ? 7 : 1;
+    n_working_ram_banks = is_cgb ? 7 : 1;
 
     const auto total_memory_size =
             16_kb +                         // 0000-3FFF - rom bank 0

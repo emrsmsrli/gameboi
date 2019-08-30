@@ -35,6 +35,8 @@ namespace gameboy::memory::controller {
 
         bool is_external_ram_enabled = false;
 
+        bool is_cgb = false;
+
         [[nodiscard]] Address16 to_physical_address(const Address16& virtual_address) const;
     };
 
