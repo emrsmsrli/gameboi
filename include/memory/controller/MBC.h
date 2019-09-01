@@ -37,6 +37,8 @@ namespace gameboy::memory::controller {
 
         bool is_cgb = false;
 
+        virtual void control(const Address16& virtual_address, uint8_t data) = 0;
+
         [[nodiscard]] PhysicalAddress to_physical_address(const Address16& virtual_address) const;
     };
 
