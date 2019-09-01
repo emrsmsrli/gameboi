@@ -35,6 +35,10 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 
 uint8_t gameboy::memory::controller::MBC::read(const Address16& virtual_address) const
 {
+    if(AddressRange(0xA000u, 0xBFFFu).contains(virtual_address) && !is_external_ram_enabled) {
+        return 0xFFu;
+    }
+
     const auto physical_address = to_physical_address(virtual_address);
     return memory[physical_address.get_value()];
 }
