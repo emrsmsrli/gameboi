@@ -27,11 +27,11 @@ void gameboy::memory::controller::MBC1::control(const gameboy::memory::Address16
 
         correct_rom_bank();
     } else if(ram_bank_select_range.contains(virtual_address)) {
-        if(mode == Mode::rom_banking) {
+        if(mode == Mode::ram_banking) {
+            selected_external_ram_bank = data & 0x03u;
+        } else {
             selected_rom_bank = ((data & 0x03u) << 0x5u) | (selected_rom_bank & 0x1Fu);
             correct_rom_bank();
-        } else {
-            selected_external_ram_bank = data & 0x03u;
         }
     } else if(memory_mode_select_range.contains(virtual_address)) {
         select_memory_mode(data);
