@@ -34,20 +34,18 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 
 uint8_t gameboy::memory::controller::MBC::read(const Address16& virtual_address) const
 {
-    // todo consider banks
     const auto physical_address = to_physical_address(virtual_address);
     return memory[physical_address.get_value()];
 }
 
 void gameboy::memory::controller::MBC::write(const Address16& virtual_address, uint8_t data)
 {
-    // todo consider banks
     const auto physical_address = to_physical_address(virtual_address);
     memory[physical_address.get_value()] = data;
 }
 
-gameboy::memory::Address16 gameboy::memory::controller::MBC::to_physical_address(
-        const gameboy::memory::Address16& virtual_address) const
+gameboy::memory::PhysicalAddress gameboy::memory::controller::MBC::to_physical_address(
+        const Address16& virtual_address) const
 {
     // todo implement
     return virtual_address;

@@ -37,7 +37,7 @@ namespace gameboy::memory::controller {
 
         bool is_cgb = false;
 
-        [[nodiscard]] Address16 to_physical_address(const Address16& virtual_address) const;
+        [[nodiscard]] PhysicalAddress to_physical_address(const Address16& virtual_address) const;
     };
 
     constexpr size_t operator""_kb(unsigned long long bytes) {

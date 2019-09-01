@@ -38,6 +38,11 @@ namespace gameboy::memory {
     using Address16 = Address<uint16_t>;
 
     /**
+     * Represents a physical address in the memory (at least 32 bits)
+     */
+    using PhysicalAddress = Address<size_t>;
+
+    /**
      * Makes an address object
      * @param address an address value
      * @return An address object
