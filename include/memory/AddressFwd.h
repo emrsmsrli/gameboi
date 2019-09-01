@@ -5,6 +5,9 @@
 #ifndef GAMEBOY_ADDRESSFWD_H
 #define GAMEBOY_ADDRESSFWD_H
 
+#include <cstdint>
+#include <cstddef>
+
 namespace gameboy::memory {
     template<typename T>
     class Address;
