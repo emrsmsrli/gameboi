@@ -33,6 +33,10 @@ namespace gameboy::memory {
             }
         }
 
+        constexpr explicit AddressRange(const uint16_t& end) :
+            AddressRange(0x0000u, end) {}
+        constexpr explicit AddressRange(const Address16& end) :
+            AddressRange(0x0000u, end.get_value()) {}
         constexpr AddressRange(const Address16& begin, const Address16& end) :
             AddressRange(begin.get_value(), end.get_value()) {}
 
