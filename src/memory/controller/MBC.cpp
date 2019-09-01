@@ -5,6 +5,7 @@
 #include <array>
 #include "memory/controller/MBC.h"
 #include "memory/Address.h"
+#include "memory/AddressRange.h"
 #include "CartridgeInfo.h"
 
 gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header)
@@ -40,8 +41,16 @@ uint8_t gameboy::memory::controller::MBC::read(const Address16& virtual_address)
 
 void gameboy::memory::controller::MBC::write(const Address16& virtual_address, uint8_t data)
 {
-    const auto physical_address = to_physical_address(virtual_address);
-    memory[physical_address.get_value()] = data;
+    if(AddressRange(0x7FFFu).contains(virtual_address)) {
+        control(virtual_address);
+    } else {
+        if(AddressRange(0xA000u, 0xBFFFu).contains(virtual_address) && !is_external_ram_enabled) {
+            return;
+        }
+
+        const auto physical_address = to_physical_address(virtual_address);
+        memory[physical_address.get_value()] = data;
+    }
 }
 
 gameboy::memory::PhysicalAddress gameboy::memory::controller::MBC::to_physical_address(
