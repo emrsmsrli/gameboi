@@ -3,10 +3,7 @@
 
 #include <cstdint>
 #include "Register8.h"
-
-namespace gameboy::memory {
-    class Address16;
-}
+#include "memory/AddressFwd.h"
 
 namespace gameboy::cpu {
     /**
@@ -16,8 +13,8 @@ namespace gameboy::cpu {
     public:
         Register16() = default;
         explicit Register16(uint16_t value)
-            : high((value >> 8) & 0xFF),
-              low(value & 0xFF) {}
+            : high((value >> 8u) & 0xFFu),
+              low(value & 0xFFu) {}
 
         [[nodiscard]] uint16_t get_value() const;
 

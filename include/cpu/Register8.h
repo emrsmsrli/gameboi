@@ -2,10 +2,7 @@
 #define GAMEBOY_REGISTER8_H
 
 #include <cstdint>
-
-namespace gameboy::memory {
-    class Address8;
-}
+#include "memory/AddressFwd.h"
 
 namespace gameboy::cpu {
     /**

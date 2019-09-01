@@ -5,10 +5,9 @@
 #include <vector>
 #include <memory>
 #include "memory/controller/MBC.h"
+#include "memory/AddressFwd.h"
 
 namespace gameboy::memory {
-    class Address16;
-
     class MMU {
     public:
         void write(const Address16& address, uint8_t data);

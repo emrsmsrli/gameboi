@@ -4,6 +4,7 @@
 #include <type_traits>
 #include <cstdint>
 #include "AddressMap.h"
+#include "AddressFwd.h"
 
 namespace gameboy::cpu {
     class Register8;
@@ -26,21 +27,6 @@ namespace gameboy::memory {
     private:
         size_type value = 0x0u;
     };
-
-    /**
-     * Represents an 8-bit memory address in the memory
-     */
-    using Address8 = Address<uint8_t>;
-
-    /**
-     * Represents a 16-bit memory address in the memory
-     */
-    using Address16 = Address<uint16_t>;
-
-    /**
-     * Represents a physical address in the memory (at least 32 bits)
-     */
-    using PhysicalAddress = Address<size_t>;
 
     /**
      * Makes an address object
