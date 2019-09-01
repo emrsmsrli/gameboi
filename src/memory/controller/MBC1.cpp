@@ -55,9 +55,5 @@ void gameboy::memory::controller::MBC1::correct_rom_bank()
 
 void gameboy::memory::controller::MBC1::select_memory_mode(uint8_t data)
 {
-    if((data & 0x1u) == 0x1u) {
-        mode = Mode::ram_banking;
-    } else {
-        mode = Mode::rom_banking;
-    }
+    mode = static_cast<Mode>(data & 0x1u);
 }
