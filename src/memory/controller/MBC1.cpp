@@ -57,8 +57,10 @@ uint32_t gameboy::memory::controller::MBC1::get_rom_bank() const
         case 0x20u:
         case 0x40u:
         case 0x60u:
+            // these banks are unusuable, must return the next one
             return bank;
         default:
+            // we already have first bank between 0x0000-0x3FFF
             return bank - 1;
     }
 }
