@@ -1,6 +1,5 @@
-
-#include "cpu/Register8.h"
-#include "memory/Address.h"
+#include <cpu/Register8.h>
+#include <memory/Address.h>
 
 gameboy::cpu::Register8& gameboy::cpu::Register8::operator=(uint8_t value)
 {

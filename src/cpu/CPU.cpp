@@ -1,7 +1,6 @@
-
-#include "cpu/CPU.h"
-#include "memory/Address.h"
-#include "util/Log.h"
+#include <cpu/CPU.h>
+#include <memory/Address.h>
+#include <util/Log.h>
 
 void gameboy::cpu::CPU::step()
 {

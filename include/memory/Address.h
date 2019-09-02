@@ -3,8 +3,8 @@
 
 #include <type_traits>
 #include <cstdint>
-#include "AddressMap.h"
-#include "AddressFwd.h"
+#include <memory/AddressMap.h>
+#include <memory/AddressFwd.h>
 
 namespace gameboy::cpu {
     class Register8;

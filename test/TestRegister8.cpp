@@ -1,6 +1,5 @@
-
-#include "cpu/Register8.h"
-#include "gtest/gtest.h"
+#include <cpu/Register8.h>
+#include <gtest/gtest.h>
 
 TEST(Register8, Assignment) {
     gameboy::cpu::Register8 r(0x03);

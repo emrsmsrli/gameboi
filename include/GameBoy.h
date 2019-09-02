@@ -3,8 +3,8 @@
 
 #include <string_view>
 #include <memory>
-#include "cpu/CPU.h"
-#include "memory/MMU.h"
+#include <cpu/CPU.h>
+#include <memory/MMU.h>
 
 namespace gameboy {
     class GameBoy {

@@ -1,11 +1,7 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_MBC5_H
 #define GAMEBOY_MBC5_H
 
-#include "MBC.h"
+#include <memory/controller/MBC.h>
 
 /**
  * it is similar to the MBC3 (but no RTC) but can    access up to 64mbits of ROM and up to 1mbit of RAM.

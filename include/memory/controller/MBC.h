@@ -7,7 +7,7 @@
 
 #include <vector>
 #include <cstdint>
-#include "memory/Address.h"
+#include <memory/Address.h>
 
 namespace gameboy {
     struct CartridgeInfo;

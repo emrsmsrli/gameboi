@@ -1,6 +1,5 @@
-
-#include "memory/Address.h"
-#include "cpu/Register16.h"
+#include <memory/Address.h>
+#include <cpu/Register16.h>
 
 gameboy::memory::Address16 gameboy::memory::make_address(Map location)
 {

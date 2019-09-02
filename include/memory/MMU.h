@@ -4,8 +4,8 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
-#include "memory/controller/MBC.h"
-#include "memory/AddressFwd.h"
+#include <memory/controller/MBC.h>
+#include <memory/AddressFwd.h>
 
 namespace gameboy::memory {
     class MMU {

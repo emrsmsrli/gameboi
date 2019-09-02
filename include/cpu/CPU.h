@@ -1,8 +1,8 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
-#include "cpu/Register16.h"
-#include "cpu/ALU.h"
+#include <cpu/Register16.h>
+#include <cpu/ALU.h>
 
 namespace gameboy::cpu {
     // todo remove tag namespaces

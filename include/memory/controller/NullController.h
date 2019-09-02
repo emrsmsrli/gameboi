@@ -1,11 +1,7 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_NULLCONTROLLER_H
 #define GAMEBOY_NULLCONTROLLER_H
 
-#include "MBC.h"
+#include <memory/controller/MBC.h>
 
 /**
  * Rom only

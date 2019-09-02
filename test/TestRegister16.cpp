@@ -1,6 +1,5 @@
-
-#include "cpu/Register16.h"
-#include "gtest/gtest.h"
+#include <cpu/Register16.h>
+#include <gtest/gtest.h>
 
 TEST(Register16, HighLow) {
     gameboy::cpu::Register16 r(0xF003);

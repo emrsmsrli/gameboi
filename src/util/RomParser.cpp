@@ -1,10 +1,9 @@
-
 #include <cstdint>
 #include <numeric>
-#include "util/Log.h"
-#include "util/RomParser.h"
-#include "memory/AddressMap.h"
-#include "memory/AddressRange.h"
+#include <util/Log.h>
+#include <util/RomParser.h>
+#include <memory/AddressMap.h>
+#include <memory/AddressRange.h>
 
 gameboy::CartridgeInfo gameboy::util::rom_parser::parse(const std::vector<uint8_t>& rom_data)
 {

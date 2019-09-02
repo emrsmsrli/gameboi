@@ -1,12 +1,8 @@
-//
-// Created by Emre Şimşirli on 28.08.2019.
-//
-
 #include <array>
-#include "memory/controller/MBC.h"
-#include "memory/Address.h"
-#include "memory/AddressRange.h"
-#include "CartridgeInfo.h"
+#include <memory/controller/MBC.h>
+#include <memory/Address.h>
+#include <memory/AddressRange.h>
+#include <CartridgeInfo.h>
 
 gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header)
 {

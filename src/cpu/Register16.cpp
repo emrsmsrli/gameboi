@@ -1,6 +1,5 @@
-
-#include "cpu/Register16.h"
-#include "memory/Address.h"
+#include <cpu/Register16.h>
+#include <memory/Address.h>
 
 uint16_t gameboy::cpu::Register16::get_value() const
 {

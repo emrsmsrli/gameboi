@@ -1,12 +1,8 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_MBC1_H
 #define GAMEBOY_MBC1_H
 
 #include <cstdint>
-#include "MBC.h"
+#include <memory/controller/MBC.h>
 
 namespace gameboy::memory::controller {
     class MBC1 : public MBC {

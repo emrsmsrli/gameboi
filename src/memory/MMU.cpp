@@ -1,5 +1,4 @@
-
-#include "memory/MMU.h"
+#include <memory/MMU.h>
 
 void gameboy::memory::MMU::write(const gameboy::memory::Address16& address, uint8_t data)
 {

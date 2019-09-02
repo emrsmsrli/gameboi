@@ -1,11 +1,7 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_MBC3_H
 #define GAMEBOY_MBC3_H
 
-#include "MBC.h"
+#include <memory/controller/MBC.h>
 
 /**
  * this controller is similar to MBC1 except it    accesses all 16mbits of ROM without requiring any

@@ -1,7 +1,3 @@
-//
-// Created by Emre Şimşirli on 1.09.2019.
-//
-
 #ifndef GAMEBOY_ADDRESSFWD_H
 #define GAMEBOY_ADDRESSFWD_H
 

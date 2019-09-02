@@ -1,7 +1,3 @@
-//
-// Created by Emre Şimşirli on 26.08.2019.
-//
-
 #ifndef GAMEBOY_ADDRESSMAP_H
 #define GAMEBOY_ADDRESSMAP_H
 

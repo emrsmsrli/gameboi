@@ -2,8 +2,8 @@
 #define GAMEBOY_REGISTER16_H
 
 #include <cstdint>
-#include "Register8.h"
-#include "memory/AddressFwd.h"
+#include <cpu/Register8.h>
+#include <memory/AddressFwd.h>
 
 namespace gameboy::cpu {
     /**

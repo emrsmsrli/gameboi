@@ -1,11 +1,7 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_MBC2_H
 #define GAMEBOY_MBC2_H
 
-#include "MBC.h"
+#include <memory/controller/MBC.h>
 
 /**
  * this memory controller works much like the MBC1    controller with the following exceptions:

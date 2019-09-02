@@ -1,9 +1,7 @@
-//
-// Created by Emre Şimşirli on 25.08.2019.
-//
-
 #ifndef GAMEBOY_RUMBLE_H
 #define GAMEBOY_RUMBLE_H
+
+#include <memory/controller/MBC.h>
 
 /**
  * Rumble carts use an MBC5 memory bank controller.

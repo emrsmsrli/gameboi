@@ -1,6 +1,5 @@
-
-#include "GameBoy.h"
-#include "util/DataLoader.h"
+#include <GameBoy.h>
+#include <util/DataLoader.h>
 
 namespace {
     constexpr auto max_cycles = 70224;

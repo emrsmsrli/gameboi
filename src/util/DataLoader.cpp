@@ -1,7 +1,6 @@
-
-#include "util/DataLoader.h"
 #include <fstream>
 #include <iterator>
+#include <util/DataLoader.h>
 
 namespace {
     auto get_file_size(std::ifstream& rom_file) {

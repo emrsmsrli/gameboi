@@ -1,10 +1,6 @@
-//
-// Created by Emre Şimşirli on 28.08.2019.
-//
-
 #include <cstdint>
-#include "memory/AddressRange.h"
-#include "memory/controller/MBC1.h"
+#include <memory/AddressRange.h>
+#include <memory/controller/MBC1.h>
 
 gameboy::memory::controller::MBC1::MBC1(const std::vector<uint8_t>& rom, const gameboy::CartridgeInfo& rom_header)
         : MBC(rom, rom_header) { }

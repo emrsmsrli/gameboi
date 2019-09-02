@@ -1,7 +1,6 @@
-
-#include "cpu/ALU.h"
-#include "cpu/CPU.h"
-#include "util/Math.h"
+#include <cpu/ALU.h>
+#include <cpu/CPU.h>
+#include <util/Math.h>
 
 uint8_t gameboy::cpu::ALU::add(uint8_t value)
 {
