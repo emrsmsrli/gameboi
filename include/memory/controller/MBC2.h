@@ -19,7 +19,10 @@
  */
 namespace gameboy::memory::controller {
     class MBC2 : public MBC {
-
+    public:
+        MBC2(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header);
+    private:
+        void control(const Address16& virtual_address, uint8_t data) override;
     };
 }
 
