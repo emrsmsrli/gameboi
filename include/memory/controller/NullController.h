@@ -15,6 +15,9 @@ namespace gameboy::memory::controller {
     public:
         NullController(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header)
                 : MBC(rom, rom_header) { }
+
+    protected:
+        void control(const Address16&, uint8_t) override {}
     };
 }
 
