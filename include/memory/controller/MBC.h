@@ -30,8 +30,8 @@ namespace gameboy::memory::controller {
         uint32_t n_external_ram_banks = 0;
         uint32_t n_working_ram_banks = 0;
 
-        uint32_t selected_rom_bank = 0;
-        uint32_t selected_external_ram_bank = 0;
+        uint32_t rom_bank = 0;
+        uint32_t ram_bank = 0;
 
         bool is_external_ram_enabled = false;
 
