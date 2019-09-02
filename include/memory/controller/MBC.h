@@ -37,17 +37,19 @@ namespace gameboy::memory::controller {
 
         bool is_cgb = false;
 
-
         [[nodiscard]] PhysicalAddress to_physical_address(const Address16& virtual_address) const;
 
     private:
         [[nodiscard]] virtual uint32_t get_rom_bank() const = 0;
         [[nodiscard]] virtual uint32_t get_ram_bank() const = 0;
+        [[nodiscard]] uint32_t get_video_ram_bank() const;
+        [[nodiscard]] uint32_t get_work_ram_bank() const;
+
         virtual void control(const Address16& virtual_address, uint8_t data) = 0;
     };
 
     constexpr size_t operator""_kb(unsigned long long bytes) {
-        return bytes * 1024;
+        return bytes * 1024u;
     }
 }
 
