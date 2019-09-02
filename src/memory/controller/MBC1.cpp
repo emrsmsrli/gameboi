@@ -19,41 +19,55 @@ void gameboy::memory::controller::MBC1::control(const gameboy::memory::Address16
     if(external_ram_enable_range.contains(virtual_address)) {
         is_external_ram_enabled = (data & 0x0Fu) == 0x0Au;
     } else if(rom_bank_select_range.contains(virtual_address)) {
-        if(mode == Mode::rom_banking) {
-            selected_rom_bank = (selected_rom_bank & 0xE0u) | (data & 0x1Fu);
-        } else {
-            selected_rom_bank = data & 0x1Fu;
-        }
-
-        correct_rom_bank();
+        select_rom_bank(data);
     } else if(ram_bank_select_range.contains(virtual_address)) {
-        if(mode == Mode::ram_banking) {
-            selected_external_ram_bank = data & 0x03u;
-        } else {
-            selected_rom_bank = ((data & 0x03u) << 0x5u) | (selected_rom_bank & 0x1Fu);
-            correct_rom_bank();
-        }
+        select_ram_bank(data);
     } else if(memory_mode_select_range.contains(virtual_address)) {
         select_memory_mode(data);
     }
 }
 
-void gameboy::memory::controller::MBC1::correct_rom_bank()
-{
-    switch(selected_rom_bank) {
-        case 0x00:
-        case 0x20:
-        case 0x40:
-        case 0x60:
-            ++selected_rom_bank;
-        default:
-            break;
-    }
-
-    --selected_rom_bank;
-}
-
 void gameboy::memory::controller::MBC1::select_memory_mode(uint8_t data)
 {
-    mode = static_cast<Mode>(data & 0x1u);
+    is_rom_banking_active = (data & 0x1u) == 0x0u;
+}
+
+void gameboy::memory::controller::MBC1::select_rom_bank(uint8_t data)
+{
+    rom_bank = data & 0x1Fu;
+}
+
+void gameboy::memory::controller::MBC1::select_ram_bank(uint8_t data)
+{
+    ram_bank = data & 0x03u;
+}
+
+uint32_t gameboy::memory::controller::MBC1::get_rom_bank() const
+{
+    const auto bank = [&]() {
+        if(is_rom_banking_active) {
+            return (ram_bank & 0x3u) << 0x5u | rom_bank;
+        }
+
+        return rom_bank;
+    }();
+
+    switch(bank) {
+        case 0x00u:
+        case 0x20u:
+        case 0x40u:
+        case 0x60u:
+            return bank;
+        default:
+            return bank - 1;
+    }
+}
+
+uint32_t gameboy::memory::controller::MBC1::get_ram_bank() const
+{
+    if(is_rom_banking_active) {
+        return 0u;
+    }
+
+    return ram_bank;
 }

@@ -17,15 +17,15 @@ namespace gameboy::memory::controller {
         void control(const Address16& virtual_address, uint8_t data) override;
 
     private:
-        enum class Mode {
-            rom_banking,
-            ram_banking
-        };
+        /** if false, ram banking is active */
+        bool is_rom_banking_active = true;
 
-        Mode mode{Mode::rom_banking};
-
-        void correct_rom_bank();
+        void select_rom_bank(uint8_t data);
+        void select_ram_bank(uint8_t data);
         void select_memory_mode(uint8_t data);
+
+        [[nodiscard]] uint32_t get_rom_bank() const override;
+        [[nodiscard]] uint32_t get_ram_bank() const override;
     };
 }
 
