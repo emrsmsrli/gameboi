@@ -79,7 +79,7 @@ namespace gameboy::cpu {
         bool operator<=(const memory::Address8& address) const;
 
     private:
-        uint8_t bits = 0x00;
+        uint8_t bits = 0x00u;
     };
 }
 

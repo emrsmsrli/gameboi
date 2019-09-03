@@ -113,5 +113,5 @@ uint32_t gameboy::memory::controller::MBC::get_work_ram_bank() const
 {
     static constexpr Address16 svbk_register(0xFF70u);
     const auto bank = read(svbk_register) & 0x7u;
-    return bank < 2 ? 0u : bank;
+    return bank < 2u ? 0u : bank;
 }

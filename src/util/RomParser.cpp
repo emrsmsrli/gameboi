@@ -22,7 +22,7 @@ gameboy::CartridgeInfo gameboy::util::rom_parser::parse(const std::vector<uint8_
     const auto checksum = std::accumulate(
             begin(range),
             end(range),
-            static_cast<uint8_t>(0),
+            static_cast<uint8_t>(0u),
             [&](int8_t acc, uint16_t addr) {
                 return acc - rom_data[addr] - 1;
             });

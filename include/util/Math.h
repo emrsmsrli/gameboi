@@ -5,15 +5,15 @@
 
 namespace gameboy::math {
     inline bool bit_test(uint8_t n, uint8_t bit) {
-        return ((n >> bit) & 0x1) == 0x1;
+        return ((n >> bit) & 0x1u) == 0x1u;
     }
 
     inline void bit_set(uint8_t& n, uint8_t bit) {
-        n |= 0x1 << bit;
+        n |= 0x1u << bit;
     }
 
     inline void bit_reset(uint8_t& n, uint8_t bit) {
-        n &= ~(0x1 << bit);
+        n &= ~(0x1u << bit);
     }
 }
 

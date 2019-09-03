@@ -15,11 +15,11 @@ namespace gameboy::cpu {
     }
 
     enum class Flag : uint8_t {
-        zero = 0x80,
-        subtract = 0x40,
-        half_carry = 0x20,
-        carry = 0x10,
-        all = 0xF0
+        zero = 0x80u,
+        subtract = 0x40u,
+        half_carry = 0x20u,
+        carry = 0x10u,
+        all = 0xF0u
     };
 
     class CPU {
@@ -42,7 +42,7 @@ namespace gameboy::cpu {
         Register16 stack_pointer;
         Register16 program_counter;
 
-        uint64_t total_cycles = 0;
+        uint64_t total_cycles = 0u;
 
         bool is_interrupt_master_enabled = false;
         bool is_halted = false;

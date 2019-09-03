@@ -4,13 +4,13 @@
 uint16_t gameboy::cpu::Register16::get_value() const
 {
     const uint16_t value = high.get_value();
-    return (value << 8) | low.get_value();
+    return (value << 8u) | low.get_value();
 }
 
 gameboy::cpu::Register16& gameboy::cpu::Register16::operator=(uint16_t value)
 {
-    low = value & 0xFF;
-    high = (value >> 8) & 0xFF;
+    low = value & 0xFFu;
+    high = (value >> 0x8u) & 0xFFu;
     return *this;
 }
 

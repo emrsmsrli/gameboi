@@ -25,13 +25,13 @@ namespace gameboy::memory::controller {
     protected:
         std::vector<uint8_t> memory;
 
-        uint32_t n_rom_banks = 0;
-        uint32_t n_video_ram_banks = 0;
-        uint32_t n_external_ram_banks = 0;
-        uint32_t n_working_ram_banks = 0;
+        uint32_t n_rom_banks = 0u;
+        uint32_t n_video_ram_banks = 0u;
+        uint32_t n_external_ram_banks = 0u;
+        uint32_t n_working_ram_banks = 0u;
 
-        uint32_t rom_bank = 0;
-        uint32_t ram_bank = 0;
+        uint32_t rom_bank = 0u;
+        uint32_t ram_bank = 0u;
 
         bool is_external_ram_enabled = false;
 

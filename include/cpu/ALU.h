@@ -29,7 +29,7 @@ namespace gameboy::cpu {
         [[nodiscard]] uint8_t add(uint8_t value);
         [[nodiscard]] uint8_t add(const Register8& reg);
         [[nodiscard]] uint8_t add(Register16& r_left, const Register16& r_right);
-        [[nodiscard]] uint8_t add_to_stack_pointer(int8_t value);
+        [[nodiscard]] uint8_t add_to_stack_pointer(int8_t immediate);
         [[nodiscard]] uint8_t add_c(uint8_t value);
         [[nodiscard]] uint8_t add_c(const Register8& reg);
 
