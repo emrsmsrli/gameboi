@@ -1,19 +1,20 @@
 #include <cstdint>
 #include <memory/AddressRange.h>
 #include <memory/controller/MBC1.h>
+#include <util/Math.h>
 
 gameboy::memory::controller::MBC1::MBC1(const std::vector<uint8_t>& rom, const gameboy::CartridgeInfo& rom_header)
         : MBC(rom, rom_header) { }
 
 void gameboy::memory::controller::MBC1::control(const gameboy::memory::Address16& virtual_address, uint8_t data)
 {
-    constexpr AddressRange external_ram_enable_range(0x0000u, 0x1FFFu);
+    constexpr AddressRange external_ram_enable_range(0x1FFFu);
     constexpr AddressRange rom_bank_select_range(0x2000u, 0x3FFFu);
     constexpr AddressRange ram_bank_select_range(0x4000u, 0x5FFFu);
     constexpr AddressRange memory_mode_select_range(0x6000u, 0x7FFFu);
 
     if(external_ram_enable_range.contains(virtual_address)) {
-        is_external_ram_enabled = (data & 0x0Fu) == 0x0Au;
+        set_external_ram_enabled(data);
     } else if(rom_bank_select_range.contains(virtual_address)) {
         select_rom_bank(data);
     } else if(ram_bank_select_range.contains(virtual_address)) {
@@ -25,7 +26,7 @@ void gameboy::memory::controller::MBC1::control(const gameboy::memory::Address16
 
 void gameboy::memory::controller::MBC1::select_memory_mode(uint8_t data)
 {
-    is_rom_banking_active = (data & 0x1u) == 0x0u;
+    is_rom_banking_active = !math::bit_test(data, 0x1u);
 }
 
 void gameboy::memory::controller::MBC1::select_rom_bank(uint8_t data)

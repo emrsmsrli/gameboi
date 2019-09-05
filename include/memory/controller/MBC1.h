@@ -16,7 +16,7 @@ namespace gameboy::memory::controller {
         /** if false, ram banking is active */
         bool is_rom_banking_active = true;
 
-        void select_rom_bank(uint8_t data);
+        void select_rom_bank(uint8_t data) override;
         void select_ram_bank(uint8_t data);
         void select_memory_mode(uint8_t data);
 
