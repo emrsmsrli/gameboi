@@ -34,9 +34,10 @@ namespace gameboy::memory::controller {
         uint32_t ram_bank = 0u;
 
         bool is_external_ram_enabled = false;
-
         bool is_cgb = false;
 
+        virtual void select_rom_bank(uint8_t data) = 0;
+        void set_external_ram_enabled(uint8_t data);
         [[nodiscard]] PhysicalAddress to_physical_address(const Address16& virtual_address) const;
 
     private:

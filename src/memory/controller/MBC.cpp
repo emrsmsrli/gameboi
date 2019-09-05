@@ -53,6 +53,11 @@ void gameboy::memory::controller::MBC::write(const Address16& virtual_address, u
     }
 }
 
+void gameboy::memory::controller::MBC::set_external_ram_enabled(uint8_t data)
+{
+    is_external_ram_enabled = (data & 0x0Fu) == 0x0Au;
+}
+
 gameboy::memory::PhysicalAddress gameboy::memory::controller::MBC::to_physical_address(
         const Address16& virtual_address) const
 {
