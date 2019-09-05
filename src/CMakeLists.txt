@@ -10,5 +10,6 @@ set(GAMEBOY_SRC
         src/memory/controller/MBC.cpp
         src/memory/controller/MBC1.cpp
         src/memory/controller/MBC2.cpp
+        src/memory/controller/MBC3.cpp
         src/util/DataLoader.cpp
         src/util/RomParser.cpp)
