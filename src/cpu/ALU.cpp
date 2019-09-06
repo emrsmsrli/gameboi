@@ -90,8 +90,8 @@ uint8_t gameboy::cpu::ALU::subtract_c(uint8_t value)
 {
     auto& acc = cpu.a_f.get_high();
 
-    const int16_t carry = cpu.test_flag(Flag::carry) ? 0x01u : 0x00u;
-    const int16_t result = acc - value - carry;
+    const auto carry = cpu.test_flag(Flag::carry) ? 0x01u : 0x00u;
+    const auto result = acc - value - carry;
 
     cpu.reset_flag(Flag::all);
     cpu.set_flag(Flag::subtract);
@@ -291,7 +291,7 @@ uint8_t gameboy::cpu::ALU::add_to_stack_pointer(int8_t immediate)
         cpu.set_flag(Flag::carry);
     }
 
-    cpu.stack_pointer = cpu.stack_pointer.get_value() + immediate;
+    cpu.stack_pointer = static_cast<uint16_t>(cpu.stack_pointer.get_value() + immediate);
 
     return 16u;
 }
@@ -351,7 +351,7 @@ uint8_t gameboy::cpu::ALU::decimal_adjust()
         cpu.set_flag(Flag::zero);
     }
 
-    cpu.a_f.get_high() = acc;
+    cpu.a_f.get_high() = static_cast<uint8_t>(acc);
 
     return 4u;
 }

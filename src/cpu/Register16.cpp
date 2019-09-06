@@ -34,7 +34,7 @@ gameboy::cpu::Register16& gameboy::cpu::Register16::operator--()
 
 gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(uint16_t value)
 {
-    *this = *this + value;
+    *this = static_cast<uint16_t>(*this + value);
     return *this;
 }
 
@@ -52,7 +52,7 @@ gameboy::cpu::Register16& gameboy::cpu::Register16::operator+=(const memory::Add
 
 gameboy::cpu::Register16& gameboy::cpu::Register16::operator-=(uint16_t value)
 {
-    *this = *this - value;
+    *this = static_cast<uint16_t>(*this - value);
     return *this;
 }
 

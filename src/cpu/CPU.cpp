@@ -392,7 +392,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         }
         case 0xE7: { return rst(memory::Address8(0x20)); }
         case 0xE8: {
-            const auto data = read_immediate(tag::Imm8{});
+            const auto data = static_cast<int8_t>(read_immediate(tag::Imm8{}));
             return alu.add_to_stack_pointer(data);
         }
         case 0xE9: { return jump(h_l); }
@@ -428,7 +428,8 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
         case 0xF8: { return load_hlsp(); }
         case 0xF9: { return load(stack_pointer, h_l); }
         case 0xFA: {
-            const auto data = read_immediate(tag::Imm16{});
+            const auto addr = read_immediate(tag::Imm16{});
+            const auto data = read_data(memory::make_address(addr));
             return load(a_f.get_high(), data) + 8;
         }
         case 0xFB: {
@@ -449,7 +450,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::StandardInst
 uint8_t gameboy::cpu::CPU::decode(uint16_t inst, gameboy::cpu::tag::ExtendedInstructionSet)
 {
     const auto get_bitop_mask = [&]() -> uint8_t {
-        return 0x1 << (inst >> 0x3 & 0x7);
+        return 0x1u << (inst >> 0x3u & 0x7u);
     };
 
     switch(inst) {
@@ -737,7 +738,7 @@ uint16_t gameboy::cpu::CPU::read_immediate(gameboy::cpu::tag::Imm16)
     const auto msb = read_immediate(tag::Imm8{});
 
     const uint16_t imm_16 = msb;
-    return (imm_16 << 8) | lsb;
+    return (imm_16 << 8u) | lsb;
 }
 
 uint8_t gameboy::cpu::CPU::nop() const
