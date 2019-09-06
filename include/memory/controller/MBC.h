@@ -41,8 +41,8 @@ namespace gameboy::memory::controller {
         [[nodiscard]] PhysicalAddress to_physical_address(const Address16& virtual_address) const;
 
     private:
-        [[nodiscard]] virtual uint32_t get_rom_bank() const = 0;
-        [[nodiscard]] virtual uint32_t get_ram_bank() const = 0;
+        [[nodiscard]] virtual uint32_t get_rom_bank() const { return rom_bank - 1; };
+        [[nodiscard]] virtual uint32_t get_ram_bank() const { return ram_bank; };
         [[nodiscard]] uint32_t get_video_ram_bank() const;
         [[nodiscard]] uint32_t get_work_ram_bank() const;
 
