@@ -8,13 +8,11 @@ namespace gameboy::cpu {
     class Register16;
     class Register8;
 
-    namespace tag {
-        struct PreserveLastBit{};
-        struct ResetLastBit{};
-    }
-
     class ALU {
     public:
+        static constexpr struct PreserveLastBit {} preserve_last_bit;
+        static constexpr struct ResetLastBit {} reset_last_bit;
+
         explicit ALU(CPU& cpu_ref) : cpu{cpu_ref} {}
 
         /* arithmetics */
@@ -74,10 +72,10 @@ namespace gameboy::cpu {
 
         [[nodiscard]] uint8_t shift_left(uint8_t& value);
         [[nodiscard]] uint8_t shift_left(Register8& reg);
-        [[nodiscard]] uint8_t shift_right(uint8_t& value, tag::PreserveLastBit);
-        [[nodiscard]] uint8_t shift_right(Register8& reg, tag::PreserveLastBit tag);
-        [[nodiscard]] uint8_t shift_right(uint8_t& value, tag::ResetLastBit);
-        [[nodiscard]] uint8_t shift_right(Register8& reg, tag::ResetLastBit tag);
+        [[nodiscard]] uint8_t shift_right(uint8_t& value, PreserveLastBit);
+        [[nodiscard]] uint8_t shift_right(Register8& reg, PreserveLastBit tag);
+        [[nodiscard]] uint8_t shift_right(uint8_t& value, ResetLastBit);
+        [[nodiscard]] uint8_t shift_right(Register8& reg, ResetLastBit tag);
 
         /* misc */
         [[nodiscard]] uint8_t decimal_adjust();

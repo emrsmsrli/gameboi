@@ -597,7 +597,7 @@ uint8_t gameboy::cpu::ALU::shift_left(gameboy::cpu::Register8& reg)
     return cycles;
 }
 
-uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, gameboy::cpu::tag::PreserveLastBit)
+uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, PreserveLastBit)
 {
     const auto msb = value & 0x80u;
     const auto lsb = value & 0x01u;
@@ -622,7 +622,7 @@ uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, gameboy::cpu::tag::Preser
     return 8u;
 }
 
-uint8_t gameboy::cpu::ALU::shift_right(gameboy::cpu::Register8& reg, gameboy::cpu::tag::PreserveLastBit tag)
+uint8_t gameboy::cpu::ALU::shift_right(gameboy::cpu::Register8& reg, PreserveLastBit tag)
 {
     auto value = reg.get_value();
     const auto cycles = shift_right(value, tag);
@@ -630,7 +630,7 @@ uint8_t gameboy::cpu::ALU::shift_right(gameboy::cpu::Register8& reg, gameboy::cp
     return cycles;
 }
 
-uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, gameboy::cpu::tag::ResetLastBit)
+uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, ResetLastBit)
 {
     const auto lsb = value & 0x01u;
 
@@ -649,7 +649,7 @@ uint8_t gameboy::cpu::ALU::shift_right(uint8_t& value, gameboy::cpu::tag::ResetL
     return 8u;
 }
 
-uint8_t gameboy::cpu::ALU::shift_right(gameboy::cpu::Register8& reg, gameboy::cpu::tag::ResetLastBit tag)
+uint8_t gameboy::cpu::ALU::shift_right(gameboy::cpu::Register8& reg, ResetLastBit tag)
 {
     auto value = reg.get_value();
     const auto cycles = shift_right(value, tag);
