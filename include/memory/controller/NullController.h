@@ -13,6 +13,7 @@ namespace gameboy::memory::controller {
                 : MBC(rom, rom_header) { }
 
     protected:
+        void select_rom_bank(uint8_t data) override {}
         void control(const Address16&, uint8_t) override {}
     };
 }
