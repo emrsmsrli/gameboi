@@ -6,3 +6,4 @@
 - change barebones bit manipulation expressions with `math::bit_*`
 - extend `gameboy::math` functionality
 - move memory sections to different `std::vector`s?
+- todo make static `AddressRange`s
