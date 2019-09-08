@@ -8,10 +8,11 @@ namespace {
 }
 
 gameboy::GameBoy::GameBoy(std::string_view rom_path) :
-    cpu(std::make_unique<cpu::CPU>()),
-    memory(std::make_unique<memory::MMU>(rom_path))
+    memory(std::make_shared<memory::MMU>()),
+    cpu(std::make_unique<cpu::CPU>(memory))
 {
     const auto rom_data = util::data_loader::load(rom_path);
+    memory->load_rom(rom_data);
 }
 
 void gameboy::GameBoy::start()
