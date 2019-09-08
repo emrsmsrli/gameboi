@@ -17,7 +17,7 @@ namespace gameboy::memory::controller {
         bool is_rom_banking_active = true;
 
         void select_rom_bank(uint8_t data) override;
-        void select_ram_bank(uint8_t data);
+        void select_ram_bank(uint8_t data) override;
         void select_memory_mode(uint8_t data);
 
         [[nodiscard]] uint32_t get_rom_bank() const override;
