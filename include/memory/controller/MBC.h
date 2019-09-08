@@ -19,6 +19,8 @@ namespace gameboy::memory::controller {
         explicit MBC(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header);
         virtual ~MBC() = default;
 
+        void initialize();
+
         [[nodiscard]] virtual uint8_t read(const Address16& virtual_address) const;
         virtual void write(const Address16& virtual_address, uint8_t data);
 
