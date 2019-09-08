@@ -4,6 +4,7 @@
 #include <string_view>
 #include <memory>
 #include <cpu/CPU.h>
+#include <ppu/PPU.h>
 #include <memory/MMU.h>
 
 namespace gameboy {
@@ -16,6 +17,7 @@ namespace gameboy {
     private:
         std::shared_ptr<memory::MMU> memory;
         std::unique_ptr<cpu::CPU> cpu;
+        std::unique_ptr<ppu::PPU> ppu;
     };
 }
 
