@@ -1,8 +1,10 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
+#include <memory>
 #include <cpu/Register16.h>
 #include <cpu/ALU.h>
+#include <memory/MMU.h>
 
 namespace gameboy::cpu {
     enum class Flag : uint8_t {
@@ -17,6 +19,10 @@ namespace gameboy::cpu {
         friend ALU;
 
     public:
+        explicit CPU(std::shared_ptr<memory::MMU> memory_management_unit)
+            : mmu(std::move(memory_management_unit)) {}
+
+        void initialize();
         void step();
 
     private:
@@ -25,6 +31,8 @@ namespace gameboy::cpu {
 
         static constexpr struct Imm8 {} imm_8;
         static constexpr struct Imm16 {} imm_16;
+
+        std::shared_ptr<memory::MMU> mmu;
 
         ALU alu{*this};
 
@@ -54,7 +62,6 @@ namespace gameboy::cpu {
         bool test_flag(Flag flag);
 
         void write_data(const memory::Address16& address, uint8_t data);
-        void write_data(const memory::Address16& address, uint16_t data);
 
         uint8_t read_data(const memory::Address16& address);
         uint8_t read_immediate(Imm8);

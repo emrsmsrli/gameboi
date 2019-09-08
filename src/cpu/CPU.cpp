@@ -2,6 +2,15 @@
 #include <memory/Address.h>
 #include <util/Log.h>
 
+void gameboy::cpu::CPU::initialize()
+{
+    a_f = 0x01B0u;
+    b_c = 0x0013u;
+    d_e = 0x00D8u;
+    h_l = 0x014Du;
+    stack_pointer = 0xFFFEu;
+}
+
 void gameboy::cpu::CPU::step()
 {
     const auto cycle_count = [&]() {
@@ -18,15 +27,6 @@ void gameboy::cpu::CPU::step()
     }();
 
     total_cycles += cycle_count;
-
-    // checkPowerMode();
-    // checkInterrupts();
-
-    //     gpu_->update((uint8_t)cpu_cycles, interrupt_master_enable_);
-    //     apu_->update((uint8_t)cpu_cycles);
-    //     link_->update((uint8_t)cpu_cycles);
-    //     timer_.update((uint8_t)instr_cycles);
-    //
 }
 
 void gameboy::cpu::CPU::set_flag(gameboy::cpu::Flag flag)
@@ -712,17 +712,12 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
 
 void gameboy::cpu::CPU::write_data(const memory::Address16& address, uint8_t data)
 {
-    memory->write(address, data);
-}
-
-void gameboy::cpu::CPU::write_data(const memory::Address16& address, uint16_t data)
-{
-    memory->write(address, data);
+    mmu->write(address, data);
 }
 
 uint8_t gameboy::cpu::CPU::read_data(const gameboy::memory::Address16& address)
 {
-    return memory->read(address);
+    return mmu->read(address);
 }
 
 uint8_t gameboy::cpu::CPU::read_immediate(Imm8)
