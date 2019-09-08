@@ -3,12 +3,8 @@
 
 #include <type_traits>
 #include <cstdint>
+#include <cpu/Register16.h>
 #include <memory/AddressFwd.h>
-
-namespace gameboy::cpu {
-    class Register8;
-    class Register16;
-}
 
 namespace gameboy::memory {
     template<typename T>
@@ -42,7 +38,9 @@ namespace gameboy::memory {
      * @param reg a 16-bit register
      * @return An address object
      */
-    constexpr Address16 make_address(const cpu::Register16& reg);
+    constexpr Address16 make_address(const cpu::Register16& reg) {
+        return Address16(reg.get_value());
+    }
 }
 
 #endif //GAMEBOY_ADDRESS_H
