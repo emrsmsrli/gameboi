@@ -14,7 +14,7 @@ namespace gameboy {
         void start();
 
     private:
-        std::unique_ptr<memory::MMU> memory;
+        std::shared_ptr<memory::MMU> memory;
         std::unique_ptr<cpu::CPU> cpu;
     };
 }
