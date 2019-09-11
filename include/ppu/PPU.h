@@ -7,8 +7,9 @@
 namespace gameboy::ppu {
     class PPU {
     public:
-        explicit PPU(std::shared_ptr<memory::MMU> memory_management_unit)
-            : mmu(std::move(memory_management_unit)) {}
+        explicit PPU(std::shared_ptr<memory::MMU> memory_management_unit);
+
+        void tick();
 
     private:
         std::shared_ptr<memory::MMU> mmu;

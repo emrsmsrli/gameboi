@@ -11,7 +11,7 @@ void gameboy::cpu::CPU::initialize()
     stack_pointer = 0xFFFEu;
 }
 
-void gameboy::cpu::CPU::step()
+void gameboy::cpu::CPU::tick()
 {
     const auto cycle_count = [&]() {
         if(!is_halted) {
@@ -895,9 +895,9 @@ uint8_t gameboy::cpu::CPU::halt()
     // byte interruptFlag = memory->read(IF_REGISTER);
 
     // todo investigate this
-    if(!is_interrupt_master_enabled && (interruptFlag & interruptEnabledFlag & 0x1F)) {
-        is_halt_bug_triggered = true;
-    }
+    // if(!is_interrupt_master_enabled && (interruptFlag & interruptEnabledFlag & 0x1F)) {
+    //     is_halt_bug_triggered = true;
+    // }
 
     return 0;
 }

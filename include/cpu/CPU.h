@@ -23,7 +23,7 @@ namespace gameboy::cpu {
                 : mmu(std::move(memory_management_unit)) { }
 
         void initialize();
-        void step();
+        void tick();
 
     private:
         static constexpr struct StandardInstructionSet { } standard_instruction_set;

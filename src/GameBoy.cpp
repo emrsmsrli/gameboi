@@ -18,5 +18,11 @@ gameboy::GameBoy::GameBoy(std::string_view rom_path)
 
 void gameboy::GameBoy::start()
 {
+    memory->initialize();
+    cpu->initialize();
+
+    while(true) {
+        cpu->tick();
+        ppu->tick();
 
 }
