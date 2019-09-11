@@ -12,7 +12,7 @@ namespace gameboy::memory::controller {
 
     protected:
         void select_rom_bank(uint8_t data) override;
-        void select_ram_bank(uint8_t data) override {};
+        void select_ram_bank(uint8_t data) override { };
 
     private:
         void control(const Address16& virtual_address, uint8_t data) override;

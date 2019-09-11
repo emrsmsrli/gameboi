@@ -137,7 +137,8 @@ uint8_t gameboy::cpu::ALU::increment(uint8_t& value)
     return 4u;
 }
 
-uint8_t gameboy::cpu::ALU::increment(gameboy::cpu::Register8& reg) {
+uint8_t gameboy::cpu::ALU::increment(gameboy::cpu::Register8& reg)
+{
     auto value = reg.get_value();
 
     const auto cycles = increment(value);
@@ -166,7 +167,8 @@ uint8_t gameboy::cpu::ALU::decrement(uint8_t& value)
     return 4u;
 }
 
-uint8_t gameboy::cpu::ALU::decrement(gameboy::cpu::Register8& reg) {
+uint8_t gameboy::cpu::ALU::decrement(gameboy::cpu::Register8& reg)
+{
     auto value = reg.get_value();
 
     const auto cycles = decrement(value);
@@ -261,13 +263,13 @@ uint8_t gameboy::cpu::ALU::add(gameboy::cpu::Register16& r_left, const gameboy::
 {
     cpu.reset_flag(Flag::subtract);
 
-    if ((r_left & 0x0FFFu) + (right_side & 0x0FFFu) > 0x0FFFu) {
+    if((r_left & 0x0FFFu) + (right_side & 0x0FFFu) > 0x0FFFu) {
         cpu.set_flag(Flag::half_carry);
     } else {
         cpu.reset_flag(Flag::half_carry);
     }
 
-    if (r_left + right_side > 0xFFFFu) {
+    if(r_left + right_side > 0xFFFFu) {
         cpu.set_flag(Flag::carry);
     } else {
         cpu.reset_flag(Flag::carry);
@@ -460,7 +462,7 @@ uint8_t gameboy::cpu::ALU::rotate_left(uint8_t& value)
 
     if(cpu.test_flag(Flag::carry)) {
         bit_set(value, 0u);
-    }  else {
+    } else {
         bit_reset(value, 0u);
     }
 
@@ -491,8 +493,7 @@ uint8_t gameboy::cpu::ALU::rotate_right(uint8_t& value)
 
     if(cpu.test_flag(Flag::carry)) {
         bit_set(value, 7u);
-    }
-    else {
+    } else {
         bit_reset(value, 7u);
     }
 

@@ -15,7 +15,8 @@ namespace gameboy::memory {
         using size_type = T;
 
         constexpr Address() = default;
-        constexpr explicit Address(size_type default_value) : value(default_value) {}
+        constexpr explicit Address(size_type default_value)
+                : value(default_value) { }
 
         [[nodiscard]] constexpr size_type get_value() const { return value; }
 
@@ -29,7 +30,8 @@ namespace gameboy::memory {
      * @return An address object
      */
     template<typename T>
-    constexpr Address<T> make_address(T address) {
+    constexpr Address<T> make_address(T address)
+    {
         return Address<T>(address);
     }
 
@@ -38,7 +40,8 @@ namespace gameboy::memory {
      * @param reg a 16-bit register
      * @return An address object
      */
-    constexpr Address16 make_address(const cpu::Register16& reg) {
+    constexpr Address16 make_address(const cpu::Register16& reg)
+    {
         return Address16(reg.get_value());
     }
 }

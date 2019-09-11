@@ -6,7 +6,8 @@
 
 namespace {
     template<typename T = uint8_t, typename AddrType>
-    T read(const std::vector<uint8_t>& rom_data, const AddrType& addr) {
+    T read(const std::vector<uint8_t>& rom_data, const AddrType& addr)
+    {
         return static_cast<T>(rom_data[addr.get_value()]);
     }
 }

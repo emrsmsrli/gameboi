@@ -3,7 +3,8 @@
 #include <util/DataLoader.h>
 
 namespace {
-    auto get_file_size(std::ifstream& rom_file) {
+    auto get_file_size(std::ifstream& rom_file)
+    {
         const auto rom_size = rom_file.tellg();
         rom_file.seekg(0, std::ios::beg);
         return rom_size;

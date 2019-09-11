@@ -20,17 +20,17 @@ namespace gameboy::cpu {
 
     public:
         explicit CPU(std::shared_ptr<memory::MMU> memory_management_unit)
-            : mmu(std::move(memory_management_unit)) {}
+                : mmu(std::move(memory_management_unit)) { }
 
         void initialize();
         void step();
 
     private:
-        static constexpr struct StandardInstructionSet {} standard_instruction_set;
-        static constexpr struct ExtendedInstructionSet {} extended_instruction_set;
+        static constexpr struct StandardInstructionSet { } standard_instruction_set;
+        static constexpr struct ExtendedInstructionSet { } extended_instruction_set;
 
-        static constexpr struct Imm8 {} imm_8;
-        static constexpr struct Imm16 {} imm_16;
+        static constexpr struct Imm8 { } imm_8;
+        static constexpr struct Imm16 { } imm_16;
 
         std::shared_ptr<memory::MMU> mmu;
 

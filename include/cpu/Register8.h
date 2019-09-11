@@ -13,7 +13,7 @@ namespace gameboy::cpu {
         Register8() = default;
 
         explicit Register8(uint8_t default_value)
-                :bits(default_value) { }
+                : bits(default_value) { }
 
         [[nodiscard]] uint8_t get_value() const { return bits; }
 

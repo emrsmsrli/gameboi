@@ -16,14 +16,13 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
     n_external_ram_banks = rom_header.ram_size == CartridgeInfo::RamSize::kb_32 ? 4 : 1;
     n_working_ram_banks = is_cgb ? 7 : 1;
 
-    const auto total_memory_size =
-            16_kb +                         // 0000-3FFF - rom bank 0
-            16_kb * n_rom_banks +           // 4000-7FFF - rom bank 1-n
-            8_kb * n_video_ram_banks +      // 8000-9FFF - vram bank 0-1
-            8_kb * n_external_ram_banks +   // A000-BFFF - xram bank 0-n
-            4_kb +                          // C000-CFFF - wram bank 0
-            4_kb * n_working_ram_banks +    // D000-DFFF - wram bank 1-7
-            8_kb;                           // E000-FFFF - high ram
+    const auto total_memory_size = 16_kb +          // 0000-3FFF - rom bank 0
+                    16_kb * n_rom_banks +           // 4000-7FFF - rom bank 1-n
+                    8_kb * n_video_ram_banks +      // 8000-9FFF - vram bank 0-1
+                    8_kb * n_external_ram_banks +   // A000-BFFF - xram bank 0-n
+                    4_kb +                          // C000-CFFF - wram bank 0
+                    4_kb * n_working_ram_banks +    // D000-DFFF - wram bank 1-7
+                    8_kb;                           // E000-FFFF - high ram
 
     memory.reserve(total_memory_size);
 
@@ -32,7 +31,7 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 
 void gameboy::memory::controller::MBC::initialize()
 {
-    std::map<uint16_t, uint8_t> initialization_sequence {
+    std::map<uint16_t, uint8_t> initialization_sequence{
             {0xFF05u, 0x00u}, // TIMA
             {0xFF06u, 0x00u}, // TMA
             {0xFF07u, 0x00u}, // TAC
@@ -65,8 +64,8 @@ void gameboy::memory::controller::MBC::initialize()
             {0xFF4Bu, 0x00u}, // WX
             {0xFFFFu, 0x00u}  // IE
     };
-    
-    for(const auto& [addr, default_value] : initialization_sequence) {
+
+    for(const auto&[addr, default_value] : initialization_sequence) {
         write(make_address(addr), default_value);
     }
 
@@ -110,42 +109,46 @@ gameboy::memory::PhysicalAddress gameboy::memory::controller::MBC::to_physical_a
     const auto physical_address = [&]() -> size_t {
         const size_t addr = virtual_address.get_value();
         switch(addr & 0xF000u) {
-            case 0x0000u: case 0x1000u:
-            case 0x2000u: case 0x3000u:
+            case 0x0000u:
+            case 0x1000u:
+            case 0x2000u:
+            case 0x3000u:
                 return addr;
-            case 0x4000u: case 0x5000u:
-            case 0x6000u: case 0x7000u:
+            case 0x4000u:
+            case 0x5000u:
+            case 0x6000u:
+            case 0x7000u:
                 return addr +
-                    16_kb * get_rom_bank();
+                        16_kb * get_rom_bank();
             case 0x8000u:
             case 0x9000u:
                 return addr +
-                    16_kb * (n_rom_banks - 1) +
-                    8_kb * get_video_ram_bank();
+                        16_kb * (n_rom_banks - 1) +
+                        8_kb * get_video_ram_bank();
             case 0xA000u:
             case 0xB000u:
                 return addr +
-                    16_kb * (n_rom_banks - 1) +
-                    8_kb * (n_video_ram_banks - 1) +
-                    8_kb * get_ram_bank();
+                        16_kb * (n_rom_banks - 1) +
+                        8_kb * (n_video_ram_banks - 1) +
+                        8_kb * get_ram_bank();
             case 0xC000u:
                 return addr +
-                    16_kb * (n_rom_banks - 1) +
-                    8_kb * (n_video_ram_banks - 1) +
-                    8_kb * (n_external_ram_banks - 1);
+                        16_kb * (n_rom_banks - 1) +
+                        8_kb * (n_video_ram_banks - 1) +
+                        8_kb * (n_external_ram_banks - 1);
             case 0xD000u:
                 return addr +
-                    16_kb * (n_rom_banks - 1) +
-                    8_kb * (n_video_ram_banks - 1) +
-                    8_kb * (n_external_ram_banks - 1) +
-                    4_kb * get_work_ram_bank();
+                        16_kb * (n_rom_banks - 1) +
+                        8_kb * (n_video_ram_banks - 1) +
+                        8_kb * (n_external_ram_banks - 1) +
+                        4_kb * get_work_ram_bank();
             case 0xE000u:
             case 0xF000u:
                 return addr +
-                    16_kb * (n_rom_banks - 1) +
-                    8_kb * (n_video_ram_banks - 1) +
-                    8_kb * (n_external_ram_banks - 1) +
-                    4_kb * (n_working_ram_banks - 1);
+                        16_kb * (n_rom_banks - 1) +
+                        8_kb * (n_video_ram_banks - 1) +
+                        8_kb * (n_external_ram_banks - 1) +
+                        4_kb * (n_working_ram_banks - 1);
             default:
                 return 0u;
         }
