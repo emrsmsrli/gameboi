@@ -27,7 +27,7 @@ gameboy::memory::controller::MBC::MBC(const std::vector<uint8_t>& rom, const Car
 
     memory.reserve(total_memory_size);
 
-    std::copy(begin(rom), end(rom), std::back_inserter(memory));
+    std::copy(begin(rom), end(rom), begin(memory));
 }
 
 void gameboy::memory::controller::MBC::initialize()
