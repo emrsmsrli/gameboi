@@ -10,8 +10,8 @@ namespace gameboy::cpu {
 
     class ALU {
     public:
-        static constexpr struct PreserveLastBit { } preserve_last_bit;
-        static constexpr struct ResetLastBit { } reset_last_bit;
+        static constexpr struct PreserveLastBit { } preserve_last_bit{};
+        static constexpr struct ResetLastBit { } reset_last_bit{};
 
         explicit ALU(CPU& cpu_ref)
                 : cpu{cpu_ref} { }

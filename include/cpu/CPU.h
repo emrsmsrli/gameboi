@@ -26,11 +26,11 @@ namespace gameboy::cpu {
         void tick();
 
     private:
-        static constexpr struct StandardInstructionSet { } standard_instruction_set;
-        static constexpr struct ExtendedInstructionSet { } extended_instruction_set;
+        static constexpr struct StandardInstructionSet { } standard_instruction_set{};
+        static constexpr struct ExtendedInstructionSet { } extended_instruction_set{};
 
-        static constexpr struct Imm8 { } imm_8;
-        static constexpr struct Imm16 { } imm_16;
+        static constexpr struct Imm8 { } imm_8{};
+        static constexpr struct Imm16 { } imm_16{};
 
         std::shared_ptr<memory::MMU> mmu;
 
@@ -49,7 +49,7 @@ namespace gameboy::cpu {
 
         uint64_t total_cycles = 0u;
 
-        bool is_interrupt_master_enabled = false;
+        bool is_interrupt_status_change_pending = false;
         bool is_halted = false;
         bool is_halt_bug_triggered = false;
 
