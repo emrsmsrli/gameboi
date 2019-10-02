@@ -1,34 +1,39 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
+#include <memory>
 #include <cpu/Register16.h>
 #include <cpu/ALU.h>
+#include <memory/MMU.h>
 
 namespace gameboy::cpu {
-    // todo remove tag namespaces
-    namespace tag {
-        struct StandardInstructionSet{};
-        struct ExtendedInstructionSet{};
-
-        struct Imm8{};
-        struct Imm16{};
-    }
-
     enum class Flag : uint8_t {
-        zero = 0x80,
-        subtract = 0x40,
-        half_carry = 0x20,
-        carry = 0x10,
-        all = 0xF0
+        zero = 0x80u,
+        subtract = 0x40u,
+        half_carry = 0x20u,
+        carry = 0x10u,
+        all = 0xF0u
     };
 
     class CPU {
         friend ALU;
 
     public:
-        void step();
+        explicit CPU(std::shared_ptr<memory::MMU> memory_management_unit)
+                : mmu(std::move(memory_management_unit)) { }
+
+        void initialize();
+        void tick();
 
     private:
+        static constexpr struct StandardInstructionSet { } standard_instruction_set{};
+        static constexpr struct ExtendedInstructionSet { } extended_instruction_set{};
+
+        static constexpr struct Imm8 { } imm_8{};
+        static constexpr struct Imm16 { } imm_16{};
+
+        std::shared_ptr<memory::MMU> mmu;
+
         ALU alu{*this};
 
         /* accumulator and flags */
@@ -42,14 +47,14 @@ namespace gameboy::cpu {
         Register16 stack_pointer;
         Register16 program_counter;
 
-        uint64_t total_cycles = 0;
+        uint64_t total_cycles = 0u;
 
-        bool is_interrupt_master_enabled = false;
+        bool is_interrupt_status_change_pending = false;
         bool is_halted = false;
         bool is_halt_bug_triggered = false;
 
-        [[nodiscard]] uint8_t decode(uint16_t inst, tag::StandardInstructionSet);
-        [[nodiscard]] uint8_t decode(uint16_t inst, tag::ExtendedInstructionSet);
+        [[nodiscard]] uint8_t decode(uint16_t inst, StandardInstructionSet);
+        [[nodiscard]] uint8_t decode(uint16_t inst, ExtendedInstructionSet);
 
         void set_flag(Flag flag);
         void reset_flag(Flag flag);
@@ -57,11 +62,10 @@ namespace gameboy::cpu {
         bool test_flag(Flag flag);
 
         void write_data(const memory::Address16& address, uint8_t data);
-        void write_data(const memory::Address16& address, uint16_t data);
 
         uint8_t read_data(const memory::Address16& address);
-        uint8_t read_immediate(tag::Imm8);
-        uint16_t read_immediate(tag::Imm16);
+        uint8_t read_immediate(Imm8);
+        uint16_t read_immediate(Imm16);
 
         /* instructions */
         [[nodiscard]] uint8_t nop() const;

@@ -13,8 +13,8 @@ namespace gameboy::cpu {
     public:
         Register16() = default;
         explicit Register16(uint16_t value)
-            : high((value >> 8u) & 0xFFu),
-              low(value & 0xFFu) {}
+                : high((value >> 8u) & 0xFFu),
+                  low(value & 0xFFu) { }
 
         [[nodiscard]] uint16_t get_value() const;
 

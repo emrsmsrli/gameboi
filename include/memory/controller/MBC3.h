@@ -2,17 +2,50 @@
 #define GAMEBOY_MBC3_H
 
 #include <memory/controller/MBC.h>
+#include <ctime>
 
-/**
- * this controller is similar to MBC1 except it    accesses all 16mbits of ROM without requiring any
- * writes to the 4000-5FFF area.    Writing a value (XBBBBBBB - X = Don't care, B =    bank select bits)
- * into 2000-3FFF area will select    an appropriate ROM bank at 4000-7FFF.
- * Also, this MBC has a built-in battery-backed Real    Time Clock (RTC) not found in any other MBC. Some
- * MBC3 carts do not support it (WarioLand II non    color version) but some do (Harvest Moon/Japanese    version.)
- */
 namespace gameboy::memory::controller {
-    class MBC3 : public MBC {
+    class RTC {
+    public:
+        [[nodiscard]] uint8_t read() const;
+        void write(uint8_t data);
+        void latch();
 
+        [[nodiscard]] bool is_enabled() const { return enabled; }
+        void set_enabled(bool enable) { enabled = enable; }
+
+    private:
+        enum class RegisterType {
+            seconds,
+            minutes,
+            hours,
+            days_lower_bits,
+            days_higher_bits
+        };
+
+        bool enabled = false;
+        std::time_t latched_time = 0;
+        RegisterType selected_register{RegisterType::seconds};
+    };
+
+    class MBC3 : public MBC {
+    public:
+        MBC3(const std::vector<uint8_t>& rom, const CartridgeInfo& rom_header);
+
+        [[nodiscard]] uint8_t read(const Address16& virtual_address) const override;
+
+    protected:
+        void select_rom_bank(uint8_t data) override;
+        void select_ram_bank(uint8_t data) override;
+
+    private:
+        RTC rtc;
+        bool rtc_latch_on_next_one_write = false;
+
+        void configure_latch(uint8_t data);
+
+        [[nodiscard]] uint32_t get_rom_bank() const override;
+        void control(const Address16& virtual_address, uint8_t data) override;
     };
 }
 
