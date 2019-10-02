@@ -259,23 +259,23 @@ uint8_t gameboy::cpu::ALU::logical_compare(const gameboy::cpu::Register8& reg)
     return logical_compare(reg.get_value());
 }
 
-uint8_t gameboy::cpu::ALU::add(gameboy::cpu::Register16& r_left, const gameboy::cpu::Register16& right_side)
+uint8_t gameboy::cpu::ALU::add(gameboy::cpu::Register16& r_left, const gameboy::cpu::Register16& r_right)
 {
     cpu.reset_flag(Flag::subtract);
 
-    if((r_left & 0x0FFFu) + (right_side & 0x0FFFu) > 0x0FFFu) {
+    if((r_left & 0x0FFFu) + (r_right & 0x0FFFu) > 0x0FFFu) {
         cpu.set_flag(Flag::half_carry);
     } else {
         cpu.reset_flag(Flag::half_carry);
     }
 
-    if(r_left + right_side > 0xFFFFu) {
+    if(r_left + r_right > 0xFFFFu) {
         cpu.set_flag(Flag::carry);
     } else {
         cpu.reset_flag(Flag::carry);
     }
 
-    r_left += right_side;
+    r_left += r_right;
     return 8u;
 }
 
