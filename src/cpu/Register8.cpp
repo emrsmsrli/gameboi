@@ -1,7 +1,7 @@
 #include <cpu/Register8.h>
 #include <memory/Address.h>
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator=(const uint8_t value)
 {
     bits = value;
     return *this;
@@ -25,7 +25,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator--()
     return *this;
 }
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator+=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator+=(const uint8_t value)
 {
     bits += value;
     return *this;
@@ -43,7 +43,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator+=(const gameboy::memo
     return *this;
 }
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator-=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator-=(const uint8_t value)
 {
     bits -= value;
     return *this;
@@ -61,7 +61,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator-=(const gameboy::memo
     return *this;
 }
 
-uint16_t gameboy::cpu::Register8::operator+(uint16_t value) const
+auto gameboy::cpu::Register8::operator+(uint16_t value) const -> uint16_t
 {
     return bits + value;
 }
@@ -76,7 +76,7 @@ uint16_t gameboy::cpu::Register8::operator+(const memory::Address8& address) con
     return static_cast<uint16_t>(bits) + address.get_value();
 }
 
-uint16_t gameboy::cpu::Register8::operator-(uint16_t value) const
+uint16_t gameboy::cpu::Register8::operator-(const uint16_t value) const
 {
     return bits - value;
 }
@@ -91,7 +91,7 @@ uint16_t gameboy::cpu::Register8::operator-(const memory::Address8& address) con
     return static_cast<uint16_t>(bits) - address.get_value();
 }
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator&=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator&=(const uint8_t value)
 {
     bits &= value;
     return *this;
@@ -103,7 +103,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator&=(const gameboy::cpu:
     return *this;
 }
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator|=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator|=(const uint8_t value)
 {
     bits |= value;
     return *this;
@@ -115,7 +115,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator|=(const gameboy::cpu:
     return *this;
 }
 
-gameboy::cpu::Register8& gameboy::cpu::Register8::operator^=(uint8_t value)
+gameboy::cpu::Register8& gameboy::cpu::Register8::operator^=(const uint8_t value)
 {
     bits ^= value;
     return *this;
@@ -127,7 +127,7 @@ gameboy::cpu::Register8& gameboy::cpu::Register8::operator^=(const gameboy::cpu:
     return *this;
 }
 
-gameboy::cpu::Register8 gameboy::cpu::Register8::operator&(uint8_t value) const
+gameboy::cpu::Register8 gameboy::cpu::Register8::operator&(const uint8_t value) const
 {
     return Register8(bits & value);
 }
@@ -137,7 +137,7 @@ gameboy::cpu::Register8 gameboy::cpu::Register8::operator&(const gameboy::cpu::R
     return Register8(bits & reg.bits);
 }
 
-gameboy::cpu::Register8 gameboy::cpu::Register8::operator|(uint8_t value) const
+gameboy::cpu::Register8 gameboy::cpu::Register8::operator|(const uint8_t value) const
 {
     return Register8(bits | value);
 }
@@ -147,7 +147,7 @@ gameboy::cpu::Register8 gameboy::cpu::Register8::operator|(const gameboy::cpu::R
     return Register8(bits | reg.bits);
 }
 
-gameboy::cpu::Register8 gameboy::cpu::Register8::operator^(uint8_t value) const
+gameboy::cpu::Register8 gameboy::cpu::Register8::operator^(const uint8_t value) const
 {
     return Register8(bits ^ value);
 }
@@ -162,7 +162,7 @@ gameboy::cpu::Register8 gameboy::cpu::Register8::operator~() const
     return Register8(~bits);
 }
 
-bool gameboy::cpu::Register8::operator==(uint8_t value) const
+bool gameboy::cpu::Register8::operator==(const uint8_t value) const
 {
     return bits == value;
 }
@@ -177,7 +177,7 @@ bool gameboy::cpu::Register8::operator==(const memory::Address8& address) const
     return bits == address.get_value();
 }
 
-bool gameboy::cpu::Register8::operator!=(uint8_t value) const
+bool gameboy::cpu::Register8::operator!=(const uint8_t value) const
 {
     return bits != value;
 }
@@ -192,7 +192,7 @@ bool gameboy::cpu::Register8::operator!=(const memory::Address8& address) const
     return bits != address.get_value();
 }
 
-bool gameboy::cpu::Register8::operator>(uint8_t value) const
+bool gameboy::cpu::Register8::operator>(const uint8_t value) const
 {
     return bits > value;
 }
@@ -207,7 +207,7 @@ bool gameboy::cpu::Register8::operator>(const memory::Address8& address) const
     return bits > address.get_value();
 }
 
-bool gameboy::cpu::Register8::operator<(uint8_t value) const
+bool gameboy::cpu::Register8::operator<(const uint8_t value) const
 {
     return bits < value;
 }
@@ -222,7 +222,7 @@ bool gameboy::cpu::Register8::operator<(const memory::Address8& address) const
     return bits < address.get_value();
 }
 
-bool gameboy::cpu::Register8::operator>=(uint8_t value) const
+bool gameboy::cpu::Register8::operator>=(const uint8_t value) const
 {
     return bits >= value;
 }
@@ -237,7 +237,7 @@ bool gameboy::cpu::Register8::operator>=(const memory::Address8& address) const
     return bits >= address.get_value();
 }
 
-bool gameboy::cpu::Register8::operator<=(uint8_t value) const
+bool gameboy::cpu::Register8::operator<=(const uint8_t value) const
 {
     return bits <= value;
 }
