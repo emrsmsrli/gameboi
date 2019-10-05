@@ -40,7 +40,7 @@ namespace gameboy::memory {
      * @param reg a 16-bit register
      * @return An address object
      */
-    Address16 make_address(const cpu::Register16& reg)
+    constexpr Address16 make_address(const cpu::Register16& reg)
     {
         return Address16(reg.get_value());
     }
