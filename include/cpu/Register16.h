@@ -12,7 +12,7 @@ namespace gameboy::cpu {
     class Register16 {
     public:
         Register16() = default;
-        explicit Register16(uint16_t value)
+        explicit Register16(const uint16_t value)
                 : high((value >> 8u) & 0xFFu),
                   low(value & 0xFFu) { }
 
@@ -32,7 +32,6 @@ namespace gameboy::cpu {
 
         /* assignment */
         Register16& operator=(uint16_t value);
-        Register16& operator=(const Register16& reg) = default;
         Register16& operator=(const memory::Address16& address);
 
         /* math ops */

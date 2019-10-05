@@ -12,7 +12,7 @@ namespace gameboy::cpu {
     public:
         Register8() = default;
 
-        explicit Register8(uint8_t default_value)
+        explicit Register8(const uint8_t default_value)
                 : bits(default_value) { }
 
         [[nodiscard]] uint8_t get_value() const { return bits; }
@@ -20,7 +20,6 @@ namespace gameboy::cpu {
         /* assignment */
         Register8& operator=(uint8_t value);
         Register8& operator=(const memory::Address8& address);
-        Register8& operator=(const Register8& reg) = default;
 
         /* math ops */
         Register8& operator++();
