@@ -10,8 +10,15 @@
 namespace gameboy::memory {
     class MMU {
     public:
+        void initialize();
+
         void write(const Address16& address, uint8_t data);
         [[nodiscard]] uint8_t read(const Address16& address) const;
+
+        void load_rom(const std::vector<uint8_t>& rom_data);
+
+        void load_external_memory(const std::vector<uint8_t>& save_data);
+        [[nodiscard]] std::vector<uint8_t> copy_external_memory() const;
 
     private:
         std::unique_ptr<controller::MBC> mbc;
