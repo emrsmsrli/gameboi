@@ -14,3 +14,5 @@
 - add write read listeners to mmu for registers that are in the 
     virtual address space but not in the memory.
 - reduce branching please
+- return pairs instead of passing out params
+- implement `observer_ptr`
