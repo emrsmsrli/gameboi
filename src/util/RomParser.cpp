@@ -39,7 +39,7 @@ gameboy::CartridgeInfo gameboy::util::rom_parser::parse(const std::vector<uint8_
             begin(rom_header_range),
             end(rom_header_range),
             static_cast<uint8_t>(0u),
-            [&](int8_t acc, uint16_t addr) {
+            [&](const int8_t acc, const uint16_t addr) {
                 return acc - rom_data[addr] - 1;
             });
 

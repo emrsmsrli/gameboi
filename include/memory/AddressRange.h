@@ -13,7 +13,7 @@ namespace gameboy::memory {
     public:
         class Iter {
         public:
-            constexpr explicit Iter(uint16_t val)
+            constexpr explicit Iter(const uint16_t val)
                     : value(val) { }
 
             [[nodiscard]] constexpr uint16_t operator*() const { return value; }
@@ -23,7 +23,7 @@ namespace gameboy::memory {
             uint16_t value;
         };
 
-        constexpr AddressRange(uint16_t begin, uint16_t end)
+        constexpr AddressRange(const uint16_t begin, const uint16_t end)
                 : low(begin), high(end)
         {
             if(high < low) {

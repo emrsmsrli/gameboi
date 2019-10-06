@@ -5,14 +5,13 @@
 #include <memory/controller/MBC1.h>
 #include <memory/controller/MBC2.h>
 #include <memory/controller/MBC3.h>
-#include <memory/controller/MBC5.h>
 
-void gameboy::memory::MMU::initialize()
+void gameboy::memory::MMU::initialize() const
 {
     mbc->initialize();
 }
 
-void gameboy::memory::MMU::write(const gameboy::memory::Address16& address, uint8_t data)
+void gameboy::memory::MMU::write(const gameboy::memory::Address16& address, const uint8_t data) const
 {
     mbc->write(address, data);
 }
@@ -28,10 +27,12 @@ void gameboy::memory::MMU::load_rom(const std::vector<uint8_t>& rom_data)
     switch(rom_header.cartridge_type) {
         case CartridgeInfo::Type::mbc_1:
         case CartridgeInfo::Type::mbc_1_ram:
-        case CartridgeInfo::Type::mbc_1_ram_battery:mbc = std::make_unique<controller::MBC1>(rom_data, rom_header);
+        case CartridgeInfo::Type::mbc_1_ram_battery:
+            mbc = std::make_unique<controller::MBC1>(rom_data, rom_header);
             break;
         case CartridgeInfo::Type::mbc_2:
-        case CartridgeInfo::Type::mbc_2_battery:mbc = std::make_unique<controller::MBC2>(rom_data, rom_header);
+        case CartridgeInfo::Type::mbc_2_battery:
+            mbc = std::make_unique<controller::MBC2>(rom_data, rom_header);
             break;
         case CartridgeInfo::Type::rom_only:
         case CartridgeInfo::Type::rom_ram:
@@ -42,7 +43,8 @@ void gameboy::memory::MMU::load_rom(const std::vector<uint8_t>& rom_data)
         case CartridgeInfo::Type::mbc_3_timer_ram_battery:
         case CartridgeInfo::Type::mbc_3:
         case CartridgeInfo::Type::mbc_3_ram:
-        case CartridgeInfo::Type::mbc_3_ram_battery:mbc = std::make_unique<controller::MBC3>(rom_data, rom_header);
+        case CartridgeInfo::Type::mbc_3_ram_battery:
+            mbc = std::make_unique<controller::MBC3>(rom_data, rom_header);
             break;
         case CartridgeInfo::Type::mbc_5:
         case CartridgeInfo::Type::mbc_5_ram:

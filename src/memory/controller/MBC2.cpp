@@ -5,7 +5,7 @@
 gameboy::memory::controller::MBC2::MBC2(const std::vector<uint8_t>& rom, const gameboy::CartridgeInfo& rom_header)
         : MBC(rom, rom_header) { }
 
-void gameboy::memory::controller::MBC2::select_rom_bank(uint8_t data)
+void gameboy::memory::controller::MBC2::select_rom_bank(const uint8_t data)
 {
     rom_bank = data & 0x0Fu;
 }

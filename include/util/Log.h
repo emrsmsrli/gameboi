@@ -1,13 +1,16 @@
 #ifndef GAMEBOY_LOG_H
 #define GAMEBOY_LOG_H
 
+#if DEBUG
 #include <iostream>
-#include <string_view>
 #include <fmt/core.h>
+#endif
+
+#include <string_view>
 
 namespace gameboy::log {
     template<typename... Args>
-    void info(std::string_view format, const Args& ... args)
+    void info(const std::string_view format, const Args& ... args)
     {
         if constexpr(DEBUG) {
             std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
@@ -15,7 +18,7 @@ namespace gameboy::log {
     }
 
     template<typename... Args>
-    void warn(std::string_view format, const Args& ... args)
+    void warn(const std::string_view format, const Args& ... args)
     {
         if constexpr(DEBUG) {
             std::cout << "[W] - " << fmt::format(format.data(), args...) << '\n';
@@ -23,7 +26,7 @@ namespace gameboy::log {
     }
 
     template<typename... Args>
-    void error(std::string_view format, const Args& ... args)
+    void error(const std::string_view format, const Args& ... args)
     {
         const auto log = fmt::format(format.data(), args...);
 

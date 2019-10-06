@@ -23,7 +23,7 @@ namespace gameboy::cpu {
                 : mmu(std::move(memory_management_unit)) { }
 
         void initialize();
-        void tick();
+        [[nodiscard]] uint8_t tick();
 
     private:
         static constexpr struct StandardInstructionSet { } standard_instruction_set{};
@@ -36,10 +36,10 @@ namespace gameboy::cpu {
 
         ALU alu{*this};
 
-        /* accumulator and flags */
+        /** accumulator and flags */
         Register16 a_f;
 
-        /* general purpose */
+        /** general purpose */
         Register16 b_c;
         Register16 d_e;
         Register16 h_l;
@@ -61,14 +61,14 @@ namespace gameboy::cpu {
         void flip_flag(Flag flag);
         bool test_flag(Flag flag);
 
-        void write_data(const memory::Address16& address, uint8_t data);
+        void write_data(const memory::Address16& address, uint8_t data) const;
 
-        uint8_t read_data(const memory::Address16& address);
-        uint8_t read_immediate(Imm8);
-        uint16_t read_immediate(Imm16);
+        [[nodiscard]] uint8_t read_data(const memory::Address16& address) const;
+        [[nodiscard]] uint8_t read_immediate(Imm8);
+        [[nodiscard]] uint16_t read_immediate(Imm16);
 
         /* instructions */
-        [[nodiscard]] uint8_t nop() const;
+        [[nodiscard]] static uint8_t nop();
         [[nodiscard]] uint8_t halt();
         [[nodiscard]] uint8_t stop();
 
@@ -91,15 +91,15 @@ namespace gameboy::cpu {
         [[nodiscard]] uint8_t ret();
         [[nodiscard]] uint8_t ret(bool condition);
 
-        [[nodiscard]] uint8_t store(const memory::Address16& address, uint8_t data);
-        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register8& reg);
-        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register16& reg);
+        [[nodiscard]] uint8_t store(const memory::Address16& address, uint8_t data) const;
+        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register8& reg) const;
+        [[nodiscard]] uint8_t store(const memory::Address16& address, const Register16& reg) const;
 
-        [[nodiscard]] uint8_t load(Register8& reg, uint8_t data) const;
-        [[nodiscard]] uint8_t load(Register8& r_left, const Register8& r_right) const;
+        [[nodiscard]] static uint8_t load(Register8& reg, uint8_t data);
+        [[nodiscard]] static uint8_t load(Register8& r_left, const Register8& r_right);
 
-        [[nodiscard]] uint8_t load(Register16& reg, uint16_t data) const;
-        [[nodiscard]] uint8_t load(Register16& r_left, const Register16& r_right) const;
+        [[nodiscard]] static uint8_t load(Register16& reg, uint16_t data);
+        [[nodiscard]] static uint8_t load(Register16& r_left, const Register16& r_right);
 
         [[nodiscard]] uint8_t store_i();
         [[nodiscard]] uint8_t store_d();

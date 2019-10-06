@@ -57,10 +57,10 @@ namespace gameboy::cpu {
         static uint8_t bit_reset(uint8_t& value, uint8_t bit);
         uint8_t bit_reset(Register8& reg, uint8_t bit) const;
 
-        [[nodiscard]] uint8_t rotate_left_acc();
-        [[nodiscard]] uint8_t rotate_right_acc();
-        [[nodiscard]] uint8_t rotate_left_c_acc();
-        [[nodiscard]] uint8_t rotate_right_c_acc();
+        [[nodiscard]] uint8_t rotate_left_acc() const;
+        [[nodiscard]] uint8_t rotate_right_acc() const;
+        [[nodiscard]] uint8_t rotate_left_c_acc() const;
+        [[nodiscard]] uint8_t rotate_right_c_acc() const;
 
         [[nodiscard]] uint8_t rotate_left(uint8_t& value) const;
         [[nodiscard]] uint8_t rotate_right(uint8_t& value) const;

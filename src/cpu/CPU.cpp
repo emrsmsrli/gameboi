@@ -11,22 +11,23 @@ void gameboy::cpu::CPU::initialize()
     stack_pointer = 0xFFFEu;
 }
 
-void gameboy::cpu::CPU::tick()
+uint8_t gameboy::cpu::CPU::tick()
 {
     const auto cycle_count = [&]() {
         if(!is_halted) {
             const auto opcode = read_immediate(imm_8);
             if(opcode != 0xCB) {
                 return decode(opcode, standard_instruction_set);
-            } else {
-                return decode(read_immediate(imm_8), extended_instruction_set);
             }
-        } else {
-            return static_cast<uint8_t>(0x1);
-        }
+
+            return decode(read_immediate(imm_8), extended_instruction_set);
+        } 
+
+        return static_cast<uint8_t>(0x1);
     }();
 
     total_cycles += cycle_count;
+    return cycle_count;
 }
 
 void gameboy::cpu::CPU::set_flag(gameboy::cpu::Flag flag)
@@ -56,7 +57,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         case 0x00: { return nop(); }
         case 0x01: { return load(b_c, read_immediate(imm_16)); }
         case 0x02: { return store(memory::make_address(b_c), a_f.get_high()); }
-        case 0x03: { return alu.increment(b_c); }
+        case 0x03: { return ALU::increment(b_c); }
         case 0x04: { return alu.increment(b_c.get_high()); }
         case 0x05: { return alu.decrement(b_c.get_high()); }
         case 0x06: { return load(b_c.get_high(), read_immediate(imm_8)); }
@@ -64,7 +65,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         case 0x08: { return store(memory::make_address(read_immediate(imm_16)), stack_pointer) + 4; }
         case 0x09: { return alu.add(h_l, b_c); }
         case 0x0A: { return load(a_f.get_high(), read_data(memory::make_address(b_c))); }
-        case 0x0B: { return alu.decrement(b_c); }
+		case 0x0B: { return ALU::decrement(b_c); }
         case 0x0C: { return alu.increment(b_c.get_low()); }
         case 0x0D: { return alu.decrement(b_c.get_low()); }
         case 0x0E: { return load(b_c.get_low(), read_immediate(imm_8)); }
@@ -72,7 +73,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         case 0x10: { return stop(); }
         case 0x11: { return load(d_e, read_immediate(imm_16)); }
         case 0x12: { return store(memory::make_address(d_e), a_f.get_high()); }
-        case 0x13: { return alu.increment(d_e); }
+        case 0x13: { return ALU::increment(d_e); }
         case 0x14: { return alu.increment(d_e.get_high()); }
         case 0x15: { return alu.decrement(d_e.get_high()); }
         case 0x16: { return load(d_e.get_high(), read_immediate(imm_8)); }
@@ -83,7 +84,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         }
         case 0x19: { return alu.add(h_l, d_e); }
         case 0x1A: { return load(a_f.get_high(), read_data(memory::make_address(d_e))); }
-        case 0x1B: { return alu.decrement(d_e); }
+        case 0x1B: { return ALU::decrement(d_e); }
         case 0x1C: { return alu.increment(d_e.get_low()); }
         case 0x1D: { return alu.decrement(d_e.get_low()); }
         case 0x1E: { return load(d_e.get_low(), read_immediate(imm_8)); }
@@ -94,7 +95,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         }
         case 0x21: { return load(h_l, read_immediate(imm_16)); }
         case 0x22: { return store_i(); }
-        case 0x23: { return alu.increment(h_l); }
+        case 0x23: { return ALU::increment(h_l); }
         case 0x24: { return alu.increment(h_l.get_high()); }
         case 0x25: { return alu.decrement(h_l.get_high()); }
         case 0x26: { return load(h_l.get_high(), read_immediate(imm_8)); }
@@ -105,7 +106,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         }
         case 0x29: { return alu.add(h_l, h_l); }
         case 0x2A: { return load_i(); } // 8
-        case 0x2B: { return alu.decrement(h_l); }
+        case 0x2B: { return ALU::decrement(h_l); }
         case 0x2C: { return alu.increment(h_l.get_low()); }
         case 0x2D: { return alu.decrement(h_l.get_low()); }
         case 0x2E: { return load(h_l.get_low(), read_immediate(imm_8)); }
@@ -116,7 +117,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         }
         case 0x31: { return load(stack_pointer, read_immediate(imm_16)); }
         case 0x32: { return store_d(); }
-        case 0x33: { return alu.increment(stack_pointer); }
+        case 0x33: { return ALU::increment(stack_pointer); }
         case 0x34: {
             const auto address = memory::make_address(h_l);
             auto data = read_data(address);
@@ -144,7 +145,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
         }
         case 0x39: { return alu.add(h_l, stack_pointer); }
         case 0x3A: { return load_d(); }
-        case 0x3B: { return alu.decrement(stack_pointer); }
+		case 0x3B: { return ALU::decrement(stack_pointer); }
         case 0x3C: { return alu.increment(a_f.get_high()); }
         case 0x3D: { return alu.decrement(a_f.get_high()); }
         case 0x3E: { return load(a_f.get_high(), read_immediate(imm_8)); }
@@ -416,7 +417,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
             return load(a_f.get_high(), data);
         }
         case 0xF3: {
-            is_interrupt_master_enabled = false;
+           //is_interrupt_master_enabled = false;
             return 4;
         }
         case 0xF5: { return push(a_f); }
@@ -433,7 +434,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, StandardInstructionSet)
             return load(a_f.get_high(), data) + 8;
         }
         case 0xFB: {
-            is_interrupt_master_enabled = true;
+            //is_interrupt_master_enabled = true;
             return 4;
         }
         case 0xFE: {
@@ -454,6 +455,14 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         return 0x1u << (inst >> 0x3u & 0x7u);
     };
 
+    const auto alu_do_one_param = [&](uint8_t (ALU::*func)(uint8_t&) const) {
+        const auto address = memory::make_address(h_l);
+        auto data = read_data(address);
+        const auto cycles = std::invoke(func, alu, data);
+        write_data(address, data);
+        return cycles + 8;
+    };
+
     switch(inst) {
         case 0x00: { return alu.rotate_left_c(b_c.get_high()); }
         case 0x01: { return alu.rotate_left_c(b_c.get_low()); }
@@ -461,13 +470,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x03: { return alu.rotate_left_c(d_e.get_low()); }
         case 0x04: { return alu.rotate_left_c(h_l.get_high()); }
         case 0x05: { return alu.rotate_left_c(h_l.get_low()); }
-        case 0x06: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.rotate_left_c(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x06: { return alu_do_one_param(&ALU::rotate_left_c); }
         case 0x07: { return alu.rotate_left_c(b_c.get_high()); }
 
         case 0x08: { return alu.rotate_right_c(b_c.get_high()); }
@@ -476,13 +479,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x0B: { return alu.rotate_right_c(d_e.get_low()); }
         case 0x0C: { return alu.rotate_right_c(h_l.get_high()); }
         case 0x0D: { return alu.rotate_right_c(h_l.get_low()); }
-        case 0x0E: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.rotate_right_c(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x0E: { return alu_do_one_param(&ALU::rotate_right_c); }
         case 0x0F: { return alu.rotate_right_c(b_c.get_high()); }
 
         case 0x10: { return alu.rotate_left(b_c.get_high()); }
@@ -491,13 +488,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x13: { return alu.rotate_left(d_e.get_low()); }
         case 0x14: { return alu.rotate_left(h_l.get_high()); }
         case 0x15: { return alu.rotate_left(h_l.get_low()); }
-        case 0x16: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.rotate_left(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x16: { return alu_do_one_param(&ALU::rotate_left); }
         case 0x17: { return alu.rotate_left(b_c.get_high()); }
 
         case 0x18: { return alu.rotate_right(b_c.get_high()); }
@@ -506,13 +497,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x1B: { return alu.rotate_right(d_e.get_low()); }
         case 0x1C: { return alu.rotate_right(h_l.get_high()); }
         case 0x1D: { return alu.rotate_right(h_l.get_low()); }
-        case 0x1E: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.rotate_right(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x1E: { return alu_do_one_param(&ALU::rotate_right); }
         case 0x1F: { return alu.rotate_right(b_c.get_high()); }
 
         case 0x20: { return alu.shift_left(b_c.get_high()); }
@@ -521,13 +506,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x23: { return alu.shift_left(d_e.get_low()); }
         case 0x24: { return alu.shift_left(h_l.get_high()); }
         case 0x25: { return alu.shift_left(h_l.get_low()); }
-        case 0x26: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.shift_left(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x26: { return alu_do_one_param(&ALU::shift_left); }
         case 0x27: { return alu.shift_left(b_c.get_high()); }
 
         case 0x28: { return alu.shift_right(b_c.get_high(), ALU::preserve_last_bit); }
@@ -551,13 +530,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0x33: { return alu.swap(d_e.get_low()); }
         case 0x34: { return alu.swap(h_l.get_high()); }
         case 0x35: { return alu.swap(h_l.get_low()); }
-        case 0x36: {
-            const auto address = memory::make_address(h_l);
-            auto data = read_data(address);
-            const auto cycles = alu.swap(data);
-            write_data(address, data);
-            return cycles + 8;
-        }
+        case 0x36: { return alu_do_one_param(&ALU::swap); }
         case 0x37: { return alu.swap(a_f.get_high()); }
 
         case 0x38: { return alu.shift_right(b_c.get_high(), ALU::reset_last_bit); }
@@ -741,7 +714,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0xBE: {
             const auto address = memory::make_address(h_l);
             auto data = read_data(address);
-            const auto cycles = alu.bit_reset(data, get_bitop_mask());
+            const auto cycles = ALU::bit_reset(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
@@ -833,7 +806,7 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
         case 0xFE: {
             const auto address = memory::make_address(h_l);
             auto data = read_data(address);
-            const auto cycles = alu.bit_set(data, get_bitop_mask());
+            const auto cycles = ALU::bit_set(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
@@ -856,12 +829,12 @@ uint8_t gameboy::cpu::CPU::decode(uint16_t inst, ExtendedInstructionSet)
     }
 }
 
-void gameboy::cpu::CPU::write_data(const memory::Address16& address, uint8_t data)
+void gameboy::cpu::CPU::write_data(const memory::Address16& address, const uint8_t data) const
 {
     mmu->write(address, data);
 }
 
-uint8_t gameboy::cpu::CPU::read_data(const gameboy::memory::Address16& address)
+uint8_t gameboy::cpu::CPU::read_data(const gameboy::memory::Address16& address) const
 {
     return mmu->read(address);
 }
@@ -881,7 +854,7 @@ uint16_t gameboy::cpu::CPU::read_immediate(Imm16)
     return (static_cast<uint16_t>(msb) << 8u) | lsb;
 }
 
-uint8_t gameboy::cpu::CPU::nop() const
+uint8_t gameboy::cpu::CPU::nop()
 {
     return 4;
 }
@@ -952,7 +925,7 @@ uint8_t gameboy::cpu::CPU::jump(const gameboy::memory::Address16& address)
     return 16;
 }
 
-uint8_t gameboy::cpu::CPU::jump(bool condition, const gameboy::memory::Address16& address)
+uint8_t gameboy::cpu::CPU::jump(const bool condition, const gameboy::memory::Address16& address)
 {
     if(condition) {
         return jump(address);
@@ -967,7 +940,7 @@ uint8_t gameboy::cpu::CPU::jump_relative(const gameboy::memory::Address8& addres
     return 12;
 }
 
-uint8_t gameboy::cpu::CPU::jump_relative(bool condition, const gameboy::memory::Address8& address)
+uint8_t gameboy::cpu::CPU::jump_relative(const bool condition, const gameboy::memory::Address8& address)
 {
     if(condition) {
         return jump_relative(address);
@@ -994,7 +967,7 @@ uint8_t gameboy::cpu::CPU::call(bool condition, const gameboy::memory::Address16
 
 uint8_t gameboy::cpu::CPU::reti()
 {
-    is_interrupt_master_enabled = true;
+    //is_interrupt_master_enabled = true;
     return ret();
 }
 
@@ -1012,44 +985,44 @@ uint8_t gameboy::cpu::CPU::ret(bool condition)
     return 8;
 }
 
-uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, uint8_t data)
+uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const uint8_t data) const
 {
     write_data(address, data);
     return 12;
 }
 
-uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const gameboy::cpu::Register8& reg)
+uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const gameboy::cpu::Register8& reg) const
 {
     write_data(address, reg.get_value());
     return 8;
 }
 
-uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const gameboy::cpu::Register16& reg)
+uint8_t gameboy::cpu::CPU::store(const gameboy::memory::Address16& address, const gameboy::cpu::Register16& reg) const
 {
     const auto store_low_cycles = store(address, reg.get_low());
     const auto store_high_cycles = store(address, reg.get_high());
     return store_low_cycles + store_high_cycles;
 }
 
-uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register8& reg, uint8_t data) const
+uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register8& reg, const uint8_t data)
 {
     reg = data;
     return 8;
 }
 
-uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register8& r_left, const gameboy::cpu::Register8& r_right) const
+uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register8& r_left, const gameboy::cpu::Register8& r_right)
 {
     r_left = r_right;
     return 4;
 }
 
-uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register16& reg, uint16_t data) const
+uint8_t gameboy::cpu::CPU::load(gameboy::cpu::Register16& reg, const uint16_t data)
 {
     reg = data;
     return 12;
 }
 
-uint8_t gameboy::cpu::CPU::load(Register16& r_left, const Register16& r_right) const
+uint8_t gameboy::cpu::CPU::load(Register16& r_left, const Register16& r_right)
 {
     r_left = r_right;
     return 8;

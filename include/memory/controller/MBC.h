@@ -48,7 +48,7 @@ namespace gameboy::memory::controller {
         virtual void control(const Address16& virtual_address, uint8_t data) = 0;
     };
 
-    constexpr size_t operator""_kb(unsigned long long bytes) {
+    constexpr size_t operator""_kb(const unsigned long long bytes) {
         return bytes * 1024u;
     }
 }

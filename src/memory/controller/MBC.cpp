@@ -106,6 +106,7 @@ void gameboy::memory::controller::MBC::set_external_ram_enabled(uint8_t data)
 gameboy::memory::PhysicalAddress gameboy::memory::controller::MBC::to_physical_address(
         const Address16& virtual_address) const
 {
+    // todo try to simplify this calculation
     const auto physical_address = [&]() -> size_t {
         const size_t addr = virtual_address.get_value();
         switch(addr & 0xF000u) {

@@ -427,28 +427,28 @@ uint8_t gameboy::cpu::ALU::bit_reset(gameboy::cpu::Register8& reg, const uint8_t
     return cycles;
 }
 
-uint8_t gameboy::cpu::ALU::rotate_left_acc()
+uint8_t gameboy::cpu::ALU::rotate_left_acc() const
 {
     rotate_left(cpu.a_f.get_high());
     cpu.reset_flag(Flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::cpu::ALU::rotate_right_acc()
+uint8_t gameboy::cpu::ALU::rotate_right_acc() const
 {
     rotate_right(cpu.a_f.get_high());
     cpu.reset_flag(Flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::cpu::ALU::rotate_left_c_acc()
+uint8_t gameboy::cpu::ALU::rotate_left_c_acc() const
 {
     rotate_left_c(cpu.a_f.get_high());
     cpu.reset_flag(Flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::cpu::ALU::rotate_right_c_acc()
+uint8_t gameboy::cpu::ALU::rotate_right_c_acc() const
 {
     rotate_right_c(cpu.a_f.get_high());
     cpu.reset_flag(Flag::zero);

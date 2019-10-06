@@ -10,9 +10,9 @@
 namespace gameboy::memory {
     class MMU {
     public:
-        void initialize();
+        void initialize() const;
 
-        void write(const Address16& address, uint8_t data);
+        void write(const Address16& address, uint8_t data) const;
         [[nodiscard]] uint8_t read(const Address16& address) const;
 
         void load_rom(const std::vector<uint8_t>& rom_data);

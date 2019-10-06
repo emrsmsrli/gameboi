@@ -12,7 +12,7 @@ namespace gameboy::memory::controller {
         void latch();
 
         [[nodiscard]] bool is_enabled() const { return enabled; }
-        void set_enabled(bool enable) { enabled = enable; }
+        void set_enabled(const bool enable) { enabled = enable; }
 
     private:
         enum class RegisterType {
