@@ -7,7 +7,7 @@ namespace {
     constexpr auto delay = 1000.f / fps;
 }
 
-gameboy::GameBoy::GameBoy(std::string_view rom_path)
+gameboy::GameBoy::GameBoy(const std::string_view rom_path)
         : memory(std::make_shared<memory::MMU>()),
           cpu(std::make_unique<cpu::CPU>(memory)),
           ppu(std::make_unique<ppu::PPU>(memory))
@@ -22,7 +22,14 @@ void gameboy::GameBoy::start()
     cpu->initialize();
 
     while(true) {
-        cpu->tick();
-        ppu->tick();
+        const auto cycles = cpu->tick();
+        ppu->tick(cycles);
 
+        // checkPowerMode();
+        // checkInterrupts();
+
+        // ppu->update(cycles, interrupt_master_enable);
+        // apu->update(cycles);
+        // timer.update(cycles);
+    }
 }
