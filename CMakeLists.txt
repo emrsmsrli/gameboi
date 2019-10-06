@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.14)
 project(GameBoy)
 
+# execute_process(COMMAND
+#         conan install
+#         ${CMAKE_CURRENT_SOURCE_DIR}
+#         --build missing -s
+#         build_type=$<CONFIG:Debug>)
+
 include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
 conan_basic_setup()
 
