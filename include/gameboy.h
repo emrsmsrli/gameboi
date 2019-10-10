@@ -4,6 +4,7 @@
 #include <string_view>
 #include <memory>
 
+#include <bus.h>
 #include <cartridge.h>
 #include <cpu/cpu.h>
 #include <ppu/ppu.h>
@@ -18,6 +19,7 @@ public:
     void start();
 
 private:
+    bus bus_;
     cartridge cartridge_;
 
     std::shared_ptr<mmu> memory_;

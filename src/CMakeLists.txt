@@ -1,6 +1,7 @@
 
 set(GAMEBOY_SRC
         src/gameboy.cpp
+        src/bus.cpp
         src/cpu/register8.cpp
         src/cpu/register16.cpp
         src/cpu/cpu.cpp
