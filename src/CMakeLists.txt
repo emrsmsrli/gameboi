@@ -1,15 +1,15 @@
 
 set(GAMEBOY_SRC
-        src/GameBoy.cpp
-        src/cpu/Register8.cpp
-        src/cpu/Register16.cpp
-        src/cpu/CPU.cpp
-        src/cpu/ALU.cpp
-        src/memory/MMU.cpp
-        src/memory/controller/MBC.cpp
-        src/memory/controller/MBC1.cpp
-        src/memory/controller/MBC2.cpp
-        src/memory/controller/MBC3.cpp
-        src/ppu/PPU.cpp
-        src/util/DataLoader.cpp
-        src/util/RomParser.cpp)
+        src/gameboy.cpp
+        src/cpu/register8.cpp
+        src/cpu/register16.cpp
+        src/cpu/cpu.cpp
+        src/cpu/alu.cpp
+        src/memory/mmu.cpp
+        src/memory/controller/mbc.cpp
+        src/memory/controller/mbc1.cpp
+        src/memory/controller/mbc2.cpp
+        src/memory/controller/mbc3.cpp
+        src/ppu/ppu.cpp
+        src/util/data_loader.cpp
+        src/util/rom_parser.cpp)
