@@ -1,7 +1,10 @@
 #include <iostream>
+#include <gameboy.h>
 
-int main()
+int main(int /*argc*/, char** /*argv*/)
 {
-    std::cout << "Hello, World!" << std::endl;
+    gameboy::gameboy gb("rom/path.rom");
+    gb.start();
+
     return 0;
 }
