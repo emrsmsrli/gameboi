@@ -4,25 +4,33 @@
 #include <cstdint>
 #include <vector>
 #include <memory>
+
+#include <util/observer.h>
 #include <memory/controller/mbc.h>
 #include <memory/addressfwd.h>
 
 namespace gameboy {
-    class mmu {
-    public:
-        void initialize() const;
 
-        void write(const address16& address, uint8_t data) const;
-        [[nodiscard]] uint8_t read(const address16& address) const;
+class bus;
 
-        void load_rom(const std::vector<uint8_t>& rom_data);
+class mmu {
+public:
+    explicit mmu(observer<bus> bus);
 
-        void load_external_memory(const std::vector<uint8_t>& save_data);
-        [[nodiscard]] std::vector<uint8_t> copy_external_memory() const;
+    void initialize();
 
-    private:
-        std::unique_ptr<mbc> mbc_;
-    };
+    void write(const address16& address, uint8_t data);
+    [[nodiscard]] uint8_t read(const address16& address) const;
+
+private:
+    observer<bus> bus_;
+
+    uint8_t selected_work_ram_bank_ = 0;
+
+    std::vector<uint8_t> work_ram_;
+    std::vector<uint8_t> high_ram_;
+};
+
 }
 
 #endif //GAMEBOY_MMU_H
