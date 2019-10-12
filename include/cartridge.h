@@ -7,14 +7,12 @@
 #include <cstddef>
 
 #include <memory/addressfwd.h>
+#include <memory/controller/mbc1.h>
+#include <memory/controller/mbc2.h>
+#include <memory/controller/mbc3.h>
+#include <memory/controller/mbc_null.h>
 
 namespace gameboy {
-
-class mbc1;
-class mbc2;
-class mbc3;
-class mbc5;
-class mbc_null;
 
 class cartridge {
     friend class rom_parser;
@@ -36,7 +34,7 @@ private:
     std::vector<uint8_t> rom_;
     std::vector<uint8_t> ram_;
 
-    std::variant<mbc_null, mbc1, mbc2, mbc3, mbc5> mbc_;
+    std::variant<mbc_null, mbc1, mbc2, mbc3> mbc_;
 };
 
 }
