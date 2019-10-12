@@ -41,6 +41,12 @@ observer<W> make_observer(W* p) noexcept
     return observer<W>{p};
 }
 
+template<class W>
+observer<W> make_observer(W& p) noexcept
+{
+    return observer<W>{&p};
+}
+
 template<typename T>
 bool operator==(const observer<T>& l, const observer<T>& r)
 {
