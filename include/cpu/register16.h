@@ -15,86 +15,51 @@ class register16 {
 public:
     register16() = default;
     explicit register16(const uint16_t value)
-            :high((value >> 8u) & 0xFFu),
-             low(value & 0xFFu) { }
+        : high_((value >> 8u) & 0xFFu),
+          low_(value & 0xFFu) {}
 
-    [[nodiscard]] uint16_t get_value() const;
-
-    /** @return most significant half of the register */
-    [[nodiscard]] register8& get_high() { return high; }
+    [[nodiscard]] uint16_t value() const;
 
     /** @return most significant half of the register */
-    [[nodiscard]] const register8& get_high() const { return high; }
+    [[nodiscard]] register8& high() { return high_; }
+
+    /** @return most significant half of the register */
+    [[nodiscard]] const register8& high() const { return high_; }
 
     /** @return least significant half of the register */
-    [[nodiscard]] register8& get_low() { return low; }
+    [[nodiscard]] register8& low() { return low_; }
 
     /** @return least significant half of the register */
-    [[nodiscard]] const register8& get_low() const { return low; }
+    [[nodiscard]] const register8& low() const { return low_; }
 
     /* assignment */
-    register16& operator=(uint16_t value);
+    register16& operator=(uint16_t val);
     register16& operator=(const address16& address);
 
     /* math ops */
     register16& operator++();
     register16& operator--();
 
-    register16& operator+=(uint16_t value);
+    register16& operator+=(uint16_t val);
     register16& operator+=(const register16& reg);
-    register16& operator+=(const address16& address);
-    register16& operator-=(uint16_t value);
-    register16& operator-=(const register16& reg);
-    register16& operator-=(const address16& address);
+    register16& operator+=(const address8& address);
 
-    [[nodiscard]] uint32_t operator+(uint32_t value) const;
+    register16& operator-=(uint16_t val);
+
+    [[nodiscard]] uint32_t operator+(uint32_t val) const;
     [[nodiscard]] uint32_t operator+(const register16& reg) const;
-    [[nodiscard]] uint32_t operator+(const address16& address) const;
-    [[nodiscard]] uint32_t operator-(uint32_t value) const;
-    [[nodiscard]] uint32_t operator-(const register16& reg) const;
-    [[nodiscard]] uint32_t operator-(const address16& address) const;
+
+    [[nodiscard]] uint32_t operator-(uint32_t v) const;
 
     /* logical */
-    register16& operator&=(uint16_t value);
-    register16& operator&=(const register16& reg);
-    register16& operator|=(uint16_t value);
-    register16& operator|=(const register16& reg);
-    register16& operator^=(uint16_t value);
-    register16& operator^=(const register16& reg);
-
-    register16 operator&(uint16_t value) const;
-    register16 operator&(const register16& reg) const;
-    register16 operator|(uint16_t value) const;
-    register16 operator|(const register16& reg) const;
-    register16 operator^(uint16_t value) const;
-    register16 operator^(const register16& reg) const;
-
+    register16 operator&(uint16_t val) const;
+    register16 operator|(uint16_t val) const;
+    register16 operator^(uint16_t val) const;
     register16 operator~() const;
 
-    /* comparison */
-    bool operator==(uint16_t value) const;
-    bool operator==(const register16& reg) const;
-    bool operator==(const address16& address) const;
-    bool operator!=(uint16_t value) const;
-    bool operator!=(const register16& reg) const;
-    bool operator!=(const address16& address) const;
-
-    bool operator>(uint16_t value) const;
-    bool operator>(const register16& reg) const;
-    bool operator>(const address16& address) const;
-    bool operator<(uint16_t value) const;
-    bool operator<(const register16& reg) const;
-    bool operator<(const address16& address) const;
-    bool operator>=(uint16_t value) const;
-    bool operator>=(const register16& reg) const;
-    bool operator>=(const address16& address) const;
-    bool operator<=(uint16_t value) const;
-    bool operator<=(const register16& reg) const;
-    bool operator<=(const address16& address) const;
-
 private:
-    register8 high;
-    register8 low;
+    register8 high_;
+    register8 low_;
 };
 
 }

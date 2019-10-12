@@ -1,16 +1,16 @@
 #include <cpu/register16.h>
 #include <memory/address.h>
 
-uint16_t gameboy::register16::get_value() const
+uint16_t gameboy::register16::value() const
 {
-    const uint16_t value = high.get_value();
-    return (value << 8u) | low.get_value();
+    const uint16_t h = high_.value();
+    return (h << 8u) | low_.value();
 }
 
-gameboy::register16& gameboy::register16::operator=(uint16_t value)
+gameboy::register16& gameboy::register16::operator=(uint16_t val)
 {
-    low = value & 0xFFu;
-    high = (value >> 0x8u) & 0xFFu;
+    low_ = val & 0xFFu;
+    high_ = (val >> 0x8u) & 0xFFu;
     return *this;
 }
 
@@ -32,235 +32,64 @@ gameboy::register16& gameboy::register16::operator--()
     return *this;
 }
 
-gameboy::register16& gameboy::register16::operator+=(uint16_t value)
+gameboy::register16& gameboy::register16::operator+=(uint16_t val)
 {
-    *this = static_cast<uint16_t>(*this + value);
+    *this = static_cast<uint16_t>(*this + val);
     return *this;
 }
 
 gameboy::register16& gameboy::register16::operator+=(const gameboy::register16& reg)
 {
-    *this += reg.get_value();
+    *this += reg.value();
     return *this;
 }
 
-gameboy::register16& gameboy::register16::operator+=(const address16& address)
+gameboy::register16& gameboy::register16::operator+=(const address8& address)
 {
-    *this += address.get_value();
+    *this = value() + static_cast<int8_t>(address.get_value());
     return *this;
 }
 
-gameboy::register16& gameboy::register16::operator-=(uint16_t value)
+gameboy::register16& gameboy::register16::operator-=(uint16_t val)
 {
-    *this = static_cast<uint16_t>(*this - value);
+    *this = static_cast<uint16_t>(*this - val);
     return *this;
 }
 
-gameboy::register16& gameboy::register16::operator-=(const gameboy::register16& reg)
+uint32_t gameboy::register16::operator+(const uint32_t val) const
 {
-    *this -= reg.get_value();
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator-=(const address16& address)
-{
-    *this -= address.get_value();
-    return *this;
-}
-
-uint32_t gameboy::register16::operator+(const uint32_t value) const
-{
-    const uint32_t this_value = get_value();
-    return this_value + value;
+    const uint32_t this_value = value();
+    return this_value + val;
 }
 
 uint32_t gameboy::register16::operator+(const gameboy::register16& reg) const
 {
-    const uint32_t this_value = get_value();
-    return this_value + reg.get_value();
+    const uint32_t this_value = value();
+    return this_value + reg.value();
 }
 
-uint32_t gameboy::register16::operator+(const address16& address) const
+uint32_t gameboy::register16::operator-(const uint32_t v) const
 {
-    const uint32_t this_value = get_value();
-    return this_value + address.get_value();
+    const uint32_t this_value = value();
+    return this_value - v;
 }
 
-uint32_t gameboy::register16::operator-(const uint32_t value) const
+gameboy::register16 gameboy::register16::operator&(uint16_t val) const
 {
-    const uint32_t this_value = get_value();
-    return this_value - value;
+    return register16(value() & val);
 }
 
-uint32_t gameboy::register16::operator-(const gameboy::register16& reg) const
+gameboy::register16 gameboy::register16::operator|(uint16_t val) const
 {
-    const uint32_t this_value = get_value();
-    return this_value - reg.get_value();
+    return register16(value() | val);
 }
 
-uint32_t gameboy::register16::operator-(const address16& address) const
+gameboy::register16 gameboy::register16::operator^(uint16_t val) const
 {
-    const uint32_t this_value = get_value();
-    return this_value - address.get_value();
-}
-
-gameboy::register16& gameboy::register16::operator&=(uint16_t value)
-{
-    *this = get_value() & value;
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator&=(const gameboy::register16& reg)
-{
-    *this &= reg.get_value();
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator|=(uint16_t value)
-{
-    *this = get_value() | value;
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator|=(const gameboy::register16& reg)
-{
-    *this |= reg.get_value();
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator^=(uint16_t value)
-{
-    *this = get_value() ^ value;
-    return *this;
-}
-
-gameboy::register16& gameboy::register16::operator^=(const gameboy::register16& reg)
-{
-    *this ^= reg.get_value();
-    return *this;
-}
-
-gameboy::register16 gameboy::register16::operator&(uint16_t value) const
-{
-    return register16(get_value() & value);
-}
-
-gameboy::register16 gameboy::register16::operator&(const gameboy::register16& reg) const
-{
-    return register16(get_value() & reg.get_value());
-}
-
-gameboy::register16 gameboy::register16::operator|(uint16_t value) const
-{
-    return register16(get_value() | value);
-}
-
-gameboy::register16 gameboy::register16::operator|(const gameboy::register16& reg) const
-{
-    return register16(get_value() | reg.get_value());
-}
-
-gameboy::register16 gameboy::register16::operator^(uint16_t value) const
-{
-    return register16(get_value() ^ value);
-}
-
-gameboy::register16 gameboy::register16::operator^(const gameboy::register16& reg) const
-{
-    return register16(get_value() ^ reg.get_value());
+    return register16(value() ^ val);
 }
 
 gameboy::register16 gameboy::register16::operator~() const
 {
-    return register16(~get_value());
-}
-
-bool gameboy::register16::operator==(uint16_t value) const
-{
-    return get_value() == value;
-}
-
-bool gameboy::register16::operator==(const gameboy::register16& reg) const
-{
-    return get_value() == reg.get_value();
-}
-
-bool gameboy::register16::operator==(const address16& address) const
-{
-    return get_value() == address.get_value();
-}
-
-bool gameboy::register16::operator!=(uint16_t value) const
-{
-    return get_value() != value;
-}
-
-bool gameboy::register16::operator!=(const gameboy::register16& reg) const
-{
-    return get_value() != reg.get_value();
-}
-
-bool gameboy::register16::operator!=(const address16& address) const
-{
-    return get_value() != address.get_value();
-}
-
-bool gameboy::register16::operator>(uint16_t value) const
-{
-    return get_value() > value;
-}
-
-bool gameboy::register16::operator>(const gameboy::register16& reg) const
-{
-    return get_value() > reg.get_value();
-}
-
-bool gameboy::register16::operator>(const address16& address) const
-{
-    return get_value() > address.get_value();
-}
-
-bool gameboy::register16::operator<(uint16_t value) const
-{
-    return get_value() < value;
-}
-
-bool gameboy::register16::operator<(const gameboy::register16& reg) const
-{
-    return get_value() < reg.get_value();
-}
-
-bool gameboy::register16::operator<(const address16& address) const
-{
-    return get_value() < address.get_value();
-}
-
-bool gameboy::register16::operator>=(uint16_t value) const
-{
-    return get_value() >= value;
-}
-
-bool gameboy::register16::operator>=(const gameboy::register16& reg) const
-{
-    return get_value() >= reg.get_value();
-}
-
-bool gameboy::register16::operator>=(const address16& address) const
-{
-    return get_value() >= address.get_value();
-}
-
-bool gameboy::register16::operator<=(uint16_t value) const
-{
-    return get_value() <= value;
-}
-
-bool gameboy::register16::operator<=(const gameboy::register16& reg) const
-{
-    return get_value() <= reg.get_value();
-}
-
-bool gameboy::register16::operator<=(const address16& address) const
-{
-    return get_value() <= address.get_value();
+    return register16(~value());
 }

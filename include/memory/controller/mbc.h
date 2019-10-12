@@ -8,7 +8,7 @@
 
 namespace gameboy {
 
-struct cartridge;
+class cartridge;
 
 class mbc {
 public:

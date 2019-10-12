@@ -15,72 +15,37 @@ public:
     register8() = default;
 
     explicit register8(const uint8_t default_value)
-            :bits(default_value) { }
+        : bits_(default_value) {}
 
-    [[nodiscard]] uint8_t get_value() const { return bits; }
+    [[nodiscard]] uint8_t value() const { return bits_; }
 
     /* assignment */
-    register8& operator=(uint8_t value);
-    register8& operator=(const address8& address);
+    register8& operator=(uint8_t val);
 
     /* math ops */
-    register8& operator++();
-    register8& operator--();
+    register8& operator+=(uint8_t val);
+    register8& operator-=(uint8_t val);
 
-    register8& operator+=(uint8_t value);
-    register8& operator+=(const register8& reg);
-    register8& operator+=(const address8& address);
-    register8& operator-=(uint8_t value);
-    register8& operator-=(const register8& reg);
-    register8& operator-=(const address8& address);
-
-    [[nodiscard]] uint16_t operator+(uint16_t value) const;
-    [[nodiscard]] uint16_t operator+(const register8& reg) const;
-    [[nodiscard]] uint16_t operator+(const address8& address) const;
-    [[nodiscard]] uint16_t operator-(uint16_t value) const;
-    [[nodiscard]] uint16_t operator-(const register8& reg) const;
-    [[nodiscard]] uint16_t operator-(const address8& address) const;
+    [[nodiscard]] uint16_t operator+(uint16_t val) const;
+    [[nodiscard]] uint16_t operator-(uint16_t val) const;
 
     /* logical */
-    register8& operator&=(uint8_t value);
-    register8& operator&=(const register8& reg);
-    register8& operator|=(uint8_t value);
-    register8& operator|=(const register8& reg);
-    register8& operator^=(uint8_t value);
-    register8& operator^=(const register8& reg);
+    register8& operator&=(uint8_t val);
+    register8& operator|=(uint8_t val);
+    register8& operator^=(uint8_t val);
 
-    register8 operator&(uint8_t value) const;
-    register8 operator&(const register8& reg) const;
-    register8 operator|(uint8_t value) const;
-    register8 operator|(const register8& reg) const;
-    register8 operator^(uint8_t value) const;
-    register8 operator^(const register8& reg) const;
-
+    register8 operator&(uint8_t val) const;
+    register8 operator|(uint8_t val) const;
+    register8 operator^(uint8_t val) const;
     register8 operator~() const;
 
     /* comparison */
-    bool operator==(uint8_t value) const;
-    bool operator==(const register8& reg) const;
-    bool operator==(const address8& address) const;
-    bool operator!=(uint8_t value) const;
-    bool operator!=(const register8& reg) const;
-    bool operator!=(const address8& address) const;
-
-    bool operator>(uint8_t value) const;
-    bool operator>(const register8& reg) const;
-    bool operator>(const address8& address) const;
-    bool operator<(uint8_t value) const;
-    bool operator<(const register8& reg) const;
-    bool operator<(const address8& address) const;
-    bool operator>=(uint8_t value) const;
-    bool operator>=(const register8& reg) const;
-    bool operator>=(const address8& address) const;
-    bool operator<=(uint8_t value) const;
-    bool operator<=(const register8& reg) const;
-    bool operator<=(const address8& address) const;
+    bool operator==(uint8_t val) const;
+    bool operator>(uint8_t val) const;
+    bool operator<(uint8_t val) const;
 
 private:
-    uint8_t bits = 0x00u;
+    uint8_t bits_ = 0x00u;
 };
 
 }

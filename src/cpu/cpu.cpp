@@ -38,23 +38,23 @@ uint8_t gameboy::cpu::tick()
 
 void gameboy::cpu::set_flag(flag flag)
 {
-    a_f_.get_low() |= static_cast<uint8_t>(flag);
+    a_f_.low() |= static_cast<uint8_t>(flag);
 }
 
 void gameboy::cpu::reset_flag(flag flag)
 {
-    a_f_.get_low() &= ~static_cast<uint8_t>(flag);
+    a_f_.low() &= ~static_cast<uint8_t>(flag);
 }
 
 void gameboy::cpu::flip_flag(flag flag)
 {
-    a_f_.get_low() ^= static_cast<uint8_t>(flag);
+    a_f_.low() ^= static_cast<uint8_t>(flag);
 }
 
 bool gameboy::cpu::test_flag(flag flag)
 {
     const auto f = static_cast<uint8_t>(flag);
-    return (a_f_.get_low() & f) == f;
+    return (a_f_.low() & f) == f;
 }
 
 uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
@@ -62,38 +62,38 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
     switch(inst) {
         case 0x00: { return nop(); }
         case 0x01: { return load(b_c_, read_immediate(imm16)); }
-        case 0x02: { return store(make_address(b_c_), a_f_.get_high()); }
+        case 0x02: { return store(make_address(b_c_), a_f_.high()); }
         case 0x03: { return alu::increment(b_c_); }
-        case 0x04: { return alu_.increment(b_c_.get_high()); }
-        case 0x05: { return alu_.decrement(b_c_.get_high()); }
-        case 0x06: { return load(b_c_.get_high(), read_immediate(imm8)); }
+        case 0x04: { return alu_.increment(b_c_.high()); }
+        case 0x05: { return alu_.decrement(b_c_.high()); }
+        case 0x06: { return load(b_c_.high(), read_immediate(imm8)); }
         case 0x07: { return alu_.rotate_left_c_acc(); }
         case 0x08: { return store(make_address(read_immediate(imm16)), stack_pointer_) + 4; }
         case 0x09: { return alu_.add(h_l_, b_c_); }
-        case 0x0A: { return load(a_f_.get_high(), read_data(make_address(b_c_))); }
+        case 0x0A: { return load(a_f_.high(), read_data(make_address(b_c_))); }
         case 0x0B: { return alu::decrement(b_c_); }
-        case 0x0C: { return alu_.increment(b_c_.get_low()); }
-        case 0x0D: { return alu_.decrement(b_c_.get_low()); }
-        case 0x0E: { return load(b_c_.get_low(), read_immediate(imm8)); }
+        case 0x0C: { return alu_.increment(b_c_.low()); }
+        case 0x0D: { return alu_.decrement(b_c_.low()); }
+        case 0x0E: { return load(b_c_.low(), read_immediate(imm8)); }
         case 0x0F: { return alu_.rotate_right_c_acc(); }
         case 0x10: { return stop(); }
         case 0x11: { return load(d_e_, read_immediate(imm16)); }
-        case 0x12: { return store(make_address(d_e_), a_f_.get_high()); }
+        case 0x12: { return store(make_address(d_e_), a_f_.high()); }
         case 0x13: { return alu::increment(d_e_); }
-        case 0x14: { return alu_.increment(d_e_.get_high()); }
-        case 0x15: { return alu_.decrement(d_e_.get_high()); }
-        case 0x16: { return load(d_e_.get_high(), read_immediate(imm8)); }
+        case 0x14: { return alu_.increment(d_e_.high()); }
+        case 0x15: { return alu_.decrement(d_e_.high()); }
+        case 0x16: { return load(d_e_.high(), read_immediate(imm8)); }
         case 0x17: { return alu_.rotate_left_acc(); }
         case 0x18: {
             const auto data = read_immediate(imm8);
             return jump_relative(make_address(data));
         }
         case 0x19: { return alu_.add(h_l_, d_e_); }
-        case 0x1A: { return load(a_f_.get_high(), read_data(make_address(d_e_))); }
+        case 0x1A: { return load(a_f_.high(), read_data(make_address(d_e_))); }
         case 0x1B: { return alu::decrement(d_e_); }
-        case 0x1C: { return alu_.increment(d_e_.get_low()); }
-        case 0x1D: { return alu_.decrement(d_e_.get_low()); }
-        case 0x1E: { return load(d_e_.get_low(), read_immediate(imm8)); }
+        case 0x1C: { return alu_.increment(d_e_.low()); }
+        case 0x1D: { return alu_.decrement(d_e_.low()); }
+        case 0x1E: { return load(d_e_.low(), read_immediate(imm8)); }
         case 0x1F: { return alu_.rotate_right_acc(); }
         case 0x20: {
             const auto data = read_immediate(imm8);
@@ -102,9 +102,9 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0x21: { return load(h_l_, read_immediate(imm16)); }
         case 0x22: { return store_i(); }
         case 0x23: { return alu::increment(h_l_); }
-        case 0x24: { return alu_.increment(h_l_.get_high()); }
-        case 0x25: { return alu_.decrement(h_l_.get_high()); }
-        case 0x26: { return load(h_l_.get_high(), read_immediate(imm8)); }
+        case 0x24: { return alu_.increment(h_l_.high()); }
+        case 0x25: { return alu_.decrement(h_l_.high()); }
+        case 0x26: { return load(h_l_.high(), read_immediate(imm8)); }
         case 0x27: { return alu_.decimal_adjust(); }
         case 0x28: {
             const auto data = read_immediate(imm8);
@@ -113,9 +113,9 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0x29: { return alu_.add(h_l_, h_l_); }
         case 0x2A: { return load_i(); } // 8
         case 0x2B: { return alu::decrement(h_l_); }
-        case 0x2C: { return alu_.increment(h_l_.get_low()); }
-        case 0x2D: { return alu_.decrement(h_l_.get_low()); }
-        case 0x2E: { return load(h_l_.get_low(), read_immediate(imm8)); }
+        case 0x2C: { return alu_.increment(h_l_.low()); }
+        case 0x2D: { return alu_.decrement(h_l_.low()); }
+        case 0x2E: { return load(h_l_.low(), read_immediate(imm8)); }
         case 0x2F: { return alu_.complement(); }
         case 0x30: {
             const auto data = read_immediate(imm8);
@@ -152,9 +152,9 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0x39: { return alu_.add(h_l_, stack_pointer_); }
         case 0x3A: { return load_d(); }
         case 0x3B: { return alu::decrement(stack_pointer_); }
-        case 0x3C: { return alu_.increment(a_f_.get_high()); }
-        case 0x3D: { return alu_.decrement(a_f_.get_high()); }
-        case 0x3E: { return load(a_f_.get_high(), read_immediate(imm8)); }
+        case 0x3C: { return alu_.increment(a_f_.high()); }
+        case 0x3D: { return alu_.decrement(a_f_.high()); }
+        case 0x3E: { return load(a_f_.high(), read_immediate(imm8)); }
         case 0x3F: { /* CPL */
             reset_flag(flag::subtract);
             reset_flag(flag::half_carry);
@@ -162,157 +162,157 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
             return 4;
         }
         case 0x40: { return nop(); } /* LD B,B */
-        case 0x41: { return load(b_c_.get_high(), b_c_.get_low()); }
-        case 0x42: { return load(b_c_.get_high(), d_e_.get_high()); }
-        case 0x43: { return load(b_c_.get_high(), d_e_.get_low()); }
-        case 0x44: { return load(b_c_.get_high(), h_l_.get_high()); }
-        case 0x45: { return load(b_c_.get_high(), h_l_.get_low()); }
-        case 0x46: { return load(b_c_.get_high(), read_data(make_address(h_l_))); }
-        case 0x47: { return load(b_c_.get_high(), a_f_.get_high()); }
-        case 0x48: { return load(b_c_.get_low(), b_c_.get_high()); }
+        case 0x41: { return load(b_c_.high(), b_c_.low()); }
+        case 0x42: { return load(b_c_.high(), d_e_.high()); }
+        case 0x43: { return load(b_c_.high(), d_e_.low()); }
+        case 0x44: { return load(b_c_.high(), h_l_.high()); }
+        case 0x45: { return load(b_c_.high(), h_l_.low()); }
+        case 0x46: { return load(b_c_.high(), read_data(make_address(h_l_))); }
+        case 0x47: { return load(b_c_.high(), a_f_.high()); }
+        case 0x48: { return load(b_c_.low(), b_c_.high()); }
         case 0x49: { return nop(); } /* LD C,C */
-        case 0x4A: { return load(b_c_.get_low(), d_e_.get_high()); }
-        case 0x4B: { return load(b_c_.get_low(), d_e_.get_low()); }
-        case 0x4C: { return load(b_c_.get_low(), h_l_.get_high()); }
-        case 0x4D: { return load(b_c_.get_low(), h_l_.get_low()); }
-        case 0x4E: { return load(b_c_.get_low(), read_data(make_address(h_l_))); }
-        case 0x4F: { return load(b_c_.get_low(), a_f_.get_high()); }
-        case 0x50: { return load(d_e_.get_high(), b_c_.get_high()); }
-        case 0x51: { return load(d_e_.get_high(), b_c_.get_low()); }
+        case 0x4A: { return load(b_c_.low(), d_e_.high()); }
+        case 0x4B: { return load(b_c_.low(), d_e_.low()); }
+        case 0x4C: { return load(b_c_.low(), h_l_.high()); }
+        case 0x4D: { return load(b_c_.low(), h_l_.low()); }
+        case 0x4E: { return load(b_c_.low(), read_data(make_address(h_l_))); }
+        case 0x4F: { return load(b_c_.low(), a_f_.high()); }
+        case 0x50: { return load(d_e_.high(), b_c_.high()); }
+        case 0x51: { return load(d_e_.high(), b_c_.low()); }
         case 0x52: { return nop(); } /* LD D,D */
-        case 0x53: { return load(d_e_.get_high(), d_e_.get_low()); }
-        case 0x54: { return load(d_e_.get_high(), h_l_.get_high()); }
-        case 0x55: { return load(d_e_.get_high(), h_l_.get_low()); }
-        case 0x56: { return load(d_e_.get_high(), read_data(make_address(h_l_))); }
-        case 0x57: { return load(d_e_.get_high(), a_f_.get_high()); }
-        case 0x58: { return load(d_e_.get_low(), b_c_.get_high()); }
-        case 0x59: { return load(d_e_.get_low(), b_c_.get_low()); }
-        case 0x5A: { return load(d_e_.get_low(), d_e_.get_high()); }
+        case 0x53: { return load(d_e_.high(), d_e_.low()); }
+        case 0x54: { return load(d_e_.high(), h_l_.high()); }
+        case 0x55: { return load(d_e_.high(), h_l_.low()); }
+        case 0x56: { return load(d_e_.high(), read_data(make_address(h_l_))); }
+        case 0x57: { return load(d_e_.high(), a_f_.high()); }
+        case 0x58: { return load(d_e_.low(), b_c_.high()); }
+        case 0x59: { return load(d_e_.low(), b_c_.low()); }
+        case 0x5A: { return load(d_e_.low(), d_e_.high()); }
         case 0x5B: { return nop(); }  /* LD E,E */
-        case 0x5C: { return load(d_e_.get_low(), h_l_.get_high()); }
-        case 0x5D: { return load(d_e_.get_low(), h_l_.get_low()); }
-        case 0x5E: { return load(d_e_.get_low(), read_data(make_address(h_l_))); }
-        case 0x5F: { return load(d_e_.get_low(), a_f_.get_high()); }
-        case 0x60: { return load(h_l_.get_high(), b_c_.get_high()); }
-        case 0x61: { return load(h_l_.get_high(), b_c_.get_low()); }
-        case 0x62: { return load(h_l_.get_high(), d_e_.get_high()); }
-        case 0x63: { return load(h_l_.get_high(), d_e_.get_low()); }
+        case 0x5C: { return load(d_e_.low(), h_l_.high()); }
+        case 0x5D: { return load(d_e_.low(), h_l_.low()); }
+        case 0x5E: { return load(d_e_.low(), read_data(make_address(h_l_))); }
+        case 0x5F: { return load(d_e_.low(), a_f_.high()); }
+        case 0x60: { return load(h_l_.high(), b_c_.high()); }
+        case 0x61: { return load(h_l_.high(), b_c_.low()); }
+        case 0x62: { return load(h_l_.high(), d_e_.high()); }
+        case 0x63: { return load(h_l_.high(), d_e_.low()); }
         case 0x64: { return nop(); } /* LD H, H */
-        case 0x65: { return load(h_l_.get_high(), h_l_.get_low()); }
-        case 0x66: { return load(h_l_.get_high(), read_data(make_address(h_l_))); }
-        case 0x67: { return load(h_l_.get_high(), a_f_.get_high()); }
-        case 0x68: { return load(h_l_.get_low(), b_c_.get_high()); }
-        case 0x69: { return load(h_l_.get_low(), b_c_.get_low()); }
-        case 0x6A: { return load(h_l_.get_low(), d_e_.get_high()); }
-        case 0x6B: { return load(h_l_.get_low(), d_e_.get_low()); }
-        case 0x6C: { return load(h_l_.get_low(), h_l_.get_high()); }
-        case 0x6D: { return load(h_l_.get_low(), h_l_.get_low()); }
-        case 0x6E: { return load(h_l_.get_low(), read_data(make_address(h_l_))); }
-        case 0x6F: { return load(h_l_.get_low(), a_f_.get_high()); }
-        case 0x70: { return store(make_address(h_l_), b_c_.get_high()); }
-        case 0x71: { return store(make_address(h_l_), b_c_.get_low()); }
-        case 0x72: { return store(make_address(h_l_), d_e_.get_high()); }
-        case 0x73: { return store(make_address(h_l_), d_e_.get_low()); }
-        case 0x74: { return store(make_address(h_l_), h_l_.get_high()); }
-        case 0x75: { return store(make_address(h_l_), h_l_.get_low()); }
+        case 0x65: { return load(h_l_.high(), h_l_.low()); }
+        case 0x66: { return load(h_l_.high(), read_data(make_address(h_l_))); }
+        case 0x67: { return load(h_l_.high(), a_f_.high()); }
+        case 0x68: { return load(h_l_.low(), b_c_.high()); }
+        case 0x69: { return load(h_l_.low(), b_c_.low()); }
+        case 0x6A: { return load(h_l_.low(), d_e_.high()); }
+        case 0x6B: { return load(h_l_.low(), d_e_.low()); }
+        case 0x6C: { return load(h_l_.low(), h_l_.high()); }
+        case 0x6D: { return load(h_l_.low(), h_l_.low()); }
+        case 0x6E: { return load(h_l_.low(), read_data(make_address(h_l_))); }
+        case 0x6F: { return load(h_l_.low(), a_f_.high()); }
+        case 0x70: { return store(make_address(h_l_), b_c_.high()); }
+        case 0x71: { return store(make_address(h_l_), b_c_.low()); }
+        case 0x72: { return store(make_address(h_l_), d_e_.high()); }
+        case 0x73: { return store(make_address(h_l_), d_e_.low()); }
+        case 0x74: { return store(make_address(h_l_), h_l_.high()); }
+        case 0x75: { return store(make_address(h_l_), h_l_.low()); }
         case 0x76: { return halt(); }
-        case 0x77: { return store(make_address(h_l_), a_f_.get_high()); }
-        case 0x78: { return load(a_f_.get_high(), b_c_.get_high()); }
-        case 0x79: { return load(a_f_.get_high(), b_c_.get_low()); }
-        case 0x7A: { return load(a_f_.get_high(), d_e_.get_high()); }
-        case 0x7B: { return load(a_f_.get_high(), d_e_.get_low()); }
-        case 0x7C: { return load(a_f_.get_high(), h_l_.get_high()); }
-        case 0x7D: { return load(a_f_.get_high(), h_l_.get_low()); }
-        case 0x7E: { return load(a_f_.get_high(), read_data(make_address(h_l_))); }
+        case 0x77: { return store(make_address(h_l_), a_f_.high()); }
+        case 0x78: { return load(a_f_.high(), b_c_.high()); }
+        case 0x79: { return load(a_f_.high(), b_c_.low()); }
+        case 0x7A: { return load(a_f_.high(), d_e_.high()); }
+        case 0x7B: { return load(a_f_.high(), d_e_.low()); }
+        case 0x7C: { return load(a_f_.high(), h_l_.high()); }
+        case 0x7D: { return load(a_f_.high(), h_l_.low()); }
+        case 0x7E: { return load(a_f_.high(), read_data(make_address(h_l_))); }
         case 0x7F: { return nop(); } /* LD A,A */
-        case 0x80: { return alu_.add(b_c_.get_high()); }
-        case 0x81: { return alu_.add(b_c_.get_low()); }
-        case 0x82: { return alu_.add(d_e_.get_high()); }
-        case 0x83: { return alu_.add(d_e_.get_low()); }
-        case 0x84: { return alu_.add(h_l_.get_high()); }
-        case 0x85: { return alu_.add(h_l_.get_low()); }
+        case 0x80: { return alu_.add(b_c_.high()); }
+        case 0x81: { return alu_.add(b_c_.low()); }
+        case 0x82: { return alu_.add(d_e_.high()); }
+        case 0x83: { return alu_.add(d_e_.low()); }
+        case 0x84: { return alu_.add(h_l_.high()); }
+        case 0x85: { return alu_.add(h_l_.low()); }
         case 0x86: {
             const auto data = read_data(make_address(h_l_));
             return alu_.add(data) + 4;
         }
-        case 0x87: { return alu_.add(a_f_.get_high()); }
-        case 0x88: { return alu_.add_c(b_c_.get_high()); }
-        case 0x89: { return alu_.add_c(b_c_.get_low()); }
-        case 0x8A: { return alu_.add_c(d_e_.get_high()); }
-        case 0x8B: { return alu_.add_c(d_e_.get_low()); }
-        case 0x8C: { return alu_.add_c(h_l_.get_high()); }
-        case 0x8D: { return alu_.add_c(h_l_.get_low()); }
+        case 0x87: { return alu_.add(a_f_.high()); }
+        case 0x88: { return alu_.add_c(b_c_.high()); }
+        case 0x89: { return alu_.add_c(b_c_.low()); }
+        case 0x8A: { return alu_.add_c(d_e_.high()); }
+        case 0x8B: { return alu_.add_c(d_e_.low()); }
+        case 0x8C: { return alu_.add_c(h_l_.high()); }
+        case 0x8D: { return alu_.add_c(h_l_.low()); }
         case 0x8E: {
             const auto data = read_data(make_address(h_l_));
             return alu_.add_c(data) + 4;
         }
-        case 0x8F: { return alu_.add_c(a_f_.get_high()); }
-        case 0x90: { return alu_.subtract(b_c_.get_high()); }
-        case 0x91: { return alu_.subtract(b_c_.get_low()); }
-        case 0x92: { return alu_.subtract(d_e_.get_high()); }
-        case 0x93: { return alu_.subtract(d_e_.get_low()); }
-        case 0x94: { return alu_.subtract(h_l_.get_high()); }
-        case 0x95: { return alu_.subtract(h_l_.get_low()); }
+        case 0x8F: { return alu_.add_c(a_f_.high()); }
+        case 0x90: { return alu_.subtract(b_c_.high()); }
+        case 0x91: { return alu_.subtract(b_c_.low()); }
+        case 0x92: { return alu_.subtract(d_e_.high()); }
+        case 0x93: { return alu_.subtract(d_e_.low()); }
+        case 0x94: { return alu_.subtract(h_l_.high()); }
+        case 0x95: { return alu_.subtract(h_l_.low()); }
         case 0x96: {
             const auto data = read_data(make_address(h_l_));
             return alu_.subtract(data) + 4;
         }
-        case 0x97: { return alu_.subtract(a_f_.get_high()); }
-        case 0x98: { return alu_.subtract_c(b_c_.get_high()); }
-        case 0x99: { return alu_.subtract_c(b_c_.get_low()); }
-        case 0x9A: { return alu_.subtract_c(d_e_.get_high()); }
-        case 0x9B: { return alu_.subtract_c(d_e_.get_low()); }
-        case 0x9C: { return alu_.subtract_c(h_l_.get_high()); }
-        case 0x9D: { return alu_.subtract_c(h_l_.get_low()); }
+        case 0x97: { return alu_.subtract(a_f_.high()); }
+        case 0x98: { return alu_.subtract_c(b_c_.high()); }
+        case 0x99: { return alu_.subtract_c(b_c_.low()); }
+        case 0x9A: { return alu_.subtract_c(d_e_.high()); }
+        case 0x9B: { return alu_.subtract_c(d_e_.low()); }
+        case 0x9C: { return alu_.subtract_c(h_l_.high()); }
+        case 0x9D: { return alu_.subtract_c(h_l_.low()); }
         case 0x9E: {
             const auto data = read_data(make_address(h_l_));
             return alu_.subtract_c(data) + 4;
         }
-        case 0x9F: { return alu_.subtract_c(a_f_.get_high()); }
-        case 0xA0: { return alu_.logical_and(b_c_.get_high()); }
-        case 0xA1: { return alu_.logical_and(b_c_.get_low()); }
-        case 0xA2: { return alu_.logical_and(d_e_.get_high()); }
-        case 0xA3: { return alu_.logical_and(d_e_.get_low()); }
-        case 0xA4: { return alu_.logical_and(h_l_.get_high()); }
-        case 0xA5: { return alu_.logical_and(h_l_.get_low()); }
+        case 0x9F: { return alu_.subtract_c(a_f_.high()); }
+        case 0xA0: { return alu_.logical_and(b_c_.high()); }
+        case 0xA1: { return alu_.logical_and(b_c_.low()); }
+        case 0xA2: { return alu_.logical_and(d_e_.high()); }
+        case 0xA3: { return alu_.logical_and(d_e_.low()); }
+        case 0xA4: { return alu_.logical_and(h_l_.high()); }
+        case 0xA5: { return alu_.logical_and(h_l_.low()); }
         case 0xA6: {
             const auto data = read_data(make_address(h_l_));
             return alu_.logical_and(data) + 4;
         }
         case 0xA7: { return nop(); } /* AND A */
-        case 0xA8: { return alu_.logical_xor(b_c_.get_high()); }
-        case 0xA9: { return alu_.logical_xor(b_c_.get_low()); }
-        case 0xAA: { return alu_.logical_xor(d_e_.get_high()); }
-        case 0xAB: { return alu_.logical_xor(d_e_.get_low()); }
-        case 0xAC: { return alu_.logical_xor(h_l_.get_high()); }
-        case 0xAD: { return alu_.logical_xor(h_l_.get_low()); }
+        case 0xA8: { return alu_.logical_xor(b_c_.high()); }
+        case 0xA9: { return alu_.logical_xor(b_c_.low()); }
+        case 0xAA: { return alu_.logical_xor(d_e_.high()); }
+        case 0xAB: { return alu_.logical_xor(d_e_.low()); }
+        case 0xAC: { return alu_.logical_xor(h_l_.high()); }
+        case 0xAD: { return alu_.logical_xor(h_l_.low()); }
         case 0xAE: {
             const auto data = read_data(make_address(h_l_));
             return alu_.logical_xor(data) + 4;
         }
-        case 0xAF: { return alu_.logical_xor(a_f_.get_high()); }
-        case 0xB0: { return alu_.logical_or(b_c_.get_high()); }
-        case 0xB1: { return alu_.logical_or(b_c_.get_low()); }
-        case 0xB2: { return alu_.logical_or(d_e_.get_high()); }
-        case 0xB3: { return alu_.logical_or(d_e_.get_low()); }
-        case 0xB4: { return alu_.logical_or(h_l_.get_high()); }
-        case 0xB5: { return alu_.logical_or(h_l_.get_low()); }
+        case 0xAF: { return alu_.logical_xor(a_f_.high()); }
+        case 0xB0: { return alu_.logical_or(b_c_.high()); }
+        case 0xB1: { return alu_.logical_or(b_c_.low()); }
+        case 0xB2: { return alu_.logical_or(d_e_.high()); }
+        case 0xB3: { return alu_.logical_or(d_e_.low()); }
+        case 0xB4: { return alu_.logical_or(h_l_.high()); }
+        case 0xB5: { return alu_.logical_or(h_l_.low()); }
         case 0xB6: {
             const auto data = read_data(make_address(h_l_));
             return alu_.logical_or(data) + 4;
         }
-        case 0xB7: { return alu_.logical_or(a_f_.get_high()); }
-        case 0xB8: { return alu_.logical_compare(b_c_.get_high()); }
-        case 0xB9: { return alu_.logical_compare(b_c_.get_low()); }
-        case 0xBA: { return alu_.logical_compare(d_e_.get_high()); }
-        case 0xBB: { return alu_.logical_compare(d_e_.get_low()); }
-        case 0xBC: { return alu_.logical_compare(h_l_.get_high()); }
-        case 0xBD: { return alu_.logical_compare(h_l_.get_low()); }
+        case 0xB7: { return alu_.logical_or(a_f_.high()); }
+        case 0xB8: { return alu_.logical_compare(b_c_.high()); }
+        case 0xB9: { return alu_.logical_compare(b_c_.low()); }
+        case 0xBA: { return alu_.logical_compare(d_e_.high()); }
+        case 0xBB: { return alu_.logical_compare(d_e_.low()); }
+        case 0xBC: { return alu_.logical_compare(h_l_.high()); }
+        case 0xBD: { return alu_.logical_compare(h_l_.low()); }
         case 0xBE: {
             const auto data = read_data(make_address(h_l_));
             return alu_.logical_compare(data) + 4;
         }
-        case 0xBF: { return alu_.logical_compare(a_f_.get_high()); }
+        case 0xBF: { return alu_.logical_compare(a_f_.high()); }
         case 0xC0: { return ret(!test_flag(flag::zero)); }
         case 0xC1: { return pop(b_c_); }
         case 0xC2: {
@@ -385,12 +385,12 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0xDF: { return rst(address8(0x18)); }
         case 0xE0: {
             const uint16_t address = 0xFF00 + read_immediate(imm8);
-            return store(make_address(address), a_f_.get_high()) + 4;
+            return store(make_address(address), a_f_.high()) + 4;
         }
         case 0xE1: { return pop(h_l_); }
         case 0xE2: {
-            const auto address = make_address(b_c_.get_low() + 0xFF00);
-            return store(address, a_f_.get_high());
+            const auto address = make_address(b_c_.low() + 0xFF00);
+            return store(address, a_f_.high());
         }
         case 0xE5: { return push(h_l_); }
         case 0xE6: {
@@ -405,7 +405,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0xE9: { return jump(h_l_); }
         case 0xEA: {
             const auto data = read_immediate(imm16);
-            return store(make_address(data), a_f_.get_high()) + 8;
+            return store(make_address(data), a_f_.high()) + 8;
         }
         case 0xEE: {
             const auto data = read_immediate(imm8);
@@ -415,12 +415,12 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0xF0: {
             const uint16_t address = 0xFF00 + read_immediate(imm8);
             const auto data = read_data(make_address(address));
-            return load(a_f_.get_high(), data) + 4;
+            return load(a_f_.high(), data) + 4;
         }
         case 0xF1: { return pop(a_f_); }
         case 0xF2: {
-            const auto data = read_data(make_address(b_c_.get_low() + 0xFF00));
-            return load(a_f_.get_high(), data);
+            const auto data = read_data(make_address(b_c_.low() + 0xFF00));
+            return load(a_f_.high(), data);
         }
         case 0xF3: {
             //is_interrupt_master_enabled = false;
@@ -437,7 +437,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0xFA: {
             const auto addr = read_immediate(imm16);
             const auto data = read_data(make_address(addr));
-            return load(a_f_.get_high(), data) + 8;
+            return load(a_f_.high(), data) + 8;
         }
         case 0xFB: {
             //is_interrupt_master_enabled = true;
@@ -449,7 +449,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
         }
         case 0xFF: { return rst(address8(0x38)); }
         default: {
-            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.get_value() - 1);
+            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.value() - 1);
             std::abort();
         }
     }
@@ -461,7 +461,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         return 0x1u << (inst >> 0x3u & 0x7u);
     };
 
-    const auto alu_do_one_param = [&](uint8_t (alu::*func)(uint8_t&) const) {
+    const auto alu_do_one_param = [&](uint8_t (alu::*func)(uint8_t&) const) -> uint8_t {
         const auto address = make_address(h_l_);
         auto data = read_data(address);
         const auto cycles = std::invoke(func, alu_, data);
@@ -470,57 +470,57 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
     };
 
     switch(inst) {
-        case 0x00: { return alu_.rotate_left_c(b_c_.get_high()); }
-        case 0x01: { return alu_.rotate_left_c(b_c_.get_low()); }
-        case 0x02: { return alu_.rotate_left_c(d_e_.get_high()); }
-        case 0x03: { return alu_.rotate_left_c(d_e_.get_low()); }
-        case 0x04: { return alu_.rotate_left_c(h_l_.get_high()); }
-        case 0x05: { return alu_.rotate_left_c(h_l_.get_low()); }
+        case 0x00: { return alu_.rotate_left_c(b_c_.high()); }
+        case 0x01: { return alu_.rotate_left_c(b_c_.low()); }
+        case 0x02: { return alu_.rotate_left_c(d_e_.high()); }
+        case 0x03: { return alu_.rotate_left_c(d_e_.low()); }
+        case 0x04: { return alu_.rotate_left_c(h_l_.high()); }
+        case 0x05: { return alu_.rotate_left_c(h_l_.low()); }
         case 0x06: { return alu_do_one_param(&alu::rotate_left_c); }
-        case 0x07: { return alu_.rotate_left_c(b_c_.get_high()); }
+        case 0x07: { return alu_.rotate_left_c(b_c_.high()); }
 
-        case 0x08: { return alu_.rotate_right_c(b_c_.get_high()); }
-        case 0x09: { return alu_.rotate_right_c(b_c_.get_low()); }
-        case 0x0A: { return alu_.rotate_right_c(d_e_.get_high()); }
-        case 0x0B: { return alu_.rotate_right_c(d_e_.get_low()); }
-        case 0x0C: { return alu_.rotate_right_c(h_l_.get_high()); }
-        case 0x0D: { return alu_.rotate_right_c(h_l_.get_low()); }
+        case 0x08: { return alu_.rotate_right_c(b_c_.high()); }
+        case 0x09: { return alu_.rotate_right_c(b_c_.low()); }
+        case 0x0A: { return alu_.rotate_right_c(d_e_.high()); }
+        case 0x0B: { return alu_.rotate_right_c(d_e_.low()); }
+        case 0x0C: { return alu_.rotate_right_c(h_l_.high()); }
+        case 0x0D: { return alu_.rotate_right_c(h_l_.low()); }
         case 0x0E: { return alu_do_one_param(&alu::rotate_right_c); }
-        case 0x0F: { return alu_.rotate_right_c(b_c_.get_high()); }
+        case 0x0F: { return alu_.rotate_right_c(b_c_.high()); }
 
-        case 0x10: { return alu_.rotate_left(b_c_.get_high()); }
-        case 0x11: { return alu_.rotate_left(b_c_.get_low()); }
-        case 0x12: { return alu_.rotate_left(d_e_.get_high()); }
-        case 0x13: { return alu_.rotate_left(d_e_.get_low()); }
-        case 0x14: { return alu_.rotate_left(h_l_.get_high()); }
-        case 0x15: { return alu_.rotate_left(h_l_.get_low()); }
+        case 0x10: { return alu_.rotate_left(b_c_.high()); }
+        case 0x11: { return alu_.rotate_left(b_c_.low()); }
+        case 0x12: { return alu_.rotate_left(d_e_.high()); }
+        case 0x13: { return alu_.rotate_left(d_e_.low()); }
+        case 0x14: { return alu_.rotate_left(h_l_.high()); }
+        case 0x15: { return alu_.rotate_left(h_l_.low()); }
         case 0x16: { return alu_do_one_param(&alu::rotate_left); }
-        case 0x17: { return alu_.rotate_left(b_c_.get_high()); }
+        case 0x17: { return alu_.rotate_left(b_c_.high()); }
 
-        case 0x18: { return alu_.rotate_right(b_c_.get_high()); }
-        case 0x19: { return alu_.rotate_right(b_c_.get_low()); }
-        case 0x1A: { return alu_.rotate_right(d_e_.get_high()); }
-        case 0x1B: { return alu_.rotate_right(d_e_.get_low()); }
-        case 0x1C: { return alu_.rotate_right(h_l_.get_high()); }
-        case 0x1D: { return alu_.rotate_right(h_l_.get_low()); }
+        case 0x18: { return alu_.rotate_right(b_c_.high()); }
+        case 0x19: { return alu_.rotate_right(b_c_.low()); }
+        case 0x1A: { return alu_.rotate_right(d_e_.high()); }
+        case 0x1B: { return alu_.rotate_right(d_e_.low()); }
+        case 0x1C: { return alu_.rotate_right(h_l_.high()); }
+        case 0x1D: { return alu_.rotate_right(h_l_.low()); }
         case 0x1E: { return alu_do_one_param(&alu::rotate_right); }
-        case 0x1F: { return alu_.rotate_right(b_c_.get_high()); }
+        case 0x1F: { return alu_.rotate_right(b_c_.high()); }
 
-        case 0x20: { return alu_.shift_left(b_c_.get_high()); }
-        case 0x21: { return alu_.shift_left(b_c_.get_low()); }
-        case 0x22: { return alu_.shift_left(d_e_.get_high()); }
-        case 0x23: { return alu_.shift_left(d_e_.get_low()); }
-        case 0x24: { return alu_.shift_left(h_l_.get_high()); }
-        case 0x25: { return alu_.shift_left(h_l_.get_low()); }
+        case 0x20: { return alu_.shift_left(b_c_.high()); }
+        case 0x21: { return alu_.shift_left(b_c_.low()); }
+        case 0x22: { return alu_.shift_left(d_e_.high()); }
+        case 0x23: { return alu_.shift_left(d_e_.low()); }
+        case 0x24: { return alu_.shift_left(h_l_.high()); }
+        case 0x25: { return alu_.shift_left(h_l_.low()); }
         case 0x26: { return alu_do_one_param(&alu::shift_left); }
-        case 0x27: { return alu_.shift_left(b_c_.get_high()); }
+        case 0x27: { return alu_.shift_left(b_c_.high()); }
 
-        case 0x28: { return alu_.shift_right(b_c_.get_high(), alu::preserve_last_bit); }
-        case 0x29: { return alu_.shift_right(b_c_.get_low(), alu::preserve_last_bit); }
-        case 0x2A: { return alu_.shift_right(d_e_.get_high(), alu::preserve_last_bit); }
-        case 0x2B: { return alu_.shift_right(d_e_.get_low(), alu::preserve_last_bit); }
-        case 0x2C: { return alu_.shift_right(h_l_.get_high(), alu::preserve_last_bit); }
-        case 0x2D: { return alu_.shift_right(h_l_.get_low(), alu::preserve_last_bit); }
+        case 0x28: { return alu_.shift_right(b_c_.high(), alu::preserve_last_bit); }
+        case 0x29: { return alu_.shift_right(b_c_.low(), alu::preserve_last_bit); }
+        case 0x2A: { return alu_.shift_right(d_e_.high(), alu::preserve_last_bit); }
+        case 0x2B: { return alu_.shift_right(d_e_.low(), alu::preserve_last_bit); }
+        case 0x2C: { return alu_.shift_right(h_l_.high(), alu::preserve_last_bit); }
+        case 0x2D: { return alu_.shift_right(h_l_.low(), alu::preserve_last_bit); }
         case 0x2E: {
             const auto address = make_address(h_l_);
             auto data = read_data(address);
@@ -528,23 +528,23 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
             write_data(address, data);
             return cycles + 8;
         }
-        case 0x2F: { return alu_.shift_right(b_c_.get_high(), alu::preserve_last_bit); }
+        case 0x2F: { return alu_.shift_right(b_c_.high(), alu::preserve_last_bit); }
 
-        case 0x30: { return alu_.swap(b_c_.get_high()); }
-        case 0x31: { return alu_.swap(b_c_.get_low()); }
-        case 0x32: { return alu_.swap(d_e_.get_high()); }
-        case 0x33: { return alu_.swap(d_e_.get_low()); }
-        case 0x34: { return alu_.swap(h_l_.get_high()); }
-        case 0x35: { return alu_.swap(h_l_.get_low()); }
+        case 0x30: { return alu_.swap(b_c_.high()); }
+        case 0x31: { return alu_.swap(b_c_.low()); }
+        case 0x32: { return alu_.swap(d_e_.high()); }
+        case 0x33: { return alu_.swap(d_e_.low()); }
+        case 0x34: { return alu_.swap(h_l_.high()); }
+        case 0x35: { return alu_.swap(h_l_.low()); }
         case 0x36: { return alu_do_one_param(&alu::swap); }
-        case 0x37: { return alu_.swap(a_f_.get_high()); }
+        case 0x37: { return alu_.swap(a_f_.high()); }
 
-        case 0x38: { return alu_.shift_right(b_c_.get_high(), alu::reset_last_bit); }
-        case 0x39: { return alu_.shift_right(b_c_.get_low(), alu::reset_last_bit); }
-        case 0x3A: { return alu_.shift_right(d_e_.get_high(), alu::reset_last_bit); }
-        case 0x3B: { return alu_.shift_right(d_e_.get_low(), alu::reset_last_bit); }
-        case 0x3C: { return alu_.shift_right(h_l_.get_high(), alu::reset_last_bit); }
-        case 0x3D: { return alu_.shift_right(h_l_.get_low(), alu::reset_last_bit); }
+        case 0x38: { return alu_.shift_right(b_c_.high(), alu::reset_last_bit); }
+        case 0x39: { return alu_.shift_right(b_c_.low(), alu::reset_last_bit); }
+        case 0x3A: { return alu_.shift_right(d_e_.high(), alu::reset_last_bit); }
+        case 0x3B: { return alu_.shift_right(d_e_.low(), alu::reset_last_bit); }
+        case 0x3C: { return alu_.shift_right(h_l_.high(), alu::reset_last_bit); }
+        case 0x3D: { return alu_.shift_right(h_l_.low(), alu::reset_last_bit); }
         case 0x3E: {
             const auto address = make_address(h_l_);
             auto data = read_data(address);
@@ -552,7 +552,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
             write_data(address, data);
             return cycles + 8;
         }
-        case 0x3F: { return alu_.shift_right(a_f_.get_high(), alu::reset_last_bit); }
+        case 0x3F: { return alu_.shift_right(a_f_.high(), alu::reset_last_bit); }
 
         case 0x40:
         case 0x50:
@@ -562,7 +562,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x58:
         case 0x68:
         case 0x78: {
-            return alu_.bit_test(b_c_.get_high(), get_bitop_mask());
+            return alu_.bit_test(b_c_.high(), get_bitop_mask());
         }
 
         case 0x41:
@@ -573,7 +573,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x59:
         case 0x69:
         case 0x79: {
-            return alu_.bit_test(b_c_.get_low(), get_bitop_mask());
+            return alu_.bit_test(b_c_.low(), get_bitop_mask());
         }
 
         case 0x42:
@@ -584,7 +584,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5A:
         case 0x6A:
         case 0x7A: {
-            return alu_.bit_test(d_e_.get_high(), get_bitop_mask());
+            return alu_.bit_test(d_e_.high(), get_bitop_mask());
         }
 
         case 0x43:
@@ -595,7 +595,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5B:
         case 0x6B:
         case 0x7B: {
-            return alu_.bit_test(d_e_.get_low(), get_bitop_mask());
+            return alu_.bit_test(d_e_.low(), get_bitop_mask());
         }
 
         case 0x44:
@@ -606,7 +606,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5C:
         case 0x6C:
         case 0x7C: {
-            return alu_.bit_test(h_l_.get_high(), get_bitop_mask());
+            return alu_.bit_test(h_l_.high(), get_bitop_mask());
         }
 
         case 0x45:
@@ -617,7 +617,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5D:
         case 0x6D:
         case 0x7D: {
-            return alu_.bit_test(h_l_.get_low(), get_bitop_mask());
+            return alu_.bit_test(h_l_.low(), get_bitop_mask());
         }
 
         case 0x46:
@@ -641,7 +641,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5F:
         case 0x6F:
         case 0x7F: {
-            return alu_.bit_test(a_f_.get_high(), get_bitop_mask());
+            return alu_.bit_test(a_f_.high(), get_bitop_mask());
         }
 
         case 0x80:
@@ -652,7 +652,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x98:
         case 0xA8:
         case 0xB8: {
-            return alu_.bit_reset(b_c_.get_high(), get_bitop_mask());
+            return alu_.bit_reset(b_c_.high(), get_bitop_mask());
         }
 
         case 0x81:
@@ -663,7 +663,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x99:
         case 0xA9:
         case 0xB9: {
-            return alu_.bit_reset(b_c_.get_low(), get_bitop_mask());
+            return alu_.bit_reset(b_c_.low(), get_bitop_mask());
         }
 
         case 0x82:
@@ -674,7 +674,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9A:
         case 0xAA:
         case 0xBA: {
-            return alu_.bit_reset(d_e_.get_high(), get_bitop_mask());
+            return alu_.bit_reset(d_e_.high(), get_bitop_mask());
         }
 
         case 0x83:
@@ -685,7 +685,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9B:
         case 0xAB:
         case 0xBB: {
-            return alu_.bit_reset(d_e_.get_low(), get_bitop_mask());
+            return alu_.bit_reset(d_e_.low(), get_bitop_mask());
         }
 
         case 0x84:
@@ -696,7 +696,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9C:
         case 0xAC:
         case 0xBC: {
-            return alu_.bit_reset(h_l_.get_high(), get_bitop_mask());
+            return alu_.bit_reset(h_l_.high(), get_bitop_mask());
         }
 
         case 0x85:
@@ -707,7 +707,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9D:
         case 0xAD:
         case 0xBD: {
-            return alu_.bit_reset(h_l_.get_low(), get_bitop_mask());
+            return alu_.bit_reset(h_l_.low(), get_bitop_mask());
         }
 
         case 0x86:
@@ -733,7 +733,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9F:
         case 0xAF:
         case 0xBF: {
-            return alu_.bit_reset(a_f_.get_high(), get_bitop_mask());
+            return alu_.bit_reset(a_f_.high(), get_bitop_mask());
         }
 
         case 0xC0:
@@ -744,7 +744,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xD8:
         case 0xE8:
         case 0xF8: {
-            return alu_.bit_set(b_c_.get_high(), get_bitop_mask());
+            return alu_.bit_set(b_c_.high(), get_bitop_mask());
         }
 
         case 0xC1:
@@ -755,7 +755,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xD9:
         case 0xE9:
         case 0xF9: {
-            return alu_.bit_set(b_c_.get_low(), get_bitop_mask());
+            return alu_.bit_set(b_c_.low(), get_bitop_mask());
         }
 
         case 0xC2:
@@ -766,7 +766,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDA:
         case 0xEA:
         case 0xFA: {
-            return alu_.bit_set(d_e_.get_high(), get_bitop_mask());
+            return alu_.bit_set(d_e_.high(), get_bitop_mask());
         }
 
         case 0xC3:
@@ -777,7 +777,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDB:
         case 0xEB:
         case 0xFB: {
-            return alu_.bit_set(d_e_.get_low(), get_bitop_mask());
+            return alu_.bit_set(d_e_.low(), get_bitop_mask());
         }
 
         case 0xC4:
@@ -788,7 +788,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDC:
         case 0xEC:
         case 0xFC: {
-            return alu_.bit_set(h_l_.get_high(), get_bitop_mask());
+            return alu_.bit_set(h_l_.high(), get_bitop_mask());
         }
 
         case 0xC5:
@@ -799,7 +799,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDD:
         case 0xED:
         case 0xFD: {
-            return alu_.bit_set(h_l_.get_low(), get_bitop_mask());
+            return alu_.bit_set(h_l_.low(), get_bitop_mask());
         }
 
         case 0xC6:
@@ -825,11 +825,11 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDF:
         case 0xEF:
         case 0xFF: {
-            return alu_.bit_set(a_f_.get_high(), get_bitop_mask());
+            return alu_.bit_set(a_f_.high(), get_bitop_mask());
         }
 
         default: {
-            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.get_value() - 1);
+            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.value() - 1);
             std::abort();
         }
     }
@@ -891,11 +891,11 @@ uint8_t gameboy::cpu::push(const gameboy::register16& reg)
 {
     const auto write_to_stack = [&](const register8& reg_8) {
         --stack_pointer_;
-        write_data(make_address(stack_pointer_), reg_8.get_value());
+        write_data(make_address(stack_pointer_), reg_8.value());
     };
 
-    write_to_stack(reg.get_high());
-    write_to_stack(reg.get_low());
+    write_to_stack(reg.high());
+    write_to_stack(reg.low());
     return 16;
 }
 
@@ -907,8 +907,8 @@ uint8_t gameboy::cpu::pop(gameboy::register16& reg)
         return data;
     };
 
-    reg.get_low() = read_from_stack();
-    reg.get_high() = read_from_stack();
+    reg.low() = read_from_stack();
+    reg.high() = read_from_stack();
     return 12;
 }
 
@@ -921,7 +921,7 @@ uint8_t gameboy::cpu::rst(const gameboy::address8& address)
 
 uint8_t gameboy::cpu::jump(const gameboy::register16& reg)
 {
-    program_counter_ = reg.get_value();
+    program_counter_ = reg.value();
     return 4;
 }
 
@@ -942,7 +942,7 @@ uint8_t gameboy::cpu::jump(const bool condition, const gameboy::address16& addre
 
 uint8_t gameboy::cpu::jump_relative(const gameboy::address8& address)
 {
-    program_counter_ = program_counter_.get_value() + static_cast<int8_t>(address.get_value());
+    program_counter_ += address;
     return 12;
 }
 
@@ -999,14 +999,14 @@ uint8_t gameboy::cpu::store(const gameboy::address16& address, const uint8_t dat
 
 uint8_t gameboy::cpu::store(const gameboy::address16& address, const gameboy::register8& reg) const
 {
-    write_data(address, reg.get_value());
+    write_data(address, reg.value());
     return 8;
 }
 
 uint8_t gameboy::cpu::store(const gameboy::address16& address, const gameboy::register16& reg) const
 {
-    const auto store_low_cycles = store(address, reg.get_low());
-    const auto store_high_cycles = store(address, reg.get_high());
+    const auto store_low_cycles = store(address, reg.low());
+    const auto store_high_cycles = store(address, reg.high());
     return store_low_cycles + store_high_cycles;
 }
 
@@ -1036,14 +1036,14 @@ uint8_t gameboy::cpu::load(register16& r_left, const register16& r_right)
 
 uint8_t gameboy::cpu::store_i()
 {
-    const auto cycles = store(make_address(h_l_), a_f_.get_high());
+    const auto cycles = store(make_address(h_l_), a_f_.high());
     ++h_l_;
     return cycles;
 }
 
 uint8_t gameboy::cpu::store_d()
 {
-    const auto cycles = store(make_address(h_l_), a_f_.get_high());
+    const auto cycles = store(make_address(h_l_), a_f_.high());
     --h_l_;
     return cycles;
 }
@@ -1051,7 +1051,7 @@ uint8_t gameboy::cpu::store_d()
 uint8_t gameboy::cpu::load_i()
 {
     const auto data = read_data(make_address(h_l_));
-    const auto cycles = load(a_f_.get_high(), data);
+    const auto cycles = load(a_f_.high(), data);
     ++h_l_;
     return cycles;
 }
@@ -1059,7 +1059,7 @@ uint8_t gameboy::cpu::load_i()
 uint8_t gameboy::cpu::load_d()
 {
     const auto data = read_data(make_address(h_l_));
-    const auto cycles = load(a_f_.get_high(), data);
+    const auto cycles = load(a_f_.high(), data);
     --h_l_;
     return cycles;
 }
@@ -1067,14 +1067,14 @@ uint8_t gameboy::cpu::load_d()
 uint8_t gameboy::cpu::load_hlsp()
 {
     const auto data = static_cast<int8_t>(read_immediate(imm8));
-    const uint16_t value = stack_pointer_.get_value() + data;
+    const uint16_t value = stack_pointer_.value() + data;
 
     reset_flag(flag::all);
-    if(((stack_pointer_ ^ data ^ value) & 0x0100) == 0x0100) {
+    if(((stack_pointer_.value() ^ data ^ value) & 0x0100) == 0x0100) {
         set_flag(flag::carry);
     }
 
-    if(((stack_pointer_ ^ data ^ value) & 0x0010) == 0x0010) {
+    if(((stack_pointer_.value() ^ data ^ value) & 0x0010) == 0x0010) {
         set_flag(flag::half_carry);
     }
 

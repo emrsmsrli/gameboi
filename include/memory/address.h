@@ -42,7 +42,7 @@ constexpr address<T> make_address(T addr)
  */
 inline address16 make_address(const register16& reg)
 {
-    return address16(reg.get_value());
+    return address16(reg.value());
 }
 
 }
