@@ -90,9 +90,9 @@ uint8_t gameboy::mmu::read(const gameboy::address16& address) const
         if(rom_range.contains(address)) {
             return bus_->cartridge->read_rom(address);
         } else if(vram_range.contains(address)) {
-            return bus_->ppu->write(address);
+            return bus_->ppu->read(address);
         } else if(xram_range.contains(address)) {
-            return bus_->cartridge->write_ram(address);
+            return bus_->cartridge->read_ram(address);
         } else if(wram_range.contains(address)) {
             // fixme get correct wram bank
             return work_ram_[address.get_value()];
