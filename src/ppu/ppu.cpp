@@ -1,6 +1,6 @@
 #include <ppu/ppu.h>
 #include <memory/address.h>
-#include <util/math.h>
+#include <util/mathutil.h>
 
 namespace {
 constexpr auto hblank_cycles = 207;

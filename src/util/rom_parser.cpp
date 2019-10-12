@@ -6,8 +6,6 @@
 #include <util/data_loader.h>
 #include <util/log.h>
 #include <memory/address_range.h>
-#include <memory/controller/mbc_null.h>
-#include <memory/controller/mbc1.h>
 
 namespace {
 

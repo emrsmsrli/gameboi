@@ -1,6 +1,7 @@
 #include <cstdint>
-#include <memory/address_range.h>
+
 #include <memory/controller/mbc1.h>
+#include <memory/address_range.h>
 #include <util/mathutil.h>
 
 gameboy::mbc1::mbc1(const std::vector<uint8_t>& rom, const gameboy::cartridge& rom_header)

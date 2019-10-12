@@ -1,6 +1,7 @@
+#include <chrono>
+
 #include <memory/controller/mbc3.h>
 #include <memory/address_range.h>
-#include <chrono>
 
 uint8_t gameboy::rtc::read() const
 {

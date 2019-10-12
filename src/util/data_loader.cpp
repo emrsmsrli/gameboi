@@ -1,5 +1,6 @@
 #include <fstream>
 #include <iterator>
+
 #include <util/data_loader.h>
 
 namespace {
