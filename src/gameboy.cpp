@@ -20,6 +20,8 @@ gameboy::gameboy::gameboy(const std::string_view rom_path)
       ppu_(ppu{make_observer(bus_)}),
       apu_(apu{make_observer(bus_)})
 {
+    mmu_.initialize();
+
     bus_.cartridge = make_observer(cartridge_);
     bus_.cpu = make_observer(cpu_);
     bus_.ppu = make_observer(ppu_);
