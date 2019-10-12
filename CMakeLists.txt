@@ -10,7 +10,7 @@ conan_basic_setup()
 add_compile_definitions(DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 
 # configure gtest
-configure_file(CMakeLists.txt.in googletest-download/CMakeLists.txt)
+configure_file(cmake/GTest.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
         RESULT_VARIABLE result
         WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
