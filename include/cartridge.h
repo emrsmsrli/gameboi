@@ -34,7 +34,7 @@ private:
     std::vector<uint8_t> rom_;
     std::vector<uint8_t> ram_;
 
-    std::variant<mbc_null, mbc1, mbc2, mbc3> mbc_;
+    std::variant<std::monostate, mbc_null, mbc1, mbc2, mbc3> mbc_;
 };
 
 }
