@@ -1,10 +1,14 @@
 #include <functional>
 
+#include <bus.h>
 #include <cpu/cpu.h>
+#include <memory/mmu.h>
 #include <memory/address.h>
 #include <util/log.h>
+#include <util/observer.h>
 
-void gameboy::cpu::initialize()
+gameboy::cpu::cpu(observer<bus> bus)
+    : bus_(bus)
 {
     a_f_ = 0x01B0u;
     b_c_ = 0x0013u;
@@ -833,12 +837,12 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
 
 void gameboy::cpu::write_data(const address16& address, const uint8_t data) const
 {
-    mmu_->write(address, data);
+    bus_->mmu->write(address, data);
 }
 
 uint8_t gameboy::cpu::read_data(const gameboy::address16& address) const
 {
-    return mmu_->read(address);
+    return bus_->mmu->read(address);
 }
 
 uint8_t gameboy::cpu::read_immediate(imm8_t)

@@ -2,9 +2,9 @@
 #define GAMEBOY_CPU_H
 
 #include <memory>
+
 #include <cpu/register16.h>
 #include <cpu/alu.h>
-#include <memory/mmu.h>
 
 namespace gameboy {
 
@@ -14,10 +14,8 @@ class cpu {
     friend alu;
 
 public:
-    explicit cpu(std::shared_ptr<mmu> memory_management_unit)
-        : mmu_(std::move(memory_management_unit)) {}
+    explicit cpu(observer<bus> bus);
 
-    void initialize();
     [[nodiscard]] uint8_t tick();
 
 private:
@@ -35,7 +33,7 @@ private:
     static constexpr struct imm8_t {} imm8{};
     static constexpr struct imm16_t {} imm16{};
 
-    std::shared_ptr<mmu> mmu_;
+    observer<bus> bus_;
 
     alu alu_{make_observer(this)};
 
