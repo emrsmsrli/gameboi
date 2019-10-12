@@ -2,6 +2,7 @@
 #define GAMEBOY_REGISTER16_H
 
 #include <cstdint>
+
 #include <cpu/register8.h>
 #include <memory/addressfwd.h>
 

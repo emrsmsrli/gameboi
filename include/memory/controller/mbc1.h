@@ -2,6 +2,7 @@
 #define GAMEBOY_MBC1_H
 
 #include <cstdint>
+
 #include <memory/controller/mbc.h>
 
 namespace gameboy {

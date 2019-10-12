@@ -5,8 +5,10 @@
 #include <cstdint>
 #include <string_view>
 
-namespace gameboy::util::data_loader {
-    std::vector<uint8_t> load(std::string_view path);
+namespace gameboy::data_loader {
+
+std::vector<uint8_t> load(std::string_view path);
+
 }
 
 #endif //GAMEBOY_DATA_LOADER_H

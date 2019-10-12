@@ -12,39 +12,39 @@ public:
     constexpr observer() noexcept = default;
     constexpr observer(std::nullptr_t) noexcept
         : observer(nullptr) {};
-    explicit observer(ElementType* value)
-        : ptr(value) {}
+    explicit observer(ElementType* ptr)
+        : ptr_(ptr) {}
 
-    constexpr void reset(ElementType* value = nullptr) noexcept { ptr = value; }
+    constexpr void reset(ElementType* ptr = nullptr) noexcept { ptr_ = ptr; }
     constexpr ElementType* release() noexcept
     {
-        auto* ret = ptr;
-        ptr = nullptr;
+        auto* ret = ptr_;
+        ptr_ = nullptr;
         return ret;
     }
 
-    constexpr ElementType* get() const noexcept { return ptr; }
+    constexpr ElementType* get() const noexcept { return ptr_; }
 
-    constexpr explicit operator bool() const noexcept { return ptr != nullptr; }
-    constexpr explicit operator ElementType() const noexcept { return ptr; }
+    constexpr explicit operator bool() const noexcept { return ptr_ != nullptr; }
+    constexpr explicit operator ElementType() const noexcept { return ptr_; }
 
-    constexpr ElementType* operator->() const noexcept { return ptr; }
-    constexpr std::add_lvalue_reference_t<ElementType> operator*() const { return *ptr; }
+    constexpr ElementType* operator->() const noexcept { return ptr_; }
+    constexpr std::add_lvalue_reference_t<ElementType> operator*() const { return *ptr_; }
 
 private:
-    ElementType* ptr = nullptr;
+    ElementType* ptr_ = nullptr;
 };
 
 template<class W>
-observer<W> make_observer(W* p) noexcept
+observer<W> make_observer(W* ptr) noexcept
 {
-    return observer<W>{p};
+    return observer<W>{ptr};
 }
 
 template<class W>
-observer<W> make_observer(W& p) noexcept
+observer<W> make_observer(W& value) noexcept
 {
-    return observer<W>{&p};
+    return observer<W>{&value};
 }
 
 template<typename T>

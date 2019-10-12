@@ -8,6 +8,8 @@
 
 namespace gameboy {
 
+class bus;
+
 class cpu {
     friend alu;
 
@@ -110,6 +112,7 @@ private:
 
     [[nodiscard]] uint8_t load_hlsp();
 };
+
 }
 
 #endif //GAMEBOY_CPU_H

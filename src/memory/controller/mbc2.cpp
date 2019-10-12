@@ -1,6 +1,6 @@
 #include <memory/controller/mbc2.h>
 #include <memory/address_range.h>
-#include <util/math.h>
+#include <util/mathutil.h>
 
 gameboy::mbc2::mbc2(const std::vector<uint8_t>& rom, const gameboy::cartridge& rom_header)
     :mbc(rom, rom_header) { }

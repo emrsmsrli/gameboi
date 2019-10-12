@@ -2,6 +2,7 @@
 #define GAMEBOY_PPU_H
 
 #include <memory>
+
 #include <memory/mmu.h>
 
 namespace gameboy {

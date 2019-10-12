@@ -2,6 +2,7 @@
 #define GAMEBOY_ALU_H
 
 #include <cstdint>
+
 #include <util/observer.h>
 
 namespace gameboy {

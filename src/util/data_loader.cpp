@@ -13,7 +13,7 @@ auto get_file_size(std::ifstream& rom_file)
 
 }
 
-std::vector<uint8_t> gameboy::util::data_loader::load(const std::string_view path)
+std::vector<uint8_t> gameboy::data_loader::load(const std::string_view path)
 {
     std::ifstream file(path.data(), std::ios::binary | std::ios::ate);
     file.unsetf(std::ios::skipws);

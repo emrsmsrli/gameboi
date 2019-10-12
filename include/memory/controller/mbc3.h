@@ -1,8 +1,9 @@
 #ifndef GAMEBOY_MBC3_H
 #define GAMEBOY_MBC3_H
 
-#include <memory/controller/mbc.h>
 #include <ctime>
+
+#include <memory/controller/mbc.h>
 
 namespace gameboy {
 

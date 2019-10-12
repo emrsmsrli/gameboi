@@ -2,6 +2,7 @@
 #define GAMEBOY_REGISTER8_H
 
 #include <cstdint>
+
 #include <memory/addressfwd.h>
 
 namespace gameboy {

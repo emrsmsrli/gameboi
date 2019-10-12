@@ -1,6 +1,6 @@
 #include <cpu/alu.h>
 #include <cpu/cpu.h>
-#include <util/math.h>
+#include <util/mathutil.h>
 
 uint8_t gameboy::alu::add(const uint8_t value) const
 {

@@ -15,13 +15,13 @@ public:
     using size_type = T;
 
     constexpr address() = default;
-    constexpr explicit address(size_type default_value)
-            :value(default_value) { }
+    constexpr explicit address(size_type value)
+        : value_(value) {}
 
-    [[nodiscard]] constexpr size_type get_value() const { return value; }
+    [[nodiscard]] constexpr size_type get_value() const { return value_; }
 
 private:
-    size_type value = 0x0u;
+    size_type value_ = 0x0u;
 };
 
 /**
