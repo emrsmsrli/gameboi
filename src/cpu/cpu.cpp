@@ -915,7 +915,7 @@ uint8_t gameboy::cpu::pop(gameboy::register16& reg)
 uint8_t gameboy::cpu::rst(const gameboy::address8& address)
 {
     const auto cycles = push(program_counter_);
-    program_counter_ = address.get_value();
+    program_counter_ = address.value();
     return cycles;
 }
 
@@ -927,7 +927,7 @@ uint8_t gameboy::cpu::jump(const gameboy::register16& reg)
 
 uint8_t gameboy::cpu::jump(const gameboy::address16& address)
 {
-    program_counter_ = address.get_value();
+    program_counter_ = address.value();
     return 16;
 }
 

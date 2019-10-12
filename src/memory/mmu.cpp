@@ -79,7 +79,7 @@ void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data)
         bus_->cartridge->write_ram(address, data);
     } else if(wram_range.contains(address)) {
         // fixme get correct wram bank
-        work_ram_[address.get_value()] = data;
+        work_ram_[address.value()] = data;
     }
     // todo switch here baby
 }
@@ -95,7 +95,7 @@ uint8_t gameboy::mmu::read(const gameboy::address16& address) const
             return bus_->cartridge->read_ram(address);
         } else if(wram_range.contains(address)) {
             // fixme get correct wram bank
-            return work_ram_[address.get_value()];
+            return work_ram_[address.value()];
         } else {
             log::error("out of bounds address: {}", address.get_value());
         }

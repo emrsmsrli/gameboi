@@ -18,7 +18,7 @@ public:
     constexpr explicit address(size_type value)
         : value_(value) {}
 
-    [[nodiscard]] constexpr size_type get_value() const { return value_; }
+    [[nodiscard]] constexpr size_type value() const { return value_; }
 
 private:
     size_type value_ = 0x0u;

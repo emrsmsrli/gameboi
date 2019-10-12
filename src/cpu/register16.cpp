@@ -16,7 +16,7 @@ gameboy::register16& gameboy::register16::operator=(uint16_t val)
 
 gameboy::register16& gameboy::register16::operator=(const address16& address)
 {
-    *this = address.get_value();
+    *this = address.value();
     return *this;
 }
 
@@ -46,7 +46,7 @@ gameboy::register16& gameboy::register16::operator+=(const gameboy::register16& 
 
 gameboy::register16& gameboy::register16::operator+=(const address8& address)
 {
-    *this = value() + static_cast<int8_t>(address.get_value());
+    *this = value() + static_cast<int8_t>(address.value());
     return *this;
 }
 

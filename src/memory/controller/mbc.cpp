@@ -81,7 +81,7 @@ uint8_t gameboy::mbc::read(const address16& virtual_address) const
     }
 
     const auto physical_address = to_physical_address(virtual_address);
-    return memory_[physical_address.get_value()];
+    return memory_[physical_address.value()];
 }
 
 void gameboy::mbc::write(const address16& virtual_address, uint8_t data)
@@ -94,7 +94,7 @@ void gameboy::mbc::write(const address16& virtual_address, uint8_t data)
         }
 
         const auto physical_address = to_physical_address(virtual_address);
-        memory_[physical_address.get_value()] = data;
+        memory_[physical_address.value()] = data;
     }
 }
 
@@ -108,7 +108,7 @@ gameboy::physical_address gameboy::mbc::to_physical_address(
 {
     // todo try to simplify this calculation
     const auto physical_address = [&]() -> size_t {
-        const size_t addr = virtual_address.get_value();
+        const size_t addr = virtual_address.value();
         switch(addr & 0xF000u) {
             case 0x0000u:
             case 0x1000u:

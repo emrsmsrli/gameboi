@@ -16,11 +16,11 @@ void gameboy::mbc2::control(const gameboy::address16& virtual_address, uint8_t d
     constexpr address_range rom_bank_select_range(0x2000u, 0x3FFFu);
 
     if(external_ram_enable_range.contains(virtual_address)) {
-        if(!math::bit_test(virtual_address.get_value(), 0x0100u)) {
+        if(!math::bit_test(virtual_address.value(), 0x0100u)) {
             set_external_ram_enabled(data);
         }
     } else if(rom_bank_select_range.contains(virtual_address)) {
-        if(math::bit_test(virtual_address.get_value(), 0x0100u)) {
+        if(math::bit_test(virtual_address.value(), 0x0100u)) {
             select_rom_bank(data);
         }
     }

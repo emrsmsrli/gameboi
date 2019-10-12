@@ -35,18 +35,18 @@ public:
         : address_range(0x0000u, end) {}
 
     constexpr explicit address_range(const address16& end)
-        : address_range(0x0000u, end.get_value()) {}
+        : address_range(0x0000u, end.value()) {}
 
     constexpr address_range(const address16& begin, const address16& end)
-        : address_range(begin.get_value(), end.get_value()) {}
+        : address_range(begin.value(), end.value()) {}
 
     [[nodiscard]] constexpr uint16_t get_low() const { return low_; }
     [[nodiscard]] constexpr uint16_t get_high() const { return high_; }
 
     [[nodiscard]] constexpr bool contains(const address16& address) const
     {
-        return low_ <= address.get_value()
-            && high_ >= address.get_value();
+        return low_ <= address.value()
+            && high_ >= address.value();
     }
 
 private:
