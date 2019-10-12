@@ -6,6 +6,7 @@
 namespace gameboy {
 
 class cartridge;
+class mmu;
 class cpu;
 class ppu;
 class apu;
@@ -16,6 +17,7 @@ public:
         : cartridge(cartridge) {}
 
     observer<cartridge> cartridge;
+    observer<mmu> mmu;
     observer<cpu> cpu;
     observer<ppu> ppu;
     observer<apu> apu;
