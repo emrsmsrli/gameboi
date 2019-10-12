@@ -9,6 +9,7 @@
 #include <cpu/cpu.h>
 #include <ppu/ppu.h>
 #include <memory/mmu.h>
+#include <apu/apu.h>
 
 namespace gameboy {
 
@@ -19,12 +20,13 @@ public:
     void start();
 
 private:
-    bus bus_;
     cartridge cartridge_;
+    bus bus_;
 
-    std::shared_ptr<mmu> memory_;
-    std::unique_ptr<cpu> cpu_;
-    std::unique_ptr<ppu> ppu_;
+    mmu mmu_;
+    cpu cpu_;
+    ppu ppu_;
+    apu apu_;
 };
 
 }
