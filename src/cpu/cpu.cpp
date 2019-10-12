@@ -1,7 +1,7 @@
 #include <functional>
 
-#include <bus.h>
 #include <cpu/cpu.h>
+#include <bus.h>
 #include <memory/mmu.h>
 #include <memory/address.h>
 #include <util/log.h>
