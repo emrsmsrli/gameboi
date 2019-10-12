@@ -2,6 +2,7 @@
 #define GAMEBOY_ADDRESS_RANGE_H
 
 #include <type_traits>
+
 #include <memory/address.h>
 
 namespace gameboy {

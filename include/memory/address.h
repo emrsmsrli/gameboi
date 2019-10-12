@@ -2,6 +2,7 @@
 #define GAMEBOY_ADDRESS_H
 
 #include <type_traits>
+
 #include <cpu/register16.h>
 #include <memory/addressfwd.h>
 
