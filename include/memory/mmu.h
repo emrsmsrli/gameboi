@@ -25,7 +25,7 @@ public:
 private:
     observer<bus> bus_;
 
-    uint8_t selected_work_ram_bank_ = 0;
+    uint8_t wram_bank_ = 0;
 
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;

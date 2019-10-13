@@ -4,6 +4,7 @@
 #include <util/log.h>
 #include <memory/mmu.h>
 #include <memory/address_range.h>
+#include <memory/memory_constants.h>
 #include <bus.h>
 #include <cartridge.h>
 #include <ppu/ppu.h>
@@ -68,6 +69,7 @@ void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data)
     } else if(xram_range.contains(address)) {
         bus_->cartridge->write_ram(address, data);
     } else if(wram_range.contains(address)) {
+        // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
         // fixme get correct wram bank
         work_ram_[address.value()] = data;
     }
@@ -76,19 +78,18 @@ void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data)
 
 uint8_t gameboy::mmu::read(const gameboy::address16& address) const
 {
-    return [&]() -> uint8_t {
-        if(rom_range.contains(address)) {
-            return bus_->cartridge->read_rom(address);
-        } else if(vram_range.contains(address)) {
-            return bus_->ppu->read(address);
-        } else if(xram_range.contains(address)) {
-            return bus_->cartridge->read_ram(address);
-        } else if(wram_range.contains(address)) {
-            // fixme get correct wram bank
-            return work_ram_[address.value()];
-        } else {
-            log::error("out of bounds address: {}", address.get_value());
-        }
-        // todo switch here baby
-    }();
+    if(rom_range.contains(address)) {
+        return bus_->cartridge->read_rom(address);
+    } else if(vram_range.contains(address)) {
+        return bus_->ppu->read(address);
+    } else if(xram_range.contains(address)) {
+        return bus_->cartridge->read_ram(address);
+    } else if(wram_range.contains(address)) {
+        // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
+        // fixme get correct wram bank
+        return work_ram_[address.value()];
+    } else {
+        log::error("out of bounds address: {}", address.value());
+    }
+    // todo switch here baby
 }
