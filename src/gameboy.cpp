@@ -26,7 +26,6 @@ gameboy::gameboy::gameboy(const std::string_view rom_path)
     bus_.cpu = make_observer(cpu_);
     bus_.ppu = make_observer(ppu_);
     bus_.apu = make_observer(apu_);
-    // todo register components to bus
 }
 
 void gameboy::gameboy::start()
