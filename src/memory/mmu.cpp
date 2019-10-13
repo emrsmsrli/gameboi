@@ -8,15 +8,6 @@
 #include <cartridge.h>
 #include <ppu/ppu.h>
 
-namespace {
-
-constexpr gameboy::address_range rom_range{0x0000u, 0x7FFFu};
-constexpr gameboy::address_range vram_range{0x8000u, 0x9FFFu};
-constexpr gameboy::address_range xram_range{0xA000u, 0xBFFFu};
-constexpr gameboy::address_range wram_range{0xC000u, 0xDFFFu};
-
-}
-
 gameboy::mmu::mmu(observer<bus> bus)
     : bus_(bus)
 {
