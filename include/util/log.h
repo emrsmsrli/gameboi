@@ -2,11 +2,11 @@
 #define GAMEBOY_LOG_H
 
 #if DEBUG
-#include <iostream>
-#include <fmt/core.h>
+#include <cstdio>
 #endif
 
 #include <string_view>
+#include <fmt/core.h>
 
 namespace gameboy::log {
 
@@ -14,7 +14,7 @@ template<typename... Args>
 void info(const std::string_view format, const Args& ... args)
 {
     if constexpr(DEBUG) {
-        std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
+        fmt::print("[I] - {}\n", fmt::format(format.data(), args...));
     }
 }
 
@@ -22,17 +22,17 @@ template<typename... Args>
 void warn(const std::string_view format, const Args& ... args)
 {
     if constexpr(DEBUG) {
-        std::cout << "[W] - " << fmt::format(format.data(), args...) << '\n';
+        fmt::print("[W] - {}\n", fmt::format(format.data(), args...));
     }
 }
 
 template<typename... Args>
-void error(const std::string_view format, const Args& ... args)
+[[noreturn]] void error(const std::string_view format, const Args& ... args)
 {
     const auto log = fmt::format(format.data(), args...);
 
     if constexpr(DEBUG) {
-        std::cout << "[E] - " << log << '\n';
+        fmt::print(stderr, "[E] - {}\n", log);
     }
 
     throw std::runtime_error{log};
