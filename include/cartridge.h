@@ -4,6 +4,7 @@
 #include <variant>
 #include <vector>
 #include <string>
+#include <string_view>
 #include <cstddef>
 
 #include <memory/addressfwd.h>
@@ -15,9 +16,9 @@
 namespace gameboy {
 
 class cartridge {
-    friend class rom_parser;
-
 public:
+    explicit cartridge(std::string_view rom);
+
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
     [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
 
