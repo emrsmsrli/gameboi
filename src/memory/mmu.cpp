@@ -14,9 +14,8 @@ gameboy::mmu::mmu(observer<bus> bus)
     work_ram_.reserve((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb);
     high_ram_.reserve(1_kb); // fixme probably less than this
 
-    const auto init = [](auto ram) { std::fill(begin(ram), end(ram), 0u); };
-    init(work_ram_);
-    init(high_ram_);
+    std::fill(begin(work_ram_), end(work_ram_), 0u);
+    std::fill(begin(high_ram_), end(high_ram_), 0u);
 }
 
 void gameboy::mmu::initialize()
