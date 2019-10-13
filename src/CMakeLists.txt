@@ -14,5 +14,4 @@ set(GAMEBOY_SRC
         src/memory/controller/mbc2.cpp
         src/memory/controller/mbc3.cpp
         src/ppu/ppu.cpp
-        src/util/data_loader.cpp
-        src/util/rom_parser.cpp)
+        src/util/data_loader.cpp)

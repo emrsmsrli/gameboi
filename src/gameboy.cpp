@@ -2,7 +2,6 @@
 #include <thread>
 
 #include <gameboy.h>
-#include <util/rom_parser.h>
 
 namespace {
 
@@ -13,7 +12,7 @@ constexpr auto delay = 1000.f / fps;
 }
 
 gameboy::gameboy::gameboy(const std::string_view rom_path)
-    : cartridge_(rom_parser::parse(rom_path)),
+    : cartridge_(rom_path),
       bus_(bus{make_observer(cartridge_)}),
       mmu_(mmu{make_observer(bus_)}),
       cpu_(cpu{make_observer(bus_)}),
