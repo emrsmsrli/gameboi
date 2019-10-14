@@ -1,22 +1,17 @@
 #ifndef GAMEBOY_MBC2_H
 #define GAMEBOY_MBC2_H
 
+#include <cstdint>
+
 #include <memory/controller/mbc.h>
 
 namespace gameboy {
 
-class mbc2 : public mbc {
-public:
-    mbc2(const std::vector<uint8_t>& rom, const cartridge& rom_header);
+struct mbc2 : public mbc {
+    void control(const address16& address, uint8_t data) noexcept;
 
-    void write(const address16& virtual_address, uint8_t data) override;
-
-protected:
-    void select_rom_bank(uint8_t data) override;
-    void select_ram_bank(uint8_t data) override { };
-
-private:
-    void control(const address16& virtual_address, uint8_t data) override;
+    [[nodiscard]] uint8_t read_ram(const std::vector<uint8_t>& ram, size_t address) const noexcept;
+    void write_ram(std::vector<uint8_t>& ram, size_t address, uint8_t data) const noexcept;
 };
 
 }

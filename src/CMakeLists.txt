@@ -9,7 +9,6 @@ set(GAMEBOY_SRC
         src/cpu/cpu.cpp
         src/cpu/alu.cpp
         src/memory/mmu.cpp
-        src/memory/controller/mbc.cpp
         src/memory/controller/mbc1.cpp
         src/memory/controller/mbc2.cpp
         src/memory/controller/mbc3.cpp

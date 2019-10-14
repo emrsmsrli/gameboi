@@ -10,7 +10,7 @@
 #include <util/data_loader.h>
 #include <util/log.h>
 
-namespace {
+namespace gameboy {
 
 enum class mbc_type : uint8_t {
     rom_only = 0x00u,
@@ -45,7 +45,7 @@ enum class mbc_type : uint8_t {
 };
 
 template<typename T = uint8_t, typename AddrType>
-static T read(const std::vector<uint8_t>& rom_data, const AddrType& addr)
+[[nodiscard]] T read(const std::vector<uint8_t>& rom_data, const AddrType& addr) noexcept
 {
     return static_cast<T>(rom_data[addr.value()]);
 }
@@ -83,12 +83,12 @@ gameboy::cartridge::cartridge(std::string_view rom_path)
     cgb_enabled_ = read(rom_, cgb_support_addr) != 0x00u;
 
     const auto xram_banks = read(rom_, rom_ram_size_addr) == 0x03u
-        ? 4u
-        : 1u;
+                            ? 4u
+                            : 1u;
     ram_.reserve(xram_banks * 8_kb);
     std::fill(begin(ram_), end(ram_), 0u);
 
-    switch(read<mbc_type>(rom_, rom_cartridge_type_addr)) {
+    switch(auto type = read<mbc_type>(rom_, rom_cartridge_type_addr)) {
         case mbc_type::rom_only:
         case mbc_type::rom_ram:
         case mbc_type::rom_ram_battery: {
@@ -98,12 +98,12 @@ gameboy::cartridge::cartridge(std::string_view rom_path)
         case mbc_type::mbc_1:
         case mbc_type::mbc_1_ram:
         case mbc_type::mbc_1_ram_battery: {
-            // mbc_ = mbc1{make_observer(this)};
+            mbc_ = mbc1{};
             break;
         }
         case mbc_type::mbc_2:
         case mbc_type::mbc_2_battery: {
-            // mbc_ = mbc2{make_observer(this)};
+            mbc_ = mbc2{};
             break;
         }
         case mbc_type::mbc_3_timer_battery:
@@ -111,48 +111,119 @@ gameboy::cartridge::cartridge(std::string_view rom_path)
         case mbc_type::mbc_3:
         case mbc_type::mbc_3_ram:
         case mbc_type::mbc_3_ram_battery: {
-            // mbc_ = mbc3{make_observer(this)};
+            mbc_ = mbc3{};
             break;
         }
-        case mbc_type::mmm_01:
-        case mbc_type::mmm_01_ram:
-        case mbc_type::mmm_01_ram_battery:
-        case mbc_type::mbc_4:
-        case mbc_type::mbc_4_ram:
-        case mbc_type::mbc_4_ram_battery:
         case mbc_type::mbc_5:
         case mbc_type::mbc_5_ram:
         case mbc_type::mbc_5_ram_battery:
         case mbc_type::mbc_5_rumble:
         case mbc_type::mbc_5_rumble_ram:
-        case mbc_type::mbc_5_rumble_ram_battery:
-        case mbc_type::pocket_camera:
-        case mbc_type::bandai_tama_5:
-        case mbc_type::huc_3:
-        case mbc_type::huc_1_ram_battery:
+        case mbc_type::mbc_5_rumble_ram_battery: {
+            // todo mbc_ = mbc5{};
+            break;
+        }
         default: {
-            log::error("unimplemented cartridge type");
+            log::error("unimplemented cartridge type {}", static_cast<std::underlying_type_t<mbc_type>>(type));
         }
     }
 }
 
 uint8_t gameboy::cartridge::read_rom(const address16& address) const
 {
-    // fixme mbc
-    return rom_[address.value()];
+    const auto physical_addr = [&]() -> size_t {
+        if(rom_range.contains(address)) {
+            return address.value();
+        } else {
+            return address.value() + 16_kb * rom_bank();
+        }
+    }();
+
+    return rom_[physical_addr];
 }
+
 void gameboy::cartridge::write_rom(const gameboy::address16& address, uint8_t data)
 {
-    // fixme mbc
-    rom_[address.value()] = data;
+    std::visit(overloaded{
+        [](const mbc_regular&) {},
+        [&](auto mbc) {
+            mbc.control(address, data);
+        }
+    }, mbc_);
 }
+
 uint8_t gameboy::cartridge::read_ram(const gameboy::address16& address) const
 {
-    // fixme mbc
-    return ram_[address.value()];
+    if(!xram_enabled()) {
+        return 0xFFu;
+    }
+
+    return std::visit([&](auto&& mbc) {
+        return mbc.read_ram(ram_, physical_ram_addr(address));
+    }, mbc_);
 }
+
 void gameboy::cartridge::write_ram(const gameboy::address16& address, uint8_t data)
 {
-    // fixme mbc
-    ram_[address.value()] = data;
+    if(!xram_enabled()) {
+        return;
+    }
+
+    std::visit([&](auto&& mbc) {
+        mbc.write_ram(ram_, physical_ram_addr(address), data);
+    }, mbc_);
+}
+
+bool gameboy::cartridge::xram_enabled() const noexcept
+{
+    return std::visit([](auto&& mbc) {
+        return mbc.xram_enabled;
+    }, mbc_);
+}
+
+uint32_t gameboy::cartridge::rom_bank() const noexcept
+{
+    return std::visit(overloaded{
+        [](const mbc1& mbc) {
+            const auto bank = mbc.rom_banking_active
+                              ? (mbc.ram_bank & 0x3u) << 0x5u | mbc.rom_bank
+                              : mbc.rom_bank;
+
+            switch(bank) {
+                case 0x00u:
+                case 0x20u:
+                case 0x40u:
+                case 0x60u:
+                    // these banks are unusuable, must return the next one
+                    return bank;
+                default:
+                    // we already have first bank between 0x0000-0x3FFF
+                    return bank - 1;
+            }
+        },
+        [](auto&& mbc) {
+            return mbc.rom_bank ? mbc.rom_bank - 1 : 0u;
+        }
+    }, mbc_);
+}
+
+uint32_t gameboy::cartridge::ram_bank() const noexcept
+{
+    return std::visit(overloaded{
+        [](const mbc1& mbc) {
+            if(mbc.rom_banking_active) {
+                return 0u;
+            }
+
+            return mbc.ram_bank;
+        },
+        [](auto&& mbc) {
+            return mbc.ram_bank;
+        }
+    }, mbc_);
+}
+
+size_t gameboy::cartridge::physical_ram_addr(const gameboy::address16& address) const noexcept
+{
+    return address.value() - xram_range.low() + 8_kb * ram_bank();
 }

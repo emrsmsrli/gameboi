@@ -9,12 +9,11 @@ namespace gameboy {
 
 class rtc {
 public:
-    [[nodiscard]] uint8_t read() const;
-    void write(uint8_t data);
-    void latch();
+    bool enabled = false;
 
-    [[nodiscard]] bool is_enabled() const { return enabled_; }
-    void set_enabled(const bool enable) { enabled_ = enable; }
+    [[nodiscard]] uint8_t read() const noexcept;
+    void write(uint8_t data) noexcept;
+    void latch() noexcept;
 
 private:
     enum class register_type {
@@ -25,29 +24,22 @@ private:
         days_higher_bits
     };
 
-    bool enabled_ = false;
     std::time_t latched_time_ = 0;
     register_type selected_register_{register_type::seconds};
 };
 
 class mbc3 : public mbc {
 public:
-    mbc3(const std::vector<uint8_t>& rom, const cartridge& rom_header);
+    void control(const address16& address, uint8_t data) noexcept;
 
-    [[nodiscard]] uint8_t read(const address16& virtual_address) const override;
-
-protected:
-    void select_rom_bank(uint8_t data) override;
-    void select_ram_bank(uint8_t data) override;
+    [[nodiscard]] uint8_t read_ram(const std::vector<uint8_t>& ram, size_t address) const noexcept;
+    void write_ram(std::vector<uint8_t>& ram, size_t address, uint8_t data) const noexcept;
 
 private:
     rtc rtc_;
     bool rtc_latch_on_next_one_write_ = false;
 
     void configure_latch(uint8_t data);
-
-    [[nodiscard]] uint32_t get_rom_bank() const override;
-    void control(const address16& virtual_address, uint8_t data) override;
 };
 
 }

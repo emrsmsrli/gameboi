@@ -11,7 +11,7 @@
 #include <memory/controller/mbc1.h>
 #include <memory/controller/mbc2.h>
 #include <memory/controller/mbc3.h>
-#include <memory/controller/mbc_null.h>
+#include <memory/controller/mbc_regular.h>
 
 namespace gameboy {
 
@@ -37,7 +37,13 @@ private:
     std::vector<uint8_t> rom_;
     std::vector<uint8_t> ram_;
 
-    std::variant<std::monostate, mbc_null, mbc1, mbc2, mbc3> mbc_;
+    std::variant<mbc_regular, mbc1, mbc2, mbc3> mbc_{mbc_regular{}};
+
+    [[nodiscard]] bool xram_enabled() const noexcept;
+    [[nodiscard]] uint32_t rom_bank() const noexcept;
+    [[nodiscard]] uint32_t ram_bank() const noexcept;
+
+    [[nodiscard]] size_t physical_ram_addr(const address16& address) const noexcept;
 };
 
 }

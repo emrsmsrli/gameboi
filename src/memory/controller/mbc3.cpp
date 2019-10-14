@@ -3,8 +3,11 @@
 #include <memory/controller/mbc3.h>
 #include <memory/address_range.h>
 
-uint8_t gameboy::rtc::read() const
+uint8_t gameboy::rtc::read() const noexcept
 {
+    // todo use this if msvc
+    // tm time;
+    // localtime_s(&latched_time_, &buf);
     auto* time = std::localtime(&latched_time_);
     switch(selected_register_) {
         case register_type::seconds: return time->tm_sec;
@@ -16,30 +19,18 @@ uint8_t gameboy::rtc::read() const
     }
 }
 
-void gameboy::rtc::write(const uint8_t data)
+void gameboy::rtc::write(const uint8_t data) noexcept
 {
     selected_register_ = static_cast<register_type>(data - 0x80u);
 }
 
-void gameboy::rtc::latch()
+void gameboy::rtc::latch() noexcept
 {
     using namespace std::chrono;
     latched_time_ = system_clock::to_time_t(system_clock::now());
 }
 
-gameboy::mbc3::mbc3(const std::vector<uint8_t>& rom, const gameboy::cartridge& rom_header)
-    :mbc(rom, rom_header) { }
-
-uint8_t gameboy::mbc3::read(const gameboy::address16& virtual_address) const
-{
-    if(rtc_.is_enabled()) {
-        return rtc_.read();
-    }
-
-    return mbc::read(virtual_address);
-}
-
-void gameboy::mbc3::control(const gameboy::address16& virtual_address, const uint8_t data)
+void gameboy::mbc3::control(const gameboy::address16& virtual_address, const uint8_t data) noexcept
 {
     constexpr address_range external_ram_n_timer_enable_range(0x1FFFu);
     constexpr address_range rom_bank_select_range(0x2000u, 0x3FFFu);
@@ -47,15 +38,15 @@ void gameboy::mbc3::control(const gameboy::address16& virtual_address, const uin
     constexpr address_range latch_clock_data_range(0x6000u, 0x7FFFu);
 
     if(external_ram_n_timer_enable_range.contains(virtual_address)) {
-        set_external_ram_enabled(data);
+        set_xram_enabled(data);
     } else if(rom_bank_select_range.contains(virtual_address)) {
-        select_rom_bank(data);
+        rom_bank = data & 0x7Fu;
     } else if(ram_bank_or_rtc_reg_select_range.contains(virtual_address)) {
         if(data <= 0x03u) {
-            select_ram_bank(data);
-            rtc_.set_enabled(false);
+            ram_bank = data & 0x03u;
+            rtc_.enabled = false;
         } else if(0x08u <= data && data <= 0x0Cu) {
-            rtc_.set_enabled(true);
+            rtc_.enabled = (true);
             rtc_.write(data);
         }
     } else if(latch_clock_data_range.contains(virtual_address)) {
@@ -63,19 +54,18 @@ void gameboy::mbc3::control(const gameboy::address16& virtual_address, const uin
     }
 }
 
-void gameboy::mbc3::select_rom_bank(const uint8_t data)
+uint8_t gameboy::mbc3::read_ram(const std::vector<uint8_t>& ram, const size_t address) const noexcept
 {
-    rom_bank_ = data & 0x7Fu;
+    if(rtc_.enabled) {
+        return rtc_.read();
+    }
+
+    return ram[address];
 }
 
-void gameboy::mbc3::select_ram_bank(const uint8_t data)
+void gameboy::mbc3::write_ram(std::vector<uint8_t>& ram, const size_t address, const uint8_t data) const noexcept
 {
-    ram_bank_ = data & 0x03u;
-}
-
-uint32_t gameboy::mbc3::get_rom_bank() const
-{
-    return rom_bank_ == 0u ? 0u : rom_bank_ - 1;
+    ram[address] = data;
 }
 
 void gameboy::mbc3::configure_latch(const uint8_t data)
