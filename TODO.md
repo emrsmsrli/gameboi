@@ -15,6 +15,7 @@
 - return pairs instead of passing out params
 - use cpp11 uniform init syntax
 - make code noexcept-correct
+- remove every gameboy:: in the cpp files
 
 ## Major
 - refactor mbcs. (maybe use virtual-final combo for devirtualization)
