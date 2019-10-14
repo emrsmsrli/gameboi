@@ -25,10 +25,10 @@ public:
     };
 
     constexpr address_range(const uint16_t begin, const uint16_t end)
-        : low_(begin), high_(end)
+        : begin_(begin), end_(end)
     {
-        if(high_ < low_) {
-            std::swap(low_, high_);
+        if(end_ < begin_) {
+            std::swap(begin_, end_);
         }
     }
 
@@ -41,28 +41,28 @@ public:
     constexpr address_range(const address16& begin, const address16& end)
         : address_range(begin.value(), end.value()) {}
 
-    [[nodiscard]] constexpr uint16_t low() const { return low_; }
-    [[nodiscard]] constexpr uint16_t high() const { return high_; }
+    [[nodiscard]] constexpr uint16_t begin() const { return begin_; }
+    [[nodiscard]] constexpr uint16_t end() const { return end_; }
 
     [[nodiscard]] constexpr bool contains(const address16& address) const
     {
-        return low_ <= address.value()
-            && high_ >= address.value();
+        return begin_ <= address.value()
+            && end_ >= address.value();
     }
 
 private:
-    uint16_t low_;
-    uint16_t high_;
+    uint16_t begin_;
+    uint16_t end_;
 };
 
 constexpr address_range::iterator begin(const address_range& address_range)
 {
-    return address_range::iterator(address_range.low());
+    return address_range::iterator(address_range.begin());
 }
 
 constexpr address_range::iterator end(const address_range& address_range)
 {
-    return address_range::iterator(address_range.high() + 1);
+    return address_range::iterator(address_range.end() + 1);
 }
 
 constexpr bool operator!=(const address_range::iterator& left, const address_range::iterator& right)
