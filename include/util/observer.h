@@ -36,7 +36,7 @@ public:
     constexpr lvalue_type operator*() const { return *ptr_; }
 
 private:
-    ElementType* ptr_ = nullptr;
+    pointer_type ptr_ = nullptr;
 };
 
 template<class W>
