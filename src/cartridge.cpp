@@ -45,7 +45,7 @@ enum class mbc_type : uint8_t {
 };
 
 template<typename T = uint8_t, typename AddrType>
-[[nodiscard]] T read(const std::vector<uint8_t>& rom_data, const AddrType& addr) noexcept
+[[nodiscard]] T read(const std::vector<uint8_t>& rom_data, const AddrType& addr)
 {
     return static_cast<T>(rom_data[addr.value()]);
 }

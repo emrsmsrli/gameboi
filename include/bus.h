@@ -12,7 +12,7 @@ class ppu;
 class apu;
 
 struct bus {
-    explicit bus(observer<cartridge> cartridge)
+    explicit bus(observer<cartridge> cartridge) noexcept
         : cartridge(cartridge) {}
 
     observer<cartridge> cartridge;

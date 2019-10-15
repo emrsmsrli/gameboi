@@ -62,7 +62,7 @@ void mmu::initialize()
     }
 }
 
-void mmu::write(const address16& address, const uint8_t data) noexcept
+void mmu::write(const address16& address, const uint8_t data)
 {
     if(rom_range.contains(address)) {
         bus_->cartridge->write_rom(address, data);
@@ -76,7 +76,7 @@ void mmu::write(const address16& address, const uint8_t data) noexcept
     // todo switch here baby
 }
 
-uint8_t mmu::read(const address16& address) const noexcept
+uint8_t mmu::read(const address16& address) const
 {
     if(rom_range.contains(address)) {
         return bus_->cartridge->read_rom(address);
@@ -92,14 +92,14 @@ uint8_t mmu::read(const address16& address) const noexcept
     // todo switch here baby
 }
 
-void mmu::write_wram(const address16& address, const uint8_t data) noexcept
+void mmu::write_wram(const address16& address, const uint8_t data)
 {
     // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
     // fixme get correct wram bank
     work_ram_[address.value()] = data;
 }
 
-uint8_t mmu::read_wram(const address16& address) const noexcept
+uint8_t mmu::read_wram(const address16& address) const
 {
     // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
     // fixme get correct wram bank

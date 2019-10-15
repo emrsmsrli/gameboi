@@ -13,49 +13,49 @@ namespace gameboy {
  */
 class register16 {
 public:
-    register16() = default;
-    explicit register16(const uint16_t value)
+    register16() noexcept = default;
+    explicit register16(const uint16_t value) noexcept
         : high_((value >> 8u) & 0xFFu),
           low_(value & 0xFFu) {}
 
-    [[nodiscard]] uint16_t value() const;
+    [[nodiscard]] uint16_t value() const noexcept;
 
     /** @return most significant half of the register */
-    [[nodiscard]] register8& high() { return high_; }
+    [[nodiscard]] register8& high() noexcept { return high_; }
 
     /** @return most significant half of the register */
-    [[nodiscard]] const register8& high() const { return high_; }
+    [[nodiscard]] const register8& high() const noexcept { return high_; }
 
     /** @return least significant half of the register */
-    [[nodiscard]] register8& low() { return low_; }
+    [[nodiscard]] register8& low() noexcept { return low_; }
 
     /** @return least significant half of the register */
-    [[nodiscard]] const register8& low() const { return low_; }
+    [[nodiscard]] const register8& low() const noexcept { return low_; }
 
     /* assignment */
-    register16& operator=(uint16_t val);
-    register16& operator=(const address16& address);
+    register16& operator=(uint16_t val) noexcept;
+    register16& operator=(const address16& address) noexcept;
 
     /* math ops */
-    register16& operator++();
-    register16& operator--();
+    register16& operator++() noexcept;
+    register16& operator--() noexcept;
 
-    register16& operator+=(uint16_t val);
-    register16& operator+=(const register16& reg);
-    register16& operator+=(const address8& address);
+    register16& operator+=(uint16_t val) noexcept;
+    register16& operator+=(const register16& reg) noexcept;
+    register16& operator+=(const address8& address) noexcept;
 
-    register16& operator-=(uint16_t val);
+    register16& operator-=(uint16_t val) noexcept;
 
-    [[nodiscard]] uint32_t operator+(uint32_t val) const;
-    [[nodiscard]] uint32_t operator+(const register16& reg) const;
+    [[nodiscard]] uint32_t operator+(uint32_t val) const noexcept;
+    [[nodiscard]] uint32_t operator+(const register16& reg) const noexcept;
 
-    [[nodiscard]] uint32_t operator-(uint32_t v) const;
+    [[nodiscard]] uint32_t operator-(uint32_t v) const noexcept;
 
     /* logical */
-    register16 operator&(uint16_t val) const;
-    register16 operator|(uint16_t val) const;
-    register16 operator^(uint16_t val) const;
-    register16 operator~() const;
+    register16 operator&(uint16_t val) const noexcept;
+    register16 operator|(uint16_t val) const noexcept;
+    register16 operator^(uint16_t val) const noexcept;
+    register16 operator~() const noexcept;
 
 private:
     register8 high_;

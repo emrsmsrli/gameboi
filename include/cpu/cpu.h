@@ -14,7 +14,7 @@ class cpu {
     friend alu;
 
 public:
-    explicit cpu(observer<bus> bus);
+    explicit cpu(observer<bus> bus) noexcept;
 
     [[nodiscard]] uint8_t tick();
 
@@ -57,10 +57,10 @@ private:
     [[nodiscard]] uint8_t decode(uint16_t inst, standart_instruction_set_t);
     [[nodiscard]] uint8_t decode(uint16_t inst, extended_instruction_set_t);
 
-    void set_flag(flag flag);
-    void reset_flag(flag flag);
-    void flip_flag(flag flag);
-    bool test_flag(flag flag);
+    void set_flag(flag flag) noexcept;
+    void reset_flag(flag flag) noexcept;
+    void flip_flag(flag flag) noexcept;
+    bool test_flag(flag flag) noexcept;
 
     void write_data(const address16& address, uint8_t data) const;
 
@@ -69,9 +69,9 @@ private:
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
     /* instructions */
-    [[nodiscard]] static uint8_t nop();
-    [[nodiscard]] uint8_t halt();
-    [[nodiscard]] uint8_t stop();
+    [[nodiscard]] static uint8_t nop() noexcept;
+    [[nodiscard]] uint8_t halt() noexcept;
+    [[nodiscard]] uint8_t stop() noexcept;
 
     [[nodiscard]] uint8_t push(const register16& reg);
     [[nodiscard]] uint8_t pop(register16& reg);
@@ -82,8 +82,8 @@ private:
     [[nodiscard]] uint8_t jump(const address16& address);
     [[nodiscard]] uint8_t jump(bool condition, const address16& address);
 
-    [[nodiscard]] uint8_t jump_relative(const address8& address);
-    [[nodiscard]] uint8_t jump_relative(bool condition, const address8& address);
+    [[nodiscard]] uint8_t jump_relative(const address8& address) noexcept;
+    [[nodiscard]] uint8_t jump_relative(bool condition, const address8& address) noexcept;
 
     [[nodiscard]] uint8_t call(const address16& address);
     [[nodiscard]] uint8_t call(bool condition, const address16& address);
@@ -96,19 +96,19 @@ private:
     [[nodiscard]] uint8_t store(const address16& address, const register8& reg) const;
     [[nodiscard]] uint8_t store(const address16& address, const register16& reg) const;
 
-    [[nodiscard]] static uint8_t load(register8& reg, uint8_t data);
-    [[nodiscard]] static uint8_t load(register8& r_left, const register8& r_right);
+    [[nodiscard]] static uint8_t load(register8& reg, uint8_t data) noexcept;
+    [[nodiscard]] static uint8_t load(register8& r_left, const register8& r_right) noexcept;
 
-    [[nodiscard]] static uint8_t load(register16& reg, uint16_t data);
-    [[nodiscard]] static uint8_t load(register16& r_left, const register16& r_right);
+    [[nodiscard]] static uint8_t load(register16& reg, uint16_t data) noexcept;
+    [[nodiscard]] static uint8_t load(register16& r_left, const register16& r_right) noexcept;
 
-    [[nodiscard]] uint8_t store_i();
-    [[nodiscard]] uint8_t store_d();
+    [[nodiscard]] uint8_t store_i() noexcept;
+    [[nodiscard]] uint8_t store_d() noexcept;
 
-    [[nodiscard]] uint8_t load_i();
-    [[nodiscard]] uint8_t load_d();
+    [[nodiscard]] uint8_t load_i() noexcept;
+    [[nodiscard]] uint8_t load_d() noexcept;
 
-    [[nodiscard]] uint8_t load_hlsp();
+    [[nodiscard]] uint8_t load_hlsp() noexcept;
 };
 
 }

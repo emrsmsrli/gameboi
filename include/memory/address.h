@@ -15,11 +15,11 @@ class address {
 public:
     using size_type = T;
 
-    constexpr address() = default;
-    constexpr explicit address(size_type value)
+    constexpr address() noexcept = default;
+    constexpr explicit address(size_type value) noexcept
         : value_(value) {}
 
-    [[nodiscard]] constexpr size_type value() const { return value_; }
+    [[nodiscard]] constexpr size_type value() const noexcept { return value_; }
 
 private:
     size_type value_ = 0x0u;
@@ -31,7 +31,7 @@ private:
  * @return An address object
  */
 template<typename T>
-constexpr address<T> make_address(T addr)
+constexpr address<T> make_address(T addr) noexcept
 {
     return address<T>(addr);
 }
@@ -41,7 +41,7 @@ constexpr address<T> make_address(T addr)
  * @param reg a 16-bit register
  * @return An address object
  */
-inline address16 make_address(const register16& reg)
+inline address16 make_address(const register16& reg) noexcept
 {
     return address16(reg.value());
 }

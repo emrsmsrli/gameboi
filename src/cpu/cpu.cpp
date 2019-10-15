@@ -9,7 +9,7 @@
 
 namespace gameboy {
 
-cpu::cpu(observer<bus> bus)
+cpu::cpu(observer<bus> bus) noexcept
     : bus_(bus)
 {
     a_f_ = 0x01B0u;
@@ -38,22 +38,22 @@ uint8_t cpu::tick()
     return cycle_count;
 }
 
-void cpu::set_flag(flag flag)
+void cpu::set_flag(flag flag) noexcept
 {
     a_f_.low() |= static_cast<uint8_t>(flag);
 }
 
-void cpu::reset_flag(flag flag)
+void cpu::reset_flag(flag flag) noexcept
 {
     a_f_.low() &= ~static_cast<uint8_t>(flag);
 }
 
-void cpu::flip_flag(flag flag)
+void cpu::flip_flag(flag flag) noexcept
 {
     a_f_.low() ^= static_cast<uint8_t>(flag);
 }
 
-bool cpu::test_flag(flag flag)
+bool cpu::test_flag(flag flag) noexcept
 {
     const auto f = static_cast<uint8_t>(flag);
     return (a_f_.low() & f) == f;
@@ -862,12 +862,12 @@ uint16_t cpu::read_immediate(imm16_t)
     return (static_cast<uint16_t>(msb) << 8u) | lsb;
 }
 
-uint8_t cpu::nop()
+uint8_t cpu::nop() noexcept
 {
     return 4;
 }
 
-uint8_t cpu::halt()
+uint8_t cpu::halt() noexcept
 {
     is_halted_ = true;
 
@@ -883,7 +883,7 @@ uint8_t cpu::halt()
     return 0;
 }
 
-uint8_t cpu::stop()
+uint8_t cpu::stop() noexcept
 {
     // todo make this a separate instruction to save energy by turning off the system completely
     return halt();
@@ -942,13 +942,13 @@ uint8_t cpu::jump(const bool condition, const address16& address)
     return 12;
 }
 
-uint8_t cpu::jump_relative(const address8& address)
+uint8_t cpu::jump_relative(const address8& address) noexcept
 {
     program_counter_ += address;
     return 12;
 }
 
-uint8_t cpu::jump_relative(const bool condition, const address8& address)
+uint8_t cpu::jump_relative(const bool condition, const address8& address) noexcept
 {
     if(condition) {
         return jump_relative(address);
@@ -1012,45 +1012,45 @@ uint8_t cpu::store(const address16& address, const register16& reg) const
     return store_low_cycles + store_high_cycles;
 }
 
-uint8_t cpu::load(register8& reg, const uint8_t data)
+uint8_t cpu::load(register8& reg, const uint8_t data) noexcept
 {
     reg = data;
     return 8;
 }
 
-uint8_t cpu::load(register8& r_left, const register8& r_right)
+uint8_t cpu::load(register8& r_left, const register8& r_right) noexcept
 {
     r_left = r_right;
     return 4;
 }
 
-uint8_t cpu::load(register16& reg, const uint16_t data)
+uint8_t cpu::load(register16& reg, const uint16_t data) noexcept
 {
     reg = data;
     return 12;
 }
 
-uint8_t cpu::load(register16& r_left, const register16& r_right)
+uint8_t cpu::load(register16& r_left, const register16& r_right) noexcept
 {
     r_left = r_right;
     return 8;
 }
 
-uint8_t cpu::store_i()
+uint8_t cpu::store_i() noexcept
 {
     const auto cycles = store(make_address(h_l_), a_f_.high());
     ++h_l_;
     return cycles;
 }
 
-uint8_t cpu::store_d()
+uint8_t cpu::store_d() noexcept
 {
     const auto cycles = store(make_address(h_l_), a_f_.high());
     --h_l_;
     return cycles;
 }
 
-uint8_t cpu::load_i()
+uint8_t cpu::load_i() noexcept
 {
     const auto data = read_data(make_address(h_l_));
     const auto cycles = load(a_f_.high(), data);
@@ -1058,7 +1058,7 @@ uint8_t cpu::load_i()
     return cycles;
 }
 
-uint8_t cpu::load_d()
+uint8_t cpu::load_d() noexcept
 {
     const auto data = read_data(make_address(h_l_));
     const auto cycles = load(a_f_.high(), data);
@@ -1066,7 +1066,7 @@ uint8_t cpu::load_d()
     return cycles;
 }
 
-uint8_t cpu::load_hlsp()
+uint8_t cpu::load_hlsp() noexcept
 {
     const auto data = static_cast<int8_t>(read_immediate(imm8));
     const uint16_t value = stack_pointer_.value() + data;

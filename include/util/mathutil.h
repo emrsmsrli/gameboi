@@ -6,19 +6,19 @@
 namespace gameboy::math {
 
 template<typename T>
-bool bit_test(const T n, const uint32_t bit)
+bool bit_test(const T n, const uint32_t bit) noexcept
 {
     return ((n >> bit) & 0x1u) == 0x1u;
 }
 
 template<typename T>
-void bit_set(T& n, const uint32_t bit)
+void bit_set(T& n, const uint32_t bit) noexcept
 {
     n |= 0x1u << bit;
 }
 
 template<typename T>
-void bit_reset(T& n, const uint32_t bit)
+void bit_reset(T& n, const uint32_t bit) noexcept
 {
     n &= ~(0x1u << bit);
 }

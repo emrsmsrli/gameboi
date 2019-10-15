@@ -16,7 +16,7 @@ public:
     constexpr observer() noexcept = default;
     constexpr observer(std::nullptr_t) noexcept
         : observer(nullptr) {};
-    explicit observer(pointer_type ptr)
+    explicit observer(pointer_type ptr) noexcept
         : ptr_(ptr) {}
 
     constexpr void reset(pointer_type ptr = nullptr) noexcept { ptr_ = ptr; }
@@ -33,7 +33,7 @@ public:
     constexpr explicit operator pointer_type() const noexcept { return ptr_; }
 
     constexpr pointer_type operator->() const noexcept { return ptr_; }
-    constexpr lvalue_type operator*() const { return *ptr_; }
+    constexpr lvalue_type operator*() const noexcept { return *ptr_; }
 
 private:
     pointer_type ptr_ = nullptr;
@@ -52,7 +52,7 @@ observer<W> make_observer(W& value) noexcept
 }
 
 template<typename T>
-bool operator==(const observer<T>& l, const observer<T>& r)
+bool operator==(const observer<T>& l, const observer<T>& r) noexcept
 {
     return l.get() == r.get();
 }

@@ -24,12 +24,12 @@ void mbc1::control(const address16& address, const uint8_t data) noexcept
     }
 }
 
-uint8_t mbc1::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const noexcept
+uint8_t mbc1::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const
 {
     return ram[address.value()];
 }
 
-void mbc1::write_ram(std::vector<uint8_t>& ram, const physical_address& address, const uint8_t data) const noexcept
+void mbc1::write_ram(std::vector<uint8_t>& ram, const physical_address& address, const uint8_t data) const
 {
     ram[address.value()] = data;
 }

@@ -56,7 +56,7 @@ void mbc3::control(const address16& virtual_address, const uint8_t data) noexcep
     }
 }
 
-uint8_t mbc3::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const noexcept
+uint8_t mbc3::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const
 {
     if(rtc_.enabled) {
         return rtc_.read();
@@ -65,7 +65,7 @@ uint8_t mbc3::read_ram(const std::vector<uint8_t>& ram, const physical_address& 
     return ram[address.value()];
 }
 
-void mbc3::write_ram(std::vector<uint8_t>& ram, const physical_address& address, const uint8_t data) const noexcept
+void mbc3::write_ram(std::vector<uint8_t>& ram, const physical_address& address, const uint8_t data) const
 {
     ram[address.value()] = data;
 }

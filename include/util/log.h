@@ -11,7 +11,7 @@
 namespace gameboy::log {
 
 template<typename... Args>
-void info(const std::string_view format, const Args& ... args)
+void info(const std::string_view format, const Args& ... args) noexcept
 {
     if constexpr(DEBUG) {
         fmt::print("[I] - {}\n", fmt::format(format.data(), args...));
@@ -19,7 +19,7 @@ void info(const std::string_view format, const Args& ... args)
 }
 
 template<typename... Args>
-void warn(const std::string_view format, const Args& ... args)
+void warn(const std::string_view format, const Args& ... args) noexcept
 {
     if constexpr(DEBUG) {
         fmt::print("[W] - {}\n", fmt::format(format.data(), args...));
