@@ -4,14 +4,21 @@
 #include <memory>
 
 #include <memory/mmu.h>
+#include <memory/addressfwd.h>
+#include <util/observer.h>
 
 namespace gameboy {
 
+struct bus;
+
 class ppu {
 public:
-    explicit ppu(std::shared_ptr<mmu> memory_management_unit);
+    explicit ppu(observer<bus> bus);
 
     void tick(uint8_t cycles);
+
+    [[nodiscard]] uint8_t read(const address16& address) const;
+    void write(const address16& address, uint8_t data);
 
 private:
     enum mode : uint8_t {
@@ -78,10 +85,14 @@ private:
         coincidence_flag = 2u,  // (0:LYC<>LY, 1:LYC=LY)
     };
 
-    std::shared_ptr<mmu> mmu_;
+    observer<bus> bus_;
+
+    std::vector<uint8_t> ram_;
 
     uint16_t cycle_count_;
     mode mode_{mode::h_blank};
+
+    uint32_t vram_bank_ = 0u;
 
     [[nodiscard]] bool is_control_flag_set(control_flag flag) const;
 };

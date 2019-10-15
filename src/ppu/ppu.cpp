@@ -1,4 +1,6 @@
 #include <ppu/ppu.h>
+#include <bus.h>
+#include <cartridge.h>
 #include <memory/address.h>
 #include <util/mathutil.h>
 
@@ -11,10 +13,11 @@ constexpr auto reading_oam_vram_cycles = 175;
 constexpr address16 addr_control(0xFF40u);
 constexpr address16 addr_status(0xFF41u);
 
-ppu::ppu(std::shared_ptr<mmu> memory_management_unit)
-    : mmu_(std::move(memory_management_unit)),
+ppu::ppu(observer<bus> bus)
+    : bus_(bus),
       cycle_count_(0u)
 {
+    ram_.reserve((bus->cartridge->cgb_enabled() ? 2 : 1) * 8_kb);
     // todo register mmu callbacks for registers
 }
 
@@ -73,8 +76,18 @@ void ppu::tick(const uint8_t cycles)
 
 bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 {
-    const auto control = mmu_->read(addr_control);
+    const auto control = bus_->mmu->read(addr_control);
     return math::bit_test(control, flag);
+}
+
+uint8_t ppu::read(const gameboy::address16& address) const
+{
+    return 0;
+}
+
+void ppu::write(const gameboy::address16& address, uint8_t data)
+{
+
 }
 
 } // namespace gameboy
