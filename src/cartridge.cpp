@@ -223,7 +223,7 @@ uint32_t gameboy::cartridge::ram_bank() const noexcept
     }, mbc_);
 }
 
-size_t gameboy::cartridge::physical_ram_addr(const gameboy::address16& address) const noexcept
+gameboy::physical_address gameboy::cartridge::physical_ram_addr(const gameboy::address16& address) const noexcept
 {
-    return address.value() - xram_range.low() + 8_kb * ram_bank();
+    return gameboy::physical_address{address.value() - xram_range.low() + 8_kb * ram_bank()};
 }

@@ -54,18 +54,21 @@ void gameboy::mbc3::control(const gameboy::address16& virtual_address, const uin
     }
 }
 
-uint8_t gameboy::mbc3::read_ram(const std::vector<uint8_t>& ram, const size_t address) const noexcept
+uint8_t gameboy::mbc3::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const noexcept
 {
     if(rtc_.enabled) {
         return rtc_.read();
     }
 
-    return ram[address];
+    return ram[address.value()];
 }
 
-void gameboy::mbc3::write_ram(std::vector<uint8_t>& ram, const size_t address, const uint8_t data) const noexcept
+void gameboy::mbc3::write_ram(
+    std::vector<uint8_t>& ram,
+    const physical_address& address,
+    const uint8_t data) const noexcept
 {
-    ram[address] = data;
+    ram[address.value()] = data;
 }
 
 void gameboy::mbc3::configure_latch(const uint8_t data)

@@ -43,7 +43,7 @@ private:
     [[nodiscard]] uint32_t rom_bank() const noexcept;
     [[nodiscard]] uint32_t ram_bank() const noexcept;
 
-    [[nodiscard]] size_t physical_ram_addr(const address16& address) const noexcept;
+    [[nodiscard]] physical_address physical_ram_addr(const address16& address) const noexcept;
 };
 
 }

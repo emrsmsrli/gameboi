@@ -4,7 +4,7 @@
 #include <memory/address_range.h>
 #include <util/mathutil.h>
 
-void gameboy::mbc1::control(const gameboy::address16& address, uint8_t data) noexcept
+void gameboy::mbc1::control(const gameboy::address16& address, const uint8_t data) noexcept
 {
     constexpr address_range external_ram_enable_range(0x1FFFu);
     constexpr address_range rom_bank_select_range(0x2000u, 0x3FFFu);
@@ -22,12 +22,15 @@ void gameboy::mbc1::control(const gameboy::address16& address, uint8_t data) noe
     }
 }
 
-uint8_t gameboy::mbc1::read_ram(const std::vector<uint8_t>& ram, const size_t address) const noexcept
+uint8_t gameboy::mbc1::read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const noexcept
 {
-    return ram[address];
+    return ram[address.value()];
 }
 
-void gameboy::mbc1::write_ram(std::vector<uint8_t>& ram, const size_t address, uint8_t data) const noexcept
+void gameboy::mbc1::write_ram(
+    std::vector<uint8_t>& ram,
+    const physical_address& address,
+    const uint8_t data) const noexcept
 {
-    ram[address] = data;
+    ram[address.value()] = data;
 }
