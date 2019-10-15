@@ -5,7 +5,7 @@
 
 namespace gameboy {
 
-class bus;
+struct bus;
 
 class apu {
 public:

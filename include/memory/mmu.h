@@ -11,7 +11,7 @@
 
 namespace gameboy {
 
-class bus;
+struct bus;
 
 class mmu {
 public:

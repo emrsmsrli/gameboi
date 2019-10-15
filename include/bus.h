@@ -11,8 +11,7 @@ class cpu;
 class ppu;
 class apu;
 
-class bus {
-public:
+struct bus {
     explicit bus(observer<cartridge> cartridge)
         : cartridge(cartridge) {}
 

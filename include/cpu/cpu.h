@@ -8,7 +8,7 @@
 
 namespace gameboy {
 
-class bus;
+struct bus;
 
 class cpu {
     friend alu;
