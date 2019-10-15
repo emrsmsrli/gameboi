@@ -21,18 +21,18 @@ cpu::cpu(observer<bus> bus)
 
 uint8_t cpu::tick()
 {
-    const auto cycle_count = [&]() {
-        if(!is_halted_) {
-            const auto opcode = read_immediate(imm8);
-            if(opcode != 0xCB) {
-                return decode(opcode, standard_instruction_set);
-            }
-
-            return decode(read_immediate(imm8), extended_instruction_set);
+    const auto execute_next_op = [&]() ->uint8_t {
+        const auto opcode = read_immediate(imm8);
+        if(opcode != 0xCB) {
+            return decode(opcode, standard_instruction_set);
         }
 
-        return static_cast<uint8_t>(0x1);
-    }();
+        return decode(read_immediate(imm8), extended_instruction_set);
+    };
+
+    const auto cycle_count = !is_halted_
+        ? execute_next_op()
+        : static_cast<uint8_t>(0x1u);
 
     total_cycles_ += cycle_count;
     return cycle_count;
