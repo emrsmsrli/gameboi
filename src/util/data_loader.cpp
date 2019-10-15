@@ -3,7 +3,7 @@
 
 #include <util/data_loader.h>
 
-namespace {
+namespace gameboy {
 
 auto get_file_size(std::ifstream& rom_file)
 {
@@ -12,9 +12,7 @@ auto get_file_size(std::ifstream& rom_file)
     return rom_size;
 }
 
-}
-
-std::vector<uint8_t> gameboy::data_loader::load(const std::string_view path)
+std::vector<uint8_t> data_loader::load(const std::string_view path)
 {
     std::ifstream file(path.data(), std::ios::binary | std::ios::ate);
     file.unsetf(std::ios::skipws);
@@ -30,3 +28,5 @@ std::vector<uint8_t> gameboy::data_loader::load(const std::string_view path)
 
     return bytes;
 }
+
+} // namespace gameboy

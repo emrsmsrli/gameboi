@@ -2,7 +2,9 @@
 #include <cpu/cpu.h>
 #include <util/mathutil.h>
 
-uint8_t gameboy::alu::add(const uint8_t value) const
+namespace gameboy {
+
+uint8_t alu::add(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -23,12 +25,12 @@ uint8_t gameboy::alu::add(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::add(const gameboy::register8& reg) const
+uint8_t alu::add(const register8& reg) const
 {
     return add(reg.value());
 }
 
-uint8_t gameboy::alu::add_c(const uint8_t value) const
+uint8_t alu::add_c(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -53,12 +55,12 @@ uint8_t gameboy::alu::add_c(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::add_c(const gameboy::register8& reg) const
+uint8_t alu::add_c(const register8& reg) const
 {
     return add_c(reg.value());
 }
 
-uint8_t gameboy::alu::subtract(const uint8_t value) const
+uint8_t alu::subtract(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -81,12 +83,12 @@ uint8_t gameboy::alu::subtract(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::subtract(const gameboy::register8& reg) const
+uint8_t alu::subtract(const register8& reg) const
 {
     return subtract(reg.value());
 }
 
-uint8_t gameboy::alu::subtract_c(const uint8_t value) const
+uint8_t alu::subtract_c(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -112,12 +114,12 @@ uint8_t gameboy::alu::subtract_c(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::subtract_c(const gameboy::register8& reg) const
+uint8_t alu::subtract_c(const register8& reg) const
 {
     return subtract_c(reg.value());
 }
 
-uint8_t gameboy::alu::increment(uint8_t& value) const
+uint8_t alu::increment(uint8_t& value) const
 {
     ++value;
 
@@ -137,7 +139,7 @@ uint8_t gameboy::alu::increment(uint8_t& value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::increment(gameboy::register8& reg) const
+uint8_t alu::increment(register8& reg) const
 {
     auto value = reg.value();
 
@@ -147,7 +149,7 @@ uint8_t gameboy::alu::increment(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::decrement(uint8_t& value) const
+uint8_t alu::decrement(uint8_t& value) const
 {
     --value;
 
@@ -167,7 +169,7 @@ uint8_t gameboy::alu::decrement(uint8_t& value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::decrement(gameboy::register8& reg) const
+uint8_t alu::decrement(register8& reg) const
 {
     auto value = reg.value();
 
@@ -177,7 +179,7 @@ uint8_t gameboy::alu::decrement(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::logical_or(const uint8_t value) const
+uint8_t alu::logical_or(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
     acc = acc | value;
@@ -190,12 +192,12 @@ uint8_t gameboy::alu::logical_or(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::logical_or(const gameboy::register8& reg) const
+uint8_t alu::logical_or(const register8& reg) const
 {
     return logical_or(reg.value());
 }
 
-uint8_t gameboy::alu::logical_and(const uint8_t value) const
+uint8_t alu::logical_and(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
     acc = acc & value;
@@ -209,12 +211,12 @@ uint8_t gameboy::alu::logical_and(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::logical_and(const gameboy::register8& reg) const
+uint8_t alu::logical_and(const register8& reg) const
 {
     return logical_and(reg.value());
 }
 
-uint8_t gameboy::alu::logical_xor(const uint8_t value) const
+uint8_t alu::logical_xor(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
     acc = acc ^ value;
@@ -227,12 +229,12 @@ uint8_t gameboy::alu::logical_xor(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::logical_xor(const gameboy::register8& reg) const
+uint8_t alu::logical_xor(const register8& reg) const
 {
     return logical_xor(reg.value());
 }
 
-uint8_t gameboy::alu::logical_compare(const uint8_t value) const
+uint8_t alu::logical_compare(const uint8_t value) const
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -254,12 +256,12 @@ uint8_t gameboy::alu::logical_compare(const uint8_t value) const
     return 4u;
 }
 
-uint8_t gameboy::alu::logical_compare(const gameboy::register8& reg) const
+uint8_t alu::logical_compare(const register8& reg) const
 {
     return logical_compare(reg.value());
 }
 
-uint8_t gameboy::alu::add(gameboy::register16& r_left, const gameboy::register16& r_right) const
+uint8_t alu::add(register16& r_left, const register16& r_right) const
 {
     cpu_->reset_flag(cpu::flag::subtract);
 
@@ -279,7 +281,7 @@ uint8_t gameboy::alu::add(gameboy::register16& r_left, const gameboy::register16
     return 8u;
 }
 
-uint8_t gameboy::alu::add_to_stack_pointer(const int8_t immediate) const
+uint8_t alu::add_to_stack_pointer(const int8_t immediate) const
 {
     cpu_->reset_flag(cpu::flag::all);
 
@@ -298,19 +300,19 @@ uint8_t gameboy::alu::add_to_stack_pointer(const int8_t immediate) const
     return 16u;
 }
 
-uint8_t gameboy::alu::increment(gameboy::register16& r)
+uint8_t alu::increment(register16& r)
 {
     r += 0x1u;
     return 8u;
 }
 
-uint8_t gameboy::alu::decrement(gameboy::register16& r)
+uint8_t alu::decrement(register16& r)
 {
     r -= 0x1u;
     return 8u;
 }
 
-uint8_t gameboy::alu::complement() const
+uint8_t alu::complement() const
 {
     cpu_->a_f_.high() = ~cpu_->a_f_.high();
     cpu_->set_flag(cpu::flag::subtract);
@@ -318,7 +320,7 @@ uint8_t gameboy::alu::complement() const
     return 4u;
 }
 
-uint8_t gameboy::alu::decimal_adjust() const
+uint8_t alu::decimal_adjust() const
 {
     uint16_t acc = cpu_->a_f_.high().value();
 
@@ -358,7 +360,7 @@ uint8_t gameboy::alu::decimal_adjust() const
     return 4u;
 }
 
-uint8_t gameboy::alu::swap(uint8_t& value) const
+uint8_t alu::swap(uint8_t& value) const
 {
     cpu_->reset_flag(cpu::flag::all);
 
@@ -371,7 +373,7 @@ uint8_t gameboy::alu::swap(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::swap(gameboy::register8& reg) const
+uint8_t alu::swap(register8& reg) const
 {
     auto value = reg.value();
 
@@ -381,7 +383,7 @@ uint8_t gameboy::alu::swap(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::bit_test(const uint8_t value, const uint8_t bit) const
+uint8_t alu::bit_test(const uint8_t value, const uint8_t bit) const
 {
     if(math::bit_test(value, bit)) {
         cpu_->set_flag(cpu::flag::zero);
@@ -394,18 +396,18 @@ uint8_t gameboy::alu::bit_test(const uint8_t value, const uint8_t bit) const
     return 8u;
 }
 
-uint8_t gameboy::alu::bit_test(const gameboy::register8& reg, const uint8_t bit) const
+uint8_t alu::bit_test(const register8& reg, const uint8_t bit) const
 {
     return bit_test(reg.value(), bit);
 }
 
-uint8_t gameboy::alu::bit_set(uint8_t& value, const uint8_t bit)
+uint8_t alu::bit_set(uint8_t& value, const uint8_t bit)
 {
     math::bit_set(value, bit);
     return 8u;
 }
 
-uint8_t gameboy::alu::bit_set(gameboy::register8& reg, uint8_t bit) const
+uint8_t alu::bit_set(register8& reg, uint8_t bit) const
 {
     auto value = reg.value();
     const auto cycles = bit_set(value, bit);
@@ -413,13 +415,13 @@ uint8_t gameboy::alu::bit_set(gameboy::register8& reg, uint8_t bit) const
     return cycles;
 }
 
-uint8_t gameboy::alu::bit_reset(uint8_t& value, const uint8_t bit)
+uint8_t alu::bit_reset(uint8_t& value, const uint8_t bit)
 {
     math::bit_reset(value, bit);
     return 8u;
 }
 
-uint8_t gameboy::alu::bit_reset(gameboy::register8& reg, const uint8_t bit) const
+uint8_t alu::bit_reset(register8& reg, const uint8_t bit) const
 {
     auto value = reg.value();
     const auto cycles = bit_reset(value, bit);
@@ -427,35 +429,35 @@ uint8_t gameboy::alu::bit_reset(gameboy::register8& reg, const uint8_t bit) cons
     return cycles;
 }
 
-uint8_t gameboy::alu::rotate_left_acc() const
+uint8_t alu::rotate_left_acc() const
 {
     rotate_left(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::alu::rotate_right_acc() const
+uint8_t alu::rotate_right_acc() const
 {
     rotate_right(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::alu::rotate_left_c_acc() const
+uint8_t alu::rotate_left_c_acc() const
 {
     rotate_left_c(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::alu::rotate_right_c_acc() const
+uint8_t alu::rotate_right_c_acc() const
 {
     rotate_right_c(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
     return 4u;
 }
 
-uint8_t gameboy::alu::rotate_left(uint8_t& value) const
+uint8_t alu::rotate_left(uint8_t& value) const
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -478,7 +480,7 @@ uint8_t gameboy::alu::rotate_left(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::rotate_left(gameboy::register8& reg) const
+uint8_t alu::rotate_left(register8& reg) const
 {
     auto value = reg.value();
     const auto cycles = rotate_left(value);
@@ -486,7 +488,7 @@ uint8_t gameboy::alu::rotate_left(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::rotate_right(uint8_t& value) const
+uint8_t alu::rotate_right(uint8_t& value) const
 {
     const auto lsb = value & 0x01u;
     value >>= 0x1u;
@@ -509,7 +511,7 @@ uint8_t gameboy::alu::rotate_right(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::rotate_right(gameboy::register8& reg) const
+uint8_t alu::rotate_right(register8& reg) const
 {
     auto value = reg.value();
     const auto cycles = rotate_right(value);
@@ -517,7 +519,7 @@ uint8_t gameboy::alu::rotate_right(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::rotate_left_c(uint8_t& value) const
+uint8_t alu::rotate_left_c(uint8_t& value) const
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -537,7 +539,7 @@ uint8_t gameboy::alu::rotate_left_c(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::rotate_left_c(gameboy::register8& reg) const
+uint8_t alu::rotate_left_c(register8& reg) const
 {
     auto value = reg.value();
     const auto cycles = rotate_left_c(value);
@@ -545,7 +547,7 @@ uint8_t gameboy::alu::rotate_left_c(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::rotate_right_c(uint8_t& value) const
+uint8_t alu::rotate_right_c(uint8_t& value) const
 {
     const auto lsb = value & 0x01u;
     value >>= 0x1u;
@@ -565,7 +567,7 @@ uint8_t gameboy::alu::rotate_right_c(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::rotate_right_c(gameboy::register8& reg) const
+uint8_t alu::rotate_right_c(register8& reg) const
 {
     auto value = reg.value();
     const auto cycles = rotate_right_c(value);
@@ -573,7 +575,7 @@ uint8_t gameboy::alu::rotate_right_c(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::shift_left(uint8_t& value) const
+uint8_t alu::shift_left(uint8_t& value) const
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -590,7 +592,7 @@ uint8_t gameboy::alu::shift_left(uint8_t& value) const
     return 8u;
 }
 
-uint8_t gameboy::alu::shift_left(gameboy::register8& reg) const
+uint8_t alu::shift_left(register8& reg) const
 {
     auto value = reg.value();
     const auto cycles = shift_left(value);
@@ -598,7 +600,7 @@ uint8_t gameboy::alu::shift_left(gameboy::register8& reg) const
     return cycles;
 }
 
-uint8_t gameboy::alu::shift_right(uint8_t& value, preserve_last_bit_t) const
+uint8_t alu::shift_right(uint8_t& value, preserve_last_bit_t) const
 {
     const auto msb = value & 0x80u;
     const auto lsb = value & 0x01u;
@@ -623,7 +625,7 @@ uint8_t gameboy::alu::shift_right(uint8_t& value, preserve_last_bit_t) const
     return 8u;
 }
 
-uint8_t gameboy::alu::shift_right(gameboy::register8& reg, const preserve_last_bit_t tag) const
+uint8_t alu::shift_right(register8& reg, const preserve_last_bit_t tag) const
 {
     auto value = reg.value();
     const auto cycles = shift_right(value, tag);
@@ -631,7 +633,7 @@ uint8_t gameboy::alu::shift_right(gameboy::register8& reg, const preserve_last_b
     return cycles;
 }
 
-uint8_t gameboy::alu::shift_right(uint8_t& value, reset_last_bit_t) const
+uint8_t alu::shift_right(uint8_t& value, reset_last_bit_t) const
 {
     const auto lsb = value & 0x01u;
 
@@ -650,10 +652,12 @@ uint8_t gameboy::alu::shift_right(uint8_t& value, reset_last_bit_t) const
     return 8u;
 }
 
-uint8_t gameboy::alu::shift_right(gameboy::register8& reg, const reset_last_bit_t tag) const
+uint8_t alu::shift_right(register8& reg, const reset_last_bit_t tag) const
 {
     auto value = reg.value();
     const auto cycles = shift_right(value, tag);
     reg = value;
     return cycles;
 }
+
+} // namespace gameboy

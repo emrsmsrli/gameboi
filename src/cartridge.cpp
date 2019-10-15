@@ -50,9 +50,7 @@ template<typename T = uint8_t, typename AddrType>
     return static_cast<T>(rom_data[addr.value()]);
 }
 
-}
-
-gameboy::cartridge::cartridge(std::string_view rom_path)
+cartridge::cartridge(std::string_view rom_path)
     : rom_(data_loader::load(rom_path))
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
@@ -129,7 +127,7 @@ gameboy::cartridge::cartridge(std::string_view rom_path)
     }
 }
 
-uint8_t gameboy::cartridge::read_rom(const address16& address) const
+uint8_t cartridge::read_rom(const address16& address) const
 {
     const auto physical_addr = [&]() -> size_t {
         if(rom_range.contains(address)) {
@@ -142,7 +140,7 @@ uint8_t gameboy::cartridge::read_rom(const address16& address) const
     return rom_[physical_addr];
 }
 
-void gameboy::cartridge::write_rom(const gameboy::address16& address, uint8_t data)
+void cartridge::write_rom(const address16& address, uint8_t data)
 {
     std::visit(overloaded{
         [](const mbc_regular&) {},
@@ -152,7 +150,7 @@ void gameboy::cartridge::write_rom(const gameboy::address16& address, uint8_t da
     }, mbc_);
 }
 
-uint8_t gameboy::cartridge::read_ram(const gameboy::address16& address) const
+uint8_t cartridge::read_ram(const address16& address) const
 {
     if(!xram_enabled()) {
         return 0xFFu;
@@ -163,7 +161,7 @@ uint8_t gameboy::cartridge::read_ram(const gameboy::address16& address) const
     }, mbc_);
 }
 
-void gameboy::cartridge::write_ram(const gameboy::address16& address, uint8_t data)
+void cartridge::write_ram(const address16& address, uint8_t data)
 {
     if(!xram_enabled()) {
         return;
@@ -174,14 +172,14 @@ void gameboy::cartridge::write_ram(const gameboy::address16& address, uint8_t da
     }, mbc_);
 }
 
-bool gameboy::cartridge::xram_enabled() const noexcept
+bool cartridge::xram_enabled() const noexcept
 {
     return std::visit([](auto&& mbc) {
         return mbc.xram_enabled;
     }, mbc_);
 }
 
-uint32_t gameboy::cartridge::rom_bank() const noexcept
+uint32_t cartridge::rom_bank() const noexcept
 {
     return std::visit(overloaded{
         [](const mbc1& mbc) {
@@ -207,7 +205,7 @@ uint32_t gameboy::cartridge::rom_bank() const noexcept
     }, mbc_);
 }
 
-uint32_t gameboy::cartridge::ram_bank() const noexcept
+uint32_t cartridge::ram_bank() const noexcept
 {
     return std::visit(overloaded{
         [](const mbc1& mbc) {
@@ -223,7 +221,9 @@ uint32_t gameboy::cartridge::ram_bank() const noexcept
     }, mbc_);
 }
 
-gameboy::physical_address gameboy::cartridge::physical_ram_addr(const gameboy::address16& address) const noexcept
+physical_address cartridge::physical_ram_addr(const address16& address) const noexcept
 {
-    return gameboy::physical_address{address.value() - xram_range.low() + 8_kb * ram_bank()};
+    return physical_address{address.value() - xram_range.low() + 8_kb * ram_bank()};
 }
+
+} // namespace gameboy

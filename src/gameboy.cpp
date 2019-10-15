@@ -3,15 +3,13 @@
 
 #include <gameboy.h>
 
-namespace {
+namespace gameboy {
 
 constexpr auto max_cycles = 70224;
 constexpr auto fps = 59.73f;
 constexpr auto delay = 1000.f / fps;
 
-}
-
-gameboy::gameboy::gameboy(const std::string_view rom_path)
+gameboy::gameboy(const std::string_view rom_path)
     : cartridge_(rom_path),
       bus_(bus{make_observer(cartridge_)}),
       mmu_(mmu{make_observer(bus_)}),
@@ -28,7 +26,7 @@ gameboy::gameboy::gameboy(const std::string_view rom_path)
     bus_.apu = make_observer(apu_);
 }
 
-void gameboy::gameboy::start()
+void gameboy::start()
 {
     while(true) {
         const auto cycles = cpu_.tick();
@@ -47,3 +45,5 @@ void gameboy::gameboy::start()
         break;
     }
 }
+
+} // namespace gameboy

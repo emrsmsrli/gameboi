@@ -7,7 +7,9 @@
 #include <util/log.h>
 #include <util/observer.h>
 
-gameboy::cpu::cpu(observer<bus> bus)
+namespace gameboy {
+
+cpu::cpu(observer<bus> bus)
     : bus_(bus)
 {
     a_f_ = 0x01B0u;
@@ -17,7 +19,7 @@ gameboy::cpu::cpu(observer<bus> bus)
     stack_pointer_ = 0xFFFEu;
 }
 
-uint8_t gameboy::cpu::tick()
+uint8_t cpu::tick()
 {
     const auto cycle_count = [&]() {
         if(!is_halted_) {
@@ -36,28 +38,28 @@ uint8_t gameboy::cpu::tick()
     return cycle_count;
 }
 
-void gameboy::cpu::set_flag(flag flag)
+void cpu::set_flag(flag flag)
 {
     a_f_.low() |= static_cast<uint8_t>(flag);
 }
 
-void gameboy::cpu::reset_flag(flag flag)
+void cpu::reset_flag(flag flag)
 {
     a_f_.low() &= ~static_cast<uint8_t>(flag);
 }
 
-void gameboy::cpu::flip_flag(flag flag)
+void cpu::flip_flag(flag flag)
 {
     a_f_.low() ^= static_cast<uint8_t>(flag);
 }
 
-bool gameboy::cpu::test_flag(flag flag)
+bool cpu::test_flag(flag flag)
 {
     const auto f = static_cast<uint8_t>(flag);
     return (a_f_.low() & f) == f;
 }
 
-uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
+uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
 {
     switch(inst) {
         case 0x00: { return nop(); }
@@ -455,7 +457,7 @@ uint8_t gameboy::cpu::decode(uint16_t inst, standart_instruction_set_t)
     }
 }
 
-uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
+uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
 {
     const auto get_bitop_mask = [&]() -> uint8_t {
         return 0x1u << (inst >> 0x3u & 0x7u);
@@ -835,24 +837,24 @@ uint8_t gameboy::cpu::decode(uint16_t inst, extended_instruction_set_t)
     }
 }
 
-void gameboy::cpu::write_data(const address16& address, const uint8_t data) const
+void cpu::write_data(const address16& address, const uint8_t data) const
 {
     bus_->mmu->write(address, data);
 }
 
-uint8_t gameboy::cpu::read_data(const gameboy::address16& address) const
+uint8_t cpu::read_data(const address16& address) const
 {
     return bus_->mmu->read(address);
 }
 
-uint8_t gameboy::cpu::read_immediate(imm8_t)
+uint8_t cpu::read_immediate(imm8_t)
 {
     const auto data = read_data(make_address(program_counter_));
     ++program_counter_;
     return data;
 }
 
-uint16_t gameboy::cpu::read_immediate(imm16_t)
+uint16_t cpu::read_immediate(imm16_t)
 {
     const auto lsb = read_immediate(imm8);
     const auto msb = read_immediate(imm8);
@@ -860,12 +862,12 @@ uint16_t gameboy::cpu::read_immediate(imm16_t)
     return (static_cast<uint16_t>(msb) << 8u) | lsb;
 }
 
-uint8_t gameboy::cpu::nop()
+uint8_t cpu::nop()
 {
     return 4;
 }
 
-uint8_t gameboy::cpu::halt()
+uint8_t cpu::halt()
 {
     is_halted_ = true;
 
@@ -881,13 +883,13 @@ uint8_t gameboy::cpu::halt()
     return 0;
 }
 
-uint8_t gameboy::cpu::stop()
+uint8_t cpu::stop()
 {
     // todo make this a separate instruction to save energy by turning off the system completely
     return halt();
 }
 
-uint8_t gameboy::cpu::push(const gameboy::register16& reg)
+uint8_t cpu::push(const register16& reg)
 {
     const auto write_to_stack = [&](const register8& reg_8) {
         --stack_pointer_;
@@ -899,7 +901,7 @@ uint8_t gameboy::cpu::push(const gameboy::register16& reg)
     return 16;
 }
 
-uint8_t gameboy::cpu::pop(gameboy::register16& reg)
+uint8_t cpu::pop(register16& reg)
 {
     const auto read_from_stack = [&]() {
         const auto data = read_data(make_address(stack_pointer_));
@@ -912,26 +914,26 @@ uint8_t gameboy::cpu::pop(gameboy::register16& reg)
     return 12;
 }
 
-uint8_t gameboy::cpu::rst(const gameboy::address8& address)
+uint8_t cpu::rst(const address8& address)
 {
     const auto cycles = push(program_counter_);
     program_counter_ = address.value();
     return cycles;
 }
 
-uint8_t gameboy::cpu::jump(const gameboy::register16& reg)
+uint8_t cpu::jump(const register16& reg)
 {
     program_counter_ = reg.value();
     return 4;
 }
 
-uint8_t gameboy::cpu::jump(const gameboy::address16& address)
+uint8_t cpu::jump(const address16& address)
 {
     program_counter_ = address.value();
     return 16;
 }
 
-uint8_t gameboy::cpu::jump(const bool condition, const gameboy::address16& address)
+uint8_t cpu::jump(const bool condition, const address16& address)
 {
     if(condition) {
         return jump(address);
@@ -940,13 +942,13 @@ uint8_t gameboy::cpu::jump(const bool condition, const gameboy::address16& addre
     return 12;
 }
 
-uint8_t gameboy::cpu::jump_relative(const gameboy::address8& address)
+uint8_t cpu::jump_relative(const address8& address)
 {
     program_counter_ += address;
     return 12;
 }
 
-uint8_t gameboy::cpu::jump_relative(const bool condition, const gameboy::address8& address)
+uint8_t cpu::jump_relative(const bool condition, const address8& address)
 {
     if(condition) {
         return jump_relative(address);
@@ -955,14 +957,14 @@ uint8_t gameboy::cpu::jump_relative(const bool condition, const gameboy::address
     return 8;
 }
 
-uint8_t gameboy::cpu::call(const gameboy::address16& address)
+uint8_t cpu::call(const address16& address)
 {
     const auto push_cycles = push(program_counter_);
     program_counter_ = address;
     return push_cycles + 8;
 }
 
-uint8_t gameboy::cpu::call(bool condition, const gameboy::address16& address)
+uint8_t cpu::call(bool condition, const address16& address)
 {
     if(condition) {
         return call(address);
@@ -971,18 +973,18 @@ uint8_t gameboy::cpu::call(bool condition, const gameboy::address16& address)
     return 12;
 }
 
-uint8_t gameboy::cpu::reti()
+uint8_t cpu::reti()
 {
     //is_interrupt_master_enabled = true;
     return ret();
 }
 
-uint8_t gameboy::cpu::ret()
+uint8_t cpu::ret()
 {
     return pop(stack_pointer_) + 4;
 }
 
-uint8_t gameboy::cpu::ret(bool condition)
+uint8_t cpu::ret(bool condition)
 {
     if(condition) {
         return ret() + 4;
@@ -991,64 +993,64 @@ uint8_t gameboy::cpu::ret(bool condition)
     return 8;
 }
 
-uint8_t gameboy::cpu::store(const gameboy::address16& address, const uint8_t data) const
+uint8_t cpu::store(const address16& address, const uint8_t data) const
 {
     write_data(address, data);
     return 12;
 }
 
-uint8_t gameboy::cpu::store(const gameboy::address16& address, const gameboy::register8& reg) const
+uint8_t cpu::store(const address16& address, const register8& reg) const
 {
     write_data(address, reg.value());
     return 8;
 }
 
-uint8_t gameboy::cpu::store(const gameboy::address16& address, const gameboy::register16& reg) const
+uint8_t cpu::store(const address16& address, const register16& reg) const
 {
     const auto store_low_cycles = store(address, reg.low());
     const auto store_high_cycles = store(address, reg.high());
     return store_low_cycles + store_high_cycles;
 }
 
-uint8_t gameboy::cpu::load(gameboy::register8& reg, const uint8_t data)
+uint8_t cpu::load(register8& reg, const uint8_t data)
 {
     reg = data;
     return 8;
 }
 
-uint8_t gameboy::cpu::load(gameboy::register8& r_left, const gameboy::register8& r_right)
+uint8_t cpu::load(register8& r_left, const register8& r_right)
 {
     r_left = r_right;
     return 4;
 }
 
-uint8_t gameboy::cpu::load(gameboy::register16& reg, const uint16_t data)
+uint8_t cpu::load(register16& reg, const uint16_t data)
 {
     reg = data;
     return 12;
 }
 
-uint8_t gameboy::cpu::load(register16& r_left, const register16& r_right)
+uint8_t cpu::load(register16& r_left, const register16& r_right)
 {
     r_left = r_right;
     return 8;
 }
 
-uint8_t gameboy::cpu::store_i()
+uint8_t cpu::store_i()
 {
     const auto cycles = store(make_address(h_l_), a_f_.high());
     ++h_l_;
     return cycles;
 }
 
-uint8_t gameboy::cpu::store_d()
+uint8_t cpu::store_d()
 {
     const auto cycles = store(make_address(h_l_), a_f_.high());
     --h_l_;
     return cycles;
 }
 
-uint8_t gameboy::cpu::load_i()
+uint8_t cpu::load_i()
 {
     const auto data = read_data(make_address(h_l_));
     const auto cycles = load(a_f_.high(), data);
@@ -1056,7 +1058,7 @@ uint8_t gameboy::cpu::load_i()
     return cycles;
 }
 
-uint8_t gameboy::cpu::load_d()
+uint8_t cpu::load_d()
 {
     const auto data = read_data(make_address(h_l_));
     const auto cycles = load(a_f_.high(), data);
@@ -1064,7 +1066,7 @@ uint8_t gameboy::cpu::load_d()
     return cycles;
 }
 
-uint8_t gameboy::cpu::load_hlsp()
+uint8_t cpu::load_hlsp()
 {
     const auto data = static_cast<int8_t>(read_immediate(imm8));
     const uint16_t value = stack_pointer_.value() + data;
@@ -1080,3 +1082,5 @@ uint8_t gameboy::cpu::load_hlsp()
 
     return load(h_l_, value);
 }
+
+} // namespace gameboy

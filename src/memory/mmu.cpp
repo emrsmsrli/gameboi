@@ -9,7 +9,9 @@
 #include <cartridge.h>
 #include <ppu/ppu.h>
 
-gameboy::mmu::mmu(observer<bus> bus)
+namespace gameboy {
+
+mmu::mmu(observer<bus> bus)
     : bus_(bus)
 {
     work_ram_.reserve((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb);
@@ -19,7 +21,7 @@ gameboy::mmu::mmu(observer<bus> bus)
     std::fill(begin(high_ram_), end(high_ram_), 0u);
 }
 
-void gameboy::mmu::initialize()
+void mmu::initialize()
 {
     std::map<uint16_t, uint8_t> initialization_sequence{
         {0xFF05u, 0x00u}, // TIMA
@@ -60,7 +62,7 @@ void gameboy::mmu::initialize()
     }
 }
 
-void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data) noexcept
+void mmu::write(const address16& address, const uint8_t data) noexcept
 {
     if(rom_range.contains(address)) {
         bus_->cartridge->write_rom(address, data);
@@ -74,7 +76,7 @@ void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data) 
     // todo switch here baby
 }
 
-uint8_t gameboy::mmu::read(const gameboy::address16& address) const noexcept
+uint8_t mmu::read(const address16& address) const noexcept
 {
     if(rom_range.contains(address)) {
         return bus_->cartridge->read_rom(address);
@@ -90,18 +92,18 @@ uint8_t gameboy::mmu::read(const gameboy::address16& address) const noexcept
     // todo switch here baby
 }
 
-void gameboy::mmu::write_wram(const gameboy::address16& address, const uint8_t data) noexcept
+void mmu::write_wram(const address16& address, const uint8_t data) noexcept
 {
     // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
     // fixme get correct wram bank
     work_ram_[address.value()] = data;
 }
 
-uint8_t gameboy::mmu::read_wram(const gameboy::address16& address) const noexcept
+uint8_t mmu::read_wram(const address16& address) const noexcept
 {
     // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
     // fixme get correct wram bank
-    // uint32_t gameboy::mbc::get_work_ram_bank() const
+    // uint32_t mbc::get_work_ram_bank() const
     // {
     //     static constexpr address16 svbk_register(0xFF70u);
     //     const auto bank = read(svbk_register) & 0x7u;
@@ -109,3 +111,5 @@ uint8_t gameboy::mmu::read_wram(const gameboy::address16& address) const noexcep
     // }
     return work_ram_[address.value()];
 }
+
+} // namespace gameboy

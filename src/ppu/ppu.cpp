@@ -2,23 +2,23 @@
 #include <memory/address.h>
 #include <util/mathutil.h>
 
-namespace {
+namespace gameboy {
+
 constexpr auto hblank_cycles = 207;
 constexpr auto reading_oam_cycles = 83;
 constexpr auto reading_oam_vram_cycles = 175;
 
-constexpr gameboy::address16 addr_control(0xFF40u);
-constexpr gameboy::address16 addr_status(0xFF41u);
-}
+constexpr address16 addr_control(0xFF40u);
+constexpr address16 addr_status(0xFF41u);
 
-gameboy::ppu::ppu(std::shared_ptr<mmu> memory_management_unit)
+ppu::ppu(std::shared_ptr<mmu> memory_management_unit)
     : mmu_(std::move(memory_management_unit)),
       cycle_count_(0u)
 {
     // todo register mmu callbacks for registers
 }
 
-void gameboy::ppu::tick(const uint8_t cycles)
+void ppu::tick(const uint8_t cycles)
 {
     if(!is_control_flag_set(control_flag::lcd_enable)) {
         return;
@@ -71,8 +71,10 @@ void gameboy::ppu::tick(const uint8_t cycles)
     }
 }
 
-bool gameboy::ppu::is_control_flag_set(const gameboy::ppu::control_flag flag) const
+bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 {
     const auto control = mmu_->read(addr_control);
     return math::bit_test(control, flag);
 }
+
+} // namespace gameboy
