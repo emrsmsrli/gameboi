@@ -60,7 +60,7 @@ void gameboy::mmu::initialize()
     }
 }
 
-void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data)
+void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data) noexcept
 {
     if(rom_range.contains(address)) {
         bus_->cartridge->write_rom(address, data);
@@ -76,7 +76,7 @@ void gameboy::mmu::write(const gameboy::address16& address, const uint8_t data)
     // todo switch here baby
 }
 
-uint8_t gameboy::mmu::read(const gameboy::address16& address) const
+uint8_t gameboy::mmu::read(const gameboy::address16& address) const noexcept
 {
     if(rom_range.contains(address)) {
         return bus_->cartridge->read_rom(address);
