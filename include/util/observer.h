@@ -9,27 +9,31 @@ namespace gameboy {
 template<typename ElementType>
 class observer {
 public:
+    using type = ElementType;
+    using pointer_type = std::add_pointer_t<ElementType>;
+    using lvalue_type = std::add_lvalue_reference_t<ElementType>;
+
     constexpr observer() noexcept = default;
     constexpr observer(std::nullptr_t) noexcept
         : observer(nullptr) {};
-    explicit observer(ElementType* ptr)
+    explicit observer(pointer_type ptr)
         : ptr_(ptr) {}
 
-    constexpr void reset(ElementType* ptr = nullptr) noexcept { ptr_ = ptr; }
-    constexpr ElementType* release() noexcept
+    constexpr void reset(pointer_type ptr = nullptr) noexcept { ptr_ = ptr; }
+    constexpr pointer_type release() noexcept
     {
         auto* ret = ptr_;
         ptr_ = nullptr;
         return ret;
     }
 
-    constexpr ElementType* get() const noexcept { return ptr_; }
+    constexpr pointer_type get() const noexcept { return ptr_; }
 
     constexpr explicit operator bool() const noexcept { return ptr_ != nullptr; }
-    constexpr explicit operator ElementType() const noexcept { return ptr_; }
+    constexpr explicit operator pointer_type() const noexcept { return ptr_; }
 
-    constexpr ElementType* operator->() const noexcept { return ptr_; }
-    constexpr std::add_lvalue_reference_t<ElementType> operator*() const { return *ptr_; }
+    constexpr pointer_type operator->() const noexcept { return ptr_; }
+    constexpr lvalue_type operator*() const { return *ptr_; }
 
 private:
     ElementType* ptr_ = nullptr;
