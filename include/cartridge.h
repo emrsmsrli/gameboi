@@ -37,7 +37,7 @@ private:
     std::vector<uint8_t> rom_;
     std::vector<uint8_t> ram_;
 
-    std::variant<mbc_regular, mbc1, mbc2, mbc3> mbc_{mbc_regular{}};
+    std::variant<mbc_regular, mbc1, mbc2, mbc3> mbc_;
 
     [[nodiscard]] bool xram_enabled() const noexcept;
     [[nodiscard]] uint32_t rom_bank() const noexcept;
