@@ -143,8 +143,8 @@ uint8_t cartridge::read_rom(const address16& address) const
 void cartridge::write_rom(const address16& address, uint8_t data)
 {
     std::visit(overloaded{
-        [](const mbc_regular&) {},
-        [&](auto mbc) {
+        [](mbc_regular&) {},
+        [&](auto&& mbc) {
             mbc.control(address, data);
         }
     }, mbc_);
