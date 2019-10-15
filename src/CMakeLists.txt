@@ -2,7 +2,6 @@
 set(GAMEBOY_SRC
         src/gameboy.cpp
         src/cartridge.cpp
-        src/bus.cpp
         src/apu/apu.cpp
         src/cpu/register8.cpp
         src/cpu/register16.cpp
