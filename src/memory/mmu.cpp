@@ -114,22 +114,18 @@ uint8_t mmu::read(const address16& address) const
 
 void mmu::write_wram(const address16& address, const uint8_t data)
 {
-    // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
-    // fixme get correct wram bank
-    work_ram_[address.value()] = data;
+    work_ram_[physical_wram_addr(address).value()] = data;
 }
 
 uint8_t mmu::read_wram(const address16& address) const
 {
-    // todo also check echo range 0xE000-0xFDFF   Same as C000-DDFF
-    // fixme get correct wram bank
-    // uint32_t mbc::get_work_ram_bank() const
-    // {
-    //     static constexpr address16 svbk_register(0xFF70u);
-    //     const auto bank = read(svbk_register) & 0x7u;
-    //     return bank < 2u ? 0u : bank;
-    // }
-    return work_ram_[address.value()];
+    return work_ram_[physical_wram_addr(address).value()];
+}
+
+physical_address mmu::physical_wram_addr(const address16& address) const noexcept
+{
+    const auto wram_bank = wram_bank_ < 2 ? 0u : wram_bank_;
+    return physical_address(address.value() - wram_range.low() + 4_kb * wram_bank);
 }
 
 } // namespace gameboy
