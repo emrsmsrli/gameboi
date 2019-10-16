@@ -50,6 +50,8 @@ private:
 
     uint64_t total_cycles_ = 0u;
 
+    bool interrupt_master_enable_ = false;
+
     bool is_interrupt_status_change_pending_ = false;
     bool is_halted_ = false;
     bool is_halt_bug_triggered_ = false;
