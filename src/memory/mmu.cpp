@@ -11,6 +11,8 @@
 
 namespace gameboy {
 
+constexpr address16 svbk_addr(0xFF70u);
+
 template<typename T>
 auto find_callback(const std::vector<T>& container, T&& value) noexcept
 {
@@ -82,6 +84,8 @@ void mmu::write(const address16& address, const uint8_t data)
         write_wram(address16(address.value() - 0x1000u), data);
     } else if(wram_range.contains(address)) {
         write_wram(address, data);
+    } else if(address == svbk_addr) {
+        wram_bank_ = data & 0x7u;
     } else {
         log::error("out of bounds address: {:x}", address.value());
     }
@@ -101,6 +105,8 @@ uint8_t mmu::read(const address16& address) const
         return read_wram(address16(address.value() - 0x1000u));
     } else if(wram_range.contains(address)) {
         return read_wram(address);
+    } else if(address == svbk_addr) {
+        return wram_bank_;
     } else {
         log::error("out of bounds address: {:x}", address.value());
     }

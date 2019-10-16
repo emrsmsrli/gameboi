@@ -19,11 +19,10 @@ struct on_read_callback {
     delegate<uint8_t(const address16&)> on_read;
 
     on_read_callback() = default;
-    explicit on_read_callback(address16 addr) : address(addr) {}
+    explicit on_read_callback(address16 addr)
+        : address(addr) {}
 
-    bool operator==(const on_read_callback& other) const noexcept {
-        return address == other.address;
-    }
+    bool operator==(const on_read_callback& other) const noexcept { return address == other.address; }
 };
 
 struct on_write_callback {
@@ -31,11 +30,10 @@ struct on_write_callback {
     delegate<void(const address16&, uint8_t)> on_write;
 
     on_write_callback() = default;
-    explicit on_write_callback(address16 addr) : address(addr) {}
+    explicit on_write_callback(address16 addr)
+        : address(addr) {}
 
-    bool operator==(const on_write_callback& other) const noexcept {
-        return address == other.address;
-    }
+    bool operator==(const on_write_callback& other) const noexcept { return address == other.address; }
 };
 
 class mmu {
