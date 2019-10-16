@@ -184,7 +184,7 @@ ppu::ppu(observer<bus> bus)
       cycle_count_(0u)
 {
     ram_.reserve((bus->cartridge->cgb_enabled() ? 2 : 1) * 8_kb);
-    // todo register mmu callbacks for registers
+    std::fill(begin(ram_), end(ram_), 0u);
 }
 
 void ppu::tick(const uint8_t cycles)
