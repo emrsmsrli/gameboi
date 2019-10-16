@@ -25,6 +25,11 @@ private:
     size_type value_ = 0x0u;
 };
 
+template<typename T>
+bool operator==(const address<T>& a_l, const address<T>& a_r) noexcept {
+    return a_l.value() == a_r.value();
+}
+
 /**
  * Makes an address object
  * @param address an address value

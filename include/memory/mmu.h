@@ -22,7 +22,7 @@ struct on_read_callback {
     explicit on_read_callback(address16 addr) : address(addr) {}
 
     bool operator==(const on_read_callback& other) const noexcept {
-        return address.value() == other.address.value();
+        return address == other.address;
     }
 };
 
@@ -34,7 +34,7 @@ struct on_write_callback {
     explicit on_write_callback(address16 addr) : address(addr) {}
 
     bool operator==(const on_write_callback& other) const noexcept {
-        return address.value() == other.address.value();
+        return address == other.address;
     }
 };
 
