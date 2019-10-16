@@ -31,14 +31,14 @@ cpu::cpu(observer<bus> bus) noexcept
     stack_pointer_ = 0xFFFEu;
 }
 
-void cpu::on_register_write(const address16& address, uint8_t data)
+void cpu::on_register_write(const address16& address, uint8_t data) noexcept
 {
     if(address == ime_addr) {
         interrupt_master_enable_ = data != 0x00u;
     }
 }
 
-uint8_t cpu::on_register_read(const address16& address) const
+uint8_t cpu::on_register_read(const address16& address) const noexcept
 {
     if(address == ime_addr) {
         return interrupt_master_enable_ ? 0x01u : 0x00u;
