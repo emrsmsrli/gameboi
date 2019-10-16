@@ -11,6 +11,11 @@
 
 namespace gameboy {
 
+template<typename T>
+auto find_callback(const std::vector<T>& container, T&& value) noexcept {
+    return std::find(begin(container), end(container), std::forward<T>(value));
+}
+
 mmu::mmu(observer<bus> bus)
     : bus_(bus)
 {
@@ -64,7 +69,9 @@ void mmu::initialize()
 
 void mmu::write(const address16& address, const uint8_t data)
 {
-    if(rom_range.contains(address)) {
+    if(auto it = find_callback(on_write_callbacks_, on_write_callback{address}); it != end(on_write_callbacks_)) {
+        (*it).on_write(address, data);
+    } else if(rom_range.contains(address)) {
         bus_->cartridge->write_rom(address, data);
     } else if(vram_range.contains(address)) {
         bus_->ppu->write(address, data);
@@ -78,7 +85,9 @@ void mmu::write(const address16& address, const uint8_t data)
 
 uint8_t mmu::read(const address16& address) const
 {
-    if(rom_range.contains(address)) {
+    if(auto it = find_callback(on_read_callbacks_, on_read_callback{address}); it != end(on_read_callbacks_)) {
+        return (*it).on_read(address);
+    } else if(rom_range.contains(address)) {
         return bus_->cartridge->read_rom(address);
     } else if(vram_range.contains(address)) {
         return bus_->ppu->read(address);
