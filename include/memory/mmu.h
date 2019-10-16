@@ -47,6 +47,9 @@ public:
     void write(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read(const address16& address) const;
 
+    void add_read_callback(on_read_callback callback) { on_read_callbacks_.push_back(callback); }
+    void add_write_callback(on_write_callback callback) { on_write_callbacks_.push_back(callback); }
+
 private:
     observer<bus> bus_;
 
