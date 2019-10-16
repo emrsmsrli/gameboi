@@ -9,14 +9,42 @@
 
 namespace gameboy {
 
+constexpr address16 ime_addr(0xFFFFu);
+
 cpu::cpu(observer<bus> bus) noexcept
     : bus_(bus)
 {
+    auto mmu = bus->mmu;
+
+    on_read_callback on_reg_read(ime_addr);
+    on_reg_read.on_read.connect<&cpu::on_register_read>(this);
+    mmu->add_read_callback(on_reg_read);
+
+    on_write_callback on_reg_write(ime_addr);
+    on_reg_write.on_write.connect<&cpu::on_register_write>(this);
+    mmu->add_write_callback(on_reg_write);
+
     a_f_ = 0x01B0u;
     b_c_ = 0x0013u;
     d_e_ = 0x00D8u;
     h_l_ = 0x014Du;
     stack_pointer_ = 0xFFFEu;
+}
+
+void cpu::on_register_write(const address16& address, uint8_t data)
+{
+    if(address == ime_addr) {
+        interrupt_master_enable_ = data != 0x00u;
+    }
+}
+
+uint8_t cpu::on_register_read(const address16& address) const
+{
+    if(address == ime_addr) {
+        return interrupt_master_enable_ ? 0x01u : 0x00u;
+    }
+
+    return 0x00u;
 }
 
 uint8_t cpu::tick()
