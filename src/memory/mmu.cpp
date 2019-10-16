@@ -77,6 +77,8 @@ void mmu::write(const address16& address, const uint8_t data)
         bus_->ppu->write(address, data);
     } else if(xram_range.contains(address)) {
         bus_->cartridge->write_ram(address, data);
+    } else if(echo_range.contains(address)) {
+        write_wram(address16(address.value() - 0x1000u), data);
     } else if(wram_range.contains(address)) {
         write_wram(address, data);
     }
@@ -93,6 +95,8 @@ uint8_t mmu::read(const address16& address) const
         return bus_->ppu->read(address);
     } else if(xram_range.contains(address)) {
         return bus_->cartridge->read_ram(address);
+    } else if(echo_range.contains(address)) {
+        return read_wram(address16(address.value() - 0x1000u));
     } else if(wram_range.contains(address)) {
         return read_wram(address);
     } else {
