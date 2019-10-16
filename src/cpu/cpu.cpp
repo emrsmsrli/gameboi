@@ -31,7 +31,7 @@ cpu::cpu(observer<bus> bus) noexcept
     stack_pointer_ = 0xFFFEu;
 }
 
-void cpu::on_register_write(const address16& address, uint8_t data) noexcept
+void cpu::on_register_write(const address16& address, const uint8_t data) noexcept
 {
     if(address == ime_addr) {
         interrupt_master_enable_ = data != 0x00u;
@@ -49,7 +49,7 @@ uint8_t cpu::on_register_read(const address16& address) const noexcept
 
 uint8_t cpu::tick()
 {
-    const auto execute_next_op = [&]() ->uint8_t {
+    const auto execute_next_op = [&]() -> uint8_t {
         const auto opcode = read_immediate(imm8);
         if(opcode != 0xCB) {
             return decode(opcode, standard_instruction_set);
@@ -58,7 +58,8 @@ uint8_t cpu::tick()
         return decode(read_immediate(imm8), extended_instruction_set);
     };
 
-    const auto cycle_count = !is_halted_
+    const auto cycle_count =
+        !is_halted_
         ? execute_next_op()
         : static_cast<uint8_t>(0x1u);
 
