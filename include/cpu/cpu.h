@@ -56,8 +56,8 @@ private:
     bool is_halted_ = false;
     bool is_halt_bug_triggered_ = false;
 
-    void on_register_write(const address16& address, uint8_t data) noexcept;
-    [[nodiscard]] uint8_t on_register_read(const address16& address) const noexcept;
+    void on_ime_write(const address16&, uint8_t data) noexcept;
+    [[nodiscard]] uint8_t on_ime_read(const address16&) const noexcept;
 
     [[nodiscard]] uint8_t decode(uint16_t inst, standart_instruction_set_t);
     [[nodiscard]] uint8_t decode(uint16_t inst, extended_instruction_set_t);
