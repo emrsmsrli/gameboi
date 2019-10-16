@@ -16,13 +16,13 @@ cpu::cpu(observer<bus> bus) noexcept
 {
     auto mmu = bus->mmu;
 
-    on_read_callback on_ime_read(ime_addr);
-    on_ime_read.on_read.connect<&cpu::on_ime_read>(this);
-    mmu->add_read_callback(on_ime_read);
+    read_callback ime_read_callback(ime_addr);
+    ime_read_callback.on_read.connect<&cpu::on_ime_read>(this);
+    mmu->add_read_callback(ime_read_callback);
 
-    on_write_callback on_ime_write(ime_addr);
-    on_ime_write.on_write.connect<&cpu::on_ime_write>(this);
-    mmu->add_write_callback(on_ime_write);
+    write_callback ime_write_callback(ime_addr);
+    ime_write_callback.on_write.connect<&cpu::on_ime_write>(this);
+    mmu->add_write_callback(ime_write_callback);
 
     a_f_ = 0x01B0u;
     b_c_ = 0x0013u;

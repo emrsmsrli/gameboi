@@ -14,26 +14,26 @@ namespace gameboy {
 
 struct bus;
 
-struct on_read_callback {
+struct read_callback {
     address16 address;
     delegate<uint8_t(const address16&)> on_read;
 
-    on_read_callback() = default;
-    explicit on_read_callback(address16 addr)
+    read_callback() noexcept = default;
+    explicit read_callback(address16 addr) noexcept
         : address(addr) {}
 
-    bool operator==(const on_read_callback& other) const noexcept { return address == other.address; }
+    bool operator==(const read_callback& other) const noexcept { return address == other.address; }
 };
 
-struct on_write_callback {
+struct write_callback {
     address16 address;
     delegate<void(const address16&, uint8_t)> on_write;
 
-    on_write_callback() = default;
-    explicit on_write_callback(address16 addr)
+    write_callback() noexcept = default;
+    explicit write_callback(address16 addr) noexcept
         : address(addr) {}
 
-    bool operator==(const on_write_callback& other) const noexcept { return address == other.address; }
+    bool operator==(const write_callback& other) const noexcept { return address == other.address; }
 };
 
 class mmu {
@@ -45,8 +45,8 @@ public:
     void write(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read(const address16& address) const;
 
-    void add_read_callback(on_read_callback callback) { on_read_callbacks_.push_back(callback); }
-    void add_write_callback(on_write_callback callback) { on_write_callbacks_.push_back(callback); }
+    void add_read_callback(read_callback callback) { read_callbacks_.push_back(callback); }
+    void add_write_callback(write_callback callback) { write_callbacks_.push_back(callback); }
 
 private:
     observer<bus> bus_;
@@ -56,8 +56,8 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    std::vector<on_read_callback> on_read_callbacks_;
-    std::vector<on_write_callback> on_write_callbacks_;
+    std::vector<read_callback> read_callbacks_;
+    std::vector<write_callback> write_callbacks_;
 
     void write_wram(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read_wram(const address16& address) const;
