@@ -23,7 +23,7 @@ mmu::mmu(observer<bus> bus)
     : bus_(bus)
 {
     work_ram_.reserve((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb);
-    high_ram_.reserve(1_kb); // fixme probably less than this
+    high_ram_.reserve(hram_range.high() - hram_range.low() + 1);
 
     std::fill(begin(work_ram_), end(work_ram_), 0u);
     std::fill(begin(high_ram_), end(high_ram_), 0u);
