@@ -67,7 +67,7 @@ endif()
 
 include(src/CMakeLists.txt)
 
-add_library(GB SHARED ${GAMEBOY_SRC})
+add_library(GB STATIC ${GAMEBOY_SRC})
 target_include_directories(GB PRIVATE include)
 target_compile_features(GB PRIVATE cxx_std_17)
 target_link_libraries(GB PRIVATE
