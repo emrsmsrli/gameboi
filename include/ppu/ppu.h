@@ -88,8 +88,7 @@ private:
     observer<bus> bus_;
 
     std::vector<uint8_t> ram_;
-
-    uint16_t cycle_count_;
+    std::vector<uint8_t> oam_;
     mode mode_{mode::h_blank};
 
     uint32_t vram_bank_ = 0u;
