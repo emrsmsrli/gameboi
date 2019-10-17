@@ -3,6 +3,7 @@
 #include <cartridge.h>
 #include <memory/address.h>
 #include <util/mathutil.h>
+#include <util/delegate.h>
 
 namespace gameboy {
 
@@ -181,11 +182,7 @@ constexpr address16 hdma_5_addr(0xFF55u); // New DMA Length/Mode/Start
 
 ppu::ppu(observer<bus> bus)
     : bus_(bus),
-      cycle_count_(0u)
-{
-    ram_.reserve((bus->cartridge->cgb_enabled() ? 2 : 1) * 8_kb);
-    std::fill(begin(ram_), end(ram_), 0u);
-}
+      ram_((bus->cartridge->cgb_enabled() ? 2 : 1) * 8_kb, 0u) {}
 
 void ppu::tick(const uint8_t cycles)
 {
@@ -242,7 +239,7 @@ void ppu::tick(const uint8_t cycles)
 
 bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 {
-    const auto control = bus_->mmu->read(addr_control);
+    const auto control = bus_->mmu->read(lcdc_addr);
     return math::bit_test(control, flag);
 }
 
@@ -251,7 +248,7 @@ uint8_t ppu::read(const gameboy::address16& address) const
     return 0;
 }
 
-void ppu::write(const gameboy::address16& address, uint8_t data)
+void ppu::write(const gameboy::address16& address, const uint8_t data)
 {
 
 }

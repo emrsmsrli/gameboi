@@ -20,14 +20,9 @@ auto find_callback(const std::vector<T>& container, T&& value) noexcept
 }
 
 mmu::mmu(observer<bus> bus)
-    : bus_(bus)
-{
-    work_ram_.reserve((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb);
-    high_ram_.reserve(hram_range.high() - hram_range.low() + 1);
-
-    std::fill(begin(work_ram_), end(work_ram_), 0u);
-    std::fill(begin(high_ram_), end(high_ram_), 0u);
-}
+    : bus_(bus),
+      work_ram_((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb, 0u),
+      high_ram_(hram_range.high() - hram_range.low() + 1, 0u) {}
 
 void mmu::initialize()
 {
