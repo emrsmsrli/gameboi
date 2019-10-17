@@ -1,6 +1,12 @@
 [requires]
 fmt/5.2.0@bincrafters/stable
-sfml/2.5.1@bincrafters/stable 
+sfml/2.5.1@bincrafters/stable
+
+[options]
+sfml:graphics=True
+sfml:window=True
+sfml:audio=True
+sfml:network=False
 
 [generators]
 cmake
