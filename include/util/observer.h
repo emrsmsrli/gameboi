@@ -11,9 +11,9 @@ class observer {
 public:
     using type = ElementType;
     using pointer_type = std::add_pointer_t<ElementType>;
-    using const_pointer_type = std::add_const<pointer_type>;
+    using const_pointer_type = std::add_const_t<pointer_type>;
     using lvalue_type = std::add_lvalue_reference_t<ElementType>;
-    using const_lvalue_type = std::add_const<lvalue_type>;
+    using const_lvalue_type = std::add_const_t<lvalue_type>;
 
     observer() noexcept = default;
     observer(std::nullptr_t) noexcept
