@@ -11,7 +11,9 @@ class observer {
 public:
     using type = ElementType;
     using pointer_type = std::add_pointer_t<ElementType>;
+    using const_pointer_type = std::add_const<pointer_type>;
     using lvalue_type = std::add_lvalue_reference_t<ElementType>;
+    using const_lvalue_type = std::add_const<lvalue_type>;
 
     observer() noexcept = default;
     observer(std::nullptr_t) noexcept
@@ -19,13 +21,17 @@ public:
     explicit observer(pointer_type ptr) noexcept
         : ptr_(ptr) {}
 
-    pointer_type get() const noexcept { return ptr_; }
+    pointer_type get() noexcept { return ptr_; }
+    const_pointer_type get() const noexcept { return ptr_; }
 
     explicit operator bool() const noexcept { return ptr_ != nullptr; }
-    explicit operator pointer_type() const noexcept { return ptr_; }
+    explicit operator pointer_type() noexcept { return ptr_; }
+    explicit operator const_pointer_type() const noexcept { return ptr_; }
 
-    pointer_type operator->() const noexcept { return ptr_; }
-    lvalue_type operator*() const noexcept { return *ptr_; }
+    pointer_type operator->() noexcept { return ptr_; }
+    const_pointer_type operator->() const noexcept { return ptr_; }
+    lvalue_type operator*() noexcept { return *ptr_; }
+    const_lvalue_type operator*() const noexcept { return *ptr_; }
 
 private:
     pointer_type ptr_ = nullptr;
