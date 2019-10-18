@@ -21,7 +21,7 @@ auto find_callback(const std::vector<T>& container, T&& value) noexcept
 
 mmu::mmu(observer<bus> bus)
     : bus_(bus),
-      work_ram_((bus->cartridge->cgb_enabled() ? 8 : 2) * 4_kb, 0u),
+      work_ram_((bus->get_cartridge()->cgb_enabled() ? 8 : 2) * 4_kb, 0u),
       high_ram_(hram_range.high() - hram_range.low() + 1, 0u) {}
 
 void mmu::initialize()
@@ -70,11 +70,11 @@ void mmu::write(const address16& address, const uint8_t data)
     if(auto it = find_callback(write_callbacks_, write_callback{address}); it != end(write_callbacks_)) {
         (*it).on_write(address, data);
     } else if(rom_range.contains(address)) {
-        bus_->cartridge->write_rom(address, data);
+        bus_->get_cartridge()->write_rom(address, data);
     } else if(vram_range.contains(address)) {
-        bus_->ppu->write(address, data);
+        bus_->get_ppu()->write(address, data);
     } else if(xram_range.contains(address)) {
-        bus_->cartridge->write_ram(address, data);
+        bus_->get_cartridge()->write_ram(address, data);
     } else if(echo_range.contains(address)) {
         write_wram(address16(address.value() - 0x1000u), data);
     } else if(wram_range.contains(address)) {
@@ -91,11 +91,11 @@ uint8_t mmu::read(const address16& address) const
     if(auto it = find_callback(read_callbacks_, read_callback{address}); it != end(read_callbacks_)) {
         return (*it).on_read(address);
     } else if(rom_range.contains(address)) {
-        return bus_->cartridge->read_rom(address);
+        return bus_->get_cartridge()->read_rom(address);
     } else if(vram_range.contains(address)) {
-        return bus_->ppu->read(address);
+        return bus_->get_ppu()->read(address);
     } else if(xram_range.contains(address)) {
-        return bus_->cartridge->read_ram(address);
+        return bus_->get_cartridge()->read_ram(address);
     } else if(echo_range.contains(address)) {
         return read_wram(address16(address.value() - 0x1000u));
     } else if(wram_range.contains(address)) {

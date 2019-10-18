@@ -8,7 +8,7 @@
 
 namespace gameboy {
 
-struct bus;
+class bus;
 
 class cpu {
     friend alu;
@@ -67,7 +67,7 @@ private:
     void flip_flag(flag flag) noexcept;
     bool test_flag(flag flag) noexcept;
 
-    void write_data(const address16& address, uint8_t data) const;
+    void write_data(const address16& address, uint8_t data);
 
     [[nodiscard]] uint8_t read_data(const address16& address) const;
     [[nodiscard]] uint8_t read_immediate(imm8_t);
@@ -97,9 +97,9 @@ private:
     [[nodiscard]] uint8_t ret();
     [[nodiscard]] uint8_t ret(bool condition);
 
-    [[nodiscard]] uint8_t store(const address16& address, uint8_t data) const;
-    [[nodiscard]] uint8_t store(const address16& address, const register8& reg) const;
-    [[nodiscard]] uint8_t store(const address16& address, const register16& reg) const;
+    [[nodiscard]] uint8_t store(const address16& address, uint8_t data);
+    [[nodiscard]] uint8_t store(const address16& address, const register8& reg);
+    [[nodiscard]] uint8_t store(const address16& address, const register16& reg);
 
     [[nodiscard]] static uint8_t load(register8& reg, uint8_t data) noexcept;
     [[nodiscard]] static uint8_t load(register8& r_left, const register8& r_right) noexcept;

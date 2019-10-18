@@ -14,7 +14,7 @@ constexpr address16 ime_addr(0xFFFFu);
 cpu::cpu(observer<bus> bus) noexcept
     : bus_(bus)
 {
-    auto mmu = bus->mmu;
+    auto& mmu = bus->get_mmu();
 
     read_callback ime_read_callback(ime_addr);
     ime_read_callback.on_read.connect<&cpu::on_ime_read>(this);
@@ -860,14 +860,14 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
     }
 }
 
-void cpu::write_data(const address16& address, const uint8_t data) const
+void cpu::write_data(const address16& address, const uint8_t data)
 {
-    bus_->mmu->write(address, data);
+    bus_->get_mmu()->write(address, data);
 }
 
 uint8_t cpu::read_data(const address16& address) const
 {
-    return bus_->mmu->read(address);
+    return bus_->get_mmu()->read(address);
 }
 
 uint8_t cpu::read_immediate(imm8_t)
@@ -1016,19 +1016,19 @@ uint8_t cpu::ret(bool condition)
     return 8;
 }
 
-uint8_t cpu::store(const address16& address, const uint8_t data) const
+uint8_t cpu::store(const address16& address, const uint8_t data)
 {
     write_data(address, data);
     return 12;
 }
 
-uint8_t cpu::store(const address16& address, const register8& reg) const
+uint8_t cpu::store(const address16& address, const register8& reg)
 {
     write_data(address, reg.value());
     return 8;
 }
 
-uint8_t cpu::store(const address16& address, const register16& reg) const
+uint8_t cpu::store(const address16& address, const register16& reg)
 {
     const auto store_low_cycles = store(address, reg.low());
     const auto store_high_cycles = store(address, reg.high());

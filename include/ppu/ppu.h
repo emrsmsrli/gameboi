@@ -9,7 +9,7 @@
 
 namespace gameboy {
 
-struct bus;
+class bus;
 
 class ppu {
 public:

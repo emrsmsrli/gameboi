@@ -19,11 +19,11 @@ gameboy::gameboy(const std::string_view rom_path)
 {
     mmu_.initialize();
 
-    bus_.cartridge = make_observer(cartridge_);
-    bus_.mmu = make_observer(mmu_);
-    bus_.cpu = make_observer(cpu_);
-    bus_.ppu = make_observer(ppu_);
-    bus_.apu = make_observer(apu_);
+    bus_.cartridge_ = make_observer(cartridge_);
+    bus_.mmu_ = make_observer(mmu_);
+    bus_.cpu_ = make_observer(cpu_);
+    bus_.ppu_ = make_observer(ppu_);
+    bus_.apu_ = make_observer(apu_);
 }
 
 void gameboy::start()

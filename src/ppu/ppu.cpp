@@ -183,7 +183,7 @@ constexpr address16 hdma_5_addr(0xFF55u); // New DMA Length/Mode/Start
 
 ppu::ppu(observer<bus> bus)
     : bus_(bus),
-      ram_((bus->cartridge->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
+      ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.high() - oam_range.low() + 1, 0u)
 {
     // todo register relevant above addresses to mmu
@@ -244,7 +244,7 @@ void ppu::tick(const uint8_t cycles)
 
 bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 {
-    const auto control = bus_->mmu->read(lcdc_addr);
+    const auto control = bus_->get_mmu()->read(lcdc_addr);
     return math::bit_test(control, flag);
 }
 

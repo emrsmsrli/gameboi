@@ -12,7 +12,7 @@
 
 namespace gameboy {
 
-struct bus;
+class bus;
 
 struct read_callback {
     address16 address;
