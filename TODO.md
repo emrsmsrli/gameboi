@@ -12,7 +12,6 @@
 - use cpp11 uniform init syntax (constructor init list included)
 
 ## Major
-- refactor mbcs. (maybe use virtual-final combo for devirtualization)
 - todo modify compiler specific warnings 
   - https://clang.llvm.org/docs/DiagnosticsReference.html
 
