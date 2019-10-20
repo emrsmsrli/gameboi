@@ -1,12 +1,6 @@
 cmake_minimum_required(VERSION 3.14)
 project(GameBoy)
 
-execute_process(COMMAND conan install ${CMAKE_CURRENT_SOURCE_DIR} --build missing -s build_type=Debug)
-execute_process(COMMAND conan install ${CMAKE_CURRENT_SOURCE_DIR} --build missing -s build_type=Release)
-
-include(${CMAKE_BINARY_DIR}/conanbuildinfo.cmake)
-conan_basic_setup()
-
 add_compile_definitions(DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 
 # configure gtest
@@ -63,6 +57,16 @@ else()
             )
 endif()
 
+if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
+    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
+    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.14/conan.cmake"
+            "${CMAKE_BINARY_DIR}/conan.cmake")
+endif()
+
+include(${CMAKE_BINARY_DIR}/conan.cmake)
+conan_check(REQUIRED)
+conan_cmake_run(CONANFILE conanfile.txt BASIC_SETUP BUILD missing)
+
 include(src/CMakeLists.txt)
 
 add_library(GB STATIC ${GAMEBOY_SRC})
@@ -77,8 +81,8 @@ target_link_libraries(GB PRIVATE
 add_executable(GameBoy main.cpp)
 target_compile_features(GameBoy PRIVATE cxx_std_17)
 target_link_libraries(GameBoy PRIVATE
-        GB
         ${CONAN_LIBS}
+        GB
         project_warnings
         --coverage
         )
@@ -89,8 +93,8 @@ include(test/CMakeLists.txt)
 add_executable(GameBoy-test ${TEST_SRC})
 target_compile_features(GameBoy-test PRIVATE cxx_std_17)
 target_link_libraries(GameBoy-test PRIVATE
-        GB
         ${CONAN_LIBS}
+        GB
         project_warnings
         gtest_main
         --coverage
