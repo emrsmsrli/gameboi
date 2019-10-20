@@ -5,7 +5,6 @@
 #include <memory/address.h>
 #include <memory/address_range.h>
 #include <memory/memory_constants.h>
-#include <util/observer.h>
 #include <util/overloaded.h>
 #include <util/data_loader.h>
 #include <util/log.h>

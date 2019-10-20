@@ -248,12 +248,12 @@ bool ppu::is_control_flag_set(const ppu::control_flag flag) const
     return math::bit_test(control, flag);
 }
 
-uint8_t ppu::read(const gameboy::address16& address) const
+uint8_t ppu::read(const address16& address) const
 {
     return 0;
 }
 
-void ppu::write(const gameboy::address16& address, const uint8_t data)
+void ppu::write(const address16& address, const uint8_t data)
 {
 
 }

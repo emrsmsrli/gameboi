@@ -32,7 +32,7 @@ bool operator==(const address<T>& a_l, const address<T>& a_r) noexcept {
 
 /**
  * Makes an address object
- * @param address an address value
+ * @param addr an address value
  * @return An address object
  */
 template<typename T>

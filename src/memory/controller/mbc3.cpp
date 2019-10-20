@@ -7,16 +7,19 @@ namespace gameboy {
 
 uint8_t rtc::read() const noexcept
 {
-    // todo use this if msvc
-    // tm time;
-    // localtime_s(&latched_time_, &buf);
-    auto* time = std::localtime(&latched_time_);
+#ifdef _WIN32
+    tm time;
+    localtime_s(&time, &latched_time_);
+#else
+    auto& time = *std::localtime(&latched_time_);
+#endif
+
     switch(selected_register_) {
-        case register_type::seconds: return time->tm_sec;
-        case register_type::minutes: return time->tm_min;
-        case register_type::hours: return time->tm_hour;
-        case register_type::days_lower_bits: return time->tm_yday & 0xFFu;
-        case register_type::days_higher_bits: return (time->tm_yday & 0x100u) >> 8u;
+        case register_type::seconds: return time.tm_sec;
+        case register_type::minutes: return time.tm_min;
+        case register_type::hours: return time.tm_hour;
+        case register_type::days_lower_bits: return time.tm_yday & 0xFFu;
+        case register_type::days_higher_bits: return (time.tm_yday & 0x100u) >> 8u;
         default: return 0u;
     }
 }
