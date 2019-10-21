@@ -29,21 +29,25 @@ gameboy::gameboy(const std::string_view rom_path)
 void gameboy::start()
 {
     while(true) {
-        const auto cycles = cpu_.tick();
-        ppu_.tick(cycles);
-
-        // checkPowerMode();
-        // checkInterrupts();
-
-        // ppu->update(cycles, interrupt_master_enable);
-        // apu->update(cycles);
-        // timer.update(cycles);
+        tick();
 
         using namespace std::chrono;
         // const auto ns = duration_cast<nanoseconds>(milliseconds{16.7f});
         std::this_thread::sleep_for(nanoseconds{16700});
         break;
     }
+}
+void gameboy::tick()
+{
+    const auto cycles = cpu_.tick();
+    ppu_.tick(cycles);
+
+    // checkPowerMode();
+    // checkInterrupts();
+
+    // ppu->update(cycles, interrupt_master_enable);
+    // apu->update(cycles);
+    // timer.update(cycles);
 }
 
 } // namespace gameboy

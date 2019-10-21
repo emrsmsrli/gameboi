@@ -18,6 +18,7 @@ public:
     explicit gameboy(std::string_view rom_path);
 
     void start();
+    void tick();
 
 private:
     cartridge cartridge_;
