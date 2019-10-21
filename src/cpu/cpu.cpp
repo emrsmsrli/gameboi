@@ -448,7 +448,7 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
             return load(a_f_.high(), data);
         }
         case 0xF3: {
-            //is_interrupt_master_enabled = false;
+            interrupt_master_enable_ = false;
             return 4;
         }
         case 0xF5: { return push(a_f_); }
@@ -465,7 +465,7 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
             return load(a_f_.high(), data) + 8;
         }
         case 0xFB: {
-            //is_interrupt_master_enabled = true;
+            interrupt_master_enable_ = true;
             return 4;
         }
         case 0xFE: {
@@ -998,7 +998,7 @@ uint8_t cpu::call(bool condition, const address16& address)
 
 uint8_t cpu::reti()
 {
-    //is_interrupt_master_enabled = true;
+    interrupt_master_enable_ = true;
     return ret();
 }
 
