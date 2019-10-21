@@ -2,6 +2,7 @@
 #include <iterator>
 
 #include <util/data_loader.h>
+#include <util/log.h>
 
 namespace gameboy {
 
@@ -16,6 +17,10 @@ std::vector<uint8_t> data_loader::load(const std::string_view path)
 {
     std::ifstream file(path.data(), std::ios::binary | std::ios::ate);
     file.unsetf(std::ios::skipws);
+
+    if(!file.is_open()) {
+        log::error("file could not be opened: {}", path);
+    }
 
     const auto rom_size = get_file_size(file);
 
