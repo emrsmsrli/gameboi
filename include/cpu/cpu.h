@@ -5,6 +5,7 @@
 
 #include <cpu/register16.h>
 #include <cpu/alu.h>
+#include <util/enumutil.h>
 
 namespace gameboy {
 
@@ -20,11 +21,12 @@ public:
 
 private:
     enum class flag : uint8_t {
-        zero = 0x80u,
-        subtract = 0x40u,
-        half_carry = 0x20u,
+        none = 0u,
         carry = 0x10u,
-        all = 0xF0u
+        half_carry = 0x20u,
+        subtract = 0x40u,
+        zero = 0x80u,
+        all = carry | half_carry | subtract | zero
     };
 
     static constexpr struct standart_instruction_set_t {} standard_instruction_set{};
@@ -115,6 +117,8 @@ private:
 
     [[nodiscard]] uint8_t load_hlsp() noexcept;
 };
+
+DEFINE_ENUM_CLASS_FLAGS(cpu::flag);
 
 }
 
