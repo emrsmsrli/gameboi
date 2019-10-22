@@ -5,6 +5,7 @@
 
 #include <cpu/register16.h>
 #include <cpu/alu.h>
+#include <cpu/interrupt.h>
 #include <util/enumutil.h>
 
 namespace gameboy {
@@ -18,6 +19,12 @@ public:
     explicit cpu(observer<bus> bus) noexcept;
 
     [[nodiscard]] uint8_t tick();
+
+    void request_interrupt(interrupt request) noexcept
+    {
+        interrupt_master_enable_ = true;
+        interrupt_flags_ |= request;
+    }
 
 private:
     enum class flag : uint8_t {
@@ -52,6 +59,8 @@ private:
 
     uint64_t total_cycles_ = 0u;
 
+    interrupt interrupt_flags_{interrupt::none};
+    interrupt interrupt_enable_{interrupt::none};
     bool interrupt_master_enable_ = false;
 
     bool is_interrupt_status_change_pending_ = false;
@@ -83,7 +92,7 @@ private:
     [[nodiscard]] uint8_t push(const register16& reg);
     [[nodiscard]] uint8_t pop(register16& reg);
 
-    [[nodiscard]] uint8_t rst(const address8& address);
+    uint8_t rst(const address8& address);
 
     [[nodiscard]] uint8_t jump(const register16& reg);
     [[nodiscard]] uint8_t jump(const address16& address);

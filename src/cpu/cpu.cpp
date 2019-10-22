@@ -1,3 +1,4 @@
+#include <array>
 #include <functional>
 
 #include <cpu/cpu.h>
@@ -53,6 +54,35 @@ uint8_t cpu::tick()
         !is_halted_
         ? execute_next_op()
         : static_cast<uint8_t>(0x1u);
+
+    // todo ime should be true or false AFTER one instruction is executed after EI or DI instruction
+
+    if(interrupt_master_enable_) {
+        const auto pending = interrupt_enable_ & interrupt_flags_;
+
+        const auto interrupt_requested = [&](interrupt i) {
+            return (pending & i) != interrupt::none;
+        };
+
+        const auto do_interrupt = [&](interrupt i) {
+            interrupt_master_enable_ = false;
+            interrupt_flags_ &= ~i;
+            rst(make_address(i));
+        };
+
+        static constexpr std::array interrupts = {
+            interrupt::joypad,
+            interrupt::serial,
+            interrupt::timer,
+            interrupt::lcd_stat,
+            interrupt::lcd_vblank
+        };
+        for(auto i : interrupts) {
+            if(interrupt_requested(i)) {
+                do_interrupt(i);
+            }
+        }
+    }
 
     total_cycles_ += cycle_count;
     return cycle_count;
