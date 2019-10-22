@@ -67,7 +67,7 @@ void mmu::initialize()
 
 void mmu::write(const address16& address, const uint8_t data)
 {
-    if(auto it = find_callback(write_callbacks_, write_callback{address}); it != end(write_callbacks_)) {
+    if(auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
         (*it).on_write(address, data);
     } else if(rom_range.contains(address)) {
         bus_->get_cartridge()->write_rom(address, data);
@@ -88,7 +88,7 @@ void mmu::write(const address16& address, const uint8_t data)
 
 uint8_t mmu::read(const address16& address) const
 {
-    if(auto it = find_callback(read_callbacks_, read_callback{address}); it != end(read_callbacks_)) {
+    if(auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
         return (*it).on_read(address);
     } else if(rom_range.contains(address)) {
         return bus_->get_cartridge()->read_rom(address);

@@ -16,13 +16,10 @@ cpu::cpu(observer<bus> bus) noexcept
 {
     auto& mmu = bus->get_mmu();
 
-    read_callback ime_read_callback(ime_addr);
-    ime_read_callback.on_read.connect<&cpu::on_ime_read>(this);
-    mmu->add_read_callback(ime_read_callback);
-
-    write_callback ime_write_callback(ime_addr);
-    ime_write_callback.on_write.connect<&cpu::on_ime_write>(this);
-    mmu->add_write_callback(ime_write_callback);
+    memory_callback ie_callback(ime_addr);
+    ie_callback.on_read.connect<&cpu::on_ie_read>(this);
+    ie_callback.on_write.connect<&cpu::on_ie_write>(this);
+    mmu->add_memory_callback(ie_callback);
 
     a_f_ = 0x01B0u;
     b_c_ = 0x0013u;
@@ -31,12 +28,12 @@ cpu::cpu(observer<bus> bus) noexcept
     stack_pointer_ = 0xFFFEu;
 }
 
-void cpu::on_ime_write(const address16&, const uint8_t data) noexcept
+void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
 {
     interrupt_master_enable_ = data != 0x00u;
 }
 
-uint8_t cpu::on_ime_read(const address16&) const noexcept
+uint8_t cpu::on_ie_read(const address16&) const noexcept
 {
     return interrupt_master_enable_ ? 0x01u : 0x00u;
 }
