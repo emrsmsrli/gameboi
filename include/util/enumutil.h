@@ -5,8 +5,6 @@
 
 namespace gameboy {
 
-namespace detail {
-
 template<typename>
 struct enable_bitmask_operators {
     static constexpr bool value = false;
@@ -15,10 +13,8 @@ struct enable_bitmask_operators {
 template<typename E>
 inline constexpr bool enable_bitmask_operators_v = enable_bitmask_operators<E>::value;
 
-}
-
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E>
+std::enable_if_t<enable_bitmask_operators_v<E>, E>
 operator&(E lhs, E rhs)
 {
     using underlying_type = std::underlying_type_t<E>;
@@ -26,7 +22,7 @@ operator&(E lhs, E rhs)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E>
+std::enable_if_t<enable_bitmask_operators_v<E>, E>
 operator|(E lhs, E rhs)
 {
     using underlying_type = std::underlying_type_t<E>;
@@ -34,7 +30,7 @@ operator|(E lhs, E rhs)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E>
+std::enable_if_t<enable_bitmask_operators_v<E>, E>
 operator^(E lhs, E rhs)
 {
     using underlying_type = std::underlying_type_t<E>;
@@ -42,7 +38,7 @@ operator^(E lhs, E rhs)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E>
+std::enable_if_t<enable_bitmask_operators_v<E>, E>
 operator~(E e)
 {
     using underlying_type = std::underlying_type_t<E>;
@@ -50,7 +46,7 @@ operator~(E e)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E&>
+std::enable_if_t<enable_bitmask_operators_v<E>, E&>
 operator&=(E& lhs, E rhs)
 {
     lhs = lhs & rhs;
@@ -58,7 +54,7 @@ operator&=(E& lhs, E rhs)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E&>
+std::enable_if_t<enable_bitmask_operators_v<E>, E&>
 operator|=(E& lhs, E rhs)
 {
     lhs = lhs | rhs;
@@ -66,7 +62,7 @@ operator|=(E& lhs, E rhs)
 }
 
 template<typename E>
-std::enable_if_t<detail::enable_bitmask_operators_v<E>, E&>
+std::enable_if_t<enable_bitmask_operators_v<E>, E&>
 operator^=(E& lhs, E rhs)
 {
     lhs = lhs ^ rhs;
@@ -77,7 +73,7 @@ operator^=(E& lhs, E rhs)
 
 #define DEFINE_ENUM_CLASS_FLAGS(E) \
 template<> \
-struct gameboy::detail::enable_bitmask_operators<E> { \
+struct enable_bitmask_operators<E> { \
     static constexpr bool value = true; \
 } \
 
