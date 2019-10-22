@@ -31,12 +31,12 @@ cpu::cpu(observer<bus> bus) noexcept
 
 void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
 {
-    interrupt_master_enable_ = data != 0x00u;
+    interrupt_enable_ = static_cast<interrupt>(data);
 }
 
 uint8_t cpu::on_ie_read(const address16&) const noexcept
 {
-    return interrupt_master_enable_ ? 0x01u : 0x00u;
+    return static_cast<uint8_t>(interrupt_enable_);
 }
 
 uint8_t cpu::tick()
