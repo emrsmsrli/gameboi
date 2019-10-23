@@ -91,6 +91,17 @@ private:
     std::vector<uint8_t> oam_;
     mode mode_{mode::h_blank};
 
+    register8 lcdc_;
+    register8 stat_;
+
+    register8 ly_;
+    register8 lyc_;
+
+    register8 scx_;
+    register8 scy_;
+    register8 wx_;
+    register8 wy_;
+
     uint32_t vram_bank_ = 0u;
 
     [[nodiscard]] bool is_control_flag_set(control_flag flag) const;
