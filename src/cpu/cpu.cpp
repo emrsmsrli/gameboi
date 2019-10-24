@@ -17,10 +17,11 @@ cpu::cpu(observer<bus> bus) noexcept
 {
     auto& mmu = bus->get_mmu();
 
-    memory_callback ie_callback(ime_addr);
-    ie_callback.on_read.connect<&cpu::on_ie_read>(this);
-    ie_callback.on_write.connect<&cpu::on_ie_write>(this);
-    mmu->add_memory_callback(ie_callback);
+    mmu->add_memory_callback({
+        ime_addr,
+        {connect_arg<&cpu::on_ie_read>, this},
+        {connect_arg<&cpu::on_ie_write>, this},
+    });
 
     a_f_ = 0x01B0u;
     b_c_ = 0x0013u;
