@@ -71,7 +71,7 @@ void mmu::write(const address16& address, const uint8_t data)
         (*it).on_write(address, data);
     } else if(rom_range.contains(address)) {
         bus_->get_cartridge()->write_rom(address, data);
-    } else if(vram_range.contains(address)) {
+    } else if(vram_range.contains(address) || oam_range.contains(address)) {
         bus_->get_ppu()->write(address, data);
     } else if(xram_range.contains(address)) {
         bus_->get_cartridge()->write_ram(address, data);
@@ -79,6 +79,8 @@ void mmu::write(const address16& address, const uint8_t data)
         write_wram(address16(address.value() - 0x1000u), data);
     } else if(wram_range.contains(address)) {
         write_wram(address, data);
+    } else if(hram_range.contains(address)) {
+        write_hram(address, data);
     } else if(address == svbk_addr) {
         wram_bank_ = data & 0x7u;
     } else {
@@ -92,7 +94,7 @@ uint8_t mmu::read(const address16& address) const
         return (*it).on_read(address);
     } else if(rom_range.contains(address)) {
         return bus_->get_cartridge()->read_rom(address);
-    } else if(vram_range.contains(address)) {
+    } else if(vram_range.contains(address) || oam_range.contains(address)) {
         return bus_->get_ppu()->read(address);
     } else if(xram_range.contains(address)) {
         return bus_->get_cartridge()->read_ram(address);
@@ -100,6 +102,8 @@ uint8_t mmu::read(const address16& address) const
         return read_wram(address16(address.value() - 0x1000u));
     } else if(wram_range.contains(address)) {
         return read_wram(address);
+    } else if(hram_range.contains(address)) {
+        return read_hram(address);
     } else if(address == svbk_addr) {
         return wram_bank_;
     } else {
@@ -115,6 +119,16 @@ void mmu::write_wram(const address16& address, const uint8_t data)
 uint8_t mmu::read_wram(const address16& address) const
 {
     return work_ram_[physical_wram_addr(address).value()];
+}
+
+void mmu::write_hram(const address16& address, const uint8_t data)
+{
+    high_ram_[address.value() - hram_range.low()] = data;
+}
+
+uint8_t mmu::read_hram(const address16& address) const
+{
+    return work_ram_[address.value() - hram_range.low()];
 }
 
 physical_address mmu::physical_wram_addr(const address16& address) const noexcept

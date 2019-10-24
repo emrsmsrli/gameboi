@@ -56,6 +56,8 @@ private:
 
     void write_wram(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read_wram(const address16& address) const;
+    void write_hram(const address16& address, uint8_t data);
+    [[nodiscard]] uint8_t read_hram(const address16& address) const;
 
     [[nodiscard]] physical_address physical_wram_addr(const address16& address) const noexcept;
 };
