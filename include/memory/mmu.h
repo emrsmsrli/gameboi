@@ -42,6 +42,8 @@ public:
     void write(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read(const address16& address) const;
 
+    void dma(const address16& source, const address16& destination, uint16_t length);
+
     void add_memory_callback(const memory_callback& callback) { callbacks_.push_back(callback); }
 
 private:

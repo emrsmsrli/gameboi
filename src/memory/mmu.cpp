@@ -137,4 +137,11 @@ physical_address mmu::physical_wram_addr(const address16& address) const noexcep
     return physical_address(address.value() - wram_range.low() + 4_kb * wram_bank);
 }
 
+void mmu::dma(const address16& source, const address16& destination, const uint16_t length)
+{
+    for(uint16_t i = 0; i < length; ++i) {
+        write(destination + i, read(source + i));
+    }
+}
+
 } // namespace gameboy
