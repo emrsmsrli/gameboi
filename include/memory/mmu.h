@@ -19,10 +19,6 @@ struct memory_callback {
     delegate<uint8_t(const address16&)> on_read;
     delegate<void(const address16&, uint8_t)> on_write;
 
-    memory_callback() noexcept = default;
-    explicit memory_callback(address16 addr) noexcept
-        : address(addr) {}
-
     bool operator==(const memory_callback& other) const noexcept { return address == other.address; }
 };
 
