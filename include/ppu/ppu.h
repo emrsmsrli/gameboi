@@ -6,10 +6,25 @@
 #include <memory/mmu.h>
 #include <memory/addressfwd.h>
 #include <util/observer.h>
+#include <util/mathutil.h>
 
 namespace gameboy {
 
 class bus;
+
+struct dma_transfer_data {
+    address16 source;
+    address16 destination;
+    register8 length_mode_start;
+
+    uint16_t remaining_length = 0u;
+
+    [[nodiscard]] bool active() const noexcept { return math::bit_test(length_mode_start.value(), 7u); }
+    [[nodiscard]] uint16_t length() const noexcept { return ((length_mode_start & 0x7Fu) + 1) * 0x10; }
+
+    // possible bug here. active flag might be 0 instead of 1 when dma is actually active.
+    void disable() noexcept { length_mode_start &= 0x7Fu; }
+};
 
 class ppu {
 public:
@@ -104,7 +119,14 @@ private:
 
     uint32_t vram_bank_ = 0u;
 
+    dma_transfer_data dma_transfer_;
+
     [[nodiscard]] bool is_control_flag_set(control_flag flag) const;
+
+    [[nodiscard]] uint8_t dma_read(const address16& address) const;
+    void dma_write(const address16& address, uint8_t data);
+
+    void hdma();
 };
 
 } // namespace gameboy

@@ -1,3 +1,5 @@
+#include <array>
+
 #include <ppu/ppu.h>
 #include <bus.h>
 #include <cartridge.h>
@@ -186,6 +188,15 @@ ppu::ppu(observer<bus> bus)
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.high() - oam_range.low() + 1, 0u)
 {
+    constexpr std::array dma_addresses{oam_dma_addr, hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr};
+    for(const auto& addr : dma_addresses) {
+        bus->get_mmu()->add_memory_callback({
+            addr,
+            {connect_arg<&ppu::dma_read>, this},
+            {connect_arg<&ppu::dma_write>, this}
+        });
+    }
+
     // todo register relevant above addresses to mmu
 }
 
@@ -256,6 +267,77 @@ uint8_t ppu::read(const address16& address) const
 void ppu::write(const address16& address, const uint8_t data)
 {
 
+}
+
+uint8_t ppu::dma_read(const address16& address) const
+{
+    if(address == hdma_1_addr) {
+        return (dma_transfer_.source.value() & 0xFF00u) >> 8u;
+    } else if(address == hdma_2_addr) {
+        return dma_transfer_.source.value() & 0x00FFu;
+    } else if(address == hdma_3_addr) {
+        return (dma_transfer_.destination.value() & 0xFF00u) >> 8u;
+    } else if(address == hdma_4_addr) {
+        return dma_transfer_.destination.value() & 0x00FFu;
+    } else if(address == hdma_5_addr) {
+        return dma_transfer_.length_mode_start.value();
+    }
+
+    return 0u;
+}
+
+void ppu::dma_write(const address16& address, const uint8_t data)
+{
+    if(address == oam_dma_addr) {
+        bus_->get_mmu()->dma(
+            address16(data << 8u),
+            make_address(oam_range.low()),
+            oam_range.high() - oam_range.low());
+    } else if(address == hdma_1_addr) {
+        dma_transfer_.source = (dma_transfer_.source.value() & 0xFF00u) | (data & 0xF0u);
+    } else if(address == hdma_2_addr) {
+        dma_transfer_.source = (dma_transfer_.source.value() & 0x00FFu) | (data << 8u);
+    } else if(address == hdma_3_addr) {
+        dma_transfer_.destination = (dma_transfer_.destination.value() & 0xFF00u) | (data & 0xF0u);
+    } else if(address == hdma_4_addr) {
+        dma_transfer_.destination = (dma_transfer_.destination.value() & 0x00FFu) | ((data & 0x1Fu) << 8u);
+    } else if(address == hdma_5_addr) {
+        if(!math::bit_test(data, 7u)) {
+            if(!dma_transfer_.active()) {
+                bus_->get_mmu()->dma(
+                    dma_transfer_.source,
+                    dma_transfer_.destination,
+                    dma_transfer_.length());
+            } else {
+                dma_transfer_.disable();
+            }
+        } else {
+            dma_transfer_.remaining_length = dma_transfer_.length();
+        }
+
+        dma_transfer_.length_mode_start = data;
+    }
+}
+
+void ppu::hdma()
+{
+    // todo Note that the program may not change the Destination VRAM bank (FF4F),
+    // or the Source ROM/RAM bank (in case data is transferred from bankable memory)
+    // until the transfer has completed!
+    if(dma_transfer_.active() /* todo line >= 0 && line < 144 */) {
+        const auto total_length = dma_transfer_.length();
+        const auto offset = total_length - dma_transfer_.remaining_length;
+
+        bus_->get_mmu()->dma(
+            dma_transfer_.source + offset,
+            dma_transfer_.destination + offset,
+            0x10u);
+
+        dma_transfer_.remaining_length -= 0x10u;
+        if(dma_transfer_.remaining_length == 0u) {
+            dma_transfer_.disable();
+        }
+    }
 }
 
 } // namespace gameboy
