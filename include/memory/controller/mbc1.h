@@ -17,6 +17,6 @@ struct mbc1 : public mbc {
     void write_ram(std::vector<uint8_t>& ram, const physical_address& address, uint8_t data) const;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MBC1_H

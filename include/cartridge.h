@@ -46,6 +46,6 @@ private:
     [[nodiscard]] physical_address physical_ram_addr(const address16& address) const noexcept;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_CARTRIDGE_H

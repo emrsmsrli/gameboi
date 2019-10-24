@@ -107,6 +107,6 @@ private:
     [[nodiscard]] bool is_control_flag_set(control_flag flag) const;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_PPU_H

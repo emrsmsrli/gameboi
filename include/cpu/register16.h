@@ -62,6 +62,6 @@ private:
     register8 low_;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_REGISTER16_H

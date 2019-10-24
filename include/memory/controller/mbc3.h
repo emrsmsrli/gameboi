@@ -43,6 +43,6 @@ private:
     void configure_latch(uint8_t data);
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MBC3_H

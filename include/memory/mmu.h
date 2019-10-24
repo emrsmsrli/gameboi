@@ -53,6 +53,6 @@ private:
     [[nodiscard]] physical_address physical_wram_addr(const address16& address) const noexcept;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MMU_H

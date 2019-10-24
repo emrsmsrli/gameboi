@@ -51,6 +51,6 @@ inline address16 make_address(const register16& reg) noexcept
     return address16(reg.value());
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_ADDRESS_H

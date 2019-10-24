@@ -21,6 +21,6 @@ struct mbc_regular : public mbc {
     }
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MBC_REGULAR_H

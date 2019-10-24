@@ -89,6 +89,6 @@ private:
     observer<cpu> cpu_;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_ALU_H

@@ -25,6 +25,6 @@ constexpr size_t operator ""_kb(const unsigned long long bytes)
     return bytes * 1024u;
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MBC_H

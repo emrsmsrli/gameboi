@@ -16,6 +16,6 @@ private:
     observer<bus> bus_;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_APU_H

@@ -23,6 +23,6 @@ void bit_reset(T& n, const uint32_t bit) noexcept
     n &= ~(0x1u << bit);
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MATHUTIL_H

@@ -69,7 +69,7 @@ operator^=(E& lhs, E rhs)
     return lhs;
 }
 
-}
+} // namespace gameboy
 
 #define DEFINE_ENUM_CLASS_FLAGS(E) \
 template<> \

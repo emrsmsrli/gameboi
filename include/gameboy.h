@@ -30,6 +30,6 @@ private:
     apu apu_;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_GAMEBOY_H

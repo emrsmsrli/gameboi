@@ -129,6 +129,6 @@ private:
 
 DEFINE_ENUM_CLASS_FLAGS(cpu::flag);
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_CPU_H

@@ -55,6 +55,6 @@ bool operator==(const observer<T>& l, const observer<T>& r) noexcept
     return l.get() == r.get();
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_OBSERVER_H

@@ -25,6 +25,6 @@ struct sprite {
     }
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_SPRITE_H

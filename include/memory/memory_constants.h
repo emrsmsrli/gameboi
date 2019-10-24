@@ -13,6 +13,6 @@ static constexpr address_range echo_range{0xE000u, 0xFDFFu};
 static constexpr address_range oam_range{0xFE00u, 0xFE9Fu};
 static constexpr address_range hram_range{0xFF80u, 0xFFFEu};
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_MEMORY_CONSTANTS_H

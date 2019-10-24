@@ -24,6 +24,6 @@ using address16 = address<uint16_t>;
  */
 using physical_address = address<size_t>;
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_ADDRESSFWD_H

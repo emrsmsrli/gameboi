@@ -38,6 +38,6 @@ private:
     observer<apu> apu_;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_BUS_H

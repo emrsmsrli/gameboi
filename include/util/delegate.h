@@ -48,7 +48,7 @@ struct function_extent<Ret(*)(Args...)> {
 template<typename Func>
 constexpr auto function_extent_v = function_extent<Func>::value;
 
-}
+} // namespace internal
 
 template<auto>
 struct connect_arg_t {};
@@ -342,6 +342,6 @@ template<auto Candidate, typename Type>
 delegate(connect_arg_t<Candidate>, Type*) noexcept
 -> delegate<std::remove_pointer_t<internal::to_function_pointer_t<decltype(Candidate), Type*>>>;
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_DELEGATE_H

@@ -48,6 +48,6 @@ private:
     uint8_t bits_ = 0x00u;
 };
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_REGISTER8_H

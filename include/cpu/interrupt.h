@@ -39,6 +39,6 @@ constexpr address8 make_address(interrupt interrupt_request)
     }
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_INTERRUPT_H

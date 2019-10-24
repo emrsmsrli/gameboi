@@ -38,6 +38,6 @@ template<typename... Args>
     throw std::runtime_error{log};
 }
 
-}
+} // namespace gameboy
 
 #endif //GAMEBOY_LOG_H
