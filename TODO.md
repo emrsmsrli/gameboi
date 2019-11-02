@@ -5,7 +5,6 @@
 - implement templated `AddressRange`
 - change barebones bit manipulation expressions with `math::bit_*`
 - extend `gameboy::math` functionality
-    because addr 0xffff might not be available. investigate
 - interrupts should enable-disable after one instruction is executed.
 - reduce branching please
 - return pairs instead of passing out params
@@ -14,6 +13,9 @@
 ## Major
 - todo modify compiler specific warnings 
   - https://clang.llvm.org/docs/DiagnosticsReference.html
+
+## Minor
+-  organise all includes
 
 ## PPU notes
 
