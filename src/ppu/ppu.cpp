@@ -15,7 +15,7 @@ constexpr auto reading_oam_cycles = 83;
 constexpr auto reading_oam_vram_cycles = 175;
 
 constexpr address16 lcdc_addr(0xFF40u);
-constexpr address16 stat_addr(0xFF4u);
+constexpr address16 stat_addr(0xFF41u);
 
 // Specifies the position in the 256x256 pixels BG map (32x32 tiles)
 // which is to be displayed at the upper/left LCD display position.
@@ -188,8 +188,15 @@ ppu::ppu(observer<bus> bus)
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u)
 {
-    constexpr std::array dma_addresses{oam_dma_addr, hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr};
-    for(const auto& addr : dma_addresses) {
+    constexpr std::array dma_registers{
+        oam_dma_addr,
+        hdma_1_addr,
+        hdma_2_addr,
+        hdma_3_addr,
+        hdma_4_addr,
+        hdma_5_addr
+    };
+    for(const auto& addr : dma_registers) {
         bus->get_mmu()->add_memory_callback({
             addr,
             {connect_arg<&ppu::dma_read>, this},
@@ -197,7 +204,42 @@ ppu::ppu(observer<bus> bus)
         });
     }
 
-    // todo register relevant above addresses to mmu
+	
+    constexpr std::array general_purpose_registers{
+        vbk_addr,
+        lcdc_addr,
+        stat_addr,
+        scy_addr,
+        scx_addr,
+        ly_addr,
+        lyc_addr,
+        wy_addr,
+	wx_addr
+    };
+    for(const auto& addr : general_purpose_registers) {
+        bus->get_mmu()->add_memory_callback({
+            addr,
+            {connect_arg<&ppu::general_purpose_register_read>, this},
+            {connect_arg<&ppu::general_purpose_register_write>, this}
+        });
+    }
+
+    constexpr std::array palette_registers{
+        bgp_addr,
+        obp_0_addr,
+        obp_1_addr,
+        bgpi_addr,
+        bgpd_addr,
+        obpi_addr,
+        obpd_addr
+    };
+    for(const auto& addr : palette_registers) {
+        bus->get_mmu()->add_memory_callback({
+            addr,
+            {connect_arg<&ppu::palette_read>, this},
+            {connect_arg<&ppu::palette_write>, this}
+        });
+    }
 }
 
 void ppu::tick(const uint8_t cycles)
@@ -255,8 +297,7 @@ void ppu::tick(const uint8_t cycles)
 
 bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 {
-    const auto control = bus_->get_mmu()->read(lcdc_addr);
-    return math::bit_test(control, flag);
+    return math::bit_test(lcdc_.value(), flag);
 }
 
 uint8_t ppu::read(const address16& address) const
@@ -336,6 +377,120 @@ void ppu::dma_write(const address16& address, const uint8_t data)
         }
 
         dma_transfer_.length_mode_start = data;
+    }
+}
+
+uint8_t ppu::general_purpose_register_read(const address16& address) const
+{
+    if(address == vbk_addr) {
+        return vram_bank_;
+    }
+
+    if(address == lcdc_addr) {
+        return lcdc_.value();
+    }
+
+    if(address == stat_addr) {
+        return stat_.value();
+    }
+
+    if(address == scy_addr) {
+        return scy_.value();
+    }
+
+    if(address == scx_addr) {
+        return scx_.value();
+    }
+
+    if(address == ly_addr) {
+        return ly_.value();
+    }
+
+    if(address == lyc_addr) {
+        return lyc_.value();
+    }
+
+    if(address == wy_addr) {
+        return wy_.value();
+    }
+
+    if(address == wx_addr) {
+        return wx_.value();
+    }
+
+    return 0u;
+}
+
+void ppu::general_purpose_register_write(const address16& address, const uint8_t data)
+{
+    if(address == vbk_addr) {
+        vram_bank_ = data & 0x01u;
+    } else if(address == lcdc_addr) {
+        lcdc_ = data;
+    } else if(address == stat_addr) {
+        stat_ = data;
+    } else if(address == scy_addr) {
+        scy_ = data;
+    } else if(address == scx_addr) {
+        scx_ = data;
+    } else if(address == lyc_addr) {
+        lyc_ = data;
+    } else if(address == wy_addr) {
+        wy_ = data;
+    } else if(address == wx_addr) {
+        wx_ = data;
+    }
+}
+
+uint8_t ppu::palette_read(const address16& address) const
+{
+    if(address == bgp_addr) {
+        //return bgp_addr;
+    }
+
+    if(address == obp_0_addr) {
+        //return lcdc_.value();
+    }
+
+    if(address == obp_1_addr) {
+        //return stat_.value();
+    }
+
+    if(address == bgpi_addr) {
+        //return scy_.value();
+    }
+
+    if(address == bgpd_addr) {
+        //return scy_.value();
+    }
+
+    if(address == obpi_addr) {
+        //return scy_.value();
+    }
+
+    if(address == obpd_addr) {
+        //return scy_.value();
+    }
+
+    return 0u;
+}
+
+void ppu::palette_write(const address16& address, const uint8_t data)
+{
+    if(address == bgp_addr) {
+        //return bgp_addr;
+    } else if(address == obp_0_addr) {
+        //return lcdc_.value();
+    } else if(address == obp_1_addr) {
+        //return stat_.value();
+    } else if(address == bgpi_addr) {
+        //return scy_.value();
+    } else if(address == bgpd_addr) {
+        //return scy_.value();
+    } else if(address == obpi_addr) {
+        //return scy_.value();
+    } else if(address == obpd_addr) {
+        //return scy_.value();
     }
 }
 

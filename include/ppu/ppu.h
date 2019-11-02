@@ -126,6 +126,12 @@ private:
     [[nodiscard]] uint8_t dma_read(const address16& address) const;
     void dma_write(const address16& address, uint8_t data);
 
+    [[nodiscard]] uint8_t general_purpose_register_read(const address16& address) const;
+    void general_purpose_register_write(const address16& address, uint8_t data);
+
+    [[nodiscard]] uint8_t palette_read(const address16& address) const;
+    void palette_write(const address16& address, uint8_t data);
+
     void hdma();
 };
 
