@@ -13,13 +13,13 @@ void mbc1::control(const address16& address, const uint8_t data) noexcept
     constexpr address_range ram_bank_select_range(0x4000u, 0x5FFFu);
     constexpr address_range memory_mode_select_range(0x6000u, 0x7FFFu);
 
-    if(external_ram_enable_range.contains(address)) {
+    if(external_ram_enable_range.has(address)) {
         set_xram_enabled(data);
-    } else if(rom_bank_select_range.contains(address)) {
+    } else if(rom_bank_select_range.has(address)) {
         rom_bank = data & 0x1Fu;
-    } else if(ram_bank_select_range.contains(address)) {
+    } else if(ram_bank_select_range.has(address)) {
         ram_bank = data & 0x03u;
-    } else if(memory_mode_select_range.contains(address)) {
+    } else if(memory_mode_select_range.has(address)) {
         rom_banking_active = !math::bit_test(data, 0x1u);
     }
 }

@@ -4,9 +4,9 @@
 #include <bus.h>
 #include <cartridge.h>
 #include <memory/address.h>
-#include <util/mathutil.h>
-#include <util/delegate.h>
 #include <memory/memory_constants.h>
+#include <util/mathutil.h>
+#include "util/delegate.h"
 
 namespace gameboy {
 
@@ -186,7 +186,7 @@ constexpr address16 hdma_5_addr(0xFF55u); // New DMA Length/Mode/Start
 ppu::ppu(observer<bus> bus)
     : bus_(bus),
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
-      oam_(oam_range.high() - oam_range.low() + 1, 0u)
+      oam_(oam_range.size(), 0u)
 {
     constexpr std::array dma_addresses{oam_dma_addr, hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr};
     for(const auto& addr : dma_addresses) {
@@ -261,25 +261,45 @@ bool ppu::is_control_flag_set(const ppu::control_flag flag) const
 
 uint8_t ppu::read(const address16& address) const
 {
+    if(vram_range.has(address)) {
+
+    }
+
+    if(oam_range.has(address)) {
+
+    }
+
     return 0;
 }
 
 void ppu::write(const address16& address, const uint8_t data)
 {
+    if (vram_range.has(address)) {
 
+    } else if (oam_range.has(address)) {
+
+    }
 }
 
 uint8_t ppu::dma_read(const address16& address) const
 {
     if(address == hdma_1_addr) {
         return (dma_transfer_.source.value() & 0xFF00u) >> 8u;
-    } else if(address == hdma_2_addr) {
+    } 
+	
+    if(address == hdma_2_addr) {
         return dma_transfer_.source.value() & 0x00FFu;
-    } else if(address == hdma_3_addr) {
+    } 
+	
+    if(address == hdma_3_addr) {
         return (dma_transfer_.destination.value() & 0xFF00u) >> 8u;
-    } else if(address == hdma_4_addr) {
+    } 
+	
+    if(address == hdma_4_addr) {
         return dma_transfer_.destination.value() & 0x00FFu;
-    } else if(address == hdma_5_addr) {
+    } 
+
+    if(address == hdma_5_addr) {
         return dma_transfer_.length_mode_start.value();
     }
 
@@ -290,9 +310,9 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 {
     if(address == oam_dma_addr) {
         bus_->get_mmu()->dma(
-            address16(data << 8u),
-            make_address(oam_range.low()),
-            oam_range.high() - oam_range.low());
+	    address16(data << 8u),
+	    make_address(*begin(oam_range)),
+	    oam_range.size() - 1);
     } else if(address == hdma_1_addr) {
         dma_transfer_.source = (dma_transfer_.source.value() & 0xFF00u) | (data & 0xF0u);
     } else if(address == hdma_2_addr) {

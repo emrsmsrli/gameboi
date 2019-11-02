@@ -73,8 +73,8 @@ cartridge::cartridge(const std::string_view rom_path)
     }
 
     std::copy(
-        begin(rom_) + rom_title_range.low(),
-        begin(rom_) + rom_title_range.high(),
+        begin(rom_) + *begin(rom_title_range),
+        begin(rom_) + *end(rom_title_range),
         std::back_inserter(name_));
 
     cgb_enabled_ = read(rom_, cgb_support_addr) != 0x00u;
@@ -129,11 +129,11 @@ cartridge::cartridge(const std::string_view rom_path)
 uint8_t cartridge::read_rom(const address16& address) const
 {
     const auto physical_addr = [&]() -> size_t {
-        if(rom_range.contains(address)) {
+        if(rom_range.has(address)) {
             return address.value();
-        } else {
-            return address.value() + 16_kb * rom_bank();
         }
+
+        return address.value() + 16_kb * rom_bank();
     }();
 
     return rom_[physical_addr];
@@ -222,7 +222,7 @@ uint32_t cartridge::ram_bank() const noexcept
 
 physical_address cartridge::physical_ram_addr(const address16& address) const noexcept
 {
-    return physical_address{address.value() - xram_range.low() + 8_kb * ram_bank()};
+    return physical_address{address.value() - *begin(xram_range) + 8_kb * ram_bank()};
 }
 
 } // namespace gameboy

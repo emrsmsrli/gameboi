@@ -22,7 +22,7 @@ auto find_callback(const std::vector<T>& container, T&& value) noexcept
 mmu::mmu(observer<bus> bus)
     : bus_(bus),
       work_ram_((bus->get_cartridge()->cgb_enabled() ? 8 : 2) * 4_kb, 0u),
-      high_ram_(hram_range.high() - hram_range.low() + 1, 0u) {}
+      high_ram_(hram_range.size(), 0u) {}
 
 void mmu::initialize()
 {
@@ -67,19 +67,19 @@ void mmu::initialize()
 
 void mmu::write(const address16& address, const uint8_t data)
 {
-    if(auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
+    if(const auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
         (*it).on_write(address, data);
-    } else if(rom_range.contains(address)) {
+    } else if(rom_range.has(address)) {
         bus_->get_cartridge()->write_rom(address, data);
-    } else if(vram_range.contains(address) || oam_range.contains(address)) {
+    } else if(vram_range.has(address) || oam_range.has(address)) {
         bus_->get_ppu()->write(address, data);
-    } else if(xram_range.contains(address)) {
+    } else if(xram_range.has(address)) {
         bus_->get_cartridge()->write_ram(address, data);
-    } else if(echo_range.contains(address)) {
+    } else if(echo_range.has(address)) {
         write_wram(address16(address.value() - 0x1000u), data);
-    } else if(wram_range.contains(address)) {
+    } else if(wram_range.has(address)) {
         write_wram(address, data);
-    } else if(hram_range.contains(address)) {
+    } else if(hram_range.has(address)) {
         write_hram(address, data);
     } else if(address == svbk_addr) {
         wram_bank_ = data & 0x7u;
@@ -90,25 +90,39 @@ void mmu::write(const address16& address, const uint8_t data)
 
 uint8_t mmu::read(const address16& address) const
 {
-    if(auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
+    if(const auto it = find_callback(callbacks_, memory_callback{address}); it != end(callbacks_)) {
         return (*it).on_read(address);
-    } else if(rom_range.contains(address)) {
+    } 
+
+    if(rom_range.has(address)) {
         return bus_->get_cartridge()->read_rom(address);
-    } else if(vram_range.contains(address) || oam_range.contains(address)) {
+    } 
+
+    if(vram_range.has(address) || oam_range.has(address)) {
         return bus_->get_ppu()->read(address);
-    } else if(xram_range.contains(address)) {
+    } 
+
+    if(xram_range.has(address)) {
         return bus_->get_cartridge()->read_ram(address);
-    } else if(echo_range.contains(address)) {
+    } 
+
+    if(echo_range.has(address)) {
         return read_wram(address16(address.value() - 0x1000u));
-    } else if(wram_range.contains(address)) {
+    } 
+
+    if(wram_range.has(address)) {
         return read_wram(address);
-    } else if(hram_range.contains(address)) {
+    } 
+
+    if(hram_range.has(address)) {
         return read_hram(address);
-    } else if(address == svbk_addr) {
+    } 
+
+    if(address == svbk_addr) {
         return wram_bank_;
-    } else {
-        log::error("out of bounds address: {:x}", address.value());
-    }
+    } 
+
+    log::error("out of bounds address: {:x}", address.value());
 }
 
 void mmu::write_wram(const address16& address, const uint8_t data)
@@ -123,18 +137,18 @@ uint8_t mmu::read_wram(const address16& address) const
 
 void mmu::write_hram(const address16& address, const uint8_t data)
 {
-    high_ram_[address.value() - hram_range.low()] = data;
+    high_ram_[address.value() - *begin(hram_range)] = data;
 }
 
 uint8_t mmu::read_hram(const address16& address) const
 {
-    return work_ram_[address.value() - hram_range.low()];
+    return work_ram_[address.value() - *begin(hram_range)];
 }
 
 physical_address mmu::physical_wram_addr(const address16& address) const noexcept
 {
     const auto wram_bank = wram_bank_ < 2 ? 0u : wram_bank_;
-    return physical_address(address.value() - wram_range.low() + 4_kb * wram_bank);
+    return physical_address(address.value() - *begin(wram_range) + 4_kb * wram_bank);
 }
 
 void mmu::dma(const address16& source, const address16& destination, const uint16_t length)
