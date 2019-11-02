@@ -1,7 +1,6 @@
 #ifndef GAMEBOY_MBC_H
 #define GAMEBOY_MBC_H
 
-#include <vector>
 #include <cstdint>
 
 namespace gameboy {

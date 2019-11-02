@@ -3,8 +3,6 @@
 
 #include <cstdint>
 
-#include <memory/addressfwd.h>
-
 namespace gameboy {
 
 /**
@@ -15,7 +13,7 @@ public:
     register8() = default;
 
     explicit register8(const uint8_t default_value) noexcept
-        : bits_(default_value) {}
+        : bits_{default_value} {}
 
     [[nodiscard]] uint8_t value() const noexcept { return bits_; }
 

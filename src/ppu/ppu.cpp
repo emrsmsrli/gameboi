@@ -107,76 +107,10 @@ constexpr address16 bgpd_addr(0xFF69u);
 constexpr address16 obpi_addr(0xFF6Au);
 constexpr address16 obpd_addr(0xFF6Bu);
 
-/** selects 1-bit vram bank register */
 constexpr address16 vbk_addr(0xFF4Fu);
 
-/*
- * Writing to this register launches a DMA transfer from ROM or RAM to OAM memory
- * (sprite attribute table). The written value specifies the transfer
- * source address divided by 100h, ie. source & destination are:
- *   Source:      XX00-XX9F   ;XX in range from 00-F1h
- *   Destination: FE00-FE9F
- *
- * It takes 160 microseconds until the transfer has completed
- * (80 microseconds in CGB Double Speed Mode), during this time
- * the CPU can access only HRAM (memory at FF80-FFFE). For this reason,
- * the programmer must copy a short procedure into HRAM, and use this
- * procedure to start the transfer from inside HRAM, and wait until the transfer has finished:
- *   ld  (0FF46h),a ;start DMA transfer, a=start address/100h
- *   ld  a,28h      ;delay...
- *   wait:          ;total 5x40 cycles, approx 200ms
- *   dec a          ;1 cycle
- *   jr  nz,wait    ;4 cycles
- * Most programs are executing this procedure from inside of their VBlank procedure,
- * but it is possible to execute it during display redraw also, allowing to display
- * more than 40 sprites on the screen (ie. for example 40 sprites in upper half,
- * and other 40 sprites in lower half of the screen).
- */
 constexpr address16 oam_dma_addr(0xFF46u);
 
-/*
- * These registers are used to initiate a DMA transfer from ROM or RAM to VRAM.
- * The Source Start Address may be located at 0000-7FF0 or A000-DFF0,
- * the lower four bits of the address are ignored (treated as zero).
- * The Destination Start Address may be located at 8000-9FF0, the lower four bits
- * of the address are ignored (treated as zero), the upper 3 bits are ignored either (destination is always in VRAM).
- *
- * Writing to FF55 starts the transfer, the lower 7 bits of FF55 specify the Transfer Length
- * (divided by 10h, minus 1). Ie. lengths of 10h-800h bytes can be defined by the values 00h-7Fh.
- * And the upper bit of FF55 indicates the Transfer Mode:
- *
- *   Bit7=0 - General Purpose DMA
- * When using this transfer method, all data is transferred at once.
- * The execution of the program is halted until the transfer has completed.
- * Note that the General Purpose DMA blindly attempts to copy the data,
- * even if the LCD controller is currently accessing VRAM.
- * So General Purpose DMA should be used only if the Display is disabled,
- * or during V-Blank, or (for rather short blocks) during H-Blank.
- * The execution of the program continues when the transfer has been completed, and FF55 then contains a value if FFh.
- *   Bit7=1 - H-Blank DMA
- * The H-Blank DMA transfers 10h bytes of data during each H-Blank,
- * ie. at LY=0-143, no data is transferred during V-Blank (LY=144-153),
- * but the transfer will then continue at LY=00. The execution of the program is
- * halted during the separate transfers, but the program execution continues
- * during the 'spaces' between each data block.
- * Note that the program may not change the Destination VRAM bank (FF4F),
- * or the Source ROM/RAM bank (in case data is transferred from bankable memory) until the transfer has completed!
- * Reading from Register FF55 returns the remaining length (divided by 10h, minus 1),
- * a value of 0FFh indicates that the transfer has completed. It is also possible to
- * terminate an active H-Blank transfer by writing zero to Bit 7 of FF55.
- * In that case reading from FF55 may return any value for the lower 7 bits,
- * but Bit 7 will be read as "1".
- *   Confirming if the DMA Transfer is Active
- * Reading Bit 7 of FF55 can be used to confirm if the DMA transfer is active (1=Not Active, 0=Active).
- * This works under any circumstances - after completion of General Purpose,
- * or H-Blank Transfer, and after manually terminating a H-Blank Transfer.
- *   Transfer Timings
- * In both Normal Speed and Double Speed Mode it takes about 8us to transfer a block of 10h bytes.
- * That are 8 cycles in Normal Speed Mode, and 16 'fast' cycles in Double Speed Mode.
- * Older MBC controllers (like MBC1-4) and slower ROMs are not guaranteed to support General Purpose or H-Blank DMA,
- * that's because there are always 2 bytes transferred per microsecond
- * (even if the itself program runs it Normal Speed Mode).
- */
 constexpr address16 hdma_1_addr(0xFF51u); // New DMA Source, High
 constexpr address16 hdma_2_addr(0xFF52u); // New DMA Source, Low
 constexpr address16 hdma_3_addr(0xFF53u); // New DMA Destination, High
@@ -184,7 +118,7 @@ constexpr address16 hdma_4_addr(0xFF54u); // New DMA Destination, Low
 constexpr address16 hdma_5_addr(0xFF55u); // New DMA Length/Mode/Start
 
 ppu::ppu(observer<bus> bus)
-    : bus_(bus),
+    : bus_{bus},
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u)
 {

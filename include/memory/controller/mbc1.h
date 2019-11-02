@@ -2,13 +2,14 @@
 #define GAMEBOY_MBC1_H
 
 #include <cstdint>
+#include <vector>
 
 #include <memory/controller/mbc.h>
 #include <memory/addressfwd.h>
 
 namespace gameboy {
 
-struct mbc1 : public mbc {
+struct mbc1 : mbc {
     bool rom_banking_active = true;
 
     void control(const address16& address, uint8_t data) noexcept;

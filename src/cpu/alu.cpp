@@ -93,7 +93,7 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     const auto carry = cpu_->test_flag(cpu::flag::carry) ? 0x01u : 0x00u;
-    const auto result = acc - value - carry;
+    const auto result = acc.value() - value - carry;
 
     cpu_->reset_flag(cpu::flag::all);
     cpu_->set_flag(cpu::flag::subtract);
@@ -102,7 +102,7 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
         cpu_->set_flag(cpu::flag::zero);
     }
 
-    if(result < 0x00u) {
+    if(result < 0x00u) { // fixme wtf
         cpu_->set_flag(cpu::flag::zero);
     }
 

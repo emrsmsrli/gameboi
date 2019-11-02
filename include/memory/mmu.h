@@ -3,9 +3,7 @@
 
 #include <cstdint>
 #include <vector>
-#include <memory>
 
-#include <memory/controller/mbc.h>
 #include <memory/address.h>
 #include <util/observer.h>
 #include <util/delegate.h>
@@ -20,15 +18,15 @@ struct memory_callback {
     delegate<void(const address16&, uint8_t)> on_write;
 
     memory_callback() noexcept = default;
-    explicit memory_callback(address16 addr) noexcept
-        : address(addr) {}
+    explicit memory_callback(const address16 addr) noexcept
+        : address{addr} {}
     memory_callback(
-        address16 addr,
-        delegate<uint8_t(const address16&)> on_read_delegate,
-        delegate<void(const address16&, uint8_t)> on_write_delegate) noexcept
-        : address(addr),
-          on_read(on_read_delegate),
-          on_write(on_write_delegate) {}
+        const address16 addr,
+        const delegate<uint8_t(const address16&)> on_read_delegate,
+        const delegate<void(const address16&, uint8_t)> on_write_delegate) noexcept
+        : address{addr},
+          on_read{on_read_delegate},
+          on_write{on_write_delegate} {}
 
     bool operator==(const memory_callback& other) const noexcept { return address == other.address; }
 };

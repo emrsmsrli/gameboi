@@ -20,8 +20,8 @@ auto find_callback(const std::vector<T>& container, T&& value) noexcept
 }
 
 mmu::mmu(observer<bus> bus)
-    : bus_(bus),
-      work_ram_((bus->get_cartridge()->cgb_enabled() ? 8 : 2) * 4_kb, 0u),
+    : bus_{bus},
+      work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
       high_ram_(hram_range.size(), 0u) {}
 
 void mmu::initialize()
@@ -60,7 +60,7 @@ void mmu::initialize()
         {0xFFFFu, 0x00u}  // IE
     };
 
-    for(const auto&[addr, default_value] : initialization_sequence) {
+    for(const auto& [addr, default_value]: initialization_sequence) {
         write(make_address(addr), default_value);
     }
 }

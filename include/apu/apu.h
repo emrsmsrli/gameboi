@@ -10,7 +10,7 @@ class bus;
 class apu {
 public:
     explicit apu(observer<bus> bus)
-        : bus_(bus) {}
+        : bus_{bus} {}
 
 private:
     observer<bus> bus_;

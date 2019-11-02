@@ -20,7 +20,7 @@ enum class interrupt : uint8_t {
 
 DEFINE_ENUM_CLASS_FLAGS(interrupt);
 
-constexpr address8 make_address(interrupt interrupt_request)
+constexpr address8 make_address(const interrupt interrupt_request)
 {
     switch(interrupt_request) {
         case interrupt::lcd_vblank:

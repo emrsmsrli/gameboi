@@ -15,8 +15,8 @@ class bus {
     friend class gameboy;
 
 public:
-    explicit bus(observer<cartridge> cartridge) noexcept
-        : cartridge_(cartridge) {}
+    explicit bus(const observer<cartridge> cartridge) noexcept
+        : cartridge_{cartridge} {}
 
     [[nodiscard]] const observer<cartridge>& get_cartridge() const noexcept { return cartridge_; }
     [[nodiscard]] const observer<mmu>& get_mmu() const noexcept { return mmu_; }

@@ -15,8 +15,8 @@ class register16 {
 public:
     register16() noexcept = default;
     explicit register16(const uint16_t value) noexcept
-        : high_((value >> 8u) & 0xFFu),
-          low_(value & 0xFFu) {}
+        : high_{static_cast<uint8_t>(value >> 8u)},
+          low_{static_cast<uint8_t>(value & 0xFFu)} {}
 
     [[nodiscard]] uint16_t value() const noexcept;
 
@@ -49,7 +49,7 @@ public:
     [[nodiscard]] uint32_t operator+(uint32_t val) const noexcept;
     [[nodiscard]] uint32_t operator+(const register16& reg) const noexcept;
 
-    [[nodiscard]] uint32_t operator-(uint32_t v) const noexcept;
+    [[nodiscard]] uint32_t operator-(uint32_t val) const noexcept;
 
     /* logical */
     register16 operator&(uint16_t val) const noexcept;

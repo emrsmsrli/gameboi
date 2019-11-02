@@ -12,7 +12,7 @@ uint8_t rtc::read() const noexcept
     localtime_s(&time, &latched_time_);
 #else
     auto& time = *std::localtime(&latched_time_);
-#endif
+#endif //_WIN32
 
     switch(selected_register_) {
         case register_type::seconds: return time.tm_sec;
@@ -35,18 +35,18 @@ void rtc::latch() noexcept
     latched_time_ = system_clock::to_time_t(system_clock::now());
 }
 
-void mbc3::control(const address16& virtual_address, const uint8_t data) noexcept
+void mbc3::control(const address16& address, const uint8_t data) noexcept
 {
     constexpr address_range external_ram_n_timer_enable_range(0x1FFFu);
     constexpr address_range rom_bank_select_range(0x2000u, 0x3FFFu);
     constexpr address_range ram_bank_or_rtc_reg_select_range(0x4000u, 0x5FFFu);
     constexpr address_range latch_clock_data_range(0x6000u, 0x7FFFu);
 
-    if(external_ram_n_timer_enable_range.has(virtual_address)) {
+    if(external_ram_n_timer_enable_range.has(address)) {
         set_xram_enabled(data);
-    } else if(rom_bank_select_range.has(virtual_address)) {
+    } else if(rom_bank_select_range.has(address)) {
         rom_bank = data & 0x7Fu;
-    } else if(ram_bank_or_rtc_reg_select_range.has(virtual_address)) {
+    } else if(ram_bank_or_rtc_reg_select_range.has(address)) {
         if(data <= 0x03u) {
             ram_bank = data & 0x03u;
             rtc_.enabled = false;
@@ -54,7 +54,7 @@ void mbc3::control(const address16& virtual_address, const uint8_t data) noexcep
             rtc_.enabled = (true);
             rtc_.write(data);
         }
-    } else if(latch_clock_data_range.has(virtual_address)) {
+    } else if(latch_clock_data_range.has(address)) {
         configure_latch(data);
     }
 }

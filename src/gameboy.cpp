@@ -10,12 +10,12 @@ constexpr auto fps = 59.73f;
 constexpr auto delay = 1000.f / fps;
 
 gameboy::gameboy(const std::string_view rom_path)
-    : cartridge_(rom_path),
-      bus_(bus{make_observer(cartridge_)}),
-      mmu_(mmu{make_observer(bus_)}),
-      cpu_(cpu{make_observer(bus_)}),
-      ppu_(ppu{make_observer(bus_)}),
-      apu_(apu{make_observer(bus_)})
+    : cartridge_{rom_path},
+      bus_{make_observer(cartridge_)},
+      mmu_{make_observer(bus_)},
+      cpu_{make_observer(bus_)},
+      ppu_{make_observer(bus_)},
+      apu_{make_observer(bus_)}
 {
     mmu_.initialize();
 

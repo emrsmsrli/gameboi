@@ -2,6 +2,7 @@
 #define GAMEBOY_MBC3_H
 
 #include <ctime>
+#include <vector>
 
 #include <memory/controller/mbc.h>
 #include <memory/addressfwd.h>

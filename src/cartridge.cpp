@@ -50,7 +50,7 @@ template<typename T = uint8_t, typename AddrType>
 }
 
 cartridge::cartridge(const std::string_view rom_path)
-    : rom_(data_loader::load(rom_path))
+    : rom_{data_loader::load(rom_path)}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
     constexpr auto rom_cartridge_type_addr = make_address(0x0147u);

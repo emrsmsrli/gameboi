@@ -1,8 +1,6 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
-#include <memory>
-
 #include <cpu/register16.h>
 #include <cpu/alu.h>
 #include <cpu/interrupt.h>
@@ -19,12 +17,7 @@ public:
     explicit cpu(observer<bus> bus) noexcept;
 
     [[nodiscard]] uint8_t tick();
-
-    void request_interrupt(interrupt request) noexcept
-    {
-        interrupt_master_enable_ = true;
-        interrupt_flags_ |= request;
-    }
+    void request_interrupt(interrupt request) noexcept;
 
 private:
     enum class flag : uint8_t {
@@ -56,7 +49,7 @@ private:
 
     register16 stack_pointer_;
     register16 program_counter_;
-
+    
     uint64_t total_cycles_ = 0u;
 
     interrupt interrupt_flags_{interrupt::none};

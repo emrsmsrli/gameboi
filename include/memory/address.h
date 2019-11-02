@@ -16,8 +16,8 @@ public:
     using size_type = T;
 
     constexpr address() noexcept = default;
-    constexpr explicit address(size_type value) noexcept
-        : value_(value) {}
+    constexpr explicit address(const size_type value) noexcept
+        : value_{value} {}
 
     [[nodiscard]] constexpr size_type value() const noexcept { return value_; }
 

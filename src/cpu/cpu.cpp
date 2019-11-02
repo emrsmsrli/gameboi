@@ -1,5 +1,4 @@
 #include <array>
-#include <functional>
 
 #include <cpu/cpu.h>
 #include <bus.h>
@@ -87,6 +86,12 @@ uint8_t cpu::tick()
 
     total_cycles_ += cycle_count;
     return cycle_count;
+}
+
+void cpu::request_interrupt(const interrupt request) noexcept
+{
+    interrupt_master_enable_ = true;
+    interrupt_flags_ |= request;
 }
 
 void cpu::set_flag(flag flag) noexcept

@@ -9,7 +9,7 @@
  */
 namespace gameboy {
 
-struct mbc_regular : public mbc {
+struct mbc_regular : mbc {
     [[nodiscard]] uint8_t read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const
     {
         return ram[address.value()];

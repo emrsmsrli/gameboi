@@ -16,13 +16,11 @@ public:
     using const_lvalue_type = std::add_const_t<lvalue_type>;
 
     observer() noexcept = default;
-    observer(std::nullptr_t) noexcept
-        : observer(nullptr) {};
     explicit observer(pointer_type ptr) noexcept
-        : ptr_(ptr) {}
+        : ptr_{ptr} {}
 
-    pointer_type get() noexcept { return ptr_; }
-    const_pointer_type get() const noexcept { return ptr_; }
+    [[nodiscard]] pointer_type get() noexcept { return ptr_; }
+    [[nodiscard]] const_pointer_type get() const noexcept { return ptr_; }
 
     explicit operator bool() const noexcept { return ptr_ != nullptr; }
     explicit operator pointer_type() noexcept { return ptr_; }
@@ -30,8 +28,8 @@ public:
 
     pointer_type operator->() noexcept { return ptr_; }
     const_pointer_type operator->() const noexcept { return ptr_; }
-    lvalue_type operator*() noexcept { return *ptr_; }
-    const_lvalue_type operator*() const noexcept { return *ptr_; }
+    [[nodiscard]] lvalue_type operator*() noexcept { return *ptr_; }
+    [[nodiscard]] const_lvalue_type operator*() const noexcept { return *ptr_; }
 
 private:
     pointer_type ptr_ = nullptr;
