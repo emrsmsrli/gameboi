@@ -4,8 +4,8 @@
 
 int main(int /*argc*/, char** /*argv*/)
 {
-    gameboy::gameboy gb("rom/path.rom");
-    gb.start();
+    gameboy::gameboy gb("cpu_instrs.gb");
+    // gb.start();
 
     sf::RenderWindow window(
         sf::VideoMode(160 * 4, 144 * 4),
