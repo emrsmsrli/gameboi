@@ -17,7 +17,7 @@ namespace gameboy {
 
 class cartridge {
 public:
-    explicit cartridge(std::string_view rom);
+    explicit cartridge(std::string_view rom_path);
 
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
     [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
