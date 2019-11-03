@@ -4,6 +4,7 @@
 #include <memory>
 
 #include <ppu/dma_transfer_data.h>
+#include <ppu/color.h>
 #include <memory/mmu.h>
 #include <memory/addressfwd.h>
 #include <util/observer.h>
@@ -13,8 +14,15 @@ namespace gameboy {
 
 class bus;
 
+static constexpr auto screen_width = 160;
+static constexpr auto screen_height = 144;
+
+using render_line = std::array<color, screen_width>;
+
 class ppu {
 public:
+    delegate<void(uint8_t, render_line)> on_render_line;
+
     explicit ppu(observer<bus> bus);
 
     void tick(uint8_t cycles);

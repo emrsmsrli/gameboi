@@ -10,6 +10,7 @@
 #include <ppu/ppu.h>
 #include <memory/mmu.h>
 #include <apu/apu.h>
+#include <util/delegate.h>
 
 namespace gameboy {
 
@@ -19,6 +20,10 @@ public:
 
     void start();
     void tick();
+
+    [[nodiscard]] const std::string& rom_name() const { return cartridge_.name(); }
+
+    void on_line_render(delegate<void(uint8_t, render_line)> delegate) { ppu_.on_render_line = delegate; }
 
 private:
     cartridge cartridge_;
