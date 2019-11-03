@@ -138,7 +138,6 @@ ppu::ppu(observer<bus> bus)
         });
     }
 
-	
     constexpr std::array general_purpose_registers{
         vbk_addr,
         lcdc_addr,
@@ -148,7 +147,7 @@ ppu::ppu(observer<bus> bus)
         ly_addr,
         lyc_addr,
         wy_addr,
-	wx_addr
+        wx_addr
     };
     for(const auto& addr : general_purpose_registers) {
         bus->get_mmu()->add_memory_callback({
@@ -249,9 +248,9 @@ uint8_t ppu::read(const address16& address) const
 
 void ppu::write(const address16& address, const uint8_t data)
 {
-    if (vram_range.has(address)) {
+    if(vram_range.has(address)) {
 
-    } else if (oam_range.has(address)) {
+    } else if(oam_range.has(address)) {
 
     }
 }
@@ -260,19 +259,19 @@ uint8_t ppu::dma_read(const address16& address) const
 {
     if(address == hdma_1_addr) {
         return (dma_transfer_.source.value() & 0xFF00u) >> 8u;
-    } 
-	
+    }
+
     if(address == hdma_2_addr) {
         return dma_transfer_.source.value() & 0x00FFu;
-    } 
-	
+    }
+
     if(address == hdma_3_addr) {
         return (dma_transfer_.destination.value() & 0xFF00u) >> 8u;
-    } 
-	
+    }
+
     if(address == hdma_4_addr) {
         return dma_transfer_.destination.value() & 0x00FFu;
-    } 
+    }
 
     if(address == hdma_5_addr) {
         return dma_transfer_.length_mode_start.value();
@@ -285,9 +284,9 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 {
     if(address == oam_dma_addr) {
         bus_->get_mmu()->dma(
-	    address16(data << 8u),
-	    make_address(*begin(oam_range)),
-	    oam_range.size() - 1);
+            address16(data << 8u),
+            make_address(*begin(oam_range)),
+            oam_range.size() - 1);
     } else if(address == hdma_1_addr) {
         dma_transfer_.source = (dma_transfer_.source.value() & 0xFF00u) | (data & 0xF0u);
     } else if(address == hdma_2_addr) {
