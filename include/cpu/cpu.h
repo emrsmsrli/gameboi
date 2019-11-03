@@ -17,6 +17,8 @@ public:
     explicit cpu(observer<bus> bus) noexcept;
 
     [[nodiscard]] uint8_t tick();
+
+    [[nodiscard]] bool interrupts_enabled() const noexcept { return interrupt_master_enable_; }
     void request_interrupt(interrupt request) noexcept;
 
 private:
