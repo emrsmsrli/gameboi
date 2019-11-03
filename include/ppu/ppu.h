@@ -99,6 +99,8 @@ private:
 
     std::vector<uint8_t> ram_;
     std::vector<uint8_t> oam_;
+
+    // todo remove this and check lcdc_ bit 0 and 1 instead
     mode mode_{mode::reading_oam};
 
     uint8_t cycle_count_ = 0;
