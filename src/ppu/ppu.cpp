@@ -378,32 +378,32 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 uint8_t ppu::palette_read(const address16& address) const
 {
     if(address == bgp_addr) {
-        //return bgp_addr;
+        return bgp_.value();
     }
 
     if(address == obp_0_addr) {
-        //return lcdc_.value();
+        return obp_0_.value();
     }
 
     if(address == obp_1_addr) {
-        //return stat_.value();
+        return obp_1_.value();
     }
 
     if(address == bgpi_addr) {
-        //return scy_.value();
-    }
-
-    if(address == bgpd_addr) {
-        //return scy_.value();
+        return bgpi_.value();
     }
 
     if(address == obpi_addr) {
+        return obpi_.value();
+    }
+
+    /*if(address == bgpd_addr) {
         //return scy_.value();
     }
 
     if(address == obpd_addr) {
         //return scy_.value();
-    }
+    }*/
 
     return 0u;
 }

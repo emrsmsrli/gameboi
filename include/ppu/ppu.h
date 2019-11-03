@@ -99,7 +99,9 @@ private:
 
     std::vector<uint8_t> ram_;
     std::vector<uint8_t> oam_;
-    mode mode_{mode::h_blank};
+    mode mode_{mode::reading_oam};
+
+    uint8_t cycle_count_ = 0;
 
     register8 lcdc_;
     register8 stat_;
@@ -111,6 +113,13 @@ private:
     register8 scy_;
     register8 wx_;
     register8 wy_;
+
+    register8 bgp_;
+    register8 obp_0_;
+    register8 obp_1_;
+
+    register8 bgpi_;
+    register8 obpi_;
 
     uint32_t vram_bank_ = 0u;
 
