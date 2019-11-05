@@ -3,12 +3,9 @@
 - integer promotion is undefined behaviour, use casts
 - try to organize `cpu::decode`
 - implement templated `AddressRange`
-- change barebones bit manipulation expressions with `math::bit_*`
-- extend `gameboy::math` functionality
 - interrupts should enable-disable after one instruction is executed.
 - reduce branching please
 - return pairs instead of passing out params
-- use cpp11 uniform init syntax (constructor init list included)
 
 ## Major
 - todo modify compiler specific warnings 
