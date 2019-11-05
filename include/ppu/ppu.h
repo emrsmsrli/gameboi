@@ -123,7 +123,7 @@ private:
     register8 bgpi_;
     register8 obpi_;
 
-    uint32_t vram_bank_ = 0u;
+    uint8_t vram_bank_ = 0u;
 
     dma_transfer_data dma_transfer_;
 
