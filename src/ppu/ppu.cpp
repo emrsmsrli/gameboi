@@ -320,11 +320,11 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
     }
 
     if(address == lcdc_addr) {
-        return lcdc_.value();
+        return lcdc_.reg.value();
     }
 
     if(address == stat_addr) {
-        return stat_.value();
+        return stat_.reg.value();
     }
 
     if(address == scy_addr) {
@@ -359,9 +359,9 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
     if(address == vbk_addr) {
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
-        lcdc_ = data;
+        lcdc_.reg = data;
     } else if(address == stat_addr) {
-        stat_ = data;
+        stat_.reg = data;
     } else if(address == scy_addr) {
         scy_ = data;
     } else if(address == scx_addr) {
