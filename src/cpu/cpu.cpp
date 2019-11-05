@@ -6,6 +6,7 @@
 #include <memory/address.h>
 #include <util/log.h>
 #include <util/observer.h>
+#include <util/mathutil.h>
 
 namespace gameboy {
 
@@ -620,7 +621,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x58:
         case 0x68:
         case 0x78: {
-            return alu_.bit_test(b_c_.high(), get_bitop_mask());
+            return alu_.test(b_c_.high(), get_bitop_mask());
         }
 
         case 0x41:
@@ -631,7 +632,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x59:
         case 0x69:
         case 0x79: {
-            return alu_.bit_test(b_c_.low(), get_bitop_mask());
+            return alu_.test(b_c_.low(), get_bitop_mask());
         }
 
         case 0x42:
@@ -642,7 +643,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5A:
         case 0x6A:
         case 0x7A: {
-            return alu_.bit_test(d_e_.high(), get_bitop_mask());
+            return alu_.test(d_e_.high(), get_bitop_mask());
         }
 
         case 0x43:
@@ -653,7 +654,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5B:
         case 0x6B:
         case 0x7B: {
-            return alu_.bit_test(d_e_.low(), get_bitop_mask());
+            return alu_.test(d_e_.low(), get_bitop_mask());
         }
 
         case 0x44:
@@ -664,7 +665,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5C:
         case 0x6C:
         case 0x7C: {
-            return alu_.bit_test(h_l_.high(), get_bitop_mask());
+            return alu_.test(h_l_.high(), get_bitop_mask());
         }
 
         case 0x45:
@@ -675,7 +676,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5D:
         case 0x6D:
         case 0x7D: {
-            return alu_.bit_test(h_l_.low(), get_bitop_mask());
+            return alu_.test(h_l_.low(), get_bitop_mask());
         }
 
         case 0x46:
@@ -687,7 +688,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x6E:
         case 0x7E: {
             const auto data = read_data(make_address(h_l_));
-            const auto cycles = alu_.bit_test(data, get_bitop_mask());
+            const auto cycles = alu_.test(data, get_bitop_mask());
             return cycles + 8;
         }
 
@@ -699,7 +700,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x5F:
         case 0x6F:
         case 0x7F: {
-            return alu_.bit_test(a_f_.high(), get_bitop_mask());
+            return alu_.test(a_f_.high(), get_bitop_mask());
         }
 
         case 0x80:
@@ -710,7 +711,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x98:
         case 0xA8:
         case 0xB8: {
-            return alu_.bit_reset(b_c_.high(), get_bitop_mask());
+            return alu_.reset(b_c_.high(), get_bitop_mask());
         }
 
         case 0x81:
@@ -721,7 +722,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x99:
         case 0xA9:
         case 0xB9: {
-            return alu_.bit_reset(b_c_.low(), get_bitop_mask());
+            return alu_.reset(b_c_.low(), get_bitop_mask());
         }
 
         case 0x82:
@@ -732,7 +733,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9A:
         case 0xAA:
         case 0xBA: {
-            return alu_.bit_reset(d_e_.high(), get_bitop_mask());
+            return alu_.reset(d_e_.high(), get_bitop_mask());
         }
 
         case 0x83:
@@ -743,7 +744,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9B:
         case 0xAB:
         case 0xBB: {
-            return alu_.bit_reset(d_e_.low(), get_bitop_mask());
+            return alu_.reset(d_e_.low(), get_bitop_mask());
         }
 
         case 0x84:
@@ -754,7 +755,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9C:
         case 0xAC:
         case 0xBC: {
-            return alu_.bit_reset(h_l_.high(), get_bitop_mask());
+            return alu_.reset(h_l_.high(), get_bitop_mask());
         }
 
         case 0x85:
@@ -765,7 +766,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9D:
         case 0xAD:
         case 0xBD: {
-            return alu_.bit_reset(h_l_.low(), get_bitop_mask());
+            return alu_.reset(h_l_.low(), get_bitop_mask());
         }
 
         case 0x86:
@@ -778,7 +779,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xBE: {
             const auto address = make_address(h_l_);
             auto data = read_data(address);
-            const auto cycles = alu::bit_reset(data, get_bitop_mask());
+            const auto cycles = alu::reset(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
@@ -791,7 +792,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0x9F:
         case 0xAF:
         case 0xBF: {
-            return alu_.bit_reset(a_f_.high(), get_bitop_mask());
+            return alu_.reset(a_f_.high(), get_bitop_mask());
         }
 
         case 0xC0:
@@ -802,7 +803,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xD8:
         case 0xE8:
         case 0xF8: {
-            return alu_.bit_set(b_c_.high(), get_bitop_mask());
+            return alu_.set(b_c_.high(), get_bitop_mask());
         }
 
         case 0xC1:
@@ -813,7 +814,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xD9:
         case 0xE9:
         case 0xF9: {
-            return alu_.bit_set(b_c_.low(), get_bitop_mask());
+            return alu_.set(b_c_.low(), get_bitop_mask());
         }
 
         case 0xC2:
@@ -824,7 +825,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDA:
         case 0xEA:
         case 0xFA: {
-            return alu_.bit_set(d_e_.high(), get_bitop_mask());
+            return alu_.set(d_e_.high(), get_bitop_mask());
         }
 
         case 0xC3:
@@ -835,7 +836,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDB:
         case 0xEB:
         case 0xFB: {
-            return alu_.bit_set(d_e_.low(), get_bitop_mask());
+            return alu_.set(d_e_.low(), get_bitop_mask());
         }
 
         case 0xC4:
@@ -846,7 +847,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDC:
         case 0xEC:
         case 0xFC: {
-            return alu_.bit_set(h_l_.high(), get_bitop_mask());
+            return alu_.set(h_l_.high(), get_bitop_mask());
         }
 
         case 0xC5:
@@ -857,7 +858,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDD:
         case 0xED:
         case 0xFD: {
-            return alu_.bit_set(h_l_.low(), get_bitop_mask());
+            return alu_.set(h_l_.low(), get_bitop_mask());
         }
 
         case 0xC6:
@@ -870,7 +871,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xFE: {
             const auto address = make_address(h_l_);
             auto data = read_data(address);
-            const auto cycles = alu::bit_set(data, get_bitop_mask());
+            const auto cycles = alu::set(data, get_bitop_mask());
             write_data(address, data);
             return cycles + 8;
         }
@@ -883,7 +884,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xDF:
         case 0xEF:
         case 0xFF: {
-            return alu_.bit_set(a_f_.high(), get_bitop_mask());
+            return alu_.set(a_f_.high(), get_bitop_mask());
         }
 
         default: {
@@ -915,7 +916,7 @@ uint16_t cpu::read_immediate(imm16_t)
     const auto lsb = read_immediate(imm8);
     const auto msb = read_immediate(imm8);
 
-    return (static_cast<uint16_t>(msb) << 8u) | lsb;
+    return word(msb, lsb);
 }
 
 uint8_t cpu::nop() noexcept

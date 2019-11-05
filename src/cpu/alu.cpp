@@ -9,19 +9,21 @@ uint8_t alu::add(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     cpu_->reset_flag(cpu::flag::all);
-    if(((acc + value) & 0xFFu) == 0x00u) {
-        cpu_->set_flag(cpu::flag::zero);
-    }
 
-    if((acc & 0x0Fu) + (value & 0x0Fu) > 0x0Fu) {
+    if(half_carry(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
-    if(acc + value > 0xFFu) {
+    if(full_carry(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
     acc += value;
+
+    if(acc == 0x00u) {
+        cpu_->set_flag(cpu::flag::zero);
+    }
+
     return 4u;
 }
 
@@ -34,24 +36,25 @@ uint8_t alu::add_c(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
-    const uint8_t carry = cpu_->test_flag(cpu::flag::carry) ? 0x01u : 0x00u;
-    const uint16_t result = acc + value + carry;
+    const auto carry = cpu_->test_flag(cpu::flag::carry) ? 0x01u : 0x00u;
 
     cpu_->reset_flag(cpu::flag::all);
 
-    if((result & 0xFFu) == 0x00u) {
-        cpu_->set_flag(cpu::flag::zero);
-    }
-
-    if((acc & 0x0Fu) + (value & 0x0Fu) + carry > 0x0Fu) {
+    if(((acc & 0x0Fu) + (value & 0x0Fu) + carry) > 0x0Fu) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
+
+    const auto result = acc + value + carry;
 
     if(result > 0xFFu) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    acc = result & 0xFFu;
+    if(mask(result, 0xFFu) == 0x00u) {
+        cpu_->set_flag(cpu::flag::zero);
+    }
+
+    acc = static_cast<uint8_t>(mask(result, 0xFFu));
     return 4u;
 }
 
@@ -67,19 +70,20 @@ uint8_t alu::subtract(const uint8_t value) const noexcept
     cpu_->reset_flag(cpu::flag::all);
     cpu_->set_flag(cpu::flag::subtract);
 
-    if(acc - value == 0x00u) {
-        cpu_->set_flag(cpu::flag::zero);
-    }
-
-    if((acc & 0x0Fu) < (value & 0x0Fu)) {
+    if(half_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
-    if(acc < value) {
+    if(full_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
     acc -= value;
+
+    if(acc == 0x00u) {
+        cpu_->set_flag(cpu::flag::zero);
+    }
+    
     return 4u;
 }
 
@@ -92,25 +96,25 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
-    const auto carry = cpu_->test_flag(cpu::flag::carry) ? 0x01u : 0x00u;
-    const auto result = acc.value() - value - carry;
+    const auto carry = cpu_->test_flag(cpu::flag::carry) ? 0x01 : 0x00;
+    const auto result = acc - value - carry;
 
     cpu_->reset_flag(cpu::flag::all);
     cpu_->set_flag(cpu::flag::subtract);
 
-    if(result == 0x00u) {
+    if(result == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
-    if(result < 0x00u) { // fixme wtf
-        cpu_->set_flag(cpu::flag::zero);
+    if(result < 0x00) {
+        cpu_->set_flag(cpu::flag::carry);
     }
 
-    if((acc & 0x0Fu) - (value & 0x0Fu) - carry < 0x0Fu) {
+    if(mask(acc, 0x0Fu) - mask(value, 0x0Fu) - carry < 0x00) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
-    acc = result;
+    acc = static_cast<uint8_t>(mask(result, 0xFFu));
     return 4u;
 }
 
@@ -182,7 +186,7 @@ uint8_t alu::decrement(register8& reg) const noexcept
 uint8_t alu::logical_or(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
-    acc = acc | value;
+    acc |= value;
 
     cpu_->reset_flag(cpu::flag::all);
     if(acc == 0x00u) {
@@ -200,7 +204,7 @@ uint8_t alu::logical_or(const register8& reg) const noexcept
 uint8_t alu::logical_and(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
-    acc = acc & value;
+    acc &= value;
 
     cpu_->reset_flag(cpu::flag::all);
     cpu_->set_flag(cpu::flag::half_carry);
@@ -219,7 +223,7 @@ uint8_t alu::logical_and(const register8& reg) const noexcept
 uint8_t alu::logical_xor(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
-    acc = acc ^ value;
+    acc ^= value;
 
     cpu_->reset_flag(cpu::flag::all);
     if(acc == 0x00u) {
@@ -245,11 +249,11 @@ uint8_t alu::logical_compare(const uint8_t value) const noexcept
         cpu_->set_flag(cpu::flag::zero);
     }
 
-    if((acc & 0x0Fu) < (value & 0x0Fu)) {
+    if(half_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
-    if(acc < value) {
+    if(full_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -265,13 +269,13 @@ uint8_t alu::add(register16& r_left, const register16& r_right) const noexcept
 {
     cpu_->reset_flag(cpu::flag::subtract);
 
-    if((r_left & 0x0FFFu) + (r_right & 0x0FFFu) > 0x0FFFu) {
+    if(half_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::half_carry);
     } else {
         cpu_->reset_flag(cpu::flag::half_carry);
     }
 
-    if(r_left + r_right > 0xFFFFu) {
+    if(full_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::carry);
     } else {
         cpu_->reset_flag(cpu::flag::carry);
@@ -283,32 +287,34 @@ uint8_t alu::add(register16& r_left, const register16& r_right) const noexcept
 
 uint8_t alu::add_to_stack_pointer(const int8_t immediate) const noexcept
 {
+    auto& sp = cpu_->stack_pointer_;
     cpu_->reset_flag(cpu::flag::all);
 
-    // signed arithmetic
-    if((cpu_->stack_pointer_ & 0x0F).value() + (immediate & 0x0F) > 0x0Fu) {
-        cpu_->set_flag(cpu::flag::half_carry);
-    }
+    const int result = sp.value() + immediate;
 
-    // signed arithmetic
-    if((cpu_->stack_pointer_ & 0xFF).value() + (immediate & 0xFF) > 0xFFu) {
+    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    cpu_->stack_pointer_ = static_cast<uint16_t>(cpu_->stack_pointer_.value() + immediate);
+    // signed arithmetic
+    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x10)) {
+        cpu_->set_flag(cpu::flag::half_carry);
+    }
+
+    cpu_->stack_pointer_ = static_cast<uint16_t>(result);
 
     return 16u;
 }
 
 uint8_t alu::increment(register16& r) noexcept
 {
-    r += 0x1u;
+    ++r;
     return 8u;
 }
 
 uint8_t alu::decrement(register16& r) noexcept
 {
-    r -= 0x1u;
+    --r;
     return 8u;
 }
 
@@ -383,9 +389,9 @@ uint8_t alu::swap(register8& reg) const noexcept
     return cycles;
 }
 
-uint8_t alu::bit_test(const uint8_t value, const uint8_t bit) const noexcept
+uint8_t alu::test(const uint8_t value, const uint8_t bit) const noexcept
 {
-    if(math::bit_test(value, bit)) {
+    if(bit_test(value, bit)) {
         cpu_->set_flag(cpu::flag::zero);
     } else {
         cpu_->reset_flag(cpu::flag::zero);
@@ -396,35 +402,35 @@ uint8_t alu::bit_test(const uint8_t value, const uint8_t bit) const noexcept
     return 8u;
 }
 
-uint8_t alu::bit_test(const register8& reg, const uint8_t bit) const noexcept
+uint8_t alu::test(const register8& reg, const uint8_t bit) const noexcept
 {
-    return bit_test(reg.value(), bit);
+    return test(reg.value(), bit);
 }
 
-uint8_t alu::bit_set(uint8_t& value, const uint8_t bit) noexcept
+uint8_t alu::set(uint8_t& value, const uint8_t bit) noexcept
 {
-    math::bit_set(value, bit);
+    bit_set(value, bit);
     return 8u;
 }
 
-uint8_t alu::bit_set(register8& reg, uint8_t bit) const noexcept
+uint8_t alu::set(register8& reg, uint8_t bit) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = bit_set(value, bit);
+    const auto cycles = set(value, bit);
     reg = value;
     return cycles;
 }
 
-uint8_t alu::bit_reset(uint8_t& value, const uint8_t bit) noexcept
+uint8_t alu::reset(uint8_t& value, const uint8_t bit) noexcept
 {
-    math::bit_reset(value, bit);
+    bit_reset(value, bit);
     return 8u;
 }
 
-uint8_t alu::bit_reset(register8& reg, const uint8_t bit) const noexcept
+uint8_t alu::reset(register8& reg, const uint8_t bit) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = bit_reset(value, bit);
+    const auto cycles = reset(value, bit);
     reg = value;
     return cycles;
 }

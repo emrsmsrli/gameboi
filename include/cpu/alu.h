@@ -53,12 +53,12 @@ public:
     [[nodiscard]] uint8_t complement() const noexcept;
 
     /* bitops */
-    [[nodiscard]] uint8_t bit_test(uint8_t value, uint8_t bit) const noexcept;
-    [[nodiscard]] uint8_t bit_test(const register8& reg, uint8_t bit) const noexcept;
-    static uint8_t bit_set(uint8_t& value, uint8_t bit) noexcept;
-    uint8_t bit_set(register8& reg, uint8_t bit) const noexcept;
-    static uint8_t bit_reset(uint8_t& value, uint8_t bit) noexcept;
-    uint8_t bit_reset(register8& reg, uint8_t bit) const noexcept;
+    [[nodiscard]] uint8_t test(uint8_t value, uint8_t bit) const noexcept;
+    [[nodiscard]] uint8_t test(const register8& reg, uint8_t bit) const noexcept;
+    static uint8_t set(uint8_t& value, uint8_t bit) noexcept;
+    uint8_t set(register8& reg, uint8_t bit) const noexcept;
+    static uint8_t reset(uint8_t& value, uint8_t bit) noexcept;
+    uint8_t reset(register8& reg, uint8_t bit) const noexcept;
 
     [[nodiscard]] uint8_t rotate_left_acc() const noexcept;
     [[nodiscard]] uint8_t rotate_right_acc() const noexcept;
