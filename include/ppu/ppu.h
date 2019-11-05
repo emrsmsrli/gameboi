@@ -33,42 +33,10 @@ public:
     void write(const address16& address, uint8_t data);
 
 private:
-    enum mode : uint8_t {
-        /**
-         * CPU can access both the display RAM (8000h-9FFFh)
-         * and OAM (FE00h-FE9Fh)
-         */
-            h_blank = 0u,
-
-        /**
-         * The LCD contoller is in the V-Blank period (or the
-         * display is disabled) and the CPU can access both the
-         * display RAM (8000h-9FFFh) and OAM (FE00h-FE9Fh)
-         */
-            v_blank = 1u,
-
-        /**
-         * The LCD controller is reading from OAM memory.
-         * The CPU <cannot> access OAM memory (FE00h-FE9Fh)
-         * during this period.
-         */
-            reading_oam = 2u,
-
-        /**
-         * The LCD controller is reading from both OAM and VRAM,
-         * The CPU <cannot> access OAM and VRAM during this period.
-         * CGB Mode: Cannot access Palette Data (FF69,FF6B) either.
-         */
-            reading_oam_vram = 3u
-    };
-
     observer<bus> bus_;
 
     std::vector<uint8_t> ram_;
     std::vector<uint8_t> oam_;
-
-    // todo remove this and check lcdc_ bit 0 and 1 instead
-    mode mode_{mode::reading_oam};
 
     uint8_t cycle_count_ = 0;
 
@@ -93,8 +61,6 @@ private:
     uint8_t vram_bank_ = 0u;
 
     dma_transfer_data dma_transfer_;
-
-    [[nodiscard]] bool is_control_flag_set(control_flag flag) const;
 
     [[nodiscard]] uint8_t dma_read(const address16& address) const;
     void dma_write(const address16& address, uint8_t data);

@@ -1,18 +1,34 @@
-#ifndef GAMEBOY_CONTROL_REGISTER_H
-#define GAMEBOY_CONTROL_REGISTER_H
+#ifndef GAMEBOY_REGISTER_LCDC_H
+#define GAMEBOY_REGISTER_LCDC_H
 
 #include <cpu/register8.h>
+#include <memory/address.h>
 
 namespace gameboy {
 
-enum control_flag : uint8_t {
-    lcd_enable = 7,
-    window_tile_map_display_select = 6u, // todo (0=9800-9BFF, 1=9C00-9FFF)
-    window_display_enable = 5u,
-    bg_window_tile_data_select = 4u,     // todo (0=8800-97FF, 1=8000-8FFF)
-    bg_tile_map_display_select = 3u,     // todo (0=9800-9BFF, 1=9C00-9FFF)
-    sprite_size = 2u,
-    sprite_display_enable = 1u,
+struct register_lcdc {
+    register8 reg;
+
+    [[nodiscard]] bool lcd_enabled() const noexcept
+    {
+        return bit_test(reg, 7u);
+    }
+
+    [[nodiscard]] bool window_display_enabled() const noexcept
+    {
+        return bit_test(reg, 5u);
+    }
+
+    [[nodiscard]] bool large_sprite() const noexcept
+    {
+        return bit_test(reg, 2u);
+    }
+
+    [[nodiscard]] bool sprites_enabled() const noexcept
+    {
+        return bit_test(reg, 1u);
+    }
+
     /**
      * LCDC.0 - 1) Monochrome Gameboy and SGB: BG Display
      * When Bit 0 is cleared, the background becomes blank (white).
@@ -29,13 +45,33 @@ enum control_flag : uint8_t {
      * This is a possible compatibility problem - any monochrome games (if any) that disable the background,
      * but still want to display the window wouldn't work properly on CGBs.
      */
-    bg_display_enable = 0u
-};
+    [[nodiscard]] bool bg_enabled() const noexcept
+    {
+        return bit_test(reg, 0u);
+    }
 
-struct register_lcdc {
-    register8 reg;
+    [[nodiscard]] address16 window_tile_map_address() const noexcept
+    {
+        return bit_test(reg, 6u)
+               ? address16(0x9C00u)
+               : address16(0x9800u);
+    }
+
+    [[nodiscard]] address16 bg_window_tile_address() const noexcept
+    {
+        return bit_test(reg, 4u)
+               ? address16(0x8000u)
+               : address16(0x8800u);
+    }
+
+    [[nodiscard]] address16 bg_tile_map_address() const noexcept
+    {
+        return bit_test(reg, 3u)
+               ? address16(0x9C00u)
+               : address16(0x9800u);
+    }
 };
 
 } // namespace gameboy
 
-#endif //GAMEBOY_CONTROL_REGISTER_H
+#endif //GAMEBOY_REGISTER_LCDC_H

@@ -1,5 +1,3 @@
-#include <array>
-
 #include <ppu/ppu.h>
 #include <bus.h>
 #include <cartridge.h>
@@ -177,12 +175,12 @@ ppu::ppu(observer<bus> bus)
 
 void ppu::tick(const uint8_t cycles)
 {
-    if(!is_control_flag_set(control_flag::lcd_enable)) {
+    if(!lcdc_.lcd_enabled()) {
         return;
     }
 
-    switch(mode_) {
-        case mode::h_blank: {
+    switch(stat_.get_mode()) {
+        case stat_mode::h_blank: {
             // if(hblank cycles elapsed) {
             // updateLy();
             // compareLyLyc();
@@ -199,7 +197,7 @@ void ppu::tick(const uint8_t cycles)
             // }
             break;
         }
-        case mode::v_blank: {
+        case stat_mode::v_blank: {
             // if (hasElapsed(LINE_CYCLES)) {
             //     updateLY();
             //     compareLyToLyc(ime);
@@ -210,13 +208,13 @@ void ppu::tick(const uint8_t cycles)
             // }
             break;
         }
-        case mode::reading_oam: {
+        case stat_mode::reading_oam: {
             // if (hasElapsed(OAM_ACCESS_CYCLES)) {
             //     mode_ = Mode::reading_oam_vram;
             // }
             break;
         }
-        case mode::reading_oam_vram: {
+        case stat_mode::reading_oam_vram: {
             // if (hasElapsed(LCD_TRANSFER_CYCLES)) {
             //     renderScanline();
             //     mode_ = Mode::HBLANK;
@@ -226,11 +224,6 @@ void ppu::tick(const uint8_t cycles)
             break;
         }
     }
-}
-
-bool ppu::is_control_flag_set(const ppu::control_flag flag) const
-{
-    return math::bit_test(lcdc_.value(), flag);
 }
 
 uint8_t ppu::read(const address16& address) const
@@ -296,7 +289,7 @@ void ppu::dma_write(const address16& address, const uint8_t data)
     } else if(address == hdma_4_addr) {
         dma_transfer_.destination = (dma_transfer_.destination.value() & 0x00FFu) | ((data & 0x1Fu) << 8u);
     } else if(address == hdma_5_addr) {
-        if(!math::bit_test(data, 7u)) {
+        if(!bit_test(data, 7u)) {
             if(!dma_transfer_.active()) {
                 bus_->get_mmu()->dma(
                     dma_transfer_.source,

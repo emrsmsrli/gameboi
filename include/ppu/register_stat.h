@@ -1,22 +1,59 @@
-#ifndef GAMEBOY_STAT_REGISTER_H
-#define GAMEBOY_STAT_REGISTER_H
+#ifndef GAMEBOY_REGISTER_STAT_H
+#define GAMEBOY_REGISTER_STAT_H
 
 #include <cpu/register8.h>
 
 namespace gameboy {
 
-enum status_flag : uint8_t {
-    coincidence_interrupt = 6u,
-    reading_oam_interrupt = 5u,
-    vblank_interrupt = 4u,
-    hblank_interrupt = 3u,
-    coincidence_flag = 2u,  // (0:LYC<>LY, 1:LYC=LY)
+enum class stat_mode : uint8_t {
+    /**
+     * CPU can access both the display RAM (8000h-9FFFh)
+     * and OAM (FE00h-FE9Fh)
+     */
+    h_blank = 0u,
+
+    /**
+     * The LCD contoller is in the V-Blank period (or the
+     * display is disabled) and the CPU can access both the
+     * display RAM (8000h-9FFFh) and OAM (FE00h-FE9Fh)
+     */
+    v_blank = 1u,
+
+    /**
+     * The LCD controller is reading from OAM memory.
+     * The CPU <cannot> access OAM memory (FE00h-FE9Fh)
+     * during this period.
+     */
+    reading_oam = 2u,
+
+    /**
+     * The LCD controller is reading from both OAM and VRAM,
+     * The CPU <cannot> access OAM and VRAM during this period.
+     * CGB Mode: Cannot access Palette Data (FF69,FF6B) either.
+     */
+    reading_oam_vram = 3u
 };
 
 struct register_stat {
     register8 reg;
+
+    [[nodiscard]] stat_mode get_mode() const noexcept
+    {
+        return static_cast<stat_mode>(mask(reg.value(), 0x03u));
+    }
+
+    void set_mode(stat_mode mode) noexcept
+    {
+        reg = mask_set(reg, static_cast<uint8_t>(mode));
+    }
+
+    [[nodiscard]] bool coincidence_interrupted() const noexcept { return bit_test(reg, 6u); }
+    [[nodiscard]] bool reading_oam_interrupted() const noexcept { return bit_test(reg, 5u); }
+    [[nodiscard]] bool vblank_interrupted() const noexcept { return bit_test(reg, 4u); }
+    [[nodiscard]] bool hblank_interrupted() const noexcept { return bit_test(reg, 3u); }
+    [[nodiscard]] bool coincidence_flag_set() const noexcept { return bit_test(reg, 2u); }
 };
 
 } // namespace gameboy
 
-#endif //GAMEBOY_STAT_REGISTER_H
+#endif //GAMEBOY_REGISTER_STAT_H
