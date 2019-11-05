@@ -1,12 +1,12 @@
 #include <cpu/register16.h>
 #include <memory/address.h>
+#include <util/mathutil.h>
 
 namespace gameboy {
 
 uint16_t register16::value() const noexcept
 {
-    const uint16_t h = high_.value();
-    return h << 8u | low_.value();
+    return word(high_.value(), low_.value());
 }
 
 register16& register16::operator=(const uint16_t val) noexcept
@@ -48,7 +48,7 @@ register16& register16::operator+=(const register16& reg) noexcept
 
 register16& register16::operator+=(const address8& address) noexcept
 {
-    *this = value() + static_cast<int8_t>(address.value());
+    *this = static_cast<uint16_t>(value() + static_cast<int8_t>(address.value()));
     return *this;
 }
 
@@ -94,6 +94,16 @@ register16 register16::operator^(const uint16_t val) const noexcept
 register16 register16::operator~() const noexcept
 {
     return register16(~value());
+}
+
+bool register16::operator==(const uint16_t val) const noexcept
+{
+    return value() == val;
+}
+
+bool register16::operator==(const register16& other) const noexcept
+{
+    return value() == other.value();
 }
 
 } // namespace gameboy

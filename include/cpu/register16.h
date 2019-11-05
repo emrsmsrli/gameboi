@@ -57,6 +57,10 @@ public:
     register16 operator^(uint16_t val) const noexcept;
     register16 operator~() const noexcept;
 
+    /* comparison */
+    bool operator==(uint16_t val) const noexcept;
+    bool operator==(const register16& other) const noexcept;
+
 private:
     register8 high_;
     register8 low_;
