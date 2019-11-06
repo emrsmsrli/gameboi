@@ -318,8 +318,16 @@ void ppu::dma_write(const address16& address, const uint8_t data)
             make_address(*begin(oam_range)),
             oam_range.size() - 1);
     } else if(address == hdma_1_addr) {
+        if(dma_transfer_.active()) {
+            return;
+        }
+
         dma_transfer_.source = (dma_transfer_.source.value() & 0xFF00u) | (data & 0xF0u);
     } else if(address == hdma_2_addr) {
+        if(dma_transfer_.active()) {
+            return;
+        }
+
         dma_transfer_.source = (dma_transfer_.source.value() & 0x00FFu) | (data << 8u);
     } else if(address == hdma_3_addr) {
         dma_transfer_.destination = (dma_transfer_.destination.value() & 0xFF00u) | (data & 0xF0u);
@@ -387,6 +395,10 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
 void ppu::general_purpose_register_write(const address16& address, const uint8_t data)
 {
     if(address == vbk_addr) {
+        if(dma_transfer_.active()) {
+            return;
+        }
+
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
         if(bit_test(data, 7u) && !lcdc_.lcd_enabled()) {
@@ -464,10 +476,7 @@ void ppu::palette_write(const address16& address, const uint8_t data)
 
 void ppu::hdma()
 {
-    // todo Note that the program may not change the Destination VRAM bank (FF4F),
-    // or the Source ROM/RAM bank (in case data is transferred from bankable memory)
-    // until the transfer has completed!
-    if(dma_transfer_.active() /* todo line >= 0 && line < 144 */) {
+    if(dma_transfer_.active() && ly_ < screen_height) {
         const auto total_length = dma_transfer_.length();
         const auto offset = total_length - dma_transfer_.remaining_length;
 
