@@ -1,14 +1,15 @@
 #ifndef GAMEBOY_PPU_H
 #define GAMEBOY_PPU_H
 
+#include <vector>
 #include <memory>
 
 #include <ppu/dma_transfer_data.h>
 #include <ppu/color.h>
 #include <ppu/register_stat.h>
 #include <ppu/register_lcdc.h>
-#include <memory/mmu.h>
 #include <memory/addressfwd.h>
+#include <util/delegate.h>
 #include <util/observer.h>
 #include <util/mathutil.h>
 

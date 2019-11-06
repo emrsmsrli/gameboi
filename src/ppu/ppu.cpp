@@ -2,10 +2,10 @@
 #include <bus.h>
 #include <cartridge.h>
 #include <cpu/cpu.h>
+#include <memory/mmu.h>
 #include <memory/address.h>
 #include <memory/memory_constants.h>
 #include <util/mathutil.h>
-#include "util/delegate.h"
 
 namespace gameboy {
 
