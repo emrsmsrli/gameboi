@@ -9,8 +9,8 @@
 namespace gameboy {
 
 struct dma_transfer_data {
-    address16 source;
-    address16 destination;
+    register16 source;
+    register16 destination;
     register8 length_mode_start;
 
     uint16_t remaining_length = 0u;

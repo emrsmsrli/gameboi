@@ -300,7 +300,7 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 {
     if(address == oam_dma_addr) {
         bus_->get_mmu()->dma(
-            address16(data << 8u),
+            make_address(static_cast<uint16_t>(data << 8u)),
             make_address(*begin(oam_range)),
             oam_range.size() - 1);
     } else if(address == hdma_1_addr) {
@@ -308,23 +308,23 @@ void ppu::dma_write(const address16& address, const uint8_t data)
             return;
         }
 
-        dma_transfer_.source = (dma_transfer_.source.value() & 0xFF00u) | (data & 0xF0u);
+        dma_transfer_.source.low() = data & 0xF0u;
     } else if(address == hdma_2_addr) {
         if(dma_transfer_.active()) {
             return;
         }
 
-        dma_transfer_.source = (dma_transfer_.source.value() & 0x00FFu) | (data << 8u);
+        dma_transfer_.source.high() = data;
     } else if(address == hdma_3_addr) {
-        dma_transfer_.destination = (dma_transfer_.destination.value() & 0xFF00u) | (data & 0xF0u);
+        dma_transfer_.destination.low() = data & 0xF0u;
     } else if(address == hdma_4_addr) {
-        dma_transfer_.destination = (dma_transfer_.destination.value() & 0x00FFu) | ((data & 0x1Fu) << 8u);
+        dma_transfer_.destination.high() = data & 0x1Fu;
     } else if(address == hdma_5_addr) {
         if(!bit_test(data, 7u)) {
             if(!dma_transfer_.active()) {
                 bus_->get_mmu()->dma(
-                    dma_transfer_.source,
-                    dma_transfer_.destination,
+                    make_address(dma_transfer_.source),
+                    make_address(dma_transfer_.destination),
                     dma_transfer_.length());
             } else {
                 dma_transfer_.disable();
@@ -441,8 +441,8 @@ void ppu::hdma()
         const auto offset = total_length - dma_transfer_.remaining_length;
 
         bus_->get_mmu()->dma(
-            dma_transfer_.source + offset,
-            dma_transfer_.destination + offset,
+            make_address(static_cast<uint16_t>(dma_transfer_.source + offset)),
+            make_address(static_cast<uint16_t>(dma_transfer_.destination + offset)),
             0x10u);
 
         dma_transfer_.remaining_length -= 0x10u;
