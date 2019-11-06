@@ -12,7 +12,7 @@ constexpr auto screen_height = gameboy::screen_height * resolution_multiplier;
 sf::Image window_buffer;
 sf::RenderWindow window;
 
-void on_render(const uint8_t line_number, const gameboy::render_line line)
+void on_render(const uint8_t line_number, const gameboy::render_line& line)
 {
     // todo support resolution_multiplier other than 1
     for(size_t i = 0; i < line.size(); ++i) {
