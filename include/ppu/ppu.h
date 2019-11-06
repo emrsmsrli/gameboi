@@ -63,6 +63,9 @@ private:
 
     dma_transfer_data dma_transfer_;
 
+    std::array<uint8_t, 2> gb_palette_;
+    std::array<uint8_t, 8> cgb_palette_;
+
     [[nodiscard]] uint8_t dma_read(const address16& address) const;
     void dma_write(const address16& address, uint8_t data);
 
