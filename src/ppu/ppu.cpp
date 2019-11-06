@@ -427,7 +427,7 @@ uint8_t ppu::palette_read(const address16& address) const
 void ppu::palette_write(const address16& address, const uint8_t data)
 {
     if(address == bgp_addr) {
-        //return bgp_addr;
+        bgp_ = data;
     } else if(address == obp_0_addr) {
         //return lcdc_.value();
     } else if(address == obp_1_addr) {
