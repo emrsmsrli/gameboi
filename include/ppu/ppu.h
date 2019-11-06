@@ -73,6 +73,7 @@ private:
     void palette_write(const address16& address, uint8_t data);
 
     void hdma();
+    void render();
 };
 
 } // namespace gameboy

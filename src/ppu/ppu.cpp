@@ -1,4 +1,6 @@
 #include <ppu/ppu.h>
+#include <ppu/data/obj.h>
+#include <ppu/data/bg.h>
 #include <bus.h>
 #include <cartridge.h>
 #include <cpu/cpu.h>
@@ -457,6 +459,12 @@ void ppu::hdma()
             dma_transfer_.disable();
         }
     }
+}
+
+void ppu::render()
+{
+    render_line c{};
+    on_render_line(ly_.value(), c);
 }
 
 } // namespace gameboy
