@@ -287,25 +287,11 @@ void ppu::write(const address16& address, const uint8_t data)
 
 uint8_t ppu::dma_read(const address16& address) const
 {
-    if(address == hdma_1_addr) {
-        return (dma_transfer_.source.value() & 0xFF00u) >> 8u;
-    }
-
-    if(address == hdma_2_addr) {
-        return dma_transfer_.source.value() & 0x00FFu;
-    }
-
-    if(address == hdma_3_addr) {
-        return (dma_transfer_.destination.value() & 0xFF00u) >> 8u;
-    }
-
-    if(address == hdma_4_addr) {
-        return dma_transfer_.destination.value() & 0x00FFu;
-    }
-
-    if(address == hdma_5_addr) {
-        return dma_transfer_.length_mode_start.value();
-    }
+    if(address == hdma_1_addr) { return (dma_transfer_.source.value() & 0xFF00u) >> 8u; }
+    if(address == hdma_2_addr) { return dma_transfer_.source.value() & 0x00FFu; }
+    if(address == hdma_3_addr) { return (dma_transfer_.destination.value() & 0xFF00u) >> 8u; }
+    if(address == hdma_4_addr) { return dma_transfer_.destination.value() & 0x00FFu; }
+    if(address == hdma_5_addr) { return dma_transfer_.length_mode_start.value(); }
 
     return 0u;
 }
@@ -353,41 +339,15 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 
 uint8_t ppu::general_purpose_register_read(const address16& address) const
 {
-    if(address == vbk_addr) {
-        return vram_bank_;
-    }
-
-    if(address == lcdc_addr) {
-        return lcdc_.reg.value();
-    }
-
-    if(address == stat_addr) {
-        return stat_.reg.value();
-    }
-
-    if(address == scy_addr) {
-        return scy_.value();
-    }
-
-    if(address == scx_addr) {
-        return scx_.value();
-    }
-
-    if(address == ly_addr) {
-        return ly_.value();
-    }
-
-    if(address == lyc_addr) {
-        return lyc_.value();
-    }
-
-    if(address == wy_addr) {
-        return wy_.value();
-    }
-
-    if(address == wx_addr) {
-        return wx_.value();
-    }
+    if(address == vbk_addr) { return vram_bank_; }
+    if(address == lcdc_addr) { return lcdc_.reg.value(); }
+    if(address == stat_addr) { return stat_.reg.value(); }
+    if(address == scy_addr) { return scy_.value(); }
+    if(address == scx_addr) { return scx_.value(); }
+    if(address == ly_addr) { return ly_.value(); }
+    if(address == lyc_addr) { return lyc_.value(); }
+    if(address == wy_addr) { return wy_.value(); }
+    if(address == wx_addr) { return wx_.value(); }
 
     return 0u;
 }
