@@ -47,11 +47,14 @@ struct register_stat {
         reg = mask_set(reg, static_cast<uint8_t>(mode));
     }
 
-    [[nodiscard]] bool coincidence_interrupted() const noexcept { return bit_test(reg, 6u); }
-    [[nodiscard]] bool reading_oam_interrupted() const noexcept { return bit_test(reg, 5u); }
-    [[nodiscard]] bool vblank_interrupted() const noexcept { return bit_test(reg, 4u); }
-    [[nodiscard]] bool hblank_interrupted() const noexcept { return bit_test(reg, 3u); }
+    [[nodiscard]] bool mode_interrupt_set() const noexcept
+    {
+        return bit_test(reg, 1u << static_cast<uint8_t>(get_mode()));
+    }
+
     [[nodiscard]] bool coincidence_flag_set() const noexcept { return bit_test(reg, 2u); }
+    void set_coincidence_flag() const noexcept { bit_set(reg, 2u); }
+    void reset_coincidence_flag() const noexcept { bit_reset(reg, 2u); }
 };
 
 } // namespace gameboy
