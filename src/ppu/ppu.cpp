@@ -265,10 +265,18 @@ void ppu::tick(const uint8_t cycles)
 uint8_t ppu::read(const address16& address) const
 {
     if(vram_range.has(address)) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return 0xFFu;
+        }
+
         return ram_[address.value() - *begin(vram_range) + vram_bank_ * 8_kb];
     }
 
     if(oam_range.has(address)) {
+        if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return 0xFFu;
+        }
+
         return oam_[address.value() - *begin(oam_range)];
     }
 
