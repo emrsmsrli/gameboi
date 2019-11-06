@@ -352,6 +352,11 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
     if(address == vbk_addr) {
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
+        if(bit_test(data, 7u) && !lcdc_.lcd_enabled()) {
+            ly_ = 0;
+            cycle_count_ = 0;
+        }
+
         lcdc_.reg = data;
     } else if(address == stat_addr) {
         stat_.reg = data;
