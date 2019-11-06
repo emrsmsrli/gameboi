@@ -186,8 +186,7 @@ void ppu::tick(const uint8_t cycles)
     cycle_count_ += cycles;
 
     const auto has_elapsed = [&](auto cycles) {
-        if (cycle_count_ >= cycles)
-        {
+        if(cycle_count_ >= cycles) {
             cycle_count_ -= cycles;
             return true;
         }
@@ -199,7 +198,7 @@ void ppu::tick(const uint8_t cycles)
     };
 
     const auto compare_lyc = [&]() {
-        if (ly_ == lyc_) {
+        if(ly_ == lyc_) {
             stat_.set_coincidence_flag();
         } else {
             stat_.reset_coincidence_flag();
@@ -211,7 +210,7 @@ void ppu::tick(const uint8_t cycles)
     };
 
     const auto check_stat_interrupt = [&]() {
-        if (stat_.mode_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
+        if(stat_.mode_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
             bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
         }
     };
