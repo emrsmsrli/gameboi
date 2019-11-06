@@ -1,6 +1,7 @@
 #include <ppu/ppu.h>
 #include <bus.h>
 #include <cartridge.h>
+#include <cpu/cpu.h>
 #include <memory/address.h>
 #include <memory/memory_constants.h>
 #include <util/mathutil.h>
@@ -8,7 +9,10 @@
 
 namespace gameboy {
 
+constexpr auto ly_max = 153;
+
 constexpr auto hblank_cycles = 207;
+constexpr auto vblank_cycles = 456;
 constexpr auto reading_oam_cycles = 83;
 constexpr auto reading_oam_vram_cycles = 175;
 
@@ -179,48 +183,81 @@ void ppu::tick(const uint8_t cycles)
         return;
     }
 
+    cycle_count_ += cycles;
+
+    const auto has_elapsed = [&](auto cycles) {
+        if (cycle_count_ >= cycles)
+        {
+            cycle_count_ -= cycles;
+            return true;
+        }
+        return false;
+    };
+
+    const auto update_ly = [&]() {
+        ly_ = (ly_ + 1) % ly_max;
+    };
+
+    const auto compare_lyc = [&]() {
+        if (ly_ == lyc_) {
+            stat_.set_coincidence_flag();
+        } else {
+            stat_.reset_coincidence_flag();
+        }
+
+        if(stat_.coincidence_flag_set() && bus_->get_cpu()->interrupts_enabled()) {
+            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+        }
+    };
+
+    const auto check_stat_interrupt = [&]() {
+        if (stat_.mode_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
+            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+        }
+    };
+
     switch(stat_.get_mode()) {
         case stat_mode::h_blank: {
-            // if(hblank cycles elapsed) {
-            // updateLy();
-            // compareLyLyc();
-            // if (line_ == VBLANK_LINE) {
-            //     mode_ = Mode::VBLANK;
-            //     set vblank interrupt provider
-            //
-            //     call on_vblank()
-            // } else {
-            //     mode_ = Mode::reading_oam;
-            // }
-            //
-            // checkStatInterrupts(ime);
-            // }
+            if(has_elapsed(hblank_cycles)) {
+                update_ly();
+                compare_lyc();
+
+                if(ly_ == screen_height) {
+                    stat_.set_mode(stat_mode::v_blank);
+                    bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
+                } else {
+                    stat_.set_mode(stat_mode::reading_oam);
+                }
+
+                check_stat_interrupt();
+            }
             break;
         }
         case stat_mode::v_blank: {
-            // if (hasElapsed(LINE_CYCLES)) {
-            //     updateLY();
-            //     compareLyToLyc(ime);
-            //     if (line_ == 0) {
-            //         mode_ = Mode::reading_oam;
-            //         checkStatInterrupts(ime);
-            //     }
-            // }
+            if(has_elapsed(vblank_cycles)) {
+                update_ly();
+                compare_lyc();
+
+                if(ly_ == 0) {
+                    stat_.set_mode(stat_mode::reading_oam);
+                    check_stat_interrupt();
+                }
+            }
             break;
         }
         case stat_mode::reading_oam: {
-            // if (hasElapsed(OAM_ACCESS_CYCLES)) {
-            //     mode_ = Mode::reading_oam_vram;
-            // }
+            if(has_elapsed(reading_oam_cycles)) {
+                stat_.set_mode(stat_mode::reading_oam_vram);
+            }
             break;
         }
         case stat_mode::reading_oam_vram: {
-            // if (hasElapsed(LCD_TRANSFER_CYCLES)) {
-            //     renderScanline();
-            //     mode_ = Mode::HBLANK;
-            //     doHdma();
-            //     checkStatInterrupts(ime);
-            // }
+            if(has_elapsed(reading_oam_vram_cycles)) {
+                render();
+                stat_.set_mode(stat_mode::h_blank);
+                hdma();
+                check_stat_interrupt();
+            }
             break;
         }
     }
