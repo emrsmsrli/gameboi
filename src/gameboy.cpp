@@ -41,13 +41,8 @@ void gameboy::tick()
 {
     const auto cycles = cpu_.tick();
     ppu_.tick(cycles);
-
-    // checkPowerMode();
-    // checkInterrupts();
-
-    // ppu->update(cycles, interrupt_master_enable);
-    // apu->update(cycles);
-    // timer.update(cycles);
+    // apu->tick(cycles);
+    // timer->tick(cycles);
 }
 
 } // namespace gameboy

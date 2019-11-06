@@ -57,6 +57,7 @@ uint8_t cpu::tick()
         : static_cast<uint8_t>(0x1u);
 
     // todo ime should be true or false AFTER one instruction is executed after EI or DI instruction
+    // todo check_power_mode();
 
     if(interrupt_master_enable_) {
         const auto pending = interrupt_enable_ & interrupt_flags_;
