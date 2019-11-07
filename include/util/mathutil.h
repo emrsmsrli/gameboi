@@ -6,24 +6,6 @@
 namespace gameboy {
 
 template<typename T>
-constexpr bool bit_test(const T n, const uint32_t bit) noexcept
-{
-    return ((n >> bit) & 0x1u) == 0x1u;
-}
-
-template<typename T>
-constexpr T bit_set(const T n, const uint32_t bit) noexcept
-{
-    return n | (0x1u << bit);
-}
-
-template<typename T>
-constexpr T bit_reset(const T n, const uint32_t bit) noexcept
-{
-    return n & ~(0x1u << bit);
-}
-
-template<typename T>
 constexpr T mask(const T n, const uint32_t m) noexcept
 {
     return n & m;
@@ -32,7 +14,7 @@ constexpr T mask(const T n, const uint32_t m) noexcept
 template<typename T>
 constexpr bool mask_test(const T n, const uint32_t m) noexcept
 {
-    return (n & m) == m;
+    return mask(n, m) == m;
 }
 
 template<typename T>
@@ -45,6 +27,24 @@ template<typename T>
 constexpr T mask_set(const T n, const uint32_t m) noexcept
 {
     return n | m;
+}
+
+template<typename T>
+constexpr bool bit_test(const T n, const uint32_t bit) noexcept
+{
+    return mask_test(n, 0x1u << bit);
+}
+
+template<typename T>
+constexpr T bit_set(const T n, const uint32_t bit) noexcept
+{
+    return mask_set(n, 0x1u << bit);
+}
+
+template<typename T>
+constexpr T bit_reset(const T n, const uint32_t bit) noexcept
+{
+    return mask_reset(n, 0x1u << bit);
 }
 
 constexpr bool half_carry(const uint8_t x, const uint8_t y) noexcept
