@@ -393,33 +393,11 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 
 uint8_t ppu::palette_read(const address16& address) const
 {
-    if(address == bgp_addr) {
-        return bgp_.value();
-    }
-
-    if(address == obp_0_addr) {
-        return obp_0_.value();
-    }
-
-    if(address == obp_1_addr) {
-        return obp_1_.value();
-    }
-
-    if(address == bgpi_addr) {
-        return bgpi_.value();
-    }
-
-    if(address == obpi_addr) {
-        return obpi_.value();
-    }
-
-    /*if(address == bgpd_addr) {
-        //return scy_.value();
-    }
-
-    if(address == obpd_addr) {
-        //return scy_.value();
-    }*/
+    if(address == bgp_addr) { return bgp_.value(); }
+    if(address == obp_0_addr) { return obp_[0].value(); }
+    if(address == obp_1_addr) { return obp_[1].value(); }
+    if(address == bgpi_addr) { return bgpi_.value(); }
+    if(address == obpi_addr) { return obpi_.value(); }
 
     return 0u;
 }
@@ -429,17 +407,38 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     if(address == bgp_addr) {
         bgp_ = data;
     } else if(address == obp_0_addr) {
-        //return lcdc_.value();
+        obp_[0] = data;
     } else if(address == obp_1_addr) {
-        //return stat_.value();
+        obp_[1] = data;
     } else if(address == bgpi_addr) {
-        //return scy_.value();
-    } else if(address == bgpd_addr) {
-        //return scy_.value();
+        bgpi_ = data;
     } else if(address == obpi_addr) {
-        //return scy_.value();
+        obpi_ = data;
+    } else if(address == bgpd_addr) {
+        palette_set(bgpi_, cgb_bg_palettes_, data);
     } else if(address == obpd_addr) {
-        //return scy_.value();
+        palette_set(obpi_, cgb_obj_palettes_, data);
+    }
+}
+
+void ppu::palette_set(register8& index_register, std::array<palette, 8>& palettes, const uint8_t data) noexcept
+{
+    const auto auto_increment = bit_test(index_register, 7u);
+    const auto is_msb = bit_test(index_register, 0u);
+    const auto color_index = mask(index_register.value() >> 1u, 0x03u);
+    const auto palette_index = mask(index_register.value() >> 3u, 0x07u);
+
+    auto& color = palettes[palette_index].colors[color_index];
+    if(is_msb) {
+        color.blue = mask(data >> 2u, 0x1Fu);
+        color.green = mask_reset(color.green, 0x18u) | (mask(data, 0x03u) << 3u);
+    } else {
+        color.red = mask(data, 0x1Fu);
+        color.green = mask_reset(color.green, 0x07u) | mask(data >> 5u, 0x03u);
+    }
+
+    if(auto_increment) {
+        index_register += 1u;
     }
 }
 
