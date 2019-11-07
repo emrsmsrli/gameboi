@@ -34,6 +34,7 @@ public:
 
     /* assignment */
     register16& operator=(uint16_t val) noexcept;
+    register16& operator=(const address8& address) noexcept;
     register16& operator=(const address16& address) noexcept;
 
     /* math ops */

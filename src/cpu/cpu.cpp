@@ -975,7 +975,7 @@ uint8_t cpu::pop(register16& reg)
 uint8_t cpu::rst(const address8& address)
 {
     const auto cycles = push(program_counter_);
-    program_counter_ = address.value();
+    program_counter_ = address;
     return cycles;
 }
 

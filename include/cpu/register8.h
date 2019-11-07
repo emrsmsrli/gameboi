@@ -3,6 +3,8 @@
 
 #include <cstdint>
 
+#include <memory/addressfwd.h>
+
 namespace gameboy {
 
 /**
@@ -19,6 +21,7 @@ public:
 
     /* assignment */
     register8& operator=(uint8_t val) noexcept;
+    register8& operator=(const address8& val) noexcept;
 
     /* math ops */
     register8& operator+=(uint8_t val) noexcept;

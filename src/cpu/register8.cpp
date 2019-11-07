@@ -1,10 +1,17 @@
 #include <cpu/register8.h>
+#include <memory/address.h>
 
 namespace gameboy {
 
 register8& register8::operator=(const uint8_t val) noexcept
 {
     bits_ = val;
+    return *this;
+}
+
+register8& register8::operator=(const address8& val) noexcept
+{
+    bits_ = val.value();
     return *this;
 }
 

@@ -16,6 +16,13 @@ register16& register16::operator=(const uint16_t val) noexcept
     return *this;
 }
 
+register16& register16::operator=(const address8& address) noexcept
+{
+    low_ = address;
+    high_ = 0x00u;
+    return *this;
+}
+
 register16& register16::operator=(const address16& address) noexcept
 {
     *this = address.value();
