@@ -981,13 +981,13 @@ uint8_t cpu::rst(const address8& address)
 
 uint8_t cpu::jump(const register16& reg)
 {
-    program_counter_ = reg.value();
+    program_counter_ = reg;
     return 4;
 }
 
 uint8_t cpu::jump(const address16& address)
 {
-    program_counter_ = address.value();
+    program_counter_ = address;
     return 16;
 }
 
