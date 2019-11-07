@@ -5,10 +5,6 @@
 
 namespace gameboy {
 
-constexpr auto max_cycles = 70224;
-constexpr auto fps = 59.73f;
-constexpr auto delay = 1000.f / fps;
-
 gameboy::gameboy(const std::string_view rom_path)
     : cartridge_{rom_path},
       bus_{make_observer(cartridge_)},
@@ -28,12 +24,16 @@ gameboy::gameboy(const std::string_view rom_path)
 
 void gameboy::start()
 {
+    using namespace std::chrono;
+
+    constexpr auto delay = 16.742ms;
+    auto next_tick = steady_clock::now() + delay;
+
     while(true) {
         tick();
 
-        using namespace std::chrono;
-        // const auto ns = duration_cast<nanoseconds>(milliseconds{16.7f});
-        std::this_thread::sleep_for(nanoseconds{16700});
+        std::this_thread::sleep_until(next_tick);
+        next_tick += delay;
         break;
     }
 }
