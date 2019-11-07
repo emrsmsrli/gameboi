@@ -13,6 +13,8 @@ class rtc {
 public:
     bool enabled = false;
 
+    rtc() = default;
+
     [[nodiscard]] uint8_t read() const noexcept;
     void write(uint8_t data) noexcept;
     void latch() noexcept;
@@ -32,6 +34,8 @@ private:
 
 class mbc3 : public mbc {
 public:
+    mbc3() = default;
+
     void control(const address16& address, uint8_t data) noexcept;
 
     [[nodiscard]] uint8_t read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const;
