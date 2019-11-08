@@ -75,8 +75,6 @@ private:
     [[nodiscard]] uint8_t palette_read(const address16& address) const;
     void palette_write(const address16& address, uint8_t data);
 
-    static void palette_set(register8& index_register, std::array<palette, 8>& palettes, uint8_t data) noexcept;
-
     void hdma();
     void render();
 };
