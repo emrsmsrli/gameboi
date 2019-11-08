@@ -382,6 +382,8 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
         scy_ = data;
     } else if(address == scx_addr) {
         scx_ = data;
+    } else if(address == ly_addr) {
+        ly_ = 0;
     } else if(address == lyc_addr) {
         lyc_ = data;
     } else if(address == wy_addr) {
