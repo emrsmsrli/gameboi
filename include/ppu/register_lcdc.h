@@ -50,21 +50,21 @@ struct register_lcdc {
         return bit_test(reg, 0u);
     }
 
-    [[nodiscard]] address16 window_tile_map_address() const noexcept
+    [[nodiscard]] address16 window_map_address() const noexcept
     {
         return bit_test(reg, 6u)
                ? address16(0x9C00u)
                : address16(0x9800u);
     }
 
-    [[nodiscard]] address16 bg_window_tile_address() const noexcept
+    [[nodiscard]] address16 tile_base_address() const noexcept
     {
         return bit_test(reg, 4u)
                ? address16(0x8000u)
                : address16(0x8800u);
     }
 
-    [[nodiscard]] address16 bg_tile_map_address() const noexcept
+    [[nodiscard]] address16 bg_map_address() const noexcept
     {
         return bit_test(reg, 3u)
                ? address16(0x9C00u)
