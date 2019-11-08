@@ -14,17 +14,17 @@ struct register_lcdc {
         return bit_test(reg, 7u);
     }
 
-    [[nodiscard]] bool window_display_enabled() const noexcept
+    [[nodiscard]] bool window_enabled() const noexcept
     {
         return bit_test(reg, 5u);
     }
 
-    [[nodiscard]] bool large_sprite() const noexcept
+    [[nodiscard]] bool large_obj() const noexcept
     {
         return bit_test(reg, 2u);
     }
 
-    [[nodiscard]] bool sprites_enabled() const noexcept
+    [[nodiscard]] bool obj_enabled() const noexcept
     {
         return bit_test(reg, 1u);
     }
