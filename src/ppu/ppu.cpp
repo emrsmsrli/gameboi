@@ -47,74 +47,17 @@ constexpr address16 lyc_addr(0xFF45u);
 constexpr address16 wy_addr(0xFF4Au);
 constexpr address16 wx_addr(0xFF4Bu);
 
-/*
- * This register assigns gray shades to the color numbers of the BG and Window tiles.
- *
- * Bit 7-6 - Shade for Color Number 3
- * Bit 5-4 - Shade for Color Number 2
- * Bit 3-2 - Shade for Color Number 1
- * Bit 1-0 - Shade for Color Number 0
- *
- * The four possible gray shades are:
- *
- * 0  White
- * 1  Light gray
- * 2  Dark gray
- * 3  Black
- *
- * In CGB Mode the Color Palettes are taken from CGB Palette Memory instead.
- */
 constexpr address16 bgp_addr(0xFF47u);
-
-// This register assigns gray shades for sprite palette 0.
-// It works exactly as BGP (FF47), except that the lower
-// two bits aren't used because sprite data 00 is transparent.
 constexpr address16 obp_0_addr(0xFF48u);
-
-//  This register assigns gray shades for sprite palette 1.
-//  It works exactly as BGP (FF47), except that the lower
-//  two bits aren't used because sprite data 00 is transparent.
 constexpr address16 obp_1_addr(0xFF49u);
-
-/*
- * This register is used to address a byte in the CGBs Background Palette Memory.
- * Each two byte in that memory define a color value.
- * The first 8 bytes define Color 0-3 of Palette 0 (BGP0), and so on for BGP1-7.
- *   Bit 0-5   Index (00-3F)
- *   Bit 7     Auto Increment  (0=Disabled, 1=Increment after Writing)
- *
- * Data can be read/written to/from the specified index address through Register FF69.
- * When the Auto Increment Bit is set then the index is automatically incremented after
- * each <write> to FF69. Auto Increment has no effect when <reading> from FF69,
- * so the index must be manually incremented in that case.
- */
 constexpr address16 bgpi_addr(0xFF68u);
-
-/*
- * This register allows to read/write data to the CGBs Background Palette Memory, addressed through Register FF68.
- * Each color is defined by two bytes (Bit 0-7 in first byte).
- *   Bit 0-4   Red Intensity   (00-1F)
- *   Bit 5-9   Green Intensity (00-1F)
- *   Bit 10-14 Blue Intensity  (00-1F)
- * Much like VRAM, Data in Palette Memory cannot be read/written during the
- * time when the LCD Controller is reading from it. (That is when the STAT register indicates Mode 3).
- * Note: Initially all background colors are initialized as white.
- */
 constexpr address16 bgpd_addr(0xFF69u);
-
-// These registers are used to initialize the Sprite Palettes OBP0-7,
-// identically as described above for Background Palettes.
-// Note that four colors may be defined for each OBP Palettes -
-// but only Color 1-3 of each Sprite Palette can be displayed,
-// Color 0 is always transparent, and can be initialized to a don't care value.
-// Note: Initially all sprite colors are uninitialized.
 constexpr address16 obpi_addr(0xFF6Au);
 constexpr address16 obpd_addr(0xFF6Bu);
 
 constexpr address16 vbk_addr(0xFF4Fu);
 
 constexpr address16 oam_dma_addr(0xFF46u);
-
 constexpr address16 hdma_1_addr(0xFF51u); // New DMA Source, High
 constexpr address16 hdma_2_addr(0xFF52u); // New DMA Source, Low
 constexpr address16 hdma_3_addr(0xFF53u); // New DMA Destination, High
