@@ -23,7 +23,7 @@ public:
 
     [[nodiscard]] const std::string& rom_name() const { return cartridge_.name(); }
 
-    void on_line_render(delegate<void(uint8_t, render_line)> delegate) { ppu_.on_render_line = delegate; }
+    void on_line_render(delegate<void(uint8_t, const render_line&)> delegate) { ppu_.on_render_line = delegate; }
 
 private:
     cartridge cartridge_;

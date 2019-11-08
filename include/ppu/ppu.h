@@ -8,6 +8,7 @@
 #include <ppu/color.h>
 #include <ppu/register_stat.h>
 #include <ppu/register_lcdc.h>
+#include <ppu/data/palette.h>
 #include <memory/addressfwd.h>
 #include <util/delegate.h>
 #include <util/observer.h>
@@ -52,19 +53,18 @@ private:
     register8 wx_;
     register8 wy_;
 
+    static constexpr palette gb_palette_{};
     register8 bgp_;
-    register8 obp_0_;
-    register8 obp_1_;
+    std::array<register8, 2> obp_;
 
+    std::array<palette, 8> cgb_bg_palettes_;
+    std::array<palette, 8> cgb_obj_palettes_;
     register8 bgpi_;
     register8 obpi_;
 
     uint8_t vram_bank_ = 0u;
 
     dma_transfer_data dma_transfer_;
-
-    std::array<uint8_t, 2> gb_palette_;
-    std::array<uint8_t, 8> cgb_palette_;
 
     [[nodiscard]] uint8_t dma_read(const address16& address) const;
     void dma_write(const address16& address, uint8_t data);
@@ -74,6 +74,8 @@ private:
 
     [[nodiscard]] uint8_t palette_read(const address16& address) const;
     void palette_write(const address16& address, uint8_t data);
+
+    static void palette_set(register8& index_register, std::array<palette, 8>& palettes, uint8_t data) noexcept;
 
     void hdma();
     void render();
