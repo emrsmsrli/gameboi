@@ -390,8 +390,16 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     } else if(address == obpi_addr) {
         obpi_ = data;
     } else if(address == bgpd_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         set_palette(bgpi_, cgb_bg_palettes_, data);
     } else if(address == obpd_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         set_palette(obpi_, cgb_obj_palettes_, data);
     }
 }
