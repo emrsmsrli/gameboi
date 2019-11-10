@@ -10,11 +10,11 @@ namespace gameboy {
 
 enum class interrupt : uint8_t {
     none = 0u,
-    lcd_vblank = 0x1u,
-    lcd_stat = 0x2u,
-    timer = 0x4u,
-    serial = 0x8u,
-    joypad = 0x16u,
+    lcd_vblank = 1u << 0u,
+    lcd_stat = 1u << 1u,
+    timer = 1u << 2u,
+    serial = 1u << 3u,
+    joypad = 1u << 4u,
     all = lcd_vblank | lcd_stat | timer | serial | joypad
 };
 
