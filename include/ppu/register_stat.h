@@ -6,31 +6,9 @@
 namespace gameboy {
 
 enum class stat_mode : uint8_t {
-    /**
-     * CPU can access both the display RAM (8000h-9FFFh)
-     * and OAM (FE00h-FE9Fh)
-     */
     h_blank = 0u,
-
-    /**
-     * The LCD contoller is in the V-Blank period (or the
-     * display is disabled) and the CPU can access both the
-     * display RAM (8000h-9FFFh) and OAM (FE00h-FE9Fh)
-     */
     v_blank = 1u,
-
-    /**
-     * The LCD controller is reading from OAM memory.
-     * The CPU <cannot> access OAM memory (FE00h-FE9Fh)
-     * during this period.
-     */
     reading_oam = 2u,
-
-    /**
-     * The LCD controller is reading from both OAM and VRAM,
-     * The CPU <cannot> access OAM and VRAM during this period.
-     * CGB Mode: Cannot access Palette Data (FF69,FF6B) either.
-     */
     reading_oam_vram = 3u
 };
 
