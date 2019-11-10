@@ -26,6 +26,7 @@ using render_line = std::array<color, screen_width>;
 class ppu {
 public:
     delegate<void(uint8_t, const render_line&)> on_render_line;
+    delegate<void()> on_render_frame;
 
     explicit ppu(observer<bus> bus);
 

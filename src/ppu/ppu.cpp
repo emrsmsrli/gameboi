@@ -188,6 +188,7 @@ void ppu::tick(const uint8_t cycles)
                 compare_lyc();
 
                 if(ly_ == screen_height) {
+                    on_render_frame();
                     stat_.set_mode(stat_mode::v_blank);
                     bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
                 } else {
