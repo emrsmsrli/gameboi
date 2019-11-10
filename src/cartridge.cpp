@@ -64,7 +64,7 @@ cartridge::cartridge(const std::string_view rom_path)
         begin(rom_header_range),
         end(rom_header_range),
         static_cast<uint8_t>(0u),
-        [&](const int8_t acc, const uint16_t addr) {
+        [&](const uint8_t acc, const uint16_t addr) {
             return acc - rom_[addr] - 1;
         });
 
