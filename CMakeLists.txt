@@ -87,6 +87,11 @@ target_link_libraries(GameBoy PRIVATE
         --coverage
         )
 
+add_custom_command(TARGET GameBoy POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy
+        ${CMAKE_SOURCE_DIR}/res/cpu_instrs.gb
+        ${CMAKE_CURRENT_BINARY_DIR}/bin/cpu_instrs.gb)
+
 enable_testing()
 
 include(test/CMakeLists.txt)
