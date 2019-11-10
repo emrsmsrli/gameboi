@@ -13,7 +13,8 @@
   - https://clang.llvm.org/docs/DiagnosticsReference.html
 
 ## Minor
--  organise all includes
+- organise all includes
+- copy resources to build folder
 
 ## PPU notes
 
