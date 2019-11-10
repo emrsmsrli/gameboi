@@ -66,14 +66,6 @@ int main(int /*argc*/, char** /*argv*/)
                     gb.tick();
                 }
             }
-
-            sf::Texture texture;
-            texture.loadFromImage(window_buffer);
-
-            sf::Sprite sprite;
-            sprite.setTexture(texture);
-
-            window.draw(sprite);
         }
     }
 
