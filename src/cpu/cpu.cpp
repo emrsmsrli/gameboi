@@ -15,7 +15,7 @@ constexpr address16 ime_addr(0xFFFFu);
 cpu::cpu(observer<bus> bus) noexcept
     : bus_(bus)
 {
-    auto& mmu = bus->get_mmu();
+    auto mmu = bus->get_mmu();
 
     mmu->add_memory_callback({
         ime_addr,

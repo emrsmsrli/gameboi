@@ -15,6 +15,8 @@
 namespace gameboy {
 
 class gameboy {
+    friend bus;
+
 public:
     explicit gameboy(std::string_view rom_path);
 
