@@ -21,9 +21,9 @@ public:
 
     [[nodiscard]] constexpr size_type value() const noexcept { return value_; }
 
-    address<T> operator+(const T value) const noexcept { return address<T>(value_ + value); }
+    constexpr address<T> operator+(const T value) const noexcept { return address<T>(value_ + value); }
 
-    address<T>& operator=(const T value) noexcept
+    constexpr address<T>& operator=(const T value) noexcept
     {
         value_ = value;
         return *this;
@@ -34,7 +34,7 @@ private:
 };
 
 template<typename T>
-bool operator==(const address<T>& a_l, const address<T>& a_r) noexcept
+constexpr bool operator==(const address<T>& a_l, const address<T>& a_r) noexcept
 {
     return a_l.value() == a_r.value();
 }
