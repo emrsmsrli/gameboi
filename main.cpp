@@ -45,9 +45,12 @@ int main(int /*argc*/, char** /*argv*/)
 
     sf::Image window_buffer{};
     window_buffer.create(screen_width, screen_height);
-    sf::RenderWindow window{sf::VideoMode(screen_width, screen_height),
-                            fmt::format("GAMEBOY - {}", gb.rom_name()),
-                            sf::Style::Close | sf::Style::Titlebar};
+
+    sf::RenderWindow window{
+        sf::VideoMode(screen_width, screen_height),
+        fmt::format("GAMEBOY - {}", gb.rom_name()),
+        sf::Style::Close | sf::Style::Titlebar
+    };
 
     renderer renderer{window_buffer, window};
     gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, renderer});
