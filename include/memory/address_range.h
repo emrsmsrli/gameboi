@@ -16,7 +16,8 @@ public:
             : value_{value} {}
 
         [[nodiscard]] constexpr uint16_t operator*() const noexcept { return value_; }
-        [[nodiscard]] constexpr iterator operator++() const noexcept { return iterator(value_ + 1); }
+        [[nodiscard]] constexpr iterator& operator++() noexcept { ++value_; return *this; }
+        [[nodiscard]] constexpr iterator operator++(int) const noexcept { return iterator(value_ + 1); }
 
     private:
         uint16_t value_;
