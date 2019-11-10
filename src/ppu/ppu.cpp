@@ -253,8 +253,16 @@ uint8_t ppu::read(const address16& address) const
 void ppu::write(const address16& address, const uint8_t data)
 {
     if(vram_range.has(address)) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         ram_[address.value() - *begin(vram_range) + vram_bank_ * 8_kb] = data;
     } else if(oam_range.has(address)) {
+        if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         oam_[address.value() - *begin(oam_range)] = data;
     }
 }
