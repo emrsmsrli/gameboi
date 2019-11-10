@@ -85,61 +85,41 @@ void set_palette(register8& index_register, std::array<palette, 8>& palettes, co
     }
 }
 
+template<auto ReadFunc, auto WriteFunc, typename... Registers>
+void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
+{
+    std::array dma_registers{registers...};
+    for(const auto& addr : dma_registers) {
+        bus->get_mmu()->add_memory_callback({
+            addr,
+            {connect_arg<ReadFunc>, p},
+            {connect_arg<WriteFunc>, p}
+        });
+    }
+}
+
 ppu::ppu(observer<bus> bus)
     : bus_{bus},
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u)
 {
-    constexpr std::array dma_registers{
-        oam_dma_addr,
-        hdma_1_addr,
-        hdma_2_addr,
-        hdma_3_addr,
-        hdma_4_addr,
-        hdma_5_addr
-    };
-    for(const auto& addr : dma_registers) {
-        bus->get_mmu()->add_memory_callback({
-            addr,
-            {connect_arg<&ppu::dma_read>, this},
-            {connect_arg<&ppu::dma_write>, this}
-        });
-    }
+    add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
+        oam_dma_addr);
+    add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,
+        lcdc_addr, stat_addr, scy_addr, scx_addr, ly_addr, lyc_addr, wy_addr, wx_addr);
 
-    constexpr std::array general_purpose_registers{
-        vbk_addr,
-        lcdc_addr,
-        stat_addr,
-        scy_addr,
-        scx_addr,
-        ly_addr,
-        lyc_addr,
-        wy_addr,
-        wx_addr
-    };
-    for(const auto& addr : general_purpose_registers) {
-        bus->get_mmu()->add_memory_callback({
-            addr,
-            {connect_arg<&ppu::general_purpose_register_read>, this},
-            {connect_arg<&ppu::general_purpose_register_write>, this}
-        });
-    }
+    if(bus->get_cartridge()->cgb_enabled()) {
+        add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
+            hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr);
 
-    constexpr std::array palette_registers{
-        bgp_addr,
-        obp_0_addr,
-        obp_1_addr,
-        bgpi_addr,
-        bgpd_addr,
-        obpi_addr,
-        obpd_addr
-    };
-    for(const auto& addr : palette_registers) {
-        bus->get_mmu()->add_memory_callback({
-            addr,
-            {connect_arg<&ppu::palette_read>, this},
-            {connect_arg<&ppu::palette_write>, this}
-        });
+        add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,
+            vbk_addr);
+
+        add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
+            bgpi_addr, bgpd_addr, obpi_addr, obpd_addr);
+    } else {
+        add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
+            bgp_addr, obp_0_addr, obp_1_addr);
     }
 }
 
