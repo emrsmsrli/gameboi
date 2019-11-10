@@ -21,9 +21,17 @@ public:
     void start();
     void tick();
 
-    [[nodiscard]] const std::string& rom_name() const { return cartridge_.name(); }
+    [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 
-    void on_line_render(delegate<void(uint8_t, const render_line&)> delegate) { ppu_.on_render_line = delegate; }
+    void on_render_line(delegate<void(uint8_t, const render_line&)> delegate) noexcept
+    {
+        ppu_.on_render_line = delegate;
+    }
+
+    void on_render_frame(delegate<void()> delegate) noexcept
+    {
+        ppu_.on_render_frame = delegate;
+    }
 
 private:
     cartridge cartridge_;
