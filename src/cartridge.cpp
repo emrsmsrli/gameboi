@@ -68,8 +68,8 @@ cartridge::cartridge(const std::string_view rom_path)
             return acc - rom_[addr] - 1;
         });
 
-    if(checksum != read(rom_, rom_header_checksum_addr)) {
-        log::error("rom checksum is not correct");
+    if(const auto expected = read(rom_, rom_header_checksum_addr); checksum != expected) {
+        log::error("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
     }
 
     std::copy(

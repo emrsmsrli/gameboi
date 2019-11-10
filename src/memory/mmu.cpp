@@ -84,7 +84,7 @@ void mmu::write(const address16& address, const uint8_t data)
     } else if(address == svbk_addr) {
         wram_bank_ = data & 0x7u;
     } else {
-        log::error("out of bounds address: {:x}", address.value());
+        log::error("out of bounds address: {:#x}", address.value());
     }
 }
 
@@ -122,7 +122,7 @@ uint8_t mmu::read(const address16& address) const
         return wram_bank_;
     } 
 
-    log::error("out of bounds address: {:x}", address.value());
+    log::error("out of bounds address: {:#x}", address.value());
 }
 
 void mmu::write_wram(const address16& address, const uint8_t data)

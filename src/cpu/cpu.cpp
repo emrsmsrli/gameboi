@@ -119,6 +119,8 @@ bool cpu::test_flag(flag flag) noexcept
 
 uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
 {
+    log::info("executing instruction: {:#x}", inst);
+
     switch(inst) {
         case 0x00: { return nop(); }
         case 0x01: { return load(b_c_, read_immediate(imm16)); }
@@ -509,7 +511,7 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
         }
         case 0xFF: { return rst(address8(0x38)); }
         default: {
-            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.value() - 1);
+            log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
             std::abort();
         }
     }
@@ -517,6 +519,8 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
 
 uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
 {
+    log::info("executing instruction: CB {:#x}", inst);
+
     const auto get_bitop_mask = [&]() -> uint8_t {
         return 0x1u << (inst >> 0x3u & 0x7u);
     };
@@ -889,7 +893,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         }
 
         default: {
-            log::error("unknown instruction: {0:#x}, address: {0:#x}", inst, stack_pointer_.value() - 1);
+            log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
             std::abort();
         }
     }
@@ -908,6 +912,7 @@ uint8_t cpu::read_data(const address16& address) const
 uint8_t cpu::read_immediate(imm8_t)
 {
     const auto data = read_data(make_address(program_counter_));
+    log::info("data read: {:#x}", data);
     ++program_counter_;
     return data;
 }
