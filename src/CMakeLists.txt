@@ -8,6 +8,7 @@ set(GAMEBOY_SRC
         src/cpu/register16.cpp
         src/cpu/cpu.cpp
         src/cpu/alu.cpp
+        src/joypad/joypad.cpp
         src/memory/mmu.cpp
         src/memory/controller/mbc1.cpp
         src/memory/controller/mbc2.cpp

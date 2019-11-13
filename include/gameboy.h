@@ -10,6 +10,7 @@
 #include <ppu/ppu.h>
 #include <memory/mmu.h>
 #include <apu/apu.h>
+#include <joypad/joypad.h>
 #include <util/delegate.h>
 
 namespace gameboy {
@@ -43,6 +44,7 @@ private:
     cpu cpu_;
     ppu ppu_;
     apu apu_;
+    joypad joypad_;
 };
 
 } // namespace gameboy
