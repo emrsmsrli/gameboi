@@ -36,6 +36,9 @@ public:
         ppu_.on_render_frame = delegate;
     }
 
+    void press_key(const joypad::key key) noexcept { joypad_.press(key); }
+    void release_key(const joypad::key key) noexcept { joypad_.release(key); }
+
 private:
     cartridge cartridge_;
     bus bus_;
