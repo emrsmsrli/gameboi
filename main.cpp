@@ -61,9 +61,65 @@ int main(int /*argc*/, char** /*argv*/)
         while(window.pollEvent(event)) {
             if(event.type == sf::Event::Closed) {
                 window.close();
+            } else if(event.type == sf::Event::KeyPressed) {
+                switch(event.key.code) {
+                    case sf::Keyboard::Up:
+                        gb.press_key(gameboy::joypad::key::up);
+                        break;
+                    case sf::Keyboard::Down:
+                        gb.press_key(gameboy::joypad::key::down);
+                        break;
+                    case sf::Keyboard::Left:
+                        gb.press_key(gameboy::joypad::key::left);
+                        break;
+                    case sf::Keyboard::Right:
+                        gb.press_key(gameboy::joypad::key::right);
+                        break;
+                    case sf::Keyboard::Z:
+                        gb.press_key(gameboy::joypad::key::a);
+                        break;
+                    case sf::Keyboard::X:
+                        gb.press_key(gameboy::joypad::key::b);
+                        break;
+                    case sf::Keyboard::Enter:
+                        gb.press_key(gameboy::joypad::key::start);
+                        break;
+                    case sf::Keyboard::Space:
+                        gb.press_key(gameboy::joypad::key::select);
+                        break;
+                    default:
+                        break;
+                }
             } else if(event.type == sf::Event::KeyReleased) {
-                if(event.key.code == sf::Keyboard::F) {
-                    gb.tick();
+                switch(event.key.code) {
+                    case sf::Keyboard::Up:
+                        gb.release_key(gameboy::joypad::key::up);
+                        break;
+                    case sf::Keyboard::Down:
+                        gb.release_key(gameboy::joypad::key::down);
+                        break;
+                    case sf::Keyboard::Left:
+                        gb.release_key(gameboy::joypad::key::left);
+                        break;
+                    case sf::Keyboard::Right:
+                        gb.release_key(gameboy::joypad::key::right);
+                        break;
+                    case sf::Keyboard::Z:
+                        gb.release_key(gameboy::joypad::key::a);
+                        break;
+                    case sf::Keyboard::X:
+                        gb.release_key(gameboy::joypad::key::b);
+                        break;
+                    case sf::Keyboard::Enter:
+                        gb.release_key(gameboy::joypad::key::start);
+                        break;
+                    case sf::Keyboard::Space:
+                        gb.release_key(gameboy::joypad::key::select);
+                        break;
+                    case sf::Keyboard::F:
+                        gb.tick();
+                    default:
+                        break;
                 }
             }
         }
