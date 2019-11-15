@@ -10,36 +10,6 @@ namespace gameboy {
 
 class bus;
 
-/*uint8_t hi = (reg_ & 0xF0);
-
-if ((hi & 0x30) == 0x10 || (hi & 0x30) == 0x20)
-{
-    // first 2 bits of high nybble is group selection
-    uint8_t group = ((~(reg_ >> 4)) & 0x03) - 1;
-
-    uint8_t selection = (keys_ >> (group * 4)) & 0x0F;
-
-    return (reg_ & 0xF0) | selection;
-}
-else
-{
-    return reg_ | 0x0F;
-}*/
-/**
- * Bit 5 - P15 Select Button Keys      (0=Select)
- * Bit 4 - P14 Select Direction Keys   (0=Select)
- * Bit 3 - P13 Input Down  or Start    (0=Pressed) (Read Only)
- * Bit 2 - P12 Input Up    or Select   (0=Pressed) (Read Only)
- * Bit 1 - P11 Input Left  or Button B (0=Pressed) (Read Only)
- * Bit 0 - P10 Input Right or Button A (0=Pressed) (Read Only)
- *            P14     P15
- *      --------------------------
- *  P10 |    right    a        |
- *  P11 |    left     b        |
- *  P12 |    up       select   |
- *  P13 |    down     start    |
- *      --------------------------
- */
 class joypad {
 public:
     enum class key : uint8_t {
