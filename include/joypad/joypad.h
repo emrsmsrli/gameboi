@@ -69,7 +69,7 @@ private:
     key keys_;
 };
 
-DEFINE_ENUM_CLASS_FLAGS(joypad::key)
+DEFINE_ENUM_CLASS_FLAGS(joypad::key);
 
 } // namespace gameboy
 
