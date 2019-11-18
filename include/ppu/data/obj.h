@@ -41,7 +41,7 @@ struct obj {
     [[nodiscard]] bool h_flipped() const noexcept { return bit_test(attributes, 5u); }
     [[nodiscard]] uint8_t gb_palette_index() const noexcept { return bit_test(attributes, 4u) ? 0x1u : 0x0u; }
     [[nodiscard]] uint8_t vram_bank() const noexcept { return bit_test(attributes, 3u) ? 0x1u : 0x0u; } // todo cgb only
-    [[nodiscard]] uint8_t cgb_palette_index() const noexcept { return mask(attributes, 0x7u); }
+    [[nodiscard]] uint8_t cgb_palette_index() const noexcept { return attributes & 0x7u; }
 };
 
 } // namespace gameboy

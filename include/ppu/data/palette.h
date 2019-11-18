@@ -21,7 +21,7 @@ struct palette {
         palette p{};
 
         for(uint8_t i = 0; i < 4; ++i) {
-            const auto index = mask(data, 0x3u << i) >> i;
+            const auto index = (data & 0x3u << i) >> i;
             p.colors[i] = colors[index];
         }
 

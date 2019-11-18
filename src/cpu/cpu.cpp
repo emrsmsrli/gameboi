@@ -114,7 +114,7 @@ void cpu::flip_flag(flag flag) noexcept
 bool cpu::test_flag(flag flag) noexcept
 {
     const auto f = static_cast<uint8_t>(flag);
-    return (a_f_.low() & f) == f;
+    return mask_test(a_f_.low(), f);
 }
 
 uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)

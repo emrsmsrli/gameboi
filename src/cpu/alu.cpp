@@ -50,11 +50,11 @@ uint8_t alu::add_c(const uint8_t value) const noexcept
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    if(mask(result, 0xFFu) == 0x00u) {
+    if((result & 0xFFu) == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
-    acc = static_cast<uint8_t>(mask(result, 0xFFu));
+    acc = static_cast<uint8_t>(result & 0xFFu);
     return 4u;
 }
 
@@ -110,11 +110,11 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    if(mask(acc, 0x0Fu) - mask(value, 0x0Fu) - carry < 0x00) {
+    if((acc & 0x0Fu) - (value & 0x0Fu) - carry < 0x00) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
-    acc = static_cast<uint8_t>(mask(result, 0xFFu));
+    acc = static_cast<uint8_t>(result & 0xFF);
     return 4u;
 }
 
@@ -164,7 +164,7 @@ uint8_t alu::decrement(uint8_t& value) const noexcept
         cpu_->reset_flag(cpu::flag::zero);
     }
 
-    if((value & 0x0Fu) == 0x0Fu) {
+    if(mask_test(value, 0x0Fu)) {
         cpu_->set_flag(cpu::flag::half_carry);
     } else {
         cpu_->reset_flag(cpu::flag::half_carry);
@@ -351,7 +351,7 @@ uint8_t alu::decimal_adjust() const noexcept
     cpu_->reset_flag(cpu::flag::half_carry);
     cpu_->reset_flag(cpu::flag::zero);
 
-    if((acc & 0x100u) == 0x100u) {
+    if(mask_test(acc, 0x100u)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 

@@ -6,15 +6,9 @@
 namespace gameboy {
 
 template<typename T>
-constexpr T mask(const T n, const uint32_t m) noexcept
-{
-    return n & m;
-}
-
-template<typename T>
 constexpr bool mask_test(const T n, const uint32_t m) noexcept
 {
-    return mask(n, m) == m;
+    return (n & m) == m;
 }
 
 template<typename T>

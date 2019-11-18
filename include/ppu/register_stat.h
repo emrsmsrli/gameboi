@@ -17,7 +17,7 @@ struct register_stat {
 
     [[nodiscard]] stat_mode get_mode() const noexcept
     {
-        return static_cast<stat_mode>(mask(reg.value(), 0x03u));
+        return static_cast<stat_mode>(reg.value() & 0x03u);
     }
 
     void set_mode(stat_mode mode) noexcept

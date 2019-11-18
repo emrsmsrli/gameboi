@@ -68,16 +68,16 @@ void set_palette(register8& index_register, std::array<palette, 8>& palettes, co
 {
     const auto auto_increment = bit_test(index_register, 7u);
     const auto is_msb = bit_test(index_register, 0u);
-    const auto color_index = mask(index_register.value() >> 1u, 0x03u);
-    const auto palette_index = mask(index_register.value() >> 3u, 0x07u);
+    const auto color_index = index_register.value() >> 1u & 0x03u;
+    const auto palette_index = index_register.value() >> 3u & 0x07u;
 
     auto& color = palettes[palette_index].colors[color_index];
     if(is_msb) {
-        color.blue = mask(data >> 2u, 0x1Fu);
-        color.green = mask_reset(color.green, 0x18u) | (mask(data, 0x03u) << 3u);
+        color.blue = data >> 2u & 0x1Fu;
+        color.green = mask_reset(color.green, 0x18u) | ((data & 0x03u) << 3u);
     } else {
-        color.red = mask(data, 0x1Fu);
-        color.green = mask_reset(color.green, 0x07u) | mask(data >> 5u, 0x03u);
+        color.red = data & 0x1Fu;
+        color.green = mask_reset(color.green, 0x07u) | ((data >> 5u) & 0x03u);
     }
 
     if(auto_increment) {
