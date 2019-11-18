@@ -100,9 +100,26 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 
 ppu::ppu(observer<bus> bus)
     : bus_{bus},
+      cycle_count_{0u},
+      vram_bank_{0u},
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
-      oam_(oam_range.size(), 0u)
+      oam_(oam_range.size(), 0u),
+      lcdc_{0x91u},
+      stat_{0x00u},
+      ly_{0x00u},
+      lyc_{0x00u},
+      scx_{0x00u},
+      scy_{0x00u},
+      wx_{0x00u},
+      wy_{0x00u},
+      bgp_{0xFCu},
+      bgpi_{0x00u},
+      obpi_{0x00u}
 {
+    std::fill(begin(obp_), end(obp_), register8{0xFFu});
+    std::fill(begin(cgb_bg_palettes_), end(cgb_bg_palettes_), register8{0x00u});
+    std::fill(begin(cgb_obj_palettes_), end(cgb_obj_palettes_), register8{0x00u});
+
     add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
         oam_dma_addr);
     add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,

@@ -15,6 +15,9 @@ enum class stat_mode : uint8_t {
 struct register_stat {
     register8 reg;
 
+    explicit register_stat(const uint8_t val)
+        : reg{val} {}
+
     [[nodiscard]] stat_mode get_mode() const noexcept
     {
         return static_cast<stat_mode>(reg.value() & 0x03u);

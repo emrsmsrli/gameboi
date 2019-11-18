@@ -38,10 +38,11 @@ public:
 private:
     observer<bus> bus_;
 
+    uint8_t cycle_count_;
+    uint8_t vram_bank_;
+
     std::vector<uint8_t> ram_;
     std::vector<uint8_t> oam_;
-
-    uint8_t cycle_count_ = 0;
 
     register_lcdc lcdc_;
     register_stat stat_;
@@ -62,8 +63,6 @@ private:
     std::array<palette, 8> cgb_obj_palettes_;
     register8 bgpi_;
     register8 obpi_;
-
-    uint8_t vram_bank_ = 0u;
 
     dma_transfer_data dma_transfer_;
 

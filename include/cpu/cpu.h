@@ -39,7 +39,7 @@ private:
 
     observer<bus> bus_;
 
-    alu alu_{make_observer(this)};
+    alu alu_;
 
     /** accumulator and flags */
     register16 a_f_;
@@ -52,15 +52,15 @@ private:
     register16 stack_pointer_;
     register16 program_counter_;
     
-    uint64_t total_cycles_ = 0u;
+    uint64_t total_cycles_;
 
-    interrupt interrupt_flags_{interrupt::none};
-    interrupt interrupt_enable_{interrupt::none};
-    bool interrupt_master_enable_ = false;
+    interrupt interrupt_flags_;
+    interrupt interrupt_enable_;
+    bool interrupt_master_enable_;
 
-    bool is_interrupt_status_change_pending_ = false;
-    bool is_halted_ = false;
-    bool is_halt_bug_triggered_ = false;
+    bool is_interrupt_status_change_pending_;
+    bool is_halted_;
+    bool is_halt_bug_triggered_;
 
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;

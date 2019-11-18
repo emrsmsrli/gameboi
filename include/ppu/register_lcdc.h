@@ -9,6 +9,9 @@ namespace gameboy {
 struct register_lcdc {
     register8 reg;
 
+    explicit register_lcdc(const uint8_t val)
+        : reg{val} {}
+
     [[nodiscard]] bool lcd_enabled() const noexcept
     {
         return bit_test(reg, 7u);

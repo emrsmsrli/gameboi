@@ -21,6 +21,7 @@ auto find_callback(const std::vector<T>& container, T&& value) noexcept
 
 mmu::mmu(observer<bus> bus)
     : bus_{bus},
+      wram_bank_{0u},
       work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
       high_ram_(hram_range.size(), 0u) {}
 

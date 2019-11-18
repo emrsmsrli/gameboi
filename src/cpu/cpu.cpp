@@ -13,7 +13,21 @@ namespace gameboy {
 constexpr address16 ime_addr(0xFFFFu);
 
 cpu::cpu(observer<bus> bus) noexcept
-    : bus_(bus)
+    : bus_{bus},
+      alu_{make_observer(this)},
+      a_f_{0x01B0u},
+      b_c_{0x0013u},
+      d_e_{0x00D8u},
+      h_l_{0x014Du},
+      stack_pointer_{0xFFFEu},
+      program_counter_{0x0100u},
+      total_cycles_{0u},
+      interrupt_flags_{interrupt::none},
+      interrupt_enable_{interrupt::none},
+      interrupt_master_enable_{false},
+      is_interrupt_status_change_pending_{false},
+      is_halted_{false},
+      is_halt_bug_triggered_{false}
 {
     auto mmu = bus->get_mmu();
 
@@ -22,12 +36,6 @@ cpu::cpu(observer<bus> bus) noexcept
         {connect_arg<&cpu::on_ie_read>, this},
         {connect_arg<&cpu::on_ie_write>, this},
     });
-
-    a_f_ = 0x01B0u;
-    b_c_ = 0x0013u;
-    d_e_ = 0x00D8u;
-    h_l_ = 0x014Du;
-    stack_pointer_ = 0xFFFEu;
 }
 
 void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
