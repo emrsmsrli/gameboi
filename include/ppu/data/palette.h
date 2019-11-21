@@ -4,7 +4,6 @@
 #include <array>
 
 #include <ppu/color.h>
-#include <util/mathutil.h>
 
 namespace gameboy {
 
