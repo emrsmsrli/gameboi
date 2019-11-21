@@ -149,9 +149,9 @@ void ppu::tick(const uint8_t cycles)
 
     cycle_count_ += cycles;
 
-    const auto has_elapsed = [&](auto cycles) {
-        if(cycle_count_ >= cycles) {
-            cycle_count_ -= cycles;
+    const auto has_elapsed = [&](const auto c) {
+        if(cycle_count_ >= c) {
+            cycle_count_ -= c;
             return true;
         }
         return false;
