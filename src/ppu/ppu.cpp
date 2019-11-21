@@ -116,7 +116,7 @@ ppu::ppu(observer<bus> bus)
       bgpi_{0x00u},
       obpi_{0x00u}
 {
-    const auto fill_palettes = [&](auto& p, const palette& palette) { std::fill(begin(p), end(p), palette); };
+    const auto fill_palettes = [](auto& p, const palette& palette) { std::fill(begin(p), end(p), palette); };
     fill_palettes(obp_, palette{color{0xFFu}});
     fill_palettes(cgb_bg_palettes_, palette{color{0xFFu}});
     fill_palettes(cgb_obj_palettes_, palette{color{0xFFu}});
