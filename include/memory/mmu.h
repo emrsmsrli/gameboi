@@ -12,15 +12,15 @@ namespace gameboy {
 
 class bus;
 
-struct memory_callback {
+struct memory_delegate {
     address16 address;
     delegate<uint8_t(const address16&)> on_read;
     delegate<void(const address16&, uint8_t)> on_write;
 
-    memory_callback() noexcept = default;
-    explicit memory_callback(const address16 addr) noexcept
+    memory_delegate() noexcept = default;
+    explicit memory_delegate(const address16 addr) noexcept
         : address{addr} {}
-    memory_callback(
+    memory_delegate(
         const address16 addr,
         const delegate<uint8_t(const address16&)> on_read_delegate,
         const delegate<void(const address16&, uint8_t)> on_write_delegate) noexcept
@@ -28,7 +28,7 @@ struct memory_callback {
           on_read{on_read_delegate},
           on_write{on_write_delegate} {}
 
-    bool operator==(const memory_callback& other) const noexcept { return address == other.address; }
+    bool operator==(const memory_delegate& other) const noexcept { return address == other.address; }
 };
 
 class mmu {
@@ -43,7 +43,7 @@ public:
 
     void dma(const address16& source, const address16& destination, uint16_t length);
 
-    void add_memory_callback(const memory_callback& callback) { callbacks_.push_back(callback); }
+    void add_memory_delegate(const memory_delegate& callback) { delegates_.push_back(callback); }
 
 private:
     observer<bus> bus_;
@@ -53,7 +53,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    std::vector<memory_callback> callbacks_;
+    std::vector<memory_delegate> delegates_;
 
     void write_wram(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read_wram(const address16& address) const;
