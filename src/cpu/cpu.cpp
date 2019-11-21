@@ -920,7 +920,7 @@ uint8_t cpu::read_data(const address16& address) const
 uint8_t cpu::read_immediate(imm8_t)
 {
     const auto data = read_data(make_address(program_counter_));
-    log::info("data read: {:#x}", data);
+    log::info("read {:#x} from addr {:#x}", data, program_counter_.value());
     ++program_counter_;
     return data;
 }
