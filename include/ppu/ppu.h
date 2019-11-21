@@ -2,7 +2,6 @@
 #define GAMEBOY_PPU_H
 
 #include <vector>
-#include <memory>
 
 #include <ppu/dma_transfer_data.h>
 #include <ppu/color.h>
@@ -12,7 +11,6 @@
 #include <memory/addressfwd.h>
 #include <util/delegate.h>
 #include <util/observer.h>
-#include <util/mathutil.h>
 
 namespace gameboy {
 
@@ -55,7 +53,12 @@ private:
     register8 wx_;
     register8 wy_;
 
-    static constexpr palette gb_palette_{};
+    static constexpr palette gb_palette_{
+        color{255u},
+        color{192u},
+        color{96u},
+        color{0u}
+    };
     register8 bgp_;
     std::array<register8, 2> obp_;
 
