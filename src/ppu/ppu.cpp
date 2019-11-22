@@ -90,7 +90,7 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 {
     std::array dma_registers{registers...};
     for(const auto& addr : dma_registers) {
-        bus->get_mmu()->add_memory_callback({
+        bus->get_mmu()->add_memory_delegate({
             addr,
             {connect_arg<ReadFunc>, p},
             {connect_arg<WriteFunc>, p}
@@ -116,9 +116,10 @@ ppu::ppu(observer<bus> bus)
       bgpi_{0x00u},
       obpi_{0x00u}
 {
-    std::fill(begin(obp_), end(obp_), register8{0xFFu});
-    std::fill(begin(cgb_bg_palettes_), end(cgb_bg_palettes_), register8{0x00u});
-    std::fill(begin(cgb_obj_palettes_), end(cgb_obj_palettes_), register8{0x00u});
+    const auto fill_palettes = [](auto& p, const auto& palette) { std::fill(begin(p), end(p), palette); };
+    fill_palettes(obp_, register8{0xFFu});
+    fill_palettes(cgb_bg_palettes_, palette{color{0xFFu}});
+    fill_palettes(cgb_obj_palettes_, palette{color{0xFFu}});
 
     add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
         oam_dma_addr);
@@ -148,9 +149,9 @@ void ppu::tick(const uint8_t cycles)
 
     cycle_count_ += cycles;
 
-    const auto has_elapsed = [&](auto cycles) {
-        if(cycle_count_ >= cycles) {
-            cycle_count_ -= cycles;
+    const auto has_elapsed = [&](const auto c) {
+        if(cycle_count_ >= c) {
+            cycle_count_ -= c;
             return true;
         }
         return false;
