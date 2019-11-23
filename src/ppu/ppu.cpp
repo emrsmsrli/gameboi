@@ -245,7 +245,7 @@ uint8_t ppu::read(const address16& address) const
         return oam_[address.value() - *begin(oam_range)];
     }
 
-    return 0;
+    return 0u;
 }
 
 void ppu::write(const address16& address, const uint8_t data)
