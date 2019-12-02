@@ -26,12 +26,12 @@ public:
 
     [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 
-    void on_render_line(delegate<void(uint8_t, const render_line&)> delegate) noexcept
+    void on_render_line(const delegate<void(uint8_t, const render_line&)> delegate) noexcept
     {
         ppu_.on_render_line = delegate;
     }
 
-    void on_render_frame(delegate<void()> delegate) noexcept
+    void on_render_frame(const delegate<void()> delegate) noexcept
     {
         ppu_.on_render_frame = delegate;
     }
