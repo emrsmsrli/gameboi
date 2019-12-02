@@ -45,6 +45,8 @@ public:
     bool operator==(const register8& other) const noexcept;
     bool operator>(uint8_t val) const noexcept;
     bool operator<(uint8_t val) const noexcept;
+    bool operator>=(uint8_t val) const noexcept;
+    bool operator<=(uint8_t val) const noexcept;
 
 private:
     uint8_t bits_ = 0x00u;
