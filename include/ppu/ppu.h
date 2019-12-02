@@ -7,6 +7,7 @@
 #include <ppu/color.h>
 #include <ppu/register_stat.h>
 #include <ppu/register_lcdc.h>
+#include <ppu/data/obj.h>
 #include <ppu/data/palette.h>
 #include <memory/addressfwd.h>
 #include <util/delegate.h>
@@ -79,7 +80,11 @@ private:
     void palette_write(const address16& address, uint8_t data);
 
     void hdma();
-    void render();
+    void render() const noexcept;
+
+    void render_background() const noexcept;
+    void render_window() const noexcept;
+    void render_obj() const noexcept;
 };
 
 } // namespace gameboy

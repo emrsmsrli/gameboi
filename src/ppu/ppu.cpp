@@ -1,5 +1,4 @@
 #include <ppu/ppu.h>
-#include <ppu/data/obj.h>
 #include <ppu/data/bg.h>
 #include <bus.h>
 #include <cartridge.h>
@@ -420,10 +419,54 @@ void ppu::hdma()
     }
 }
 
-void ppu::render()
+void ppu::render() const noexcept
 {
-    render_line c{};
-    on_render_line(ly_.value(), c);
+    render_line line{};
+    std::fill(begin(line), end(line), color{0xFFu});
+
+    // todo replace with render strategies
+    if(bus_->get_cartridge()->cgb_enabled()) {
+        if(lcdc_.bg_enabled()) { // bg enabled overrides window
+            render_background();
+
+            if(lcdc_.window_enabled() && ly_ >= wy_) {
+                render_window();
+            }
+        }
+
+        if(lcdc_.obj_enabled()) {
+            render_obj();
+        }
+    } else {
+        if(lcdc_.bg_enabled()) {
+            render_background();
+        }
+
+        if(lcdc_.window_enabled() && ly_ >= wy_) {
+            render_window();
+        }
+
+        if(lcdc_.obj_enabled()) {
+            render_obj();
+        } 
+    }
+
+    on_render_line(ly_.value(), line);
+}
+
+void ppu::render_background() const noexcept
+{
+    
+}
+
+void ppu::render_window() const noexcept
+{
+    
+}
+
+void ppu::render_obj() const noexcept
+{
+    
 }
 
 } // namespace gameboy
