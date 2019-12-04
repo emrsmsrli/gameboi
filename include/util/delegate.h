@@ -253,7 +253,7 @@ public:
      * @param args Arguments to use to invoke the underlying function.
      * @return The value returned by the underlying function.
      */
-    Ret operator()(Args... args) const
+    Ret operator()(Args... args) const noexcept
     {
         if(!func_) {
             log::error("unbound delegate called");

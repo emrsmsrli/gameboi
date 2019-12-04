@@ -27,7 +27,7 @@ void warn(const std::string_view format, const Args& ... args) noexcept
 }
 
 template<typename... Args>
-[[noreturn]] void error(const std::string_view format, const Args& ... args)
+[[noreturn]] void error(const std::string_view format, const Args& ... args) noexcept
 {
     const auto log = fmt::format(format.data(), args...);
 
@@ -35,7 +35,7 @@ template<typename... Args>
         fmt::print(stderr, "[E] - {}\n", log);
     }
 
-    throw std::runtime_error{log};
+    std::terminate();
 }
 
 } // namespace gameboy
