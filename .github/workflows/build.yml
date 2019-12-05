@@ -1,0 +1,17 @@
+name: CI
+
+on: [push]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: cmake-generate
+      run: |
+        mkdir build && cd build
+        cmake ..
+    - name: make
+      run: make
