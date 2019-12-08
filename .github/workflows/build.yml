@@ -10,7 +10,9 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: install conan
-      run: pip install conan
+      run: |
+        pip install conan
+        pip3 install conan
     - name: cmake-generate
       run: |
         mkdir build && cd build
