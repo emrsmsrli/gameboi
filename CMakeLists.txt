@@ -69,9 +69,11 @@ conan_cmake_run(CONANFILE conanfile.txt BASIC_SETUP BUILD missing)
 
 include(src/CMakeLists.txt)
 
-# add debugger dependencies
-add_subdirectory(3rdparty/imgui_sfml
-	${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
+if(CMAKE_BUILD_TYPE matches DEBUG)
+    # add debugger dependencies
+    add_subdirectory(3rdparty/imgui_sfml
+	    ${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
+endif
 
 add_library(GB STATIC ${GAMEBOY_SRC})
 target_include_directories(GB PRIVATE include)
@@ -87,10 +89,13 @@ target_compile_features(GameBoy PRIVATE cxx_std_17)
 target_link_libraries(GameBoy PRIVATE
         ${CONAN_LIBS}
         GB
-		imgui_sfml
         project_warnings
         --coverage
         )
+        
+if(CMAKE_BUILD_TYPE matches DEBUG)
+    target_link_libraries(GameBoy PRIVATE imgui_sfml)
+endif
 
 add_custom_command(TARGET GameBoy POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
