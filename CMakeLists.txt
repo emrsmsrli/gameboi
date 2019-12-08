@@ -73,7 +73,7 @@ if(CMAKE_BUILD_TYPE matches DEBUG)
     # add debugger dependencies
     add_subdirectory(3rdparty/imgui_sfml
 	    ${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
-endif
+endif()
 
 add_library(GB STATIC ${GAMEBOY_SRC})
 target_include_directories(GB PRIVATE include)
@@ -95,7 +95,7 @@ target_link_libraries(GameBoy PRIVATE
         
 if(CMAKE_BUILD_TYPE matches DEBUG)
     target_link_libraries(GameBoy PRIVATE imgui_sfml)
-endif
+endif()
 
 add_custom_command(TARGET GameBoy POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
