@@ -2,6 +2,7 @@
 #include <fmt/format.h>
 
 #include "gameboy/gameboy.h"
+#include "debugger/debugger.h"
 
 namespace {
 
@@ -49,12 +50,14 @@ int main(int /*argc*/, char** /*argv*/)
     sf::RenderWindow window{
         sf::VideoMode(screen_width, screen_height),
         fmt::format("GAMEBOY - {}", gb.rom_name()),
-        sf::Style::Close | sf::Style::Titlebar
+        sf::Style::Default
     };
 
     renderer renderer{window_buffer, window};
     gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, renderer});
     gb.on_render_frame({gameboy::connect_arg<&renderer::render_frame>, renderer});
+
+    gameboy::debugger debugger{gb.get_bus()};
 
     while(window.isOpen()) {
         sf::Event event{};
@@ -123,6 +126,9 @@ int main(int /*argc*/, char** /*argv*/)
                 }
             }
         }
+
+        window.display();
+        debugger.tick();
     }
 
     return 0;

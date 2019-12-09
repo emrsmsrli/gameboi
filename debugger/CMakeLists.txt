@@ -9,6 +9,7 @@ target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${CONAN_LIBS}
+        gb::core
 		imgui_sfml
         project_warnings)
 target_include_directories(${PROJECT_NAME}

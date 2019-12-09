@@ -38,6 +38,8 @@ public:
     void press_key(const joypad::key key) noexcept { joypad_.press(key); }
     void release_key(const joypad::key key) noexcept { joypad_.release(key); }
 
+    [[nodiscard]] observer<const bus> get_bus() const { return make_observer(bus_); }
+
 private:
     cartridge cartridge_;
     bus bus_;
