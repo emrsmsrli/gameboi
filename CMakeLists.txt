@@ -75,19 +75,19 @@ conan_cmake_run(CONANFILE conanfile.txt BASIC_SETUP BUILD missing)
 
 # add debugger dependencies
 add_subdirectory(3rdparty/imgui_sfml
-	${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
+	    ${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
 
 add_subdirectory(gameboy
-	${CMAKE_CURRENT_BINARY_DIR}/gbcore-build)
+	    ${CMAKE_CURRENT_BINARY_DIR}/gbcore-build)
 add_subdirectory(debugger
-	${CMAKE_CURRENT_BINARY_DIR}/gbdebugger-build)
+	    ${CMAKE_CURRENT_BINARY_DIR}/gbdebugger-build)
 
 add_executable(${PROJECT_NAME} main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${CONAN_LIBS}
-		imgui_sfml
+        imgui_sfml
         gb::core
         gb::debugger
         project_warnings)

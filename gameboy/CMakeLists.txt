@@ -22,12 +22,12 @@ add_library(gb::core ALIAS ${PROJECT_NAME})
 
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} 
-    PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
+        PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-    ${CONAN_LIBS}
-    project_warnings)
+        ${CONAN_LIBS}
+        project_warnings)
 target_include_directories(${PROJECT_NAME}
-    PUBLIC ${PROJECT_SOURCE_DIR}/include
-    PRIVATE ${PROJECT_BINARY_DIR})
+        PUBLIC ${PROJECT_SOURCE_DIR}/include
+        PRIVATE ${PROJECT_BINARY_DIR})
 
 add_subdirectory(test)

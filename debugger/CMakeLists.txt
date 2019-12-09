@@ -10,7 +10,7 @@ target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUIL
 target_link_libraries(${PROJECT_NAME} PRIVATE
         ${CONAN_LIBS}
         gb::core
-		imgui_sfml
+        imgui_sfml
         project_warnings)
 target_include_directories(${PROJECT_NAME}
-    PUBLIC ${PROJECT_SOURCE_DIR}/include)
+   		PUBLIC ${PROJECT_SOURCE_DIR}/include)
