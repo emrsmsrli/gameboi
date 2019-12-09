@@ -1,0 +1,11 @@
+#include <string_view>
+
+namespace gameboy::version {
+
+constexpr auto major = @gameboy_VERSION_MAJOR@;
+constexpr auto minor = @gameboy_VERSION_MINOR@;
+constexpr auto patch = @gameboy_VERSION_PATCH@;
+
+constexpr std::string_view version = "@gameboy_VERSION_MAJOR@.@gameboy_VERSION_MINOR@.@gameboy_VERSION_PATCH@";
+
+}

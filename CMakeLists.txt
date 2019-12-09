@@ -1,7 +1,6 @@
 cmake_minimum_required(VERSION 3.12.4)
-project(GameBoy)
-
-add_compile_definitions(DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
+project(GameBoy VERSION 0.0.1)
+configure_file(cmake/version.h.in include/core/version.h)
 
 # configure gtest
 configure_file(cmake/GTest.in googletest-download/CMakeLists.txt)
