@@ -13,4 +13,4 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         imgui_sfml
         project_warnings)
 target_include_directories(${PROJECT_NAME}
-   		PUBLIC ${PROJECT_SOURCE_DIR}/include)
+   	    PUBLIC ${PROJECT_SOURCE_DIR}/include)
