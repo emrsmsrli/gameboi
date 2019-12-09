@@ -1,0 +1,16 @@
+#ifndef GAMEBOY_VERSION_H
+#define GAMEBOY_VERSION_H
+
+#include <string_view>
+
+namespace gameboy::version {
+
+constexpr auto major = @gameboycore_VERSION_MAJOR@;
+constexpr auto minor = @gameboycore_VERSION_MINOR@;
+constexpr auto patch = @gameboycore_VERSION_PATCH@;
+
+constexpr std::string_view version = "@gameboycore_VERSION_MAJOR@.@gameboycore_VERSION_MINOR@.@gameboycore_VERSION_PATCH@";
+
+} // namespace gameboy::version
+
+#endif //GAMEBOY_VERSION_H

@@ -1,18 +1,17 @@
 cmake_minimum_required(VERSION 3.12.4)
-project(GameBoy VERSION 0.0.1)
-configure_file(cmake/version.h.in include/core/version.h)
+project(gameboy)
 
 # configure gtest
 configure_file(cmake/GTest.in googletest-download/CMakeLists.txt)
 execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
         RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 if(result)
     message(FATAL_ERROR "CMake step for googletest failed: ${result}")
 endif()
 execute_process(COMMAND ${CMAKE_COMMAND} --build .
         RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download )
+        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
 if(result)
     message(FATAL_ERROR "Build step for googletest failed: ${result}")
 endif()
@@ -22,14 +21,18 @@ add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
         EXCLUDE_FROM_ALL)
 # end configure gtest
 
-include_directories(include)
-
 # Link this 'library' to use the following warnings
 add_library(project_warnings INTERFACE)
 
 if(MSVC)
     target_compile_options(project_warnings INTERFACE /W4)
 else()
+    option(ENABLE_ASAN "Enable address sanitizer" FALSE)
+    if(ENABLE_ASAN)
+      target_compile_options(project_options INTERFACE -fsanitize=address)
+      target_link_libraries(project_options INTERFACE -fsanitize=address)
+    endif()
+
     target_compile_options(project_warnings
             INTERFACE
             -Wall
@@ -45,15 +48,19 @@ else()
             -Wpedantic # warn if non-standard C++ is used
             -Wconversion # warn on type conversions that may lose data
             -Wsign-conversion # warn on sign conversions
-            -Wmisleading-indentation # warn if identation implies blocks where blocks do not exist
-            -Wduplicated-cond # warn if if / else chain has duplicated conditions
-            -Wduplicated-branches # warn if if / else branches have duplicated code
-            -Wlogical-op # warn about logical operations being used where bitwise were probably wanted
             -Wnull-dereference # warn if a null dereference is detected
-            -Wuseless-cast # warn if you perform a cast to the same type
             -Wdouble-promotion # warn if float is implicit promoted to double
-            -Wformat=2 # warn on security issues around functions that format output (ie printf)
-            )
+            -Wformat=2) # warn on security issues around functions that format output (ie printf)
+            
+    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
+        target_compile_options(project_warnings
+                INTERFACE 
+                -Wmisleading-indentation # warn if identation implies blocks where blocks do not exist
+                -Wduplicated-cond # warn if if / else chain has duplicated conditions
+                -Wduplicated-branches # warn if if / else branches have duplicated code
+                -Wlogical-op # warn about logical operations being used where bitwise were probably wanted
+                -Wuseless-cast) # warn if you perform a cast to the same type
+    endif()
 endif()
 
 if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
@@ -66,46 +73,26 @@ include(${CMAKE_BINARY_DIR}/conan.cmake)
 conan_check(REQUIRED)
 conan_cmake_run(CONANFILE conanfile.txt BASIC_SETUP BUILD missing)
 
-include(src/CMakeLists.txt)
-
 # add debugger dependencies
 add_subdirectory(3rdparty/imgui_sfml
 	${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
 
-add_library(GB STATIC ${GAMEBOY_SRC})
-target_include_directories(GB PRIVATE include)
-target_compile_features(GB PRIVATE cxx_std_17)
-target_link_libraries(GB PRIVATE
-        ${CONAN_LIBS}
-        project_warnings
-        --coverage
-        )
+add_subdirectory(gameboy
+	${CMAKE_CURRENT_BINARY_DIR}/gbcore-build)
+add_subdirectory(debugger
+	${CMAKE_CURRENT_BINARY_DIR}/gbdebugger-build)
 
-add_executable(GameBoy main.cpp)
-target_compile_features(GameBoy PRIVATE cxx_std_17)
-target_link_libraries(GameBoy PRIVATE
+add_executable(${PROJECT_NAME} main.cpp)
+target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
+target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
+target_link_libraries(${PROJECT_NAME} PRIVATE
         ${CONAN_LIBS}
-        GB
 		imgui_sfml
-        project_warnings
-        --coverage
-        )
+        gb::core
+        gb::debugger
+        project_warnings)
 
-add_custom_command(TARGET GameBoy POST_BUILD
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_SOURCE_DIR}/res/cpu_instrs.gb
-        $<TARGET_FILE_DIR:GameBoy>/cpu_instrs.gb)
-
-enable_testing()
-
-include(test/CMakeLists.txt)
-add_executable(GameBoy-test ${TEST_SRC})
-target_compile_features(GameBoy-test PRIVATE cxx_std_17)
-target_link_libraries(GameBoy-test PRIVATE
-        ${CONAN_LIBS}
-        GB
-        project_warnings
-        gtest_main
-        --coverage
-        )
-add_test(Tester GameBoy-test)
+        ${CMAKE_CURRENT_SOURCE_DIR}/res/cpu_instrs.gb
+        $<TARGET_FILE_DIR:${PROJECT_NAME}>/cpu_instrs.gb)

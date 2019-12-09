@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include <fmt/format.h>
 
-#include <gameboy.h>
+#include "gameboy/gameboy.h"
 
 namespace {
 
