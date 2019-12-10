@@ -4,12 +4,13 @@
 #include <SFML/Graphics.hpp>
 #include "gameboy/util/observer.h"
 #include "gameboy/bus.h"
+#include "cpu_debugger.h"
 
 namespace gameboy {
 
 class debugger {
 public:
-    explicit debugger(observer<const bus> bus);
+    explicit debugger(observer<bus> bus);
     ~debugger();
     debugger(const debugger&) = delete;
     debugger(debugger&&) = delete;
@@ -20,7 +21,8 @@ public:
     void tick();
 
 private:
-    observer<const bus> bus_;
+    observer<bus> bus_;
+    cpu_debugger cpu_debugger_;
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;

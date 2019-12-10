@@ -4,8 +4,9 @@
 
 namespace gameboy {
 
-debugger::debugger(const observer<const bus> bus)
+debugger::debugger(const observer<bus> bus)
     : bus_{bus},
+      cpu_debugger_{bus_->get_cpu()},
       window_{
           sf::VideoMode{1200, 1200},
           "Debugger"
@@ -29,10 +30,7 @@ void debugger::tick()
 
     ImGui::SFML::Update(window_, delta_clock_.restart());
 
-    // todo draw ui
-    ImGui::Begin("Hello, world!");
-    ImGui::Button("Look at this pretty button");
-    ImGui::End();
+    cpu_debugger_.draw();
 
     window_.clear(sf::Color::Black);
     ImGui::SFML::Render(window_);
