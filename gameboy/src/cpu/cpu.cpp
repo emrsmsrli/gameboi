@@ -210,7 +210,7 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
         }
         case 0x36: { return store(make_address(h_l_), read_immediate(imm8)); }
         case 0x37: { /* SCF */
-            reset_flag(flag::subtract);
+            reset_flag(flag::negative);
             reset_flag(flag::half_carry);
             set_flag(flag::carry);
             return 4;
@@ -226,7 +226,7 @@ uint8_t cpu::decode(uint16_t inst, standart_instruction_set_t)
         case 0x3D: { return alu_.decrement(a_f_.high()); }
         case 0x3E: { return load(a_f_.high(), read_immediate(imm8)); }
         case 0x3F: { /* CPL */
-            reset_flag(flag::subtract);
+            reset_flag(flag::negative);
             reset_flag(flag::half_carry);
             flip_flag(flag::carry);
             return 4;

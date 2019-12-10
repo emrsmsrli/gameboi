@@ -68,7 +68,7 @@ uint8_t alu::subtract(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     cpu_->reset_flag(cpu::flag::all);
-    cpu_->set_flag(cpu::flag::subtract);
+    cpu_->set_flag(cpu::flag::negative);
 
     if(half_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::half_carry);
@@ -100,7 +100,7 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
     const auto result = acc - value - carry;
 
     cpu_->reset_flag(cpu::flag::all);
-    cpu_->set_flag(cpu::flag::subtract);
+    cpu_->set_flag(cpu::flag::negative);
 
     if(result == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
@@ -127,7 +127,7 @@ uint8_t alu::increment(uint8_t& value) const noexcept
 {
     ++value;
 
-    cpu_->reset_flag(cpu::flag::subtract);
+    cpu_->reset_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     } else {
@@ -157,7 +157,7 @@ uint8_t alu::decrement(uint8_t& value) const noexcept
 {
     --value;
 
-    cpu_->set_flag(cpu::flag::subtract);
+    cpu_->set_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     } else {
@@ -243,7 +243,7 @@ uint8_t alu::logical_compare(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     cpu_->reset_flag(cpu::flag::all);
-    cpu_->set_flag(cpu::flag::subtract);
+    cpu_->set_flag(cpu::flag::negative);
 
     if(acc == value) {
         cpu_->set_flag(cpu::flag::zero);
@@ -267,7 +267,7 @@ uint8_t alu::logical_compare(const register8& reg) const noexcept
 
 uint8_t alu::add(register16& r_left, const register16& r_right) const noexcept
 {
-    cpu_->reset_flag(cpu::flag::subtract);
+    cpu_->reset_flag(cpu::flag::negative);
 
     if(half_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::half_carry);
@@ -321,7 +321,7 @@ uint8_t alu::decrement(register16& r) noexcept
 uint8_t alu::complement() const noexcept
 {
     cpu_->a_f_.high() = ~cpu_->a_f_.high();
-    cpu_->set_flag(cpu::flag::subtract);
+    cpu_->set_flag(cpu::flag::negative);
     cpu_->set_flag(cpu::flag::half_carry);
     return 4u;
 }
@@ -330,7 +330,7 @@ uint8_t alu::decimal_adjust() const noexcept
 {
     uint16_t acc = cpu_->a_f_.high().value();
 
-    if(cpu_->test_flag(cpu::flag::subtract)) {
+    if(cpu_->test_flag(cpu::flag::negative)) {
         if(cpu_->test_flag(cpu::flag::half_carry)) {
             acc = (acc - 0x06u) & 0xFFu;
         }
@@ -398,7 +398,7 @@ uint8_t alu::test(const uint8_t value, const uint8_t bit) const noexcept
     }
 
     cpu_->set_flag(cpu::flag::half_carry);
-    cpu_->reset_flag(cpu::flag::subtract);
+    cpu_->reset_flag(cpu::flag::negative);
     return 8u;
 }
 

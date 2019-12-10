@@ -28,9 +28,9 @@ private:
         none = 0u,
         carry = 0x10u,
         half_carry = 0x20u,
-        subtract = 0x40u,
+        negative = 0x40u,
         zero = 0x80u,
-        all = carry | half_carry | subtract | zero
+        all = carry | half_carry | negative | zero
     };
 
     static constexpr struct standart_instruction_set_t {} standard_instruction_set{};

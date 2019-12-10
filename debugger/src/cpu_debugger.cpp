@@ -39,7 +39,7 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
     ImGui::NextColumn();
 
     ImGui::Text("Z: %d", cpu_->test_flag(cpu::flag::zero));
-    ImGui::Text("N: %d", cpu_->test_flag(cpu::flag::subtract));
+    ImGui::Text("N: %d", cpu_->test_flag(cpu::flag::negative));
     ImGui::Text("H: %d", cpu_->test_flag(cpu::flag::half_carry));
     ImGui::Text("C: %d", cpu_->test_flag(cpu::flag::carry));
 
