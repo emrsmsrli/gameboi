@@ -3,7 +3,10 @@
 #include "imgui.h"
 
 gameboy::cpu_debugger::cpu_debugger(observer<cpu> cpu) noexcept
-    : cpu_{cpu} {}
+    : cpu_{cpu}
+{
+    // todo decode rom
+}
 
 void gameboy::cpu_debugger::draw() const noexcept
 {
@@ -11,10 +14,21 @@ void gameboy::cpu_debugger::draw() const noexcept
         ImGui::End();
         return;
     }
-
+    
+    ImGui::Separator();
     draw_registers();
-    draw_interrupts();
+    ImGui::Separator();
 
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    draw_interrupts();
+    ImGui::Separator();
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
     // todo decode instructions
 
     ImGui::End();
@@ -24,7 +38,7 @@ void gameboy::cpu_debugger::draw() const noexcept
 
 void gameboy::cpu_debugger::draw_registers() const noexcept
 {
-    ImGui::Columns(3, "Registers And Flags", true);
+    ImGui::Columns(3, "registers and flags", true);
 
     ImGui::Text("%s: %04X", "AF", cpu_->a_f_.high().value());
     ImGui::Text("%s: %04X", "BC", cpu_->b_c_.high().value());
@@ -48,5 +62,29 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 
 void gameboy::cpu_debugger::draw_interrupts() const noexcept
 {
+    ImGui::Text("interrupt master enabled: %d", cpu_->interrupts_enabled());
     
+    ImGui::Columns(2, "interrupts", true);
+    
+    ImGui::Text("interrupt enable"); ImGui::NextColumn();
+    ImGui::Text("interrupt flags");  ImGui::NextColumn();
+    ImGui::Separator();
+
+    const auto interrupt_enable = [&](auto interrupt) { return (cpu_->interrupt_enable_ & interrupt) == interrupt; };
+    ImGui::Text("lcd_vblank: %d", interrupt_enable(interrupt::lcd_vblank));
+    ImGui::Text("lcd_stat:   %d", interrupt_enable(interrupt::lcd_stat));
+    ImGui::Text("timer:      %d", interrupt_enable(interrupt::timer));
+    ImGui::Text("serial:     %d", interrupt_enable(interrupt::serial));
+    ImGui::Text("joypad:     %d", interrupt_enable(interrupt::joypad));
+
+    ImGui::NextColumn();
+    
+    const auto interrupt_flag = [&](auto interrupt) { return (cpu_->interrupt_flags_ & interrupt) == interrupt; };
+    ImGui::Text("lcd_vblank: %d", interrupt_flag(interrupt::lcd_vblank));
+    ImGui::Text("lcd_stat:   %d", interrupt_flag(interrupt::lcd_stat));
+    ImGui::Text("timer:      %d", interrupt_flag(interrupt::timer));
+    ImGui::Text("serial:     %d", interrupt_flag(interrupt::serial));
+    ImGui::Text("joypad:     %d", interrupt_flag(interrupt::joypad));
+
+    ImGui::Columns(1);
 }
