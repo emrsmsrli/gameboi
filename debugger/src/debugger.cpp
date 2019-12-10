@@ -1,6 +1,5 @@
 #include "debugger/debugger.h"
 #include "imgui-SFML.h"
-#include "imgui.h"
 
 namespace gameboy {
 
