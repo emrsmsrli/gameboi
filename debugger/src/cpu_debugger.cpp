@@ -1,10 +1,33 @@
+#include <array>
+
 #include "debugger/cpu_debugger.h"
 #include "gameboy/cpu/cpu.h"
+#include "gameboy/bus.h"
+#include "gameboy/cartridge.h"
 #include "imgui.h"
+
+namespace {
+
+struct instruction {
+
+};
+
+constexpr std::array instructions {
+    instruction{}
+};
+
+}
 
 gameboy::cpu_debugger::cpu_debugger(observer<cpu> cpu) noexcept
     : cpu_{cpu}
 {
+    const auto& rom = cpu_->bus_->get_cartridge()->rom();
+    for(size_t i = 0; i < 0x0104u; ++i) {
+        
+    }
+    for(size_t i = 0x0150u; i < rom.size(); ++i) {
+        
+    }
     // todo decode rom
 }
 
@@ -40,10 +63,10 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 {
     ImGui::Columns(3, "registers and flags", true);
 
-    ImGui::Text("%s: %04X", "AF", cpu_->a_f_.high().value());
-    ImGui::Text("%s: %04X", "BC", cpu_->b_c_.high().value());
-    ImGui::Text("%s: %04X", "DE", cpu_->d_e_.high().value());
-    ImGui::Text("%s: %04X", "HL", cpu_->h_l_.high().value());
+    ImGui::Text("%s: %04X", "AF", cpu_->a_f_.value());
+    ImGui::Text("%s: %04X", "BC", cpu_->b_c_.value());
+    ImGui::Text("%s: %04X", "DE", cpu_->d_e_.value());
+    ImGui::Text("%s: %04X", "HL", cpu_->h_l_.value());
 
     ImGui::NextColumn();
 
