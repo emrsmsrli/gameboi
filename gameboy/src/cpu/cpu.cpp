@@ -70,11 +70,11 @@ uint8_t cpu::tick()
     if(interrupt_master_enable_) {
         const auto pending = interrupt_enable_ & interrupt_flags_;
 
-        const auto interrupt_requested = [&](interrupt i) {
+        const auto interrupt_requested = [&](const interrupt i) {
             return (pending & i) != interrupt::none;
         };
 
-        const auto do_interrupt = [&](interrupt i) {
+        const auto do_interrupt = [&](const interrupt i) {
             interrupt_master_enable_ = false;
             interrupt_flags_ &= ~i;
             rst(make_address(i));
