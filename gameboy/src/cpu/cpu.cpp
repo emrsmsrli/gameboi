@@ -1033,7 +1033,7 @@ uint8_t cpu::call(const address16& address)
     return push_cycles + 8;
 }
 
-uint8_t cpu::call(bool condition, const address16& address)
+uint8_t cpu::call(const bool condition, const address16& address)
 {
     if(condition) {
         return call(address);
