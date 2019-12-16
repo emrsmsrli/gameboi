@@ -100,7 +100,6 @@ uint8_t cpu::tick()
 
 void cpu::request_interrupt(const interrupt request) noexcept
 {
-    interrupt_master_enable_ = true;
     interrupt_flags_ |= request;
 }
 
