@@ -33,7 +33,7 @@ private:
         all = carry | half_carry | negative | zero
     };
 
-    static constexpr struct standart_instruction_set_t {} standard_instruction_set{};
+    static constexpr struct standard_instruction_set_t {} standard_instruction_set{};
     static constexpr struct extended_instruction_set_t {} extended_instruction_set{};
 
     static constexpr struct imm8_t {} imm8{};
@@ -67,7 +67,7 @@ private:
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;
 
-    [[nodiscard]] uint8_t decode(uint16_t inst, standart_instruction_set_t);
+    [[nodiscard]] uint8_t decode(uint16_t inst, standard_instruction_set_t);
     [[nodiscard]] uint8_t decode(uint16_t inst, extended_instruction_set_t);
 
     void set_flag(flag flag) noexcept;
@@ -82,46 +82,40 @@ private:
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
     /* instructions */
-    [[nodiscard]] static uint8_t nop() noexcept;
-    [[nodiscard]] uint8_t halt() noexcept;
-    [[nodiscard]] uint8_t stop() noexcept;
+    static void nop() noexcept;
+    void halt() noexcept;
+    void stop() noexcept;
 
-    [[nodiscard]] uint8_t push(const register16& reg);
-    [[nodiscard]] uint8_t pop(register16& reg);
+    void push(const register16& reg);
+    void pop(register16& reg);
 
-    uint8_t rst(const address8& address);
+    void rst(const address8& address);
 
-    [[nodiscard]] uint8_t jump(const register16& reg);
-    [[nodiscard]] uint8_t jump(const address16& address);
-    [[nodiscard]] uint8_t jump(bool condition, const address16& address);
+    void jump(const register16& reg);
+    void jump(const address16& address);
+    void jump_relative(const address8& address) noexcept;
+    void call(const address16& address);
 
-    [[nodiscard]] uint8_t jump_relative(const address8& address) noexcept;
-    [[nodiscard]] uint8_t jump_relative(bool condition, const address8& address) noexcept;
+    void reti();
+    void ret();
 
-    [[nodiscard]] uint8_t call(const address16& address);
-    [[nodiscard]] uint8_t call(bool condition, const address16& address);
+    void store(const address16& address, uint8_t data);
+    void store(const address16& address, const register8& reg);
+    void store(const address16& address, const register16& reg);
 
-    [[nodiscard]] uint8_t reti();
-    [[nodiscard]] uint8_t ret();
-    [[nodiscard]] uint8_t ret(bool condition);
+    static void load(register8& reg, uint8_t data) noexcept;
+    static void load(register8& r_left, const register8& r_right) noexcept;
 
-    [[nodiscard]] uint8_t store(const address16& address, uint8_t data);
-    [[nodiscard]] uint8_t store(const address16& address, const register8& reg);
-    [[nodiscard]] uint8_t store(const address16& address, const register16& reg);
+    static void load(register16& reg, uint16_t data) noexcept;
+    static void load(register16& r_left, const register16& r_right) noexcept;
 
-    [[nodiscard]] static uint8_t load(register8& reg, uint8_t data) noexcept;
-    [[nodiscard]] static uint8_t load(register8& r_left, const register8& r_right) noexcept;
+    void store_i() noexcept;
+    void store_d() noexcept;
 
-    [[nodiscard]] static uint8_t load(register16& reg, uint16_t data) noexcept;
-    [[nodiscard]] static uint8_t load(register16& r_left, const register16& r_right) noexcept;
+    void load_i() noexcept;
+    void load_d() noexcept;
 
-    [[nodiscard]] uint8_t store_i() noexcept;
-    [[nodiscard]] uint8_t store_d() noexcept;
-
-    [[nodiscard]] uint8_t load_i() noexcept;
-    [[nodiscard]] uint8_t load_d() noexcept;
-
-    [[nodiscard]] uint8_t load_hlsp() noexcept;
+    void load_hlsp() noexcept;
 };
 
 DEFINE_ENUM_CLASS_FLAGS(cpu::flag);

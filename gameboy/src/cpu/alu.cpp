@@ -4,7 +4,7 @@
 
 namespace gameboy {
 
-uint8_t alu::add(const uint8_t value) const noexcept
+void alu::add(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -23,16 +23,14 @@ uint8_t alu::add(const uint8_t value) const noexcept
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 4u;
 }
 
-uint8_t alu::add(const register8& reg) const noexcept
+void alu::add(const register8& reg) const noexcept
 {
-    return add(reg.value());
+    add(reg.value());
 }
 
-uint8_t alu::add_c(const uint8_t value) const noexcept
+void alu::add_c(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -55,15 +53,14 @@ uint8_t alu::add_c(const uint8_t value) const noexcept
     }
 
     acc = static_cast<uint8_t>(result & 0xFFu);
-    return 4u;
 }
 
-uint8_t alu::add_c(const register8& reg) const noexcept
+void alu::add_c(const register8& reg) const noexcept
 {
-    return add_c(reg.value());
+    add_c(reg.value());
 }
 
-uint8_t alu::subtract(const uint8_t value) const noexcept
+void alu::subtract(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -83,16 +80,14 @@ uint8_t alu::subtract(const uint8_t value) const noexcept
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-    
-    return 4u;
 }
 
-uint8_t alu::subtract(const register8& reg) const noexcept
+void alu::subtract(const register8& reg) const noexcept
 {
-    return subtract(reg.value());
+    subtract(reg.value());
 }
 
-uint8_t alu::subtract_c(const uint8_t value) const noexcept
+void alu::subtract_c(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -115,15 +110,14 @@ uint8_t alu::subtract_c(const uint8_t value) const noexcept
     }
 
     acc = static_cast<uint8_t>(result & 0xFF);
-    return 4u;
 }
 
-uint8_t alu::subtract_c(const register8& reg) const noexcept
+void alu::subtract_c(const register8& reg) const noexcept
 {
-    return subtract_c(reg.value());
+    subtract_c(reg.value());
 }
 
-uint8_t alu::increment(uint8_t& value) const noexcept
+void alu::increment(uint8_t& value) const noexcept
 {
     ++value;
 
@@ -139,21 +133,16 @@ uint8_t alu::increment(uint8_t& value) const noexcept
     } else {
         cpu_->set_flag(cpu::flag::half_carry);
     }
-
-    return 4u;
 }
 
-uint8_t alu::increment(register8& reg) const noexcept
+void alu::increment(register8& reg) const noexcept
 {
     auto value = reg.value();
-
-    const auto cycles = increment(value);
+    increment(value);
     reg = value;
-
-    return cycles;
 }
 
-uint8_t alu::decrement(uint8_t& value) const noexcept
+void alu::decrement(uint8_t& value) const noexcept
 {
     --value;
 
@@ -169,21 +158,16 @@ uint8_t alu::decrement(uint8_t& value) const noexcept
     } else {
         cpu_->reset_flag(cpu::flag::half_carry);
     }
-
-    return 4u;
 }
 
-uint8_t alu::decrement(register8& reg) const noexcept
+void alu::decrement(register8& reg) const noexcept
 {
     auto value = reg.value();
-
-    const auto cycles = decrement(value);
+    decrement(value);
     reg = value;
-
-    return cycles;
 }
 
-uint8_t alu::logical_or(const uint8_t value) const noexcept
+void alu::logical_or(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
     acc |= value;
@@ -192,16 +176,14 @@ uint8_t alu::logical_or(const uint8_t value) const noexcept
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 4u;
 }
 
-uint8_t alu::logical_or(const register8& reg) const noexcept
+void alu::logical_or(const register8& reg) const noexcept
 {
-    return logical_or(reg.value());
+    logical_or(reg.value());
 }
 
-uint8_t alu::logical_and(const uint8_t value) const noexcept
+void alu::logical_and(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
     acc &= value;
@@ -211,16 +193,14 @@ uint8_t alu::logical_and(const uint8_t value) const noexcept
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 4u;
 }
 
-uint8_t alu::logical_and(const register8& reg) const noexcept
+void alu::logical_and(const register8& reg) const noexcept
 {
-    return logical_and(reg.value());
+    logical_and(reg.value());
 }
 
-uint8_t alu::logical_xor(const uint8_t value) const noexcept
+void alu::logical_xor(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
     acc ^= value;
@@ -229,16 +209,14 @@ uint8_t alu::logical_xor(const uint8_t value) const noexcept
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 4u;
 }
 
-uint8_t alu::logical_xor(const register8& reg) const noexcept
+void alu::logical_xor(const register8& reg) const noexcept
 {
-    return logical_xor(reg.value());
+    logical_xor(reg.value());
 }
 
-uint8_t alu::logical_compare(const uint8_t value) const noexcept
+void alu::logical_compare(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
@@ -256,16 +234,14 @@ uint8_t alu::logical_compare(const uint8_t value) const noexcept
     if(full_borrow(acc.value(), value)) {
         cpu_->set_flag(cpu::flag::carry);
     }
-
-    return 4u;
 }
 
-uint8_t alu::logical_compare(const register8& reg) const noexcept
+void alu::logical_compare(const register8& reg) const noexcept
 {
-    return logical_compare(reg.value());
+    logical_compare(reg.value());
 }
 
-uint8_t alu::add(register16& r_left, const register16& r_right) const noexcept
+void alu::add(register16& r_left, const register16& r_right) const noexcept
 {
     cpu_->reset_flag(cpu::flag::negative);
 
@@ -282,10 +258,9 @@ uint8_t alu::add(register16& r_left, const register16& r_right) const noexcept
     }
 
     r_left += r_right;
-    return 8u;
 }
 
-uint8_t alu::add_to_stack_pointer(const int8_t immediate) const noexcept
+void alu::add_to_stack_pointer(const int8_t immediate) const noexcept
 {
     auto& sp = cpu_->stack_pointer_;
     cpu_->reset_flag(cpu::flag::all);
@@ -302,31 +277,26 @@ uint8_t alu::add_to_stack_pointer(const int8_t immediate) const noexcept
     }
 
     cpu_->stack_pointer_ = static_cast<uint16_t>(result);
-
-    return 16u;
 }
 
-uint8_t alu::increment(register16& r) noexcept
+void alu::increment(register16& r) noexcept
 {
     ++r;
-    return 8u;
 }
 
-uint8_t alu::decrement(register16& r) noexcept
+void alu::decrement(register16& r) noexcept
 {
     --r;
-    return 8u;
 }
 
-uint8_t alu::complement() const noexcept
+void alu::complement() const noexcept
 {
     cpu_->a_f_.high() = ~cpu_->a_f_.high();
     cpu_->set_flag(cpu::flag::negative);
     cpu_->set_flag(cpu::flag::half_carry);
-    return 4u;
 }
 
-uint8_t alu::decimal_adjust() const noexcept
+void alu::decimal_adjust() const noexcept
 {
     uint16_t acc = cpu_->a_f_.high().value();
 
@@ -362,11 +332,9 @@ uint8_t alu::decimal_adjust() const noexcept
     }
 
     cpu_->a_f_.high() = static_cast<uint8_t>(acc);
-
-    return 4u;
 }
 
-uint8_t alu::swap(uint8_t& value) const noexcept
+void alu::swap(uint8_t& value) const noexcept
 {
     cpu_->reset_flag(cpu::flag::all);
 
@@ -375,21 +343,16 @@ uint8_t alu::swap(uint8_t& value) const noexcept
     } else {
         value = (value << 0x4u) | (value >> 0x4u);
     }
-
-    return 8u;
 }
 
-uint8_t alu::swap(register8& reg) const noexcept
+void alu::swap(register8& reg) const noexcept
 {
     auto value = reg.value();
-
-    const auto cycles = swap(value);
+    swap(value);
     reg = value;
-
-    return cycles;
 }
 
-uint8_t alu::test(const uint8_t value, const uint8_t bit) const noexcept
+void alu::test(const uint8_t value, const uint8_t bit) const noexcept
 {
     if(bit_test(value, bit)) {
         cpu_->set_flag(cpu::flag::zero);
@@ -399,71 +362,62 @@ uint8_t alu::test(const uint8_t value, const uint8_t bit) const noexcept
 
     cpu_->set_flag(cpu::flag::half_carry);
     cpu_->reset_flag(cpu::flag::negative);
-    return 8u;
 }
 
-uint8_t alu::test(const register8& reg, const uint8_t bit) const noexcept
+void alu::test(const register8& reg, const uint8_t bit) const noexcept
 {
-    return test(reg.value(), bit);
+    test(reg.value(), bit);
 }
 
-uint8_t alu::set(uint8_t& value, const uint8_t bit) noexcept
+void alu::set(uint8_t& value, const uint8_t bit) noexcept
 {
     bit_set(value, bit);
-    return 8u;
 }
 
-uint8_t alu::set(register8& reg, uint8_t bit) const noexcept
+void alu::set(register8& reg, const uint8_t bit) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = set(value, bit);
+    set(value, bit);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::reset(uint8_t& value, const uint8_t bit) noexcept
+void alu::reset(uint8_t& value, const uint8_t bit) noexcept
 {
     bit_reset(value, bit);
-    return 8u;
 }
 
-uint8_t alu::reset(register8& reg, const uint8_t bit) const noexcept
+void alu::reset(register8& reg, const uint8_t bit) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = reset(value, bit);
+    reset(value, bit);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::rotate_left_acc() const noexcept
+void alu::rotate_left_acc() const noexcept
 {
     rotate_left(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
-    return 4u;
 }
 
-uint8_t alu::rotate_right_acc() const noexcept
+void alu::rotate_right_acc() const noexcept
 {
     rotate_right(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
-    return 4u;
 }
 
-uint8_t alu::rotate_left_c_acc() const noexcept
+void alu::rotate_left_c_acc() const noexcept
 {
     rotate_left_c(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
-    return 4u;
 }
 
-uint8_t alu::rotate_right_c_acc() const noexcept
+void alu::rotate_right_c_acc() const noexcept
 {
     rotate_right_c(cpu_->a_f_.high());
     cpu_->reset_flag(cpu::flag::zero);
-    return 4u;
 }
 
-uint8_t alu::rotate_left(uint8_t& value) const noexcept
+void alu::rotate_left(uint8_t& value) const noexcept
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -482,19 +436,16 @@ uint8_t alu::rotate_left(uint8_t& value) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::rotate_left(register8& reg) const noexcept
+void alu::rotate_left(register8& reg) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = rotate_left(value);
+    rotate_left(value);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::rotate_right(uint8_t& value) const noexcept
+void alu::rotate_right(uint8_t& value) const noexcept
 {
     const auto lsb = value & 0x01u;
     value >>= 0x1u;
@@ -513,19 +464,16 @@ uint8_t alu::rotate_right(uint8_t& value) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::rotate_right(register8& reg) const noexcept
+void alu::rotate_right(register8& reg) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = rotate_right(value);
+    rotate_right(value);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::rotate_left_c(uint8_t& value) const noexcept
+void alu::rotate_left_c(uint8_t& value) const noexcept
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -541,19 +489,16 @@ uint8_t alu::rotate_left_c(uint8_t& value) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::rotate_left_c(register8& reg) const noexcept
+void alu::rotate_left_c(register8& reg) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = rotate_left_c(value);
+    rotate_left_c(value);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::rotate_right_c(uint8_t& value) const noexcept
+void alu::rotate_right_c(uint8_t& value) const noexcept
 {
     const auto lsb = value & 0x01u;
     value >>= 0x1u;
@@ -569,19 +514,16 @@ uint8_t alu::rotate_right_c(uint8_t& value) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::rotate_right_c(register8& reg) const noexcept
+void alu::rotate_right_c(register8& reg) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = rotate_right_c(value);
+    rotate_right_c(value);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::shift_left(uint8_t& value) const noexcept
+void alu::shift_left(uint8_t& value) const noexcept
 {
     const auto msb = value & 0x80u;
     value <<= 0x1u;
@@ -594,19 +536,16 @@ uint8_t alu::shift_left(uint8_t& value) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::shift_left(register8& reg) const noexcept
+void alu::shift_left(register8& reg) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = shift_left(value);
+    shift_left(value);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
+void alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
 {
     const auto msb = value & 0x80u;
     const auto lsb = value & 0x01u;
@@ -627,19 +566,16 @@ uint8_t alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::shift_right(register8& reg, const preserve_last_bit_t tag) const noexcept
+void alu::shift_right(register8& reg, const preserve_last_bit_t tag) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = shift_right(value, tag);
+    shift_right(value, tag);
     reg = value;
-    return cycles;
 }
 
-uint8_t alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
+void alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
 {
     const auto lsb = value & 0x01u;
 
@@ -654,16 +590,13 @@ uint8_t alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
-
-    return 8u;
 }
 
-uint8_t alu::shift_right(register8& reg, const reset_last_bit_t tag) const noexcept
+void alu::shift_right(register8& reg, const reset_last_bit_t tag) const noexcept
 {
     auto value = reg.value();
-    const auto cycles = shift_right(value, tag);
+    shift_right(value, tag);
     reg = value;
-    return cycles;
 }
 
 } // namespace gameboy
