@@ -11,28 +11,28 @@ jobs:
       matrix:
         config:
         - {
-            name: "Windows MSVC", artifact: "windows-msvc.tar.xz",
+            name: "Windows MSVC",
             os: windows-latest,
             build_type: "Release", cc: "cl", cxx: "cl",
             environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
           }
         - {
-            name: "Windows MinGW", artifact: "windows-mingw.tar.xz",
+            name: "Windows MinGW",
             os: windows-latest,
             build_type: "Release", cc: "gcc", cxx: "g++"
           }
         - {
-            name: "Ubuntu GCC", artifact: "linux-gcc.tar.xz",
+            name: "Ubuntu GCC",
             os: ubuntu-latest,
             build_type: "Release", cc: "gcc", cxx: "g++"
           }
         - {
-            name: "Ubuntu Clang", artifact: "linux.tar.xz",
+            name: "Ubuntu Clang",
             os: ubuntu-latest,
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
         - {
-            name: "macOS", artifact: "macos.tar.xz",
+            name: "macOS",
             os: macos-latest,
             build_type: "Release", cc: "clang", cxx: "clang++"
           }
@@ -108,6 +108,7 @@ jobs:
             -B build
             -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
             -G Ninja
+            # todo this lines gives an error
             -D CMAKE_MAKE_PROGRAM=${ninja_program}
           RESULT_VARIABLE result
         )
