@@ -40,7 +40,15 @@ jobs:
     steps:
     - uses: actions/checkout@v1
 
+    - name: Cache dependencies
+      id: cache
+      uses: actions/cache@v1
+      with:
+        path: build
+        key: ${{ runner.os }}-cache
+
     - name: Install Conan
+      if: steps.cache.outputs.cache-hit != 'true'
       shell: cmake -P {0}
       run: |
         if("${{ runner.os }}" STREQUAL "macOS")
@@ -50,6 +58,7 @@ jobs:
         endif()
     - name: Download Ninja and CMake
       id: cmake_and_ninja
+      if: steps.gameboy-ci-cache.outputs.cache-hit != 'true'
       shell: cmake -P {0}
       run: |
         set(ninja_version "1.9.0")
