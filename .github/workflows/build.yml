@@ -110,7 +110,13 @@ jobs:
             endif()
           endforeach()
         endif()
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja$<$<STREQUAL:${{ runner.os }},Windows>:.exe>" ninja_program)
+
+        if("${{ runner.os }}" STREQUAL "Windows")
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja.exe" ninja_program)
+        else()
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
+        endif()
+
         message(STATUS "ninja path: ${ninja_program}")
         execute_process(
           COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
