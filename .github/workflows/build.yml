@@ -56,6 +56,11 @@ jobs:
         else()
           execute_process(COMMAND pip install conan)
         endif()
+
+    - name: Configure conan
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+
     - name: Download Ninja and CMake
       id: cmake_and_ninja
       if: steps.gameboy-ci-cache.outputs.cache-hit != 'true'
@@ -63,8 +68,9 @@ jobs:
       run: |
         set(ninja_version "1.9.0")
         set(cmake_version "3.16.2")
-        
+
         message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
+
         if("${{ runner.os }}" STREQUAL "Windows")
           set(ninja_suffix "win.zip")
           set(cmake_suffix "win64-x64.zip")
@@ -78,26 +84,37 @@ jobs:
           set(cmake_suffix "Darwin-x86_64.tar.gz")
           set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
         endif()
+
         set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
         file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
+
         set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
         file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
         execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-        # Save the path for other steps
+
+        if("${{ runner.os }}" STREQUAL "Windows")
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja.exe" ninja_program)
+        else()
+          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
+        endif()
         file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
         message("::set-output name=cmake_dir::${cmake_dir}")
+        message("::set-output name=ninja_path::${ninja_program}")
+
         if(NOT "${{ runner.os }}" STREQUAL "Windows")
           execute_process(
             COMMAND chmod +x ninja
             COMMAND chmod +x ${cmake_dir}/cmake
           )
         endif()
+
     - name: Configure
       shell: cmake -P {0}
       run: |
         set(ENV{CC} ${{ matrix.config.cc }})
         set(ENV{CXX} ${{ matrix.config.cxx }})
+
         if("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           execute_process(
             COMMAND "${{ matrix.config.environment_script }}" && set
@@ -111,13 +128,6 @@ jobs:
           endforeach()
         endif()
 
-        if("${{ runner.os }}" STREQUAL "Windows")
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja.exe" ninja_program)
-        else()
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
-        endif()
-
-        message(STATUS "ninja path: ${ninja_program}")
         execute_process(
           COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
             -S .
@@ -125,16 +135,19 @@ jobs:
             -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
             -G Ninja
             # todo this lines gives an error
-            -D CMAKE_MAKE_PROGRAM=${ninja_program}
+            -D CMAKE_MAKE_PROGRAM=${{ steps.cmake_and_ninja.outputs.ninja_path }}
           RESULT_VARIABLE result
         )
+
         if(NOT result EQUAL 0)
           message(FATAL_ERROR "Bad exit status")
         endif()
+
     - name: Build
       shell: cmake -P {0}
       run: |
         set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
+
         if("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
           file(STRINGS environment_script_output.txt output_lines)
           foreach(line IN LISTS output_lines)
@@ -143,10 +156,12 @@ jobs:
             endif()
           endforeach()
         endif()
+
         execute_process(
           COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build
           RESULT_VARIABLE result
         )
+
         if(NOT result EQUAL 0)
           message(FATAL_ERROR "Bad exit status")
         endif()
