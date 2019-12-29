@@ -19,16 +19,17 @@ class cartridge {
 public:
     explicit cartridge(std::string_view rom_path);
 
-    [[nodiscard]] const std::string& name() const noexcept { return name_; }
-    [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
-
     [[nodiscard]] uint8_t read_rom(const address16& address) const;
     void write_rom(const address16& address, uint8_t data);
 
     [[nodiscard]] uint8_t read_ram(const address16& address) const;
     void write_ram(const address16& address, uint8_t data);
-
+    
+    [[nodiscard]] const std::vector<uint8_t>& rom() const noexcept { return rom_; }
     [[nodiscard]] const std::vector<uint8_t>& ram() const noexcept { return ram_; }
+
+    [[nodiscard]] const std::string& name() const noexcept { return name_; }
+    [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
 
 private:
     bool cgb_enabled_ = false;
