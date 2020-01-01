@@ -15,6 +15,7 @@ enum class stat_mode : uint8_t {
 struct register_stat {
     register8 reg;
 
+    register_stat() = default;
     explicit register_stat(const uint8_t val)
         : reg{val} {}
 
@@ -25,7 +26,7 @@ struct register_stat {
 
     void set_mode(stat_mode mode) noexcept
     {
-        reg = mask_set(reg, static_cast<uint8_t>(mode));
+        reg = (reg & 0xFCu) | static_cast<uint8_t>(mode);
     }
 
     [[nodiscard]] bool mode_interrupt_set() const noexcept
