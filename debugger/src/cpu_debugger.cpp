@@ -38,7 +38,6 @@ void gameboy::cpu_debugger::draw() const noexcept
         return;
     }
     
-    ImGui::Separator();
     draw_registers();
     ImGui::Separator();
 
@@ -62,6 +61,11 @@ void gameboy::cpu_debugger::draw() const noexcept
 void gameboy::cpu_debugger::draw_registers() const noexcept
 {
     ImGui::Columns(3, "registers and flags", true);
+    
+    ImGui::Text("Registers"); ImGui::NextColumn();
+    ImGui::Text("SP and PC"); ImGui::NextColumn();
+    ImGui::Text("Flags"); ImGui::NextColumn();
+    ImGui::Separator();
 
     ImGui::Text("%s: %04X", "AF", cpu_->a_f_.value());
     ImGui::Text("%s: %04X", "BC", cpu_->b_c_.value());
@@ -85,7 +89,10 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 
 void gameboy::cpu_debugger::draw_interrupts() const noexcept
 {
-    ImGui::Text("interrupt master enabled: %d", cpu_->interrupts_enabled());
+    ImGui::Text("ime: %s", 
+        cpu_->interrupts_enabled() 
+            ? "enabled" 
+            : "disabled");
     
     ImGui::Columns(2, "interrupts", true);
     

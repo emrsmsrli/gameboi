@@ -22,4 +22,4 @@ private:
 
 } // namespace gameboy
 
-#endif  //GAMEBOY_DEBUGGER_H
+#endif  //GAMEBOY_CPU_DEBUGGER_H
