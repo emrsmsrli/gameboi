@@ -70,13 +70,15 @@ void set_palette(register8& index_register, std::array<palette, 8>& palettes, co
     const auto color_index = index_register.value() >> 1u & 0x03u;
     const auto palette_index = index_register.value() >> 3u & 0x07u;
 
+    // msb | xBBBBBGG |
+    // lsb | GGGRRRRR |
     auto& color = palettes[palette_index].colors[color_index];
     if(is_msb) {
         color.blue = data >> 2u & 0x1Fu;
-        color.green = mask_reset(color.green, 0x18u) | ((data & 0x03u) << 3u);
+        color.green |= (data & 0x03u) << 3u;
     } else {
         color.red = data & 0x1Fu;
-        color.green = mask_reset(color.green, 0x07u) | ((data >> 5u) & 0x03u);
+        color.green = (data >> 5u) & 0x03u;
     }
 
     if(auto_increment) {
