@@ -19,7 +19,7 @@ struct dma_transfer_data {
     [[nodiscard]] uint16_t length() const noexcept { return ((length_mode_start & 0x7Fu) + 1) * 0x10; }
 
     // fixme possible bug here. active flag might be 0 instead of 1 when dma is actually active.
-    void disable() noexcept { length_mode_start = mask_set(length_mode_start, 0x7Fu); }
+    void disable() noexcept { length_mode_start &= 0x7Fu; }
 };
 
 } // namespace gameboy
