@@ -5,6 +5,7 @@
 #include "gameboy/util/observer.h"
 #include "gameboy/bus.h"
 #include "cpu_debugger.h"
+#include "ppu_debugger.h"
 
 namespace gameboy {
 
@@ -23,6 +24,7 @@ public:
 private:
     observer<bus> bus_;
     cpu_debugger cpu_debugger_;
+    ppu_debugger ppu_debugger_;
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;

@@ -2,7 +2,8 @@ project(gameboydebugger)
 
 add_library(${PROJECT_NAME}
         src/debugger.cpp
-        src/cpu_debugger.cpp)
+        src/cpu_debugger.cpp
+        src/ppu_debugger.cpp)
 
 add_library(gb::debugger ALIAS ${PROJECT_NAME})
 

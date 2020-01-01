@@ -16,6 +16,7 @@
 namespace gameboy {
 
 class bus;
+class ppu_debugger;
 
 static constexpr auto screen_width = 160;
 static constexpr auto screen_height = 144;
@@ -23,6 +24,8 @@ static constexpr auto screen_height = 144;
 using render_line = std::array<color, screen_width>;
 
 class ppu {
+    friend ppu_debugger;
+
 public:
     delegate<void(uint8_t, const render_line&)> on_render_line;
     delegate<void()> on_render_frame;
