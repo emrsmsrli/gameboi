@@ -127,7 +127,18 @@ bool cpu::test_flag(const flag flag) noexcept
 
 uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
 {
-    log::info("executing instruction: {:#x}", inst);
+    const auto info = instruction::standard_instruction_set[inst];
+
+    const auto data = [&]() -> uint16_t {
+        switch(info.length) {
+            case 3:
+                return read_immediate(imm16);
+            case 2:
+                return read_immediate(imm8);
+            default:
+                return 0u;
+        }
+    }();
 
     switch(inst) {
         case 0x00: {
@@ -135,7 +146,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x01: {
-            load(b_c_, read_immediate(imm16));
+            load(b_c_, data);
             break;
         }
         case 0x02: {
@@ -155,7 +166,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x06: {
-            load(b_c_.high(), read_immediate(imm8));
+            load(b_c_.high(), static_cast<uint8_t>(data));
             break;
         }
         case 0x07: {
@@ -163,7 +174,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x08: {
-            store(make_address(read_immediate(imm16)), stack_pointer_);
+            store(make_address(data), stack_pointer_);
             break;
         }
         case 0x09: {
@@ -187,7 +198,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x0E: {
-            load(b_c_.low(), read_immediate(imm8));
+            load(b_c_.low(), static_cast<uint8_t>(data));
             break;
         }
         case 0x0F: {
@@ -199,7 +210,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x11: {
-            load(d_e_, read_immediate(imm16));
+            load(d_e_, data);
             break;
         }
         case 0x12: {
@@ -219,7 +230,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x16: {
-            load(d_e_.high(), read_immediate(imm8));
+            load(d_e_.high(), static_cast<uint8_t>(data));
             break;
         }
         case 0x17: {
@@ -227,8 +238,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x18: {
-            const auto data = read_immediate(imm8);
-            jump_relative(make_address(data));
+            jump_relative(make_address(static_cast<uint8_t>(data)));
             break;
         }
         case 0x19: {
@@ -252,7 +262,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x1E: {
-            load(d_e_.low(), read_immediate(imm8));
+            load(d_e_.low(), static_cast<uint8_t>(data));
             break;
         }
         case 0x1F: { 
@@ -260,16 +270,15 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x20: {
-            const auto data = read_immediate(imm8);
             if(!test_flag(flag::zero)) {
-                jump_relative(make_address(data));
+                jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
                 return instruction::get_false_branch_cycle_count(inst);
             }
             break;
         }
         case 0x21: {
-            load(h_l_, read_immediate(imm16));
+            load(h_l_, data);
             break;
         }
         case 0x22: {
@@ -289,7 +298,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x26: {
-            load(h_l_.high(), read_immediate(imm8));
+            load(h_l_.high(), static_cast<uint8_t>(data));
             break;
         }
         case 0x27: {
@@ -297,9 +306,8 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x28: {
-            const auto data = read_immediate(imm8);
             if(test_flag(flag::zero)) {
-                jump_relative(make_address(data));
+                jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
                 return instruction::get_false_branch_cycle_count(inst);
             }
@@ -326,7 +334,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x2E: {
-            load(h_l_.low(), read_immediate(imm8));
+            load(h_l_.low(), static_cast<uint8_t>(data));
             break;
         }
         case 0x2F: {
@@ -334,16 +342,15 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x30: {
-            const auto data = read_immediate(imm8);
             if(!test_flag(flag::carry)) {
-                jump_relative(make_address(data));
+                jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
                 return instruction::get_false_branch_cycle_count(inst);
             }
             break;
         }
         case 0x31: {
-            load(stack_pointer_, read_immediate(imm16));
+            load(stack_pointer_, data);
             break;
         }
         case 0x32: {
@@ -356,20 +363,20 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
         }
         case 0x34: {
             const auto address = make_address(h_l_);
-            auto data = read_data(address);
-            alu_.increment(data);
-            write_data(address, data);
+            auto mem_data = read_data(address);
+            alu_.increment(mem_data);
+            write_data(address, mem_data);
             break;
         }
         case 0x35: {
             const auto address = make_address(h_l_);
-            auto data = read_data(address);
-            alu_.decrement(data);
-            write_data(address, data);
+            auto mem_data = read_data(address);
+            alu_.decrement(mem_data);
+            write_data(address, mem_data);
             break;
         }
         case 0x36: {
-            store(make_address(h_l_), read_immediate(imm8));
+            store(make_address(h_l_), static_cast<uint8_t>(data));
             break;
         }
         case 0x37: { /* SCF */
@@ -379,9 +386,8 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x38: {
-            const auto data = read_immediate(imm8);
             if(test_flag(flag::carry)) {
-                jump_relative(make_address(data));
+                jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
                 return instruction::get_false_branch_cycle_count(inst);
             }
@@ -408,11 +414,11 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x3E: {
-            load(a_f_.high(), read_immediate(imm8));
+            load(a_f_.high(), static_cast<uint8_t>(data));
             break;
         }
         case 0x3F: {
-            /* CPL */
+            /* CCF */
             reset_flag(flag::negative);
             reset_flag(flag::half_carry);
             flip_flag(flag::carry);
@@ -705,8 +711,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x86: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.add(data);
+            alu_.add(read_data(make_address(h_l_)));
             break;
         }
         case 0x87: {
@@ -738,8 +743,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x8E: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.add_c(data);
+            alu_.add_c(read_data(make_address(h_l_)));
             break;
         }
         case 0x8F: {
@@ -771,8 +775,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x96: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.subtract(data);
+            alu_.subtract(read_data(make_address(h_l_)));
             break;
         }
         case 0x97: {
@@ -804,8 +807,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x9E: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.subtract_c(data);
+            alu_.subtract_c(read_data(make_address(h_l_)));
             break;
         }
         case 0x9F: {
@@ -837,8 +839,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xA6: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.logical_and(data);
+            alu_.logical_and(read_data(make_address(h_l_)));
             break;
         }
         case 0xA7: {
@@ -871,8 +872,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xAE: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.logical_xor(data);
+            alu_.logical_xor(read_data(make_address(h_l_)));
             break;
         }
         case 0xAF: {
@@ -904,9 +904,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xB6: {
-
-            const auto data = read_data(make_address(h_l_));
-            alu_.logical_or(data);
+            alu_.logical_or(read_data(make_address(h_l_)));
             break;
         }
         case 0xB7: {
@@ -959,7 +957,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xC2: {
-            const auto data = read_immediate(imm16);
             if(!test_flag(flag::zero)) {
                 jump(make_address(data));
             } else {
@@ -968,12 +965,10 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xC3: {
-            const auto data = read_immediate(imm16);
             jump(make_address(data));
             break;
         }
         case 0xC4: {
-            const auto data = read_immediate(imm16);
             if(!test_flag(flag::zero)) {
                 call(make_address(data));
             } else {
@@ -986,11 +981,13 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xC6: {
-            const auto data = read_immediate(imm8);
-            alu_.add(data);
+            alu_.add(static_cast<uint8_t>(data));
             break;
         }
-        case 0xC7: { rst(address8(0x00)); }
+        case 0xC7: {
+            rst(address8(0x00));
+            break;
+        }
         case 0xC8: {
             if(test_flag(flag::zero)) {
                 ret();
@@ -1004,7 +1001,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xCA: {
-            const auto data = read_immediate(imm16);
             if(test_flag(flag::zero)) {
                 jump(make_address(data));
             } else {
@@ -1013,7 +1009,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xCC: {
-            const auto data = read_immediate(imm16);
             if(test_flag(flag::zero)) {
                 call(make_address(data));
             } else {
@@ -1022,16 +1017,17 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xCD: {
-            const auto data = read_immediate(imm16);
             call(make_address(data));
             break;
         }
         case 0xCE: {
-            const auto data = read_immediate(imm8);
-            alu_.add_c(data);
+            alu_.add_c(static_cast<uint8_t>(data));
             break;
         }
-        case 0xCF: { rst(address8(0x08)); }
+        case 0xCF: {
+            rst(address8(0x08));
+            break;
+        }
         case 0xD0: {
             if(!test_flag(flag::carry)) {
                 ret();
@@ -1045,7 +1041,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xD2: {
-            const auto data = read_immediate(imm16);
             if(!test_flag(flag::carry)) {
                 jump(make_address(data));
             } else {
@@ -1054,7 +1049,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xD4: {
-            const auto data = read_immediate(imm16);
             if(!test_flag(flag::carry)) {
                 call(make_address(data));
             } else {
@@ -1062,13 +1056,18 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             }
             break;
         }
-        case 0xD5: { push(d_e_); }
-        case 0xD6: {
-            const auto data = read_immediate(imm8);
-            alu_.subtract(data);
+        case 0xD5: {
+            push(d_e_);
             break;
         }
-        case 0xD7: { rst(address8(0x10)); }
+        case 0xD6: {
+            alu_.subtract(static_cast<uint8_t>(data));
+            break;
+        }
+        case 0xD7: {
+            rst(address8(0x10));
+            break;
+        }
         case 0xD8: {
             if(test_flag(flag::carry)) {
                 ret();
@@ -1077,9 +1076,11 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             }
             break;
         }
-        case 0xD9: { reti(); }
+        case 0xD9: {
+            reti();
+            break;
+        }
         case 0xDA: {
-            const auto data = read_immediate(imm16);
             if(test_flag(flag::carry)) {
                 jump(make_address(data));
             } else {
@@ -1088,7 +1089,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xDC: {
-            const auto data = read_immediate(imm16);
             if(test_flag(flag::carry)) {
                 call(make_address(data));
             } else {
@@ -1097,8 +1097,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xDE: {
-            const auto data = read_immediate(imm8);
-            alu_.subtract_c(data);
+            alu_.subtract_c(static_cast<uint8_t>(data));
             break;
         }
         case 0xDF: {
@@ -1106,7 +1105,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xE0: {
-            const uint16_t address = 0xFF00 + read_immediate(imm8);
+            const uint16_t address = 0xFF00 + static_cast<uint8_t>(data);
             store(make_address(address), a_f_.high());
             break;
         }
@@ -1124,8 +1123,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xE6: {
-            const auto data = read_immediate(imm8);
-            alu_.logical_and(data);
+            alu_.logical_and(static_cast<uint8_t>(data));
             break;
         }
         case 0xE7: {
@@ -1133,8 +1131,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xE8: {
-            const auto data = static_cast<int8_t>(read_immediate(imm8));
-            alu_.add_to_stack_pointer(data);
+            alu_.add_to_stack_pointer(static_cast<int8_t>(data));
             break;
         }
         case 0xE9: {
@@ -1142,20 +1139,20 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xEA: {
-            const auto data = read_immediate(imm16);
             store(make_address(data), a_f_.high());
             break;
         }
         case 0xEE: {
-            const auto data = read_immediate(imm8);
-            alu_.logical_xor(data);
+            alu_.logical_xor(static_cast<uint8_t>(data));
             break;
         }
-        case 0xEF: { rst(address8(0x28)); }
+        case 0xEF: {
+            rst(address8(0x28));
+            break;
+        }
         case 0xF0: {
-            const uint16_t address = 0xFF00 + read_immediate(imm8);
-            const auto data = read_data(make_address(address));
-            load(a_f_.high(), data);
+            const uint16_t address = 0xFF00 + static_cast<uint8_t>(data);
+            load(a_f_.high(), read_data(make_address(address)));
             break;
         }
         case 0xF1: {
@@ -1163,8 +1160,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xF2: {
-            const auto data = read_data(make_address(b_c_.low() + 0xFF00));
-            load(a_f_.high(), data);
+            load(a_f_.high(), read_data(make_address(b_c_.low() + 0xFF00)));
             break;
         }
         case 0xF3: {
@@ -1176,8 +1172,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xF6: {
-            const auto data = read_immediate(imm8);
-            alu_.logical_or(data);
+            alu_.logical_or(static_cast<uint8_t>(data));
             break;
         }
         case 0xF7: {
@@ -1193,9 +1188,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xFA: {
-            const auto addr = read_immediate(imm16);
-            const auto data = read_data(make_address(addr));
-            load(a_f_.high(), data);
+            load(a_f_.high(), read_data(make_address(data)));
             break;
         }
         case 0xFB: {
@@ -1203,8 +1196,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xFE: {
-            const auto data = read_immediate(imm8);
-            alu_.logical_compare(data);
+            alu_.logical_compare(static_cast<uint8_t>(data));
             break;
         }
         case 0xFF: {
@@ -1215,13 +1207,14 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
         }
     }
-
-    return instruction::standard_instruction_set[inst].cycle_count;
+    
+    log::info("executed instruction: {}", fmt::format(info.name.data(), data));
+    return info.cycle_count;
 }
 
 uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
 {
-    log::info("executing instruction: CB {:#x}", inst);
+    const auto info = instruction::extended_instruction_set[inst];
 
     const auto get_bitop_mask = [&]() -> uint8_t {
         return 0x1u << (inst >> 0x3u & 0x7u);
@@ -1805,6 +1798,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         }
     }
 
+    log::info("executed instruction: {}", info.name);
     return instruction::extended_instruction_set[inst].cycle_count;
 }
 
