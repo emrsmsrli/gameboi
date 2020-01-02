@@ -10,7 +10,7 @@ constexpr address16 joypad_addr(0xFF00u);
 
 joypad::joypad(observer<bus> bus)
     : bus_(bus),
-      joyp_{0x00u},
+      joyp_{0x0Fu},
       keys_{0xFFu}
 {
     bus->get_mmu()->add_memory_delegate({
