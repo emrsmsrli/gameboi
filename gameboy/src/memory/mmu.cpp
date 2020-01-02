@@ -25,47 +25,6 @@ mmu::mmu(observer<bus> bus)
       work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
       high_ram_(hram_range.size(), 0u) {}
 
-void mmu::initialize()
-{
-    std::map<uint16_t, uint8_t> initialization_sequence{
-        {0xFF05u, 0x00u}, // TIMA
-        {0xFF06u, 0x00u}, // TMA
-        {0xFF07u, 0x00u}, // TAC
-        {0xFF10u, 0x80u}, // NR10
-        {0xFF11u, 0xBFu}, // NR11
-        {0xFF12u, 0xF3u}, // NR12
-        {0xFF14u, 0xBFu}, // NR14
-        {0xFF16u, 0x3Fu}, // NR21
-        {0xFF17u, 0x00u}, // NR22
-        {0xFF19u, 0xBFu}, // NR24
-        {0xFF1Au, 0x7Fu}, // NR30
-        {0xFF1Bu, 0xFFu}, // NR31
-        {0xFF1Cu, 0x9Fu}, // NR32
-        {0xFF1Eu, 0xBFu}, // NR33
-        {0xFF20u, 0xFFu}, // NR41
-        {0xFF21u, 0x00u}, // NR42
-        {0xFF22u, 0x00u}, // NR43
-        {0xFF23u, 0xBFu}, // NR30
-        {0xFF24u, 0x77u}, // NR50
-        {0xFF25u, 0xF3u}, // NR51
-        {0xFF26u, 0xF1u}, // NR52
-        {0xFF40u, 0x91u}, // LCDC
-        {0xFF42u, 0x00u}, // SCY
-        {0xFF43u, 0x00u}, // SCX
-        {0xFF45u, 0x00u}, // LYC
-        {0xFF47u, 0xFCu}, // BGP
-        {0xFF48u, 0xFFu}, // OBP0
-        {0xFF49u, 0xFFu}, // OBP1
-        {0xFF4Au, 0x00u}, // WY
-        {0xFF4Bu, 0x00u}, // WX
-        {0xFFFFu, 0x00u}  // IE
-    };
-
-    for(const auto& [addr, default_value]: initialization_sequence) {
-        write(make_address(addr), default_value);
-    }
-}
-
 void mmu::write(const address16& address, const uint8_t data)
 {
     if(const auto it = find_callback(delegates_, memory_delegate{address}); it != end(delegates_)) {
