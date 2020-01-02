@@ -106,7 +106,7 @@ ppu::ppu(observer<bus> bus)
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u),
       lcdc_{0x91u},
-      stat_{0x00u},
+      stat_{0x02u},
       ly_{0x00u},
       lyc_{0x00u},
       scx_{0x00u},
