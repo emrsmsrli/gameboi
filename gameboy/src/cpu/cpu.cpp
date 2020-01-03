@@ -1908,7 +1908,7 @@ void cpu::reti()
 
 void cpu::ret()
 {
-    pop(stack_pointer_);
+    pop(program_counter_);
 }
 
 void cpu::store(const address16& address, const uint8_t data)
