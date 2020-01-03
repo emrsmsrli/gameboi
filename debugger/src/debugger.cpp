@@ -7,6 +7,7 @@ debugger::debugger(const observer<bus> bus)
     : bus_{bus},
       cpu_debugger_{bus_->get_cpu()},
       ppu_debugger_{bus_->get_ppu()},
+      timer_debugger_{bus_->get_timer()},
       window_{
           sf::VideoMode{1200, 1200},
           "Debugger"
@@ -32,6 +33,7 @@ void debugger::tick()
 
     cpu_debugger_.draw();
     ppu_debugger_.draw();
+    timer_debugger_.draw();
 
     window_.clear(sf::Color::Black);
     ImGui::SFML::Render(window_);

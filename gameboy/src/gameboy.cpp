@@ -14,7 +14,8 @@ gameboy::gameboy(const std::string_view rom_path)
       cpu_{make_observer(bus_)},
       ppu_{make_observer(bus_)},
       apu_{make_observer(bus_)},
-      joypad_{make_observer(bus_)}
+      joypad_{make_observer(bus_)},
+      timer_{make_observer(bus_)}
 {
     log::info("gameboy v{}", version::version);
 }
@@ -38,8 +39,8 @@ void gameboy::tick()
 {
     const auto cycles = cpu_.tick();
     ppu_.tick(cycles);
-    // apu->tick(cycles);
-    // timer->tick(cycles);
+    // apu.tick(cycles);
+    timer_.tick(cycles);
 }
 
 } // namespace gameboy

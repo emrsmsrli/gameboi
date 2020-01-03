@@ -11,10 +11,11 @@ class mmu;
 class cpu;
 class ppu;
 class apu;
+class timer;
 
 class bus {
 public:
-    explicit bus(const observer<gameboy> gb) noexcept
+    explicit bus(const observer<gameboy> gb)
         : gb_{gb} {}
 
     [[nodiscard]] observer<cartridge> get_cartridge() const noexcept;
@@ -22,6 +23,7 @@ public:
     [[nodiscard]] observer<cpu> get_cpu() const noexcept;
     [[nodiscard]] observer<ppu> get_ppu() const noexcept;
     [[nodiscard]] observer<apu> get_apu() const noexcept;
+    [[nodiscard]] observer<timer> get_timer() const noexcept;
 
 private:
     observer<gameboy> gb_;
