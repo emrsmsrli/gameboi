@@ -1,7 +1,5 @@
 #include "debugger/ppu_debugger.h"
 #include "gameboy/ppu/ppu.h"
-#include "gameboy/bus.h"
-#include "gameboy/cartridge.h"
 #include "imgui.h"
 
 gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
@@ -105,23 +103,19 @@ void gameboy::ppu_debugger::draw_lcdc_n_stat() const
 
     ImGui::NextColumn();
 
-    const auto mode_str = [&]() {
+    ImGui::Text("<LYC=LY>: %d", bit_test(ppu_->stat_.reg, 6));
+    ImGui::Text("<OAM>:    %d", bit_test(ppu_->stat_.reg, 5));
+    ImGui::Text("<VBlank>: %d", bit_test(ppu_->stat_.reg, 4));
+    ImGui::Text("<HBlank>: %d", bit_test(ppu_->stat_.reg, 3));
+    ImGui::Text("LYC=LY:   %d", bit_test(ppu_->stat_.reg, 2));
+    ImGui::Text("mode:     %d (%s)", static_cast<int8_t>(ppu_->stat_.get_mode()), [&]() {
         switch(ppu_->stat_.get_mode()) {
             case stat_mode::h_blank: return "hblank";
             case stat_mode::v_blank: return "vblank";
             case stat_mode::reading_oam: return "reading oam";
             case stat_mode::reading_oam_vram: return "reading oam vram";
         }
-    }();
-
-    using namespace gameboy;
-
-    ImGui::Text("int LYC=LY:  %d", bit_test(ppu_->stat_.reg, 6));
-    ImGui::Text("int OAM:     %d", bit_test(ppu_->stat_.reg, 5));
-    ImGui::Text("int VBlank:  %d", bit_test(ppu_->stat_.reg, 4));
-    ImGui::Text("int HBlank:  %d", bit_test(ppu_->stat_.reg, 3));
-    ImGui::Text("LYC=LY:      %d", bit_test(ppu_->stat_.reg, 2));
-    ImGui::Text("mode:        %d (%s)", static_cast<int8_t>(ppu_->stat_.get_mode()), mode_str);
+    }());
     
     ImGui::Columns(1);
 }
