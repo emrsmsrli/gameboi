@@ -225,7 +225,7 @@ static constexpr std::array standard_instruction_set{
     instruction_info{3, 24, "CALL NZ,{:#06x}"},
     instruction_info{1, 16, "PUSH BC"},
     instruction_info{2, 8, "ADD A,{:#04x}"},
-    instruction_info{1, 16, "RST 00H"},
+    instruction_info{1, 16, "RST 0x00"},
     instruction_info{1, 20, "RET Z"},
     instruction_info{1, 16, "RET"},
     instruction_info{3, 16, "JP Z,{:#06x}"},
@@ -233,7 +233,7 @@ static constexpr std::array standard_instruction_set{
     instruction_info{3, 24, "CALL Z,{:#06x}"},
     instruction_info{3, 24, "CALL {:#06x}"},
     instruction_info{2, 8, "ADC A,{:#04x}"},
-    instruction_info{1, 16, "RST 08H"},
+    instruction_info{1, 16, "RST 0x08"},
 
     instruction_info{1, 20, "RET NC"},
     instruction_info{1, 12, "POP DE"},
@@ -242,7 +242,7 @@ static constexpr std::array standard_instruction_set{
     instruction_info{3, 24, "CALL NC,{:#06x}"},
     instruction_info{1, 16, "PUSH DE"},
     instruction_info{2, 8, "SUB {:#04x}"},
-    instruction_info{1, 16, "RST 10H"},
+    instruction_info{1, 16, "RST 0x10"},
     instruction_info{1, 20, "RET C"},
     instruction_info{1, 16, "RETI"},
     instruction_info{3, 16, "JP C,{:#06x}"},
@@ -250,16 +250,16 @@ static constexpr std::array standard_instruction_set{
     instruction_info{3, 24, "CALL C,{:#06x}"},
     instruction_info{}, // placeholder
     instruction_info{2, 8, "SBC A,{:#04x}"},
-    instruction_info{1, 16, "RST 18H"},
+    instruction_info{1, 16, "RST 0x18"},
 
-    instruction_info{2, 12, "LDH ({:#04x}),A"},
+    instruction_info{2, 12, "LD (0xFF00+{:#04x}),A"},
     instruction_info{1, 12, "POP HL"},
-    instruction_info{2, 8, "LD (C),A"},
+    instruction_info{2, 8, "LD (0xFF00+C),A"},
     instruction_info{}, // placeholder
     instruction_info{}, // placeholder
     instruction_info{1, 16, "PUSH HL"},
     instruction_info{2, 8, "AND {:#04x}"},
-    instruction_info{1, 16, "RST 20H"},
+    instruction_info{1, 16, "RST 0x20"},
     instruction_info{2, 16, "ADD SP,{:#04x}"},
     instruction_info{1, 4, "JP (HL)"},
     instruction_info{3, 16, "LD ({:#06x}),A"},
@@ -267,16 +267,16 @@ static constexpr std::array standard_instruction_set{
     instruction_info{}, // placeholder
     instruction_info{}, // placeholder
     instruction_info{2, 8, "XOR {:#04x}"},
-    instruction_info{1, 16, "RST 28H"},
+    instruction_info{1, 16, "RST 0x28"},
 
-    instruction_info{2, 12, "LDH A,({:#04x})"},
+    instruction_info{2, 12, "LD A,(0xFF00+{:#04x})"},
     instruction_info{1, 12, "POP AF"},
-    instruction_info{2, 8, "LD A,(C)"},
+    instruction_info{2, 8, "LD A,(0xFF00+C)"},
     instruction_info{1, 4, "DI"},
     instruction_info{}, // placeholder
     instruction_info{1, 16, "PUSH AF"},
     instruction_info{2, 8, "OR {:#04x}"},
-    instruction_info{1, 16, "RST 30H"},
+    instruction_info{1, 16, "RST 0x30"},
     instruction_info{2, 12, "LD HL,SP+{:#04x}"},
     instruction_info{1, 8, "LD SP,HL"},
     instruction_info{3, 16, "LD A,({:#06x})"},
@@ -284,7 +284,7 @@ static constexpr std::array standard_instruction_set{
     instruction_info{}, // placeholder
     instruction_info{}, // placeholder
     instruction_info{2, 8, "CP {:#04x}"},
-    instruction_info{1, 16, "RST 38H"}
+    instruction_info{1, 16, "RST 0x38"}
 };
 
 static constexpr std::array extended_instruction_set{
