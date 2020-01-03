@@ -1,5 +1,5 @@
-#ifndef GAMEBOY_INSTRUCTION_H
-#define GAMEBOY_INSTRUCTION_H
+#ifndef GAMEBOY_INSTRUCTION_INFO_H
+#define GAMEBOY_INSTRUCTION_INFO_H
 
 #include <cstdint>
 #include <array>
@@ -589,4 +589,4 @@ constexpr uint8_t get_false_branch_cycle_count(const uint8_t inst)
 
 } // namespace gameboy
 
-#endif //GAMEBOY_INSTRUCTION_H
+#endif //GAMEBOY_INSTRUCTION_INFO_H
