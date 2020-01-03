@@ -450,7 +450,7 @@ void ppu::render() const noexcept
 
         if(lcdc_.obj_enabled()) {
             render_obj();
-        } 
+        }
     }
 
     on_render_line(ly_.value(), line);
@@ -458,17 +458,17 @@ void ppu::render() const noexcept
 
 void ppu::render_background() const noexcept
 {
-    
+
 }
 
 void ppu::render_window() const noexcept
 {
-    
+
 }
 
 void ppu::render_obj() const noexcept
 {
-    
+
 }
 
 } // namespace gameboy
