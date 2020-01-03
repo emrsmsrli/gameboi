@@ -10,7 +10,7 @@ namespace gameboy::instruction {
 struct instruction_info {
     uint8_t length = 0u;
     uint8_t cycle_count = 0u;
-    std::string_view name = "invalid";
+    std::string_view mnemonic = "invalid";
 };
 
 static constexpr std::array standard_instruction_set{
