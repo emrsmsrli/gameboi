@@ -28,19 +28,27 @@ void gameboy::start()
     auto next_tick = steady_clock::now() + delay;
 
     while(true) {
-        tick();
+        tick_one_frame();
 
         std::this_thread::sleep_until(next_tick);
         next_tick += delay;
         break;
     }
 }
+
 void gameboy::tick()
 {
     const auto cycles = cpu_.tick();
     ppu_.tick(cycles);
     // apu.tick(cycles);
     timer_.tick(cycles);
+}
+
+void gameboy::tick_one_frame()
+{
+    while(ppu_.read(ppu::ly_addr) < 144) {
+        tick();
+    }
 }
 
 } // namespace gameboy

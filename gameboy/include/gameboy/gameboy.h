@@ -23,6 +23,7 @@ public:
 
     void start();
     void tick();
+    void tick_one_frame();
 
     [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 

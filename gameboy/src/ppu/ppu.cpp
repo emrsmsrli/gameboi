@@ -28,11 +28,6 @@ constexpr address16 stat_addr{0xFF41u};
 constexpr address16 scy_addr{0xFF42u};
 constexpr address16 scx_addr{0xFF43u};
 
-// The LY indicates the vertical line to which the present data is transferred
-// to the LCD Driver. The LY can take on any value between 0 through 153.
-// The values between 144 and 153 indicate the V-Blank period. Writing will reset the counter.
-constexpr address16 ly_addr{0xFF44u};
-
 // The gameboy permanently compares the value of the LYC and LY registers.
 // When both values are identical, the coincident bit in the STAT register becomes set,
 // and (if enabled) a STAT interrupt is requested.
