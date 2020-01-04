@@ -47,7 +47,7 @@ public:
 private:
     observer<bus> bus_;
 
-    uint8_t cycle_count_;
+    uint32_t cycle_count_;
     uint8_t vram_bank_;
 
     std::vector<uint8_t> ram_;
