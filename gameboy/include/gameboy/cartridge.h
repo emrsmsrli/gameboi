@@ -15,7 +15,11 @@
 
 namespace gameboy {
 
+class memory_bank_debugger;
+
 class cartridge {
+    friend memory_bank_debugger;
+
 public:
     explicit cartridge(std::string_view rom_path);
 

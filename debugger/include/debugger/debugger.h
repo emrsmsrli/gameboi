@@ -7,6 +7,7 @@
 #include "cpu_debugger.h"
 #include "ppu_debugger.h"
 #include "timer_debugger.h"
+#include "memory_bank_debugger.h"
 
 namespace gameboy {
 
@@ -29,6 +30,7 @@ private:
     cpu_debugger cpu_debugger_;
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
+    memory_bank_debugger memory_bank_debugger_;
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
