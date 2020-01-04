@@ -121,6 +121,8 @@ ppu::ppu(observer<bus> bus)
         oam_dma_addr);
     add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,
         lcdc_addr, stat_addr, scy_addr, scx_addr, ly_addr, lyc_addr, wy_addr, wx_addr);
+    add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
+        bgp_addr, obp_0_addr, obp_1_addr);
 
     if(bus->get_cartridge()->cgb_enabled()) {
         add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
@@ -131,9 +133,6 @@ ppu::ppu(observer<bus> bus)
 
         add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
             bgpi_addr, bgpd_addr, obpi_addr, obpd_addr);
-    } else {
-        add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
-            bgp_addr, obp_0_addr, obp_1_addr);
     }
 }
 
