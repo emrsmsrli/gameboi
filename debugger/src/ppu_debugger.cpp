@@ -26,7 +26,7 @@ void gameboy::ppu_debugger::draw() const noexcept
             ImGui::Spacing();
             ImGui::Spacing();
 
-            //draw_dma();
+            draw_dma();
 
             ImGui::EndTabItem();
         }
@@ -38,7 +38,13 @@ void gameboy::ppu_debugger::draw() const noexcept
         }
 
         if(ImGui::BeginTabItem("VRAM View")) {
-            // draw_vram_view();
+            // todo draw_vram_view();
+
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem("OAM View")) {
+            // todo draw_oam_view();
 
             ImGui::EndTabItem();
         }
@@ -47,15 +53,6 @@ void gameboy::ppu_debugger::draw() const noexcept
     }
 
     ImGui::End();
-
-    // -- dma
-    // source16
-    // dest16
-    // length_mode_start8
-    // remaining_length_uint
-    //
-    // bgmap
-    //
 }
 
 void gameboy::ppu_debugger::draw_registers() const noexcept
@@ -122,18 +119,6 @@ void gameboy::ppu_debugger::draw_lcdc_n_stat() const
 
 void gameboy::ppu_debugger::draw_palettes() const
 {
-    //
-    // -- gb
-    // bgp_;
-    // obp_[2];
-    //
-    // -- cgb
-    // cgb_bg_palettes[8];
-    // cgb_obj_palettes[8];
-    // bgpi_;
-    // obpi_;
-    //
-    
     ImGui::SetNextItemOpen(true, 0);
     if(ImGui::TreeNode("GB")) {
         const auto draw_gb_palette = [&](auto name, auto data) {
@@ -204,4 +189,19 @@ void gameboy::ppu_debugger::draw_palettes() const
 
     ImGui::Spacing();
     ImGui::Separator();
+}
+
+void gameboy::ppu_debugger::draw_dma() const noexcept
+{
+    ImGui::Text("DMA: %s", ppu_->dma_transfer_.active() ? "active" : "inactive");
+    ImGui::Separator();
+
+    ImGui::Text("Source:           %04X", ppu_->dma_transfer_.source.value());
+    ImGui::Text("Destionation:     %04X", ppu_->dma_transfer_.destination.value());
+    ImGui::Text("LengthModeStart:  %04X", ppu_->dma_transfer_.length_mode_start.value());
+
+    ImGui::Spacing();
+
+    ImGui::Text("Total Length:     %04X", ppu_->dma_transfer_.length());
+    ImGui::Text("Remaining Length: %04X", ppu_->dma_transfer_.remaining_length);
 }

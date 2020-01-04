@@ -12,13 +12,14 @@ public:
     explicit ppu_debugger(observer<ppu> ppu) noexcept;
    
     void draw() const noexcept;
-    void draw_lcdc_n_stat() const;
-    void draw_palettes() const;
 
 private:
     observer<ppu> ppu_;
 
     void draw_registers() const noexcept;
+    void draw_lcdc_n_stat() const;
+    void draw_palettes() const;
+    void draw_dma() const noexcept;
 };
 
 } // namespace gameboy
