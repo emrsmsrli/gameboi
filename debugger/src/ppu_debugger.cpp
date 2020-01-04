@@ -197,7 +197,7 @@ void gameboy::ppu_debugger::draw_dma() const noexcept
     ImGui::Separator();
 
     ImGui::Text("Source:           %04X", ppu_->dma_transfer_.source.value());
-    ImGui::Text("Destionation:     %04X", ppu_->dma_transfer_.destination.value());
+    ImGui::Text("Destination:      %04X", ppu_->dma_transfer_.destination.value());
     ImGui::Text("LengthModeStart:  %04X", ppu_->dma_transfer_.length_mode_start.value());
 
     ImGui::Spacing();
