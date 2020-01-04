@@ -28,7 +28,7 @@ public:
 
     [[nodiscard]] uint8_t read_ram(const address16& address) const;
     void write_ram(const address16& address, uint8_t data);
-    
+
     [[nodiscard]] const std::vector<uint8_t>& rom() const noexcept { return rom_; }
     [[nodiscard]] const std::vector<uint8_t>& ram() const noexcept { return ram_; }
 
