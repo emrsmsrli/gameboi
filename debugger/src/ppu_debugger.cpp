@@ -193,7 +193,7 @@ void gameboy::ppu_debugger::draw_palettes() const
 
 void gameboy::ppu_debugger::draw_dma() const noexcept
 {
-    ImGui::Text("DMA: %s", ppu_->dma_transfer_.active() ? "active" : "inactive");
+    ImGui::Text("DMA Transfer: %s", ppu_->dma_transfer_.disabled() ? "disabled" : "enabled");
     ImGui::Separator();
 
     ImGui::Text("Source:           %04X", ppu_->dma_transfer_.source.value());

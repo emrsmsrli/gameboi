@@ -279,13 +279,13 @@ void ppu::dma_write(const address16& address, const uint8_t data)
             make_address(*begin(oam_range)),
             oam_range.size() - 1);
     } else if(address == hdma_1_addr) {
-        if(dma_transfer_.active()) {
+        if(!dma_transfer_.disabled()) {
             return;
         }
 
         dma_transfer_.source.low() = data & 0xF0u;
     } else if(address == hdma_2_addr) {
-        if(dma_transfer_.active()) {
+        if(!dma_transfer_.disabled()) {
             return;
         }
 
@@ -296,7 +296,7 @@ void ppu::dma_write(const address16& address, const uint8_t data)
         dma_transfer_.destination.high() = data & 0x1Fu;
     } else if(address == hdma_5_addr) {
         if(!bit_test(data, 7u)) {
-            if(!dma_transfer_.active()) {
+            if(dma_transfer_.disabled()) {
                 bus_->get_mmu()->dma(
                     make_address(dma_transfer_.source),
                     make_address(dma_transfer_.destination),
@@ -330,7 +330,7 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
 void ppu::general_purpose_register_write(const address16& address, const uint8_t data)
 {
     if(address == vbk_addr) {
-        if(dma_transfer_.active()) {
+        if(!dma_transfer_.disabled()) {
             return;
         }
 
@@ -399,7 +399,7 @@ void ppu::palette_write(const address16& address, const uint8_t data)
 
 void ppu::hdma()
 {
-    if(dma_transfer_.active() && ly_ < screen_height) {
+    if(!dma_transfer_.disabled() && ly_ < screen_height) {
         const auto total_length = dma_transfer_.length();
         const auto offset = total_length - dma_transfer_.remaining_length;
 
