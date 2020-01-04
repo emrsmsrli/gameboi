@@ -44,12 +44,19 @@ void gameboy::memory_bank_debugger::draw() noexcept
         if(ImGui::BeginTabItem("Internal")) {
             if(ImGui::BeginTabBar("internalmemorytabs")) {
                 auto mmu = bus_->get_mmu();
-                if(ImGui::BeginTabItem("WRAM")) {
+                if(ImGui::BeginTabItem("WRAM0")) {
+                    ImGui::Spacing();
+
+                    memory_editor_.DrawContents(mmu->work_ram_.data(), 
+                        4_kb, 0xC000);
+                    ImGui::EndTabItem();
+                }
+                if(ImGui::BeginTabItem("WRAM-N")) {
                     ImGui::Text("SVBK: %02X", mmu->wram_bank_);
                     ImGui::Spacing();
 
-                    memory_editor_.DrawContents(mmu->work_ram_.data() + mmu->wram_bank_ * 4_kb, 
-                        4_kb, 0xC000);
+                    memory_editor_.DrawContents(mmu->work_ram_.data() + 4_kb + mmu->wram_bank_ * 4_kb, 
+                        4_kb, 0xD000);
                     ImGui::EndTabItem();
                 }
 
