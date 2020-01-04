@@ -47,10 +47,10 @@ void gameboy::cpu_debugger::draw() const noexcept
     draw_interrupts();
     ImGui::Separator();
 
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
-    ImGui::Spacing();
+    // ImGui::Spacing();
+    // ImGui::Spacing();
+    // ImGui::Spacing();
+    // ImGui::Spacing();
     // todo decode instructions
 
     ImGui::End();
