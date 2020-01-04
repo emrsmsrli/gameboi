@@ -12,10 +12,10 @@ namespace gameboy {
 
 constexpr auto ly_max = 153;
 
-constexpr auto hblank_cycles = 207;
-constexpr auto vblank_cycles = 456;
-constexpr auto reading_oam_cycles = 83;
-constexpr auto reading_oam_vram_cycles = 175;
+constexpr auto hblank_cycles = 207u;
+constexpr auto vblank_cycles = 456u;
+constexpr auto reading_oam_cycles = 83u;
+constexpr auto reading_oam_vram_cycles = 175u;
 
 constexpr address16 lcdc_addr{0xFF40u};
 constexpr address16 stat_addr{0xFF41u};
