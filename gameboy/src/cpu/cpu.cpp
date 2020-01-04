@@ -11,7 +11,7 @@
 
 namespace gameboy {
 
-constexpr address16 ime_addr(0xFFFFu);
+constexpr address16 ime_addr{0xFFFFu};
 
 cpu::cpu(observer<bus> bus) noexcept
     : bus_{bus},

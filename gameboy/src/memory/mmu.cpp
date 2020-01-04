@@ -11,7 +11,7 @@
 
 namespace gameboy {
 
-constexpr address16 svbk_addr(0xFF70u);
+constexpr address16 svbk_addr{0xFF70u};
 
 template<typename T>
 auto find_callback(const std::vector<T>& container, T&& value) noexcept

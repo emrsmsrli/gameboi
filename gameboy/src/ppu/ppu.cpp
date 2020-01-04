@@ -17,51 +17,51 @@ constexpr auto vblank_cycles = 456;
 constexpr auto reading_oam_cycles = 83;
 constexpr auto reading_oam_vram_cycles = 175;
 
-constexpr address16 lcdc_addr(0xFF40u);
-constexpr address16 stat_addr(0xFF41u);
+constexpr address16 lcdc_addr{0xFF40u};
+constexpr address16 stat_addr{0xFF41u};
 
 // Specifies the position in the 256x256 pixels BG map (32x32 tiles)
 // which is to be displayed at the upper/left LCD display position.
 // Values in range from 0-255 may be used for X/Y each, the video controller
 // automatically wraps back to the upper (left) position in BG map when
 // drawing exceeds the lower (right) border of the BG map area.
-constexpr address16 scy_addr(0xFF42u);
-constexpr address16 scx_addr(0xFF43u);
+constexpr address16 scy_addr{0xFF42u};
+constexpr address16 scx_addr{0xFF43u};
 
 // The LY indicates the vertical line to which the present data is transferred
 // to the LCD Driver. The LY can take on any value between 0 through 153.
 // The values between 144 and 153 indicate the V-Blank period. Writing will reset the counter.
-constexpr address16 ly_addr(0xFF44u);
+constexpr address16 ly_addr{0xFF44u};
 
 // The gameboy permanently compares the value of the LYC and LY registers.
 // When both values are identical, the coincident bit in the STAT register becomes set,
 // and (if enabled) a STAT interrupt is requested.
-constexpr address16 lyc_addr(0xFF45u);
+constexpr address16 lyc_addr{0xFF45u};
 
 // Specifies the upper/left positions of the Window area.
 // (The window is an alternate background area which can be displayed above of the normal background.
 // OBJs (sprites) may be still displayed above or behinf the window, just as for normal BG.)
 // The window becomes visible (if enabled) when positions are set in range WX=0..166, WY=0..143.
 // A postion of WX=7, WY=0 locates the window at upper left, it is then completly covering normal background.
-constexpr address16 wy_addr(0xFF4Au);
-constexpr address16 wx_addr(0xFF4Bu);
+constexpr address16 wy_addr{0xFF4Au};
+constexpr address16 wx_addr{0xFF4Bu};
 
-constexpr address16 bgp_addr(0xFF47u);
-constexpr address16 obp_0_addr(0xFF48u);
-constexpr address16 obp_1_addr(0xFF49u);
-constexpr address16 bgpi_addr(0xFF68u);
-constexpr address16 bgpd_addr(0xFF69u);
-constexpr address16 obpi_addr(0xFF6Au);
-constexpr address16 obpd_addr(0xFF6Bu);
+constexpr address16 bgp_addr{0xFF47u};
+constexpr address16 obp_0_addr{0xFF48u};
+constexpr address16 obp_1_addr{0xFF49u};
+constexpr address16 bgpi_addr{0xFF68u};
+constexpr address16 bgpd_addr{0xFF69u};
+constexpr address16 obpi_addr{0xFF6Au};
+constexpr address16 obpd_addr{0xFF6Bu};
 
-constexpr address16 vbk_addr(0xFF4Fu);
+constexpr address16 vbk_addr{0xFF4Fu};
 
-constexpr address16 oam_dma_addr(0xFF46u);
-constexpr address16 hdma_1_addr(0xFF51u); // New DMA Source, High
-constexpr address16 hdma_2_addr(0xFF52u); // New DMA Source, Low
-constexpr address16 hdma_3_addr(0xFF53u); // New DMA Destination, High
-constexpr address16 hdma_4_addr(0xFF54u); // New DMA Destination, Low
-constexpr address16 hdma_5_addr(0xFF55u); // New DMA Length/Mode/Start
+constexpr address16 oam_dma_addr{0xFF46u};
+constexpr address16 hdma_1_addr{0xFF51u}; // New DMA Source, High
+constexpr address16 hdma_2_addr{0xFF52u}; // New DMA Source, Low
+constexpr address16 hdma_3_addr{0xFF53u}; // New DMA Destination, High
+constexpr address16 hdma_4_addr{0xFF54u}; // New DMA Destination, Low
+constexpr address16 hdma_5_addr{0xFF55u}; // New DMA Length/Mode/Start
 
 void set_palette(register8& index_register, std::array<palette, 8>& palettes, const uint8_t data) noexcept
 {
