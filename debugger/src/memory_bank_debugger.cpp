@@ -5,7 +5,7 @@
 #include "gameboy/ppu/ppu.h"
 #include "imgui.h"
 
-gameboy::memory_bank_debugger::memory_bank_debugger(observer<bus> bus) noexcept
+gameboy::memory_bank_debugger::memory_bank_debugger(const observer<bus> bus) noexcept
     : bus_{bus}
 {
     memory_editor_.ReadOnly = true;
