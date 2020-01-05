@@ -19,11 +19,6 @@ struct mbc {
     void set_xram_enabled(const uint8_t data) noexcept { xram_enabled = (data & 0x0Fu) == 0x0Au; }
 };
 
-constexpr size_t operator ""_kb(const unsigned long long bytes)
-{
-    return bytes * 1024u;
-}
-
 } // namespace gameboy
 
 #endif //GAMEBOY_MBC_H
