@@ -1,5 +1,3 @@
-#include <array>
-
 #include <fmt/format.h>
 
 #include "debugger/cpu_debugger.h"
