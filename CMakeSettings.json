@@ -22,7 +22,13 @@
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
             "inheritEnvironments": [ "msvc_x64_x64" ],
-            "variables": []
+            "variables": [
+                {
+                    "name": "INSTALL_GTEST",
+                    "value": "False",
+                    "type": "BOOL"
+                }
+            ]
         }
     ]
 }
