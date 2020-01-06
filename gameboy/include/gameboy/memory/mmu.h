@@ -11,6 +11,7 @@
 namespace gameboy {
 
 class bus;
+class memory_bank_debugger;
 
 struct memory_delegate {
     address16 address;
@@ -32,6 +33,8 @@ struct memory_delegate {
 };
 
 class mmu {
+    friend memory_bank_debugger;
+
 public:
     explicit mmu(observer<bus> bus);
 

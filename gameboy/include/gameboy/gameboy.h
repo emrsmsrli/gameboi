@@ -10,6 +10,7 @@
 #include "gameboy/memory/mmu.h"
 #include "gameboy/apu/apu.h"
 #include "gameboy/joypad/joypad.h"
+#include "gameboy/timer/timer.h"
 #include "gameboy/util/delegate.h"
 
 namespace gameboy {
@@ -22,6 +23,7 @@ public:
 
     void start();
     void tick();
+    void tick_one_frame();
 
     [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 
@@ -49,6 +51,7 @@ private:
     ppu ppu_;
     apu apu_;
     joypad joypad_;
+    timer timer_;
 };
 
 } // namespace gameboy

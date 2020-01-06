@@ -3,6 +3,9 @@
 
 #include "gameboy/util/observer.h"
 
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/Texture.hpp>
+
 namespace gameboy {
 
 class ppu;
@@ -11,14 +14,20 @@ class ppu_debugger {
 public:
     explicit ppu_debugger(observer<ppu> ppu) noexcept;
    
-    void draw() const noexcept;
-    void draw_lcdc_n_stat() const;
-    void draw_palettes() const;
+    void draw() noexcept;
 
 private:
     observer<ppu> ppu_;
+    sf::Image tiles_img_;
+    sf::Texture tiles_;
 
     void draw_registers() const noexcept;
+    void draw_lcdc_n_stat() const;
+    void draw_palettes() const;
+    void draw_dma() const noexcept;
+
+    void draw_vram_view();
+    void draw_tiles();
 };
 
 } // namespace gameboy

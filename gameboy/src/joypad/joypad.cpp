@@ -6,7 +6,7 @@
 
 namespace gameboy {
 
-constexpr address16 joypad_addr(0xFF00u);
+constexpr address16 joypad_addr{0xFF00u};
 
 joypad::joypad(observer<bus> bus)
     : bus_(bus),

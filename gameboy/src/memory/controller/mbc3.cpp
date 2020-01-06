@@ -37,10 +37,10 @@ void rtc::latch() noexcept
 
 void mbc3::control(const address16& address, const uint8_t data) noexcept
 {
-    constexpr address_range external_ram_n_timer_enable_range(0x1FFFu);
-    constexpr address_range rom_bank_select_range(0x2000u, 0x3FFFu);
-    constexpr address_range ram_bank_or_rtc_reg_select_range(0x4000u, 0x5FFFu);
-    constexpr address_range latch_clock_data_range(0x6000u, 0x7FFFu);
+    constexpr address_range external_ram_n_timer_enable_range{0x1FFFu};
+    constexpr address_range rom_bank_select_range{0x2000u, 0x3FFFu};
+    constexpr address_range ram_bank_or_rtc_reg_select_range{0x4000u, 0x5FFFu};
+    constexpr address_range latch_clock_data_range{0x6000u, 0x7FFFu};
 
     if(external_ram_n_timer_enable_range.has(address)) {
         set_xram_enabled(data);

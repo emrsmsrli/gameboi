@@ -11,7 +11,8 @@
 
 namespace gameboy {
 
-constexpr address16 ime_addr(0xFFFFu);
+constexpr address16 ie_addr{0xFFFFu};
+constexpr address16 if_addr{0xFF0Fu};
 
 cpu::cpu(observer<bus> bus) noexcept
     : bus_{bus},
@@ -33,9 +34,15 @@ cpu::cpu(observer<bus> bus) noexcept
     auto mmu = bus->get_mmu();
 
     mmu->add_memory_delegate({
-        ime_addr,
+        ie_addr,
         {connect_arg<&cpu::on_ie_read>, this},
         {connect_arg<&cpu::on_ie_write>, this},
+    });
+
+    mmu->add_memory_delegate({
+        if_addr,
+        {connect_arg<&cpu::on_if_read>, this},
+        {connect_arg<&cpu::on_if_write>, this},
     });
 }
 
@@ -47,6 +54,16 @@ void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
 uint8_t cpu::on_ie_read(const address16&) const noexcept
 {
     return static_cast<uint8_t>(interrupt_enable_);
+}
+
+void cpu::on_if_write(const address16&, uint8_t data) noexcept
+{
+    interrupt_flags_ = static_cast<interrupt>(data);
+}
+
+uint8_t cpu::on_if_read(const address16&) const noexcept
+{
+    return static_cast<uint8_t>(interrupt_flags_);
 }
 
 uint8_t cpu::tick()

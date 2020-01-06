@@ -1,6 +1,5 @@
 # TODO
 
-- try to organize `cpu::decode`
 - interrupts should enable-disable after one instruction is executed.
 - reduce branching please
 - return pairs instead of passing out params
@@ -8,3 +7,4 @@
 
 ## Major
 - implement mbc5
+- implement speed switch

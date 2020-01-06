@@ -35,8 +35,8 @@ struct register_stat {
     }
 
     [[nodiscard]] bool coincidence_flag_set() const noexcept { return bit_test(reg, 2u); }
-    void set_coincidence_flag() const noexcept { bit_set(reg, 2u); }
-    void reset_coincidence_flag() const noexcept { bit_reset(reg, 2u); }
+    void set_coincidence_flag() noexcept { reg = bit_set(reg, 2u); }
+    void reset_coincidence_flag() noexcept {  reg = bit_reset(reg, 2u); }
 };
 
 } // namespace gameboy

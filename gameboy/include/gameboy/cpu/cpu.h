@@ -67,6 +67,9 @@ private:
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;
 
+    void on_if_write(const address16&, uint8_t data) noexcept;
+    [[nodiscard]] uint8_t on_if_read(const address16&) const noexcept;
+
     [[nodiscard]] uint8_t decode(uint16_t inst, standard_instruction_set_t);
     [[nodiscard]] uint8_t decode(uint16_t inst, extended_instruction_set_t);
 

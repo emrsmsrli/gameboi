@@ -17,6 +17,7 @@ namespace gameboy {
 
 class bus;
 class ppu_debugger;
+class memory_bank_debugger;
 
 static constexpr auto screen_width = 160;
 static constexpr auto screen_height = 144;
@@ -25,8 +26,14 @@ using render_line = std::array<color, screen_width>;
 
 class ppu {
     friend ppu_debugger;
+    friend memory_bank_debugger;
 
 public:
+    // The LY indicates the vertical line to which the present data is transferred
+    // to the LCD Driver. The LY can take on any value between 0 through 153.
+    // The values between 144 and 153 indicate the V-Blank period. Writing will reset the counter.
+    static constexpr address16 ly_addr{0xFF44u};
+
     delegate<void(uint8_t, const render_line&)> on_render_line;
     delegate<void()> on_render_frame;
 
@@ -40,7 +47,7 @@ public:
 private:
     observer<bus> bus_;
 
-    uint8_t cycle_count_;
+    uint32_t cycle_count_;
     uint8_t vram_bank_;
 
     std::vector<uint8_t> ram_;
