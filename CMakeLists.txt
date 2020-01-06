@@ -96,3 +96,9 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy
         ${CMAKE_CURRENT_SOURCE_DIR}/res/cpu_instrs.gb
         $<TARGET_FILE_DIR:${PROJECT_NAME}>/cpu_instrs.gb)
+
+if(APPLE)
+    set_target_properties(${PROJECT_NAME} PROPERTIES
+            MACOSX_BUNDLE TRUE
+            MACOSX_BUNDLE_INFO_PLIST ${CMAKE_CURRENT_SOURCE_DIR}/apple/Info.plist)
+endif()

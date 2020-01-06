@@ -16,6 +16,7 @@ debugger::debugger(const observer<bus> bus)
 {
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
+    window_.setVerticalSyncEnabled(true);
 }
 
 debugger::~debugger()

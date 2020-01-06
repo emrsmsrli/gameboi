@@ -148,12 +148,9 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
 
     const auto data = [&]() -> uint16_t {
         switch(info.length) {
-            case 3:
-                return read_immediate(imm16);
-            case 2:
-                return read_immediate(imm8);
-            default:
-                return 0u;
+            case 3:return read_immediate(imm16);
+            case 2:return read_immediate(imm8);
+            default:return 0u;
         }
     }();
 
@@ -282,7 +279,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             load(d_e_.low(), static_cast<uint8_t>(data));
             break;
         }
-        case 0x1F: { 
+        case 0x1F: {
             alu_.rotate_right_acc();
             break;
         }
@@ -482,7 +479,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             /* LD C,C */
             nop();
             break;
-        } 
+        }
         case 0x4A: {
             load(b_c_.low(), d_e_.high());
             break;
@@ -699,7 +696,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0x7F: {
-             /* LD A,A */
+            /* LD A,A */
             nop();
             break;
         }
@@ -863,7 +860,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             /* AND A */
             nop();
             break;
-        } 
+        }
         case 0xA8: {
             alu_.logical_xor(b_c_.high());
             break;
@@ -884,7 +881,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             alu_.logical_xor(h_l_.high());
             break;
         }
-        case 0xAD: { 
+        case 0xAD: {
             alu_.logical_xor(h_l_.low());
             break;
         }
@@ -970,7 +967,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xC1: {
-            pop(b_c_); 
+            pop(b_c_);
             break;
         }
         case 0xC2: {
@@ -1224,7 +1221,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
         }
     }
-    
+
     log::info("executed instruction: {}", fmt::format(info.mnemonic.data(), data));
     return info.cycle_count;
 }
@@ -1511,7 +1508,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
             break;
         }
         case 0x3F: {
-            alu_.shift_right(a_f_.high(), alu::reset_last_bit); 
+            alu_.shift_right(a_f_.high(), alu::reset_last_bit);
             break;
         }
 
@@ -1719,7 +1716,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         case 0xD8:
         case 0xE8:
         case 0xF8: {
-           alu_.set(b_c_.high(), get_bitop_mask());
+            alu_.set(b_c_.high(), get_bitop_mask());
             break;
         }
 

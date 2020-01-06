@@ -564,26 +564,26 @@ static constexpr std::array extended_instruction_set{
 constexpr uint8_t get_false_branch_cycle_count(const uint8_t inst)
 {
     switch(inst) {
-    case 0x20u:
-    case 0x28u:
-    case 0x30u:
-    case 0x38u:
-    case 0xC0u:
-    case 0xC8u:
-    case 0xD0u:
-    case 0xD8u:
-        return 8u;
-    case 0xC2u:
-    case 0xC4u:
-    case 0xCAu:
-    case 0xCCu:
-    case 0xD2u:
-    case 0xD4u:
-    case 0xDAu:
-    case 0xDCu:
-        return 12u;
-    default:
-        return 0u;
+        case 0x20u:
+        case 0x28u:
+        case 0x30u:
+        case 0x38u:
+        case 0xC0u:
+        case 0xC8u:
+        case 0xD0u:
+        case 0xD8u:
+            return 8u;
+        case 0xC2u:
+        case 0xC4u:
+        case 0xCAu:
+        case 0xCCu:
+        case 0xD2u:
+        case 0xD4u:
+        case 0xDAu:
+        case 0xDCu:
+            return 12u;
+        default:
+            return 0u;
     }
 }
 
