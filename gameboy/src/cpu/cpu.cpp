@@ -1225,7 +1225,6 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
         }
     }
 
-    log::info("executed instruction: {}", fmt::format(info.mnemonic.data(), data));
     return info.cycle_count;
 }
 
@@ -1815,7 +1814,6 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         }
     }
 
-    log::info("executed instruction: {}", info.mnemonic);
     return instruction::extended_instruction_set[inst].cycle_count;
 }
 
@@ -1832,7 +1830,6 @@ uint8_t cpu::read_data(const address16& address) const
 uint8_t cpu::read_immediate(imm8_t)
 {
     const auto data = read_data(make_address(program_counter_));
-    log::info("read {:#04x} from addr {:#06x}", data, program_counter_.value());
     ++program_counter_;
     return data;
 }
