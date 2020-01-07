@@ -86,8 +86,7 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 {
     std::array dma_registers{registers...};
     for(const auto& addr : dma_registers) {
-        bus->get_mmu()->add_memory_delegate({
-            addr,
+        bus->get_mmu()->add_memory_delegate(addr, {
             {connect_arg<ReadFunc>, p},
             {connect_arg<WriteFunc>, p}
         });

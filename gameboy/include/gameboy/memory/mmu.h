@@ -15,22 +15,15 @@ class bus;
 class memory_bank_debugger;
 
 struct memory_delegate {
-    address16 address;
     delegate<uint8_t(const address16&)> on_read;
     delegate<void(const address16&, uint8_t)> on_write;
 
     memory_delegate() noexcept = default;
-    explicit memory_delegate(const address16 addr) noexcept
-        : address{addr} {}
     memory_delegate(
-        const address16 addr,
         const delegate<uint8_t(const address16&)> on_read_delegate,
         const delegate<void(const address16&, uint8_t)> on_write_delegate) noexcept
-        : address{addr},
-          on_read{on_read_delegate},
+        : on_read{on_read_delegate},
           on_write{on_write_delegate} {}
-
-    bool operator==(const memory_delegate& other) const noexcept { return address == other.address; }
 };
 
 class mmu {
@@ -44,7 +37,7 @@ public:
 
     void dma(const address16& source, const address16& destination, uint16_t length);
 
-    void add_memory_delegate(const memory_delegate& callback) { delegates_[callback.address] = callback; }
+    void add_memory_delegate(const address16& address, const memory_delegate& callback) { delegates_[address] = callback; }
 
 private:
     observer<bus> bus_;

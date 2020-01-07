@@ -36,14 +36,12 @@ cpu::cpu(observer<bus> bus) noexcept
 {
     auto mmu = bus->get_mmu();
 
-    mmu->add_memory_delegate({
-        ie_addr,
+    mmu->add_memory_delegate(ie_addr, {
         {connect_arg<&cpu::on_ie_read>, this},
         {connect_arg<&cpu::on_ie_write>, this},
     });
 
-    mmu->add_memory_delegate({
-        if_addr,
+    mmu->add_memory_delegate(if_addr, {
         {connect_arg<&cpu::on_if_read>, this},
         {connect_arg<&cpu::on_if_write>, this},
     });

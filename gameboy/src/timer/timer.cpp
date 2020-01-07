@@ -27,8 +27,7 @@ timer::timer(const observer<bus> bus)
     auto mmu = bus->get_mmu();
 
     for(const auto& addr : std::array{div_addr, tima_addr, tma_addr, tac_addr}) {
-        mmu->add_memory_delegate({
-            addr,
+        mmu->add_memory_delegate(addr, {
             {connect_arg<&timer::on_read>, this},
             {connect_arg<&timer::on_write>, this},
         });

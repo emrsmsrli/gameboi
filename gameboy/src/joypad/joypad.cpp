@@ -17,8 +17,7 @@ joypad::joypad(observer<bus> bus)
       joyp_{0x0Fu},
       keys_{0xFFu}
 {
-    bus->get_mmu()->add_memory_delegate({
-        joypad_addr,
+    bus->get_mmu()->add_memory_delegate(joypad_addr, {
         {connect_arg<&joypad::read>, this},
         {connect_arg<&joypad::write>, this}
     });
