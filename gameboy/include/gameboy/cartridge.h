@@ -37,6 +37,10 @@ public:
 
 private:
     bool cgb_enabled_ = false;
+    std::string_view cgb_type_;
+    std::string_view mbc_type_;
+    std::string_view rom_type_;
+    std::string_view ram_type_;
 
     std::string name_;
     std::vector<uint8_t> rom_;

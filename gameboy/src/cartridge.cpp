@@ -1,6 +1,8 @@
 #include <algorithm>
 #include <numeric>
 
+#include <magic_enum.hpp>
+
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/address_range.h"
@@ -10,6 +12,33 @@
 #include "gameboy/util/log.h"
 
 namespace gameboy {
+
+enum class cgb_type : uint8_t {
+    only_gb = 0x00u,
+    supports_cgb = 0x80u,
+    only_cgb = 0xC0u
+};
+
+enum class rom_type : uint8_t {
+    kb_32 = 0x00u,
+    kb_64 = 0x01u,
+    kb_128 = 0x02u,
+    kb_256 = 0x03u,
+    kb_512 = 0x04u,
+    mb_1 = 0x05u,
+    mb_2 = 0x06u,
+    mb_5 = 0x07u,
+    mb_1_1 = 0x52u,
+    mb_1_2 = 0x53u,
+    mb_1_5 = 0x54u
+};
+
+enum class ram_type : uint8_t {
+    none = 0x00u,
+    kb_2 = 0x01u,
+    kb_8 = 0x02u,
+    kb_32 = 0x03u
+};
 
 enum class mbc_type : uint8_t {
     rom_only = 0x00u,
@@ -53,9 +82,10 @@ cartridge::cartridge(const std::string_view rom_path)
     : rom_{data_loader::load(rom_path)}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
-    constexpr auto rom_cartridge_type_addr = make_address(0x0147u);
-    constexpr auto rom_ram_size_addr = make_address(0x0149u);
-    constexpr auto rom_header_checksum_addr = make_address(0x014Du);
+    constexpr auto mbc_type_addr = make_address(0x0147u);
+    constexpr auto rom_size_addr = make_address(0x0148u);
+    constexpr auto xram_size_addr = make_address(0x0149u);
+    constexpr auto header_checksum_addr = make_address(0x014Du);
 
     constexpr address_range rom_header_range(0x0134u, 0x014Cu);
     constexpr address_range rom_title_range(0x0134u, 0x0142u);
@@ -68,7 +98,7 @@ cartridge::cartridge(const std::string_view rom_path)
             return acc - rom_[addr] - 1;
         });
 
-    if(const auto expected = read(rom_, rom_header_checksum_addr); checksum != expected) {
+    if(const auto expected = read(rom_, header_checksum_addr); checksum != expected) {
         log::error("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
     }
 
@@ -77,15 +107,23 @@ cartridge::cartridge(const std::string_view rom_path)
         begin(rom_) + *end(rom_title_range),
         std::back_inserter(name_));
 
-    cgb_enabled_ = read(rom_, cgb_support_addr) != 0x00u;
+    const auto cgb = read<cgb_type>(rom_, cgb_support_addr);
+    cgb_enabled_ = cgb != cgb_type::only_gb;
+    cgb_type_ = magic_enum::enum_name(cgb);
 
-    const auto xram_banks = read(rom_, rom_ram_size_addr) == 0x03u
+    rom_type_ = magic_enum::enum_name(read<rom_type>(rom_, rom_size_addr));
+
+    const auto xram_type = read<ram_type>(rom_, xram_size_addr);
+    const auto xram_banks = xram_type == ram_type::kb_32
                             ? 4u
                             : 1u;
     ram_.reserve(xram_banks * 8_kb);
     std::fill(begin(ram_), end(ram_), 0u);
+    ram_type_ = magic_enum::enum_name(xram_type);
 
-    switch(auto type = read<mbc_type>(rom_, rom_cartridge_type_addr)) {
+    const auto mbc = read<mbc_type>(rom_, mbc_type_addr);
+    mbc_type_ = magic_enum::enum_name(mbc);
+    switch(mbc) {
         case mbc_type::rom_only:
         case mbc_type::rom_ram:
         case mbc_type::rom_ram_battery: {
@@ -121,7 +159,7 @@ cartridge::cartridge(const std::string_view rom_path)
             break;
         }
         default: {
-            log::error("unimplemented cartridge type {}", static_cast<std::underlying_type_t<mbc_type>>(type));
+            log::error("unimplemented cartridge type {}", magic_enum::underlying_type_t<mbc_type>{});
         }
     }
 }
