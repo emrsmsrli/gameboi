@@ -4,7 +4,6 @@
 #include "gameboy/cpu/register16.h"
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
-#include "gameboy/util/enumutil.h"
 
 namespace gameboy {
 
@@ -120,8 +119,6 @@ private:
 
     void load_hlsp() noexcept;
 };
-
-DEFINE_ENUM_CLASS_FLAGS(cpu::flag);
 
 } // namespace gameboy
 

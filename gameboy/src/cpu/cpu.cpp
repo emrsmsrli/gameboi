@@ -1,4 +1,5 @@
 #include <array>
+#include <magic_enum.hpp>
 
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/cpu/instruction_info.h"
@@ -10,6 +11,8 @@
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
+    
+using namespace magic_enum::bitwise_operators;
 
 constexpr address16 ie_addr{0xFFFFu};
 constexpr address16 if_addr{0xFF0Fu};

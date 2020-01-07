@@ -4,7 +4,6 @@
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/util/observer.h"
-#include "gameboy/util/enumutil.h"
 
 namespace gameboy {
 
@@ -38,8 +37,6 @@ private:
     register8 joyp_;
     key keys_;
 };
-
-DEFINE_ENUM_CLASS_FLAGS(joypad::key);
 
 } // namespace gameboy
 

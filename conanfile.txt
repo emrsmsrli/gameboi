@@ -1,6 +1,7 @@
 [requires]
 fmt/5.2.0@bincrafters/stable
 sfml/2.5.1@bincrafters/stable
+magic_enum/0.6.4@neargye/stable
 
 [options]
 sfml:graphics=True

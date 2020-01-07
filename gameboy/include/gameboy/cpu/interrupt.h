@@ -4,7 +4,6 @@
 #include <cstdint>
 
 #include "gameboy/memory/address.h"
-#include "gameboy/util/enumutil.h"
 
 namespace gameboy {
 
@@ -17,8 +16,6 @@ enum class interrupt : uint8_t {
     joypad = 1u << 4u,
     all = lcd_vblank | lcd_stat | timer | serial | joypad
 };
-
-DEFINE_ENUM_CLASS_FLAGS(interrupt);
 
 constexpr address8 make_address(const interrupt interrupt_request)
 {

@@ -1,4 +1,5 @@
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 
 #include "debugger/cpu_debugger.h"
 #include "gameboy/cpu/cpu.h"
@@ -6,9 +7,7 @@
 #include "gameboy/cartridge.h"
 #include "imgui.h"
 
-namespace {
-
-}
+using namespace magic_enum::bitwise_operators;
 
 gameboy::cpu_debugger::cpu_debugger(observer<cpu> cpu) noexcept
     : cpu_{cpu}

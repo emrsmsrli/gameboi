@@ -1,3 +1,5 @@
+#include <magic_enum.hpp>
+
 #include "gameboy/joypad/joypad.h"
 #include "gameboy/bus.h"
 #include "gameboy/cpu/cpu.h"
@@ -5,6 +7,8 @@
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
+
+using namespace magic_enum::bitwise_operators;
 
 constexpr address16 joypad_addr{0xFF00u};
 
