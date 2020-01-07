@@ -5,7 +5,8 @@ add_library(${PROJECT_NAME}
         src/cpu_debugger.cpp
         src/ppu_debugger.cpp
         src/timer_debugger.cpp
-        src/memory_bank_debugger.cpp)
+        src/memory_bank_debugger.cpp
+        src/cartridge_debugger.cpp)
 
 add_library(gb::debugger ALIAS ${PROJECT_NAME})
 

@@ -5,7 +5,6 @@
 #include <vector>
 #include <string>
 #include <string_view>
-#include <cstddef>
 
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/memory/controller/mbc1.h"
@@ -14,10 +13,12 @@
 #include "gameboy/memory/controller/mbc_regular.h"
 
 namespace gameboy {
-
+    
+class cartridge_debugger;
 class memory_bank_debugger;
 
 class cartridge {
+    friend cartridge_debugger;
     friend memory_bank_debugger;
 
 public:

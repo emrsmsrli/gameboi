@@ -9,9 +9,11 @@ namespace gameboy {
 
 class bus;
 class cpu_debugger;
+class cartridge_debugger;
 
 class cpu {
     friend cpu_debugger;
+    friend cartridge_debugger;
     friend alu;
 
 public:

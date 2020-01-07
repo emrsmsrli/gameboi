@@ -2,12 +2,14 @@
 #define GAMEBOY_DEBUGGER_H
 
 #include <SFML/Graphics.hpp>
+
 #include "gameboy/util/observer.h"
 #include "gameboy/bus.h"
 #include "cpu_debugger.h"
 #include "ppu_debugger.h"
 #include "timer_debugger.h"
 #include "memory_bank_debugger.h"
+#include "cartridge_debugger.h"
 
 namespace gameboy {
 
@@ -31,6 +33,7 @@ private:
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
     memory_bank_debugger memory_bank_debugger_;
+    cartridge_debugger cartridge_debugger_;
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
