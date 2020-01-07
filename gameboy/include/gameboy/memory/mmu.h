@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <vector>
+#include <unordered_map>
 
 #include "gameboy/memory/address.h"
 #include "gameboy/util/observer.h"
@@ -43,7 +44,7 @@ public:
 
     void dma(const address16& source, const address16& destination, uint16_t length);
 
-    void add_memory_delegate(const memory_delegate& callback) { delegates_.push_back(callback); }
+    void add_memory_delegate(const memory_delegate& callback) { delegates_[callback.address] = callback; }
 
 private:
     observer<bus> bus_;
@@ -53,7 +54,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    std::vector<memory_delegate> delegates_;
+    std::unordered_map<address16, memory_delegate> delegates_;
 
     void write_wram(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read_wram(const address16& address) const;

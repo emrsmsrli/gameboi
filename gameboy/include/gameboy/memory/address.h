@@ -67,4 +67,12 @@ constexpr size_t operator ""_kb(const unsigned long long bytes)
 
 } // namespace gameboy
 
+template<>
+struct std::hash<gameboy::address16> {
+    std::size_t operator()(const gameboy::address16& addr) const noexcept
+    {
+        return std::hash<uint16_t>{}(addr.value());
+    }
+};
+
 #endif //GAMEBOY_ADDRESS_H
