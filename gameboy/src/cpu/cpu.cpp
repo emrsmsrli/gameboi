@@ -1905,7 +1905,8 @@ void cpu::jump(const address16& address)
 
 void cpu::jump_relative(const address8& address) noexcept
 {
-    program_counter_ += address;
+    const auto signed_addr = static_cast<int8_t>(address.value());
+    program_counter_ = static_cast<uint16_t>(program_counter_.value() + signed_addr);
 }
 
 void cpu::call(const address16& address)
