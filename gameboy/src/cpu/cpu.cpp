@@ -953,8 +953,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         case 0xBE: {
-            const auto data = read_data(make_address(h_l_));
-            alu_.logical_compare(data);
+            alu_.logical_compare(read_data(make_address(h_l_)));
             break;
         }
         case 0xBF: {
