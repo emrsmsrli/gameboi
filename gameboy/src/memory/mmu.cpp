@@ -31,7 +31,8 @@ void mmu::write(const address16& address, const uint8_t data)
     } else if(xram_range.has(address)) {
         bus_->get_cartridge()->write_ram(address, data);
     } else if(echo_range.has(address)) {
-        write_wram(address16(address.value() - 0x1000u), data);
+        constexpr auto echo_diff = *begin(echo_range) - *begin(wram_range);
+        write_wram(address - echo_diff, data);
     } else if(wram_range.has(address)) {
         write_wram(address, data);
     } else if(hram_range.has(address)) {
