@@ -69,7 +69,8 @@ uint8_t mmu::read(const address16& address) const
     } 
 
     if(echo_range.has(address)) {
-        return read_wram(address16(address.value() - 0x1000u));
+        constexpr auto echo_diff = *begin(echo_range) - *begin(wram_range);
+        return read_wram(address - echo_diff);
     } 
 
     if(wram_range.has(address)) {
