@@ -41,8 +41,11 @@ public:
 
     void tick(uint8_t cycles);
 
-    [[nodiscard]] uint8_t read(const address16& address) const;
-    void write(const address16& address, uint8_t data);
+    [[nodiscard]] uint8_t read_ram(const address16& address) const;
+    void write_ram(const address16& address, uint8_t data);
+
+    [[nodiscard]] uint8_t read_oam(const address16& address) const;
+    void write_oam(const address16& address, uint8_t data);
 
 private:
     observer<bus> bus_;
@@ -79,6 +82,9 @@ private:
     register8 obpi_;
 
     dma_transfer_data dma_transfer_;
+
+    [[nodiscard]] uint8_t read_ram_by_bank(const address16& address, uint8_t bank) const;
+    void write_ram_by_bank(const address16& address, uint8_t data, uint8_t bank);
 
     [[nodiscard]] uint8_t dma_read(const address16& address) const;
     void dma_write(const address16& address, uint8_t data);

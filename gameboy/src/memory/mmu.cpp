@@ -26,8 +26,10 @@ void mmu::write(const address16& address, const uint8_t data)
         delegate.on_write(delegated_addr, data);
     } else if(rom_range.has(address)) {
         bus_->get_cartridge()->write_rom(address, data);
-    } else if(vram_range.has(address) || oam_range.has(address)) {
-        bus_->get_ppu()->write(address, data);
+    } else if(vram_range.has(address)) {
+        bus_->get_ppu()->write_ram(address, data);
+    } else if(oam_range.has(address)) {
+        bus_->get_ppu()->write_oam(address, data);
     } else if(xram_range.has(address)) {
         bus_->get_cartridge()->write_ram(address, data);
     } else if(echo_range.has(address)) {
@@ -55,8 +57,12 @@ uint8_t mmu::read(const address16& address) const
         return bus_->get_cartridge()->read_rom(address);
     } 
 
-    if(vram_range.has(address) || oam_range.has(address)) {
-        return bus_->get_ppu()->read(address);
+    if(vram_range.has(address)) {
+        return bus_->get_ppu()->read_ram(address);
+    } 
+
+    if(oam_range.has(address)) {
+        return bus_->get_ppu()->read_oam(address);
     } 
 
     if(xram_range.has(address)) {

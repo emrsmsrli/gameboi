@@ -221,42 +221,50 @@ void ppu::tick(const uint8_t cycles)
     }
 }
 
-uint8_t ppu::read(const address16& address) const
+uint8_t ppu::read_ram(const address16& address) const
 {
-    if(vram_range.has(address)) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return 0xFFu;
-        }
-
-        return ram_[address.value() - *begin(vram_range) + vram_bank_ * 8_kb];
+    if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+        return 0xFFu;
     }
 
-    if(oam_range.has(address)) {
-        if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return 0xFFu;
-        }
-
-        return oam_[address.value() - *begin(oam_range)];
-    }
-
-    return 0u;
+    return read_ram_by_bank(address, vram_bank_);
 }
 
-void ppu::write(const address16& address, const uint8_t data)
+void ppu::write_ram(const address16& address, const uint8_t data)
 {
-    if(vram_range.has(address)) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
-        ram_[address.value() - *begin(vram_range) + vram_bank_ * 8_kb] = data;
-    } else if(oam_range.has(address)) {
-        if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
-        oam_[address.value() - *begin(oam_range)] = data;
+    if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+        return;
     }
+
+    write_ram_by_bank(address, data, vram_bank_);
+}
+
+uint8_t ppu::read_oam(const address16& address) const
+{
+    if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
+        return 0xFFu;
+    }
+
+    return oam_[address.value() - *begin(oam_range)];
+}
+
+void ppu::write_oam(const address16& address, const uint8_t data)
+{
+    if(stat_.get_mode() == stat_mode::reading_oam || stat_.get_mode() == stat_mode::reading_oam_vram) {
+        return;
+    }
+
+    oam_[address.value() - *begin(oam_range)] = data;
+}
+
+uint8_t ppu::read_ram_by_bank(const address16& address, const uint8_t bank) const
+{
+    return ram_[address.value() - *begin(vram_range) + bank * 8_kb];
+}
+
+void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const uint8_t bank)
+{
+   ram_[address.value() - *begin(vram_range) + bank * 8_kb] = data;
 }
 
 uint8_t ppu::dma_read(const address16& address) const
