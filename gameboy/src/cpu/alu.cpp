@@ -371,7 +371,7 @@ void alu::test(const register8& reg, const uint8_t bit) const noexcept
 
 void alu::set(uint8_t& value, const uint8_t bit) noexcept
 {
-    bit_set(value, bit);
+    value = bit_set(value, bit);
 }
 
 void alu::set(register8& reg, const uint8_t bit) const noexcept
@@ -383,7 +383,7 @@ void alu::set(register8& reg, const uint8_t bit) const noexcept
 
 void alu::reset(uint8_t& value, const uint8_t bit) noexcept
 {
-    bit_reset(value, bit);
+    value = bit_reset(value, bit);
 }
 
 void alu::reset(register8& reg, const uint8_t bit) const noexcept
@@ -423,9 +423,9 @@ void alu::rotate_left(uint8_t& value) const noexcept
     value <<= 0x1u;
 
     if(cpu_->test_flag(cpu::flag::carry)) {
-        bit_set(value, 0u);
+        value = bit_set(value, 0u);
     } else {
-        bit_reset(value, 0u);
+        value = bit_reset(value, 0u);
     }
 
     cpu_->reset_flag(cpu::flag::all);
@@ -451,9 +451,9 @@ void alu::rotate_right(uint8_t& value) const noexcept
     value >>= 0x1u;
 
     if(cpu_->test_flag(cpu::flag::carry)) {
-        bit_set(value, 7u);
+        value = bit_set(value, 7u);
     } else {
-        bit_reset(value, 7u);
+        value = bit_reset(value, 7u);
     }
 
     cpu_->reset_flag(cpu::flag::all);
@@ -481,9 +481,9 @@ void alu::rotate_left_c(uint8_t& value) const noexcept
     cpu_->reset_flag(cpu::flag::all);
     if(msb != 0x00u) {
         cpu_->set_flag(cpu::flag::carry);
-        bit_set(value, 0u);
+        value = bit_set(value, 0u);
     } else {
-        bit_reset(value, 0u);
+        value = bit_reset(value, 0u);
     }
 
     if(value == 0x00u) {
@@ -506,9 +506,9 @@ void alu::rotate_right_c(uint8_t& value) const noexcept
     cpu_->reset_flag(cpu::flag::all);
     if(lsb != 0x00u) {
         cpu_->set_flag(cpu::flag::carry);
-        bit_set(value, 7u);
+        value = bit_set(value, 7u);
     } else {
-        bit_reset(value, 7u);
+        value = bit_reset(value, 7u);
     }
 
     if(value == 0x00u) {
@@ -553,9 +553,9 @@ void alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
     value >>= 0x1u;
 
     if(msb != 0x00u) {
-        bit_set(value, 7u);
+        value = bit_set(value, 7u);
     } else {
-        bit_reset(value, 7u);
+        value = bit_reset(value, 7u);
     }
 
     cpu_->reset_flag(cpu::flag::all);
@@ -580,7 +580,7 @@ void alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
     const auto lsb = value & 0x01u;
 
     value >>= 0x1u;
-    bit_reset(value, 7u);
+    value = bit_reset(value, 7u);
 
     cpu_->reset_flag(cpu::flag::all);
     if(lsb == 0x01u) {
