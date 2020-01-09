@@ -46,7 +46,7 @@ void gameboy::tick()
 
 void gameboy::tick_one_frame()
 {
-    while(ppu_.read(ppu::ly_addr) < 144) {
+    while(mmu_.read(ppu::ly_addr) < 144) {
         tick();
     }
 }
