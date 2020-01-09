@@ -104,7 +104,7 @@ void mmu::write_hram(const address16& address, const uint8_t data)
 
 uint8_t mmu::read_hram(const address16& address) const
 {
-    return work_ram_[address.value() - *begin(hram_range)];
+    return high_ram_[address.value() - *begin(hram_range)];
 }
 
 physical_address mmu::physical_wram_addr(const address16& address) const noexcept
