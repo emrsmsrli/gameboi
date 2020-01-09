@@ -13,12 +13,6 @@ namespace gameboy {
 
 constexpr address16 svbk_addr{0xFF70u};
 
-template<typename T>
-auto find_callback(const std::vector<T>& container, T&& value) noexcept
-{
-    return std::find(begin(container), end(container), std::forward<T>(value));
-}
-
 mmu::mmu(observer<bus> bus)
     : bus_{bus},
       wram_bank_{0u},
