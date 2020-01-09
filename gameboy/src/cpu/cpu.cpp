@@ -1219,7 +1219,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
             break;
         }
         default: {
-            log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
+            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
         }
     }
 
@@ -1808,7 +1808,7 @@ uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
         }
 
         default: {
-            log::error("unknown instruction: {:#x}, address: {:#x}", inst, stack_pointer_.value() - 1);
+            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
         }
     }
 
