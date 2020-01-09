@@ -52,8 +52,8 @@ void mmu::write(const address16& address, const uint8_t data)
 uint8_t mmu::read(const address16& address) const
 {
     if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [addr, del] = *it;
-        return del.on_read(address);
+        const auto& [delegated_addr, delegate] = *it;
+        return delegate.on_read(delegated_addr);
     } 
 
     if(rom_range.has(address)) {
