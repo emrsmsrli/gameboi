@@ -22,8 +22,8 @@ mmu::mmu(observer<bus> bus)
 void mmu::write(const address16& address, const uint8_t data)
 {
     if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [addr, del] = *it;
-        del.on_write(address, data);
+        const auto& [delegated_addr, delegate] = *it;
+        delegate.on_write(delegated_addr, data);
     } else if(rom_range.has(address)) {
         bus_->get_cartridge()->write_rom(address, data);
     } else if(vram_range.has(address) || oam_range.has(address)) {
