@@ -22,6 +22,7 @@ public:
     [[nodiscard]] constexpr size_type value() const noexcept { return value_; }
 
     constexpr address<T> operator+(const T value) const noexcept { return address<T>(value_ + value); }
+    constexpr address<T> operator-(const T value) const noexcept { return address<T>(value_ - value); }
 
     constexpr address<T>& operator=(const T value) noexcept
     {
