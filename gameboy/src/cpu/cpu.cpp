@@ -1171,6 +1171,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
         }
         case 0xF1: {
             pop(a_f_);
+            a_f_.low() &= 0xF0;
             break;
         }
         case 0xF2: {
