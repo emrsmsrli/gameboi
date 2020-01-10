@@ -60,7 +60,7 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
     }
 }
 
-void cartridge_debugger::draw() const noexcept
+void cartridge_debugger::draw() noexcept
 {
     if(!ImGui::Begin("Cartridge")) {
         ImGui::End();
@@ -70,6 +70,41 @@ void cartridge_debugger::draw() const noexcept
     if(ImGui::BeginTabBar("cartridgetabs")) {
         if(ImGui::BeginTabItem("Info")) {
             draw_info();
+
+            ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
+
+            ImGui::TextUnformatted("Breakpoints");
+            ImGui::Separator();
+            ImGui::Spacing();
+
+            if(std::array<char, 5> buf{}; ImGui::InputText("", buf.data(), buf.size(), 
+                    ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                const auto addr_l = std::strtoul(buf.data(), nullptr, 16);
+                breakpoints_.emplace_back(addr_l);
+            }
+
+            if(!breakpoints_.empty()) {
+                ImGuiListClipper clipper(breakpoints_.size());
+                while(clipper.Step()) {
+                    for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+                        const auto deleted = ImGui::SmallButton("X");
+
+                        ImGui::SameLine(0, 20);
+                        ImGui::Text("%04X", breakpoints_[i].value());
+
+                        if(deleted) {
+                            breakpoints_.erase(begin(breakpoints_) + i);
+                        }
+                    }
+                }
+            } else {
+                ImGui::Spacing();
+                ImGui::Spacing();
+                ImGui::TextUnformatted("No breakpoints");
+            }
+
             ImGui::EndTabItem();
         }
 
@@ -87,6 +122,14 @@ void cartridge_debugger::draw() const noexcept
     }
     
     ImGui::End();
+}
+
+void cartridge_debugger::check_breakpoints()
+{
+    if(const auto pc = make_address(cpu_->program_counter_);
+        std::find(begin(breakpoints_), end(breakpoints_), pc) != end(breakpoints_)) {
+        on_break_(); // break the execution
+    }
 }
 
 void cartridge_debugger::draw_info() const

@@ -3,8 +3,9 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "gameboy/util/observer.h"
 #include "gameboy/bus.h"
+#include "gameboy/util/observer.h"
+#include "gameboy/util/delegate.h"
 #include "cpu_debugger.h"
 #include "ppu_debugger.h"
 #include "timer_debugger.h"
@@ -26,6 +27,8 @@ public:
     debugger& operator=(debugger&&) = delete;
 
     void tick();
+    void on_break(delegate<void()> delegate) { cartridge_debugger_.on_break(delegate); }
+    void check_breakpoints() { cartridge_debugger_.check_breakpoints(); }
 
 private:
     observer<bus> bus_;

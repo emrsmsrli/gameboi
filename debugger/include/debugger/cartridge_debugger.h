@@ -6,6 +6,7 @@
 #include "gameboy/memory/address.h"
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/util/observer.h"
+#include "gameboy/util/delegate.h"
 
 namespace gameboy {
 
@@ -33,12 +34,18 @@ class cartridge_debugger {
 public:
     explicit cartridge_debugger(observer<cartridge> cartridge, observer<cpu> cpu);
 
-    void draw() const noexcept;
+    void draw() noexcept;
+    void on_break(const delegate<void()> on_break_delegate) { on_break_ = on_break_delegate; }
+    void check_breakpoints();
 
 private:
     observer<cartridge> cartridge_;
     observer<cpu> cpu_;
+
     std::vector<instruction_disassembly> disassemblies_;
+    std::vector<address16> breakpoints_;
+
+    delegate<void()> on_break_;
 
     void draw_info() const;
     void draw_rom_disassembly() const noexcept;
