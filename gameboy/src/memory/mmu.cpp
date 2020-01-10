@@ -111,6 +111,11 @@ uint8_t mmu::read_hram(const address16& address) const
 
 physical_address mmu::physical_wram_addr(const address16& address) const noexcept
 {
+    static constexpr address_range wram_first_bank_range{0xC000u, 0xCFFFu};
+    if(wram_first_bank_range.has(address)) {
+        return physical_address(address.value() - *begin(wram_first_bank_range));
+    }
+
     const auto wram_bank = wram_bank_ < 2 ? 0u : wram_bank_;
     return physical_address{address.value() - *begin(wram_range) + 4_kb * wram_bank};
 }

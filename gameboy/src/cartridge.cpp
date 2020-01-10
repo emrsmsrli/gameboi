@@ -167,7 +167,8 @@ cartridge::cartridge(const std::string_view rom_path)
 uint8_t cartridge::read_rom(const address16& address) const
 {
     const auto physical_addr = [&]() -> size_t {
-        if(rom_range.has(address)) {
+        static constexpr address_range first_rom_bank_range{0x3FFFu};
+        if(first_rom_bank_range.has(address)) {
             return address.value();
         }
 
