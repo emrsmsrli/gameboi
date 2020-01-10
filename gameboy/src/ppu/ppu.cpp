@@ -12,10 +12,10 @@ namespace gameboy {
 
 constexpr auto ly_max = 153;
 
-constexpr auto hblank_cycles = 207u;
-constexpr auto vblank_cycles = 456u;
-constexpr auto reading_oam_cycles = 83u;
-constexpr auto reading_oam_vram_cycles = 175u;
+constexpr auto hblank_cycles = 204u;
+constexpr auto vblank_line_cycles = 456u;
+constexpr auto reading_oam_cycles = 80u;
+constexpr auto reading_oam_vram_cycles = 172u;
 
 constexpr address16 lcdc_addr{0xFF40u};
 constexpr address16 stat_addr{0xFF41u};
@@ -192,7 +192,7 @@ void ppu::tick(const uint8_t cycles)
             break;
         }
         case stat_mode::v_blank: {
-            if(has_elapsed(vblank_cycles)) {
+            if(has_elapsed(vblank_line_cycles)) {
                 update_ly();
                 compare_lyc();
 
