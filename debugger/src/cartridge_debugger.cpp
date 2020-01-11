@@ -198,7 +198,7 @@ void cartridge_debugger::draw_rom_disassembly_full() const noexcept
 
 void cartridge_debugger::do_draw_rom_disassembly(const uint32_t start, const uint32_t end, const bool auto_scroll) const noexcept
 {
-    const auto clamped_start = std::max(static_cast<size_t>(0u), start);
+    const auto clamped_start = std::max(0u, start);
     const auto clamped_end = std::min(static_cast<size_t>(end), disassemblies_.size());
     const auto pc_addr = make_address(cpu_->program_counter_);
     for(auto i = clamped_start; i < clamped_end; ++i) {
