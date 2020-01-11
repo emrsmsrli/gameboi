@@ -20,9 +20,9 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
 
     const auto virtual_address = [](auto addr) -> uint16_t { return addr % 16_kb; };
     const auto make_dissassembly = [&](auto i) {
-        auto instruction_info = rom[i] == 0xCB
-            ? instruction::extended_instruction_set[rom[++i]]
-            : instruction::standard_instruction_set[rom[i]];
+        auto& [instruction_info, is_cgb] = rom[i] == 0xCB
+            ? std::make_pair(instruction::extended_instruction_set[rom[i + 1]], true)
+            : std::make_pair(instruction::standard_instruction_set[rom[i]], false);
 
         auto& diss = disassemblies_.emplace_back(instruction_index, bank_index, 
             make_address(virtual_address(i)) + (bank_index < 1 ? 0 : 16_kb), instruction_info);
@@ -42,8 +42,13 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
             diss.disassembly = fmt::format(instruction_info.mnemonic.data(), data);
         }
 
-        i += instruction_info.length;
         ++instruction_index;
+        
+        i += instruction_info.length;
+        if(is_cgb) {
+            ++i;
+        }
+
         return i;
     };
 
