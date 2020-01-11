@@ -58,29 +58,6 @@ constexpr address16 hdma_3_addr{0xFF53u}; // New DMA Destination, High
 constexpr address16 hdma_4_addr{0xFF54u}; // New DMA Destination, Low
 constexpr address16 hdma_5_addr{0xFF55u}; // New DMA Length/Mode/Start
 
-void set_palette(register8& index_register, std::array<palette, 8>& palettes, const uint8_t data) noexcept
-{
-    const auto auto_increment = bit_test(index_register, 7u);
-    const auto is_msb = bit_test(index_register, 0u);
-    const auto color_index = index_register.value() >> 1u & 0x03u;
-    const auto palette_index = index_register.value() >> 3u & 0x07u;
-
-    // msb | xBBBBBGG |
-    // lsb | GGGRRRRR |
-    auto& color = palettes[palette_index].colors[color_index];
-    if(is_msb) {
-        color.blue = data >> 2u & 0x1Fu;
-        color.green |= (data & 0x03u) << 3u;
-    } else {
-        color.red = data & 0x1Fu;
-        color.green = (data >> 5u) & 0x03u;
-    }
-
-    if(auto_increment) {
-        index_register += 1u;
-    }
-}
-
 template<auto ReadFunc, auto WriteFunc, typename... Registers>
 void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 {
@@ -379,6 +356,28 @@ uint8_t ppu::palette_read(const address16& address) const
 
 void ppu::palette_write(const address16& address, const uint8_t data)
 {
+    const auto set_palette = [](auto& index_register, auto& palettes, const uint8_t data) noexcept {
+        const auto auto_increment = bit_test(index_register, 7u);
+        const auto is_msb = bit_test(index_register, 0u);
+        const auto color_index = index_register.value() >> 1u & 0x03u;
+        const auto palette_index = index_register.value() >> 3u & 0x07u;
+
+        // msb | xBBBBBGG |
+        // lsb | GGGRRRRR |
+        auto& color = palettes[palette_index].colors[color_index];
+        if(is_msb) {
+            color.blue = data >> 2u & 0x1Fu;
+            color.green |= (data & 0x03u) << 3u;
+        } else {
+            color.red = data & 0x1Fu;
+            color.green = (data >> 5u) & 0x03u;
+        }
+
+        if(auto_increment) {
+            index_register += 1u;
+        }
+    };
+
     if(address == bgp_addr) {
         bgp_ = data;
     } else if(address == obp_0_addr) {
