@@ -323,6 +323,7 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
         if(!bit_test(data, 7u) && lcdc_.lcd_enabled()) {
             ly_ = 0;
             cycle_count_ = 0;
+            stat_.set_mode(stat_mode::h_blank);
         }
 
         lcdc_.reg = data;
