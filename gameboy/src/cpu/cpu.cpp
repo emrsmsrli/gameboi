@@ -4,6 +4,7 @@
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/bus.h"
+#include "gameboy/cartridge.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/util/log.h"
@@ -20,14 +21,14 @@ constexpr address16 if_addr{0xFF0Fu};
 cpu::cpu(observer<bus> bus) noexcept
     : bus_{bus},
       alu_{make_observer(this)},
-      a_f_{0x01B0u},
-      b_c_{0x0013u},
-      d_e_{0x00D8u},
-      h_l_{0x014Du},
+      a_f_(bus_->get_cartridge()->cgb_enabled() ? 0x1180u : 0x01B0u),
+      b_c_(bus_->get_cartridge()->cgb_enabled() ? 0x0000u : 0x0013u),
+      d_e_(bus_->get_cartridge()->cgb_enabled() ? 0xFF56u : 0x00D8u),
+      h_l_(bus_->get_cartridge()->cgb_enabled() ? 0x000Du : 0x014Du),
       stack_pointer_{0xFFFEu},
       program_counter_{0x0100u},
       total_cycles_{0u},
-      interrupt_flags_{interrupt::none},
+      interrupt_flags_{bus_->get_cartridge()->cgb_enabled() ? interrupt::lcd_vblank : interrupt::none},
       interrupt_enable_{interrupt::none},
       interrupt_master_enable_{false},
       is_interrupt_status_change_pending_{false},
