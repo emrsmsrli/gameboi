@@ -1,5 +1,7 @@
 #include "debugger/ppu_debugger.h"
 #include "gameboy/ppu/ppu.h"
+#include "gameboy/bus.h"
+#include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
@@ -236,7 +238,10 @@ void gameboy::ppu_debugger::draw_vram_view()
 void gameboy::ppu_debugger::draw_tiles()
 {
     const auto ram = ppu_->ram_;
-    const auto palette = gameboy::palette::from(ppu::gb_palette_, ppu_->bgp_.value());
+
+    const auto palette = ppu_->bus_->get_cartridge()->cgb_enabled()
+        ? ppu_->cgb_bg_palettes_[0]
+        : palette::from(ppu::gb_palette_, ppu_->bgp_.value());
 
     constexpr auto tiles_physical_size = 6144u;
     constexpr auto tile_physical_size = 16u;
