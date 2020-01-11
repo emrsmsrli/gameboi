@@ -373,7 +373,7 @@ void ppu::palette_write(const address16& address, const uint8_t data)
             color = correct_color(color);
         } else {
             color.red = data & 0x1Fu;
-            color.green = (data >> 5u) & 0x03u;
+            color.green = (data >> 5u) & 0x07u;
         }
 
         if(auto_increment) {
