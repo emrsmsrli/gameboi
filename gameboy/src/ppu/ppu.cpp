@@ -369,6 +369,8 @@ void ppu::palette_write(const address16& address, const uint8_t data)
         if(is_msb) {
             color.blue = data >> 2u & 0x1Fu;
             color.green |= (data & 0x03u) << 3u;
+
+            color = correct_color(color);
         } else {
             color.red = data & 0x1Fu;
             color.green = (data >> 5u) & 0x03u;
@@ -402,6 +404,19 @@ void ppu::palette_write(const address16& address, const uint8_t data)
 
         set_palette(obpi_, cgb_obj_palettes_, data);
     }
+}
+
+color ppu::correct_color(const color& c) noexcept
+{
+    const auto do_correct = [](const uint8_t color) {
+        return static_cast<uint8_t>(color * 0xFFu / 0x1Fu);
+    };
+
+    return {
+        do_correct(c.red),
+        do_correct(c.green),
+        do_correct(c.blue)
+    };
 }
 
 void ppu::hdma()
