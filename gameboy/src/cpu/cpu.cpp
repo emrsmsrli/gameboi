@@ -150,9 +150,9 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
 
     const auto data = [&]() -> uint16_t {
         switch(info.length) {
-            case 3:return read_immediate(imm16);
-            case 2:return read_immediate(imm8);
-            default:return 0u;
+            case 3u: return read_immediate(imm16);
+            case 2u: return read_immediate(imm8);
+            default: return 0u;
         }
     }();
 
@@ -1227,7 +1227,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
     return info.cycle_count;
 }
 
-uint8_t cpu::decode(uint16_t inst, extended_instruction_set_t)
+uint8_t cpu::decode(const uint16_t inst, extended_instruction_set_t)
 {
     const auto info = instruction::extended_instruction_set[inst];
 
