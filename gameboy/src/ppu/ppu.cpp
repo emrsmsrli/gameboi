@@ -320,7 +320,7 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
-        if(bit_test(data, 7u) && !lcdc_.lcd_enabled()) {
+        if(!bit_test(data, 7u) && lcdc_.lcd_enabled()) {
             ly_ = 0;
             cycle_count_ = 0;
         }
