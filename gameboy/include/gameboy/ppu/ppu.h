@@ -95,6 +95,10 @@ private:
     [[nodiscard]] uint8_t palette_read(const address16& address) const;
     void palette_write(const address16& address, uint8_t data);
 
+    void compare_coincidence() noexcept;
+    void set_ly(const register8& ly) noexcept;
+    void set_lyc(const register8& lyc) noexcept;
+
     void hdma();
     void render() const noexcept;
 

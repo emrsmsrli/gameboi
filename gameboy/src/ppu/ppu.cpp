@@ -129,15 +129,7 @@ void ppu::tick(const uint8_t cycles)
     };
 
     const auto update_ly = [&]() {
-        ly_ = (ly_ + 1) % ly_max;
-    };
-
-    const auto compare_lyc = [&]() {
-        if(ly_ == lyc_) {
-            stat_.set_coincidence_flag();
-        } else {
-            stat_.reset_coincidence_flag();
-        }
+        set_ly(register8((ly_ + 1) % ly_max));
 
         if(stat_.coincidence_flag_set() && bus_->get_cpu()->interrupts_enabled()) {
             bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
@@ -154,7 +146,6 @@ void ppu::tick(const uint8_t cycles)
         case stat_mode::h_blank: {
             if(has_elapsed(hblank_cycles)) {
                 update_ly();
-                compare_lyc();
 
                 if(ly_ == screen_height) {
                     on_render_frame();
@@ -171,7 +162,6 @@ void ppu::tick(const uint8_t cycles)
         case stat_mode::v_blank: {
             if(has_elapsed(vblank_line_cycles)) {
                 update_ly();
-                compare_lyc();
 
                 if(ly_ == 0) {
                     stat_.set_mode(stat_mode::reading_oam);
@@ -321,9 +311,9 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
         if(!bit_test(data, 7u) && lcdc_.lcd_enabled()) {
-            ly_ = 0;
-            cycle_count_ = 0;
+            set_ly(register8{0x00u});
             stat_.set_mode(stat_mode::h_blank);
+            cycle_count_ = 0;
         }
 
         lcdc_.reg = data;
@@ -334,9 +324,9 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
     } else if(address == scx_addr) {
         scx_ = data;
     } else if(address == ly_addr) {
-        ly_ = 0;
+        set_ly(register8{0x00u});
     } else if(address == lyc_addr) {
-        lyc_ = data;
+        set_lyc(register8{data});
     } else if(address == wy_addr) {
         wy_ = data;
     } else if(address == wx_addr) {
@@ -406,17 +396,25 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     }
 }
 
-color ppu::correct_color(const color& c) noexcept
+void ppu::compare_coincidence() noexcept
 {
-    const auto do_correct = [](const uint8_t color) {
-        return static_cast<uint8_t>(color * 0xFFu / 0x1Fu);
-    };
+    if(ly_ == lyc_) {
+        stat_.set_coincidence_flag();
+    } else {
+        stat_.reset_coincidence_flag();
+    }
+}
 
-    return {
-        do_correct(c.red),
-        do_correct(c.green),
-        do_correct(c.blue)
-    };
+void ppu::set_ly(const register8& ly) noexcept
+{
+    ly_ = ly;
+    compare_coincidence();
+}
+
+void ppu::set_lyc(const register8& lyc) noexcept
+{
+    lyc_ = lyc;
+    compare_coincidence();
 }
 
 void ppu::hdma()
@@ -439,34 +437,131 @@ void ppu::hdma()
 
 void ppu::render() const noexcept
 {
+    const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
+
     render_line line{};
+    std::array<uint8_t, screen_width> color_line{};
     std::fill(begin(line), end(line), color{0xFFu});
+    std::fill(begin(color_line), end(color_line), 0u);
 
-    // todo replace with render strategies
-    if(bus_->get_cartridge()->cgb_enabled()) {
-        if(lcdc_.bg_enabled()) { // bg enabled overrides window
-            render_background();
+    const auto get_row = [&](int row, uint8_t tilenum, bool umode, uint8_t character_bank) {
+         std::array<uint8_t, 8> tile_row{};
 
-            if(lcdc_.window_enabled() && ly_ >= wy_) {
-                render_window();
+        // get the tile address depending on whether current using unsigned mode or signed mode
+        uint16_t addr = (umode)
+            ? tile_addr<uint8_t>(0x8000, tilenum)
+            : tile_addr<int8_t>(0x9000, tilenum);
+
+        auto row_offset = uint16_t(row * 2);
+        auto lsb = read_ram_by_bank(make_address(addr) + row_offset, character_bank);
+        auto msb = read_ram_by_bank(make_address(addr) + row_offset + 1, character_bank);
+
+        auto idx = 0;
+        for (auto bit = (int)(tile_row.size() - 1); bit >= 0; --bit)
+        {
+            uint8_t mask = (1 << bit);
+            uint8_t color = (((msb & mask) >> bit) << 1) | ((lsb & mask) >> bit);
+
+            tile_row[idx++] = color;
+        }
+
+        return tile_row;
+    };
+
+    const auto get_background = [&]() {
+        static constexpr auto tiles_per_row = 32;
+        static constexpr auto tiles_per_col = 32;
+        static constexpr auto tile_width = 8;
+        static constexpr auto tile_height = 8;
+
+
+        const auto start = lcdc_.bg_map_address();
+        const auto umode = lcdc_.unsigned_mode();
+
+        std::array<uint8_t, screen_width> tileline{};
+
+        // scroll x
+        const auto scx = scx_;
+        // scroll y
+        const auto scy = scy_;
+
+        // starting row given the scroll
+        const auto tile_row = ((scy + ly_.value()) / tile_height);
+        // starting column given the scroll
+        const auto start_tile_col = scx.value() / tile_width;
+        auto pixel_row = (scy + ly_.value()) % tile_height;
+
+        auto idx = 0;
+        for (auto tile_col = start_tile_col; tile_col < start_tile_col + 21; ++tile_col) {
+            // calculate tile address
+            const auto tile_offset = (uint16_t)(start.value() + (tiles_per_row * (tile_row % tiles_per_row)) + (tile_col % tiles_per_col));
+
+            // read tile character code from map
+            const auto tilenum = read_ram_by_bank(make_address(tile_offset), 0);
+            // read tile attributes
+            const auto tileattr = read_ram_by_bank(make_address(tile_offset), 1);
+
+            // extract tile attributes
+            const auto palette_number     = (cgb_enabled) ? (tileattr & 0x07) : 0;
+            const auto character_bank     = (cgb_enabled) ? ((tileattr >> 3) & 0x01) : 0;
+            const auto flip_horizontal    = (cgb_enabled && (tileattr & 0x20) != 0);
+            const auto flip_vertical      = (cgb_enabled && (tileattr & 0x40) != 0);
+            const auto backgroud_priority = (cgb_enabled && (tileattr & 0x80) != 0);
+
+            if (flip_vertical)
+                pixel_row = tile_height - pixel_row - 1;
+
+            // get the row of the tile the current scan line is on.
+            auto row = get_row(pixel_row, tilenum, umode, (uint8_t)character_bank);
+
+            // horizontally flip the row if the flag is set
+            if (flip_horizontal)
+                std::reverse(row.begin(), row.end());
+
+            // calculate pixel column number
+            auto pixel_col = tile_col * tile_width;
+
+            //
+            for (auto i = 0u; i < row.size(); ++i)
+            {
+                if (pixel_col >= scx.value() && pixel_col <= scx + 160 && idx < 160)
+                    tileline[idx++] = (uint8_t)(row[i] | (palette_number << 2) | (backgroud_priority << 5));
+
+                pixel_col++;
             }
         }
 
-        if(lcdc_.obj_enabled()) {
-            render_obj();
-        }
-    } else {
-        if(lcdc_.bg_enabled()) {
-            render_background();
-        }
+        return tileline;
+    };
 
-        if(lcdc_.window_enabled() && ly_ >= wy_) {
-            render_window();
-        }
+    const auto background = get_background();
+    // const auto window = get_window_overlay(ly_);
 
-        if(lcdc_.obj_enabled()) {
-            render_obj();
+    for (auto pixel_idx = 0u; pixel_idx < line.size(); ++pixel_idx) {
+        auto tileinfo = 0u;
+
+       /* if (lcdc_.window_enabled() && ly_ >= wy_ && pixel_idx >= (wx_ - 7))
+            tileinfo = window[pixel_idx];
+        else if (background_enabled || cgb_enabled_)*/
+            tileinfo = background[pixel_idx];
+        /*else
+            tileinfo = 0;*/
+
+        auto color_number = tileinfo & 0x03;
+        auto color_palette = (tileinfo >> 2) & 0x07;
+        auto priority = (tileinfo >> 5);
+
+        color_line[pixel_idx] = (uint8_t)(color_number | (priority << 2));
+
+        /*if (bus_->get_cartridge()->cgb_enabled())
+        {
+            line[pixel_idx] = cgb_bg_palettes_[color_palette].colors[color_number];
         }
+        else
+        {
+            const auto background_palette = palette::from(gb_palette_, bgp_.value());
+            line[pixel_idx] = background_palette.colors[color_number];
+        }*/
     }
 
     on_render_line(ly_.value(), line);
@@ -485,6 +580,19 @@ void ppu::render_window() const noexcept
 void ppu::render_obj() const noexcept
 {
 
+}
+
+color ppu::correct_color(const color& c) noexcept
+{
+    const auto do_correct = [](const uint8_t color) {
+        return static_cast<uint8_t>(color * 0xFFu / 0x1Fu);
+    };
+
+    return {
+        do_correct(c.red),
+        do_correct(c.green),
+        do_correct(c.blue)
+    };
 }
 
 } // namespace gameboy
