@@ -3,7 +3,7 @@
 
 #include "gameboy/gameboy.h"
 #include "debugger/debugger.h"
-#include <chrono>
+#include "gameboy/util/delegate.h"
 
 namespace {
 
@@ -23,6 +23,7 @@ struct renderer {
             sf::Style::Default
         }
     {
+        window.setFramerateLimit(500);
         window_buffer.create(screen_width, screen_height);
         window_texture.create(screen_width, screen_height);
         gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, this});
@@ -65,6 +66,17 @@ int main(int /*argc*/, char** /*argv*/)
     debugger.img = &renderer.window_buffer;
 
     auto tick_allowed = false;
+    auto debugger_tick_allowed = false;
+
+    struct ticker {
+        bool& allowd;
+
+        void b() { allowd = false; }
+    };
+
+    ticker t{tick_allowed};
+    debugger.on_break({gameboy::connect_arg<&ticker::b>, t});
+
     while(renderer.window.isOpen()) {
         sf::Event event{};
         while(renderer.window.pollEvent(event)) {
@@ -96,6 +108,10 @@ int main(int /*argc*/, char** /*argv*/)
                     case sf::Keyboard::Space:
                         gb.press_key(gameboy::joypad::key::select);
                         break;
+                    case sf::Keyboard::F:
+                    case sf::Keyboard::F7:
+                        gb.tick();
+                        break;
                     default:
                         break;
                 }
@@ -125,14 +141,14 @@ int main(int /*argc*/, char** /*argv*/)
                     case sf::Keyboard::Space:
                         gb.release_key(gameboy::joypad::key::select);
                         break;
-                    case sf::Keyboard::F:
-                    case sf::Keyboard::F7:
-                        gb.tick();
-                        break;
                     case sf::Keyboard::G:
                         gb.tick_one_frame();
                     case sf::Keyboard::T:
+                    case sf::Keyboard::F9:
                         tick_allowed = !tick_allowed;
+                        break;
+                    case sf::Keyboard::F10:
+                        debugger_tick_allowed = !debugger_tick_allowed;
                         break;
                     default:
                         break;
@@ -142,9 +158,15 @@ int main(int /*argc*/, char** /*argv*/)
 
         if(tick_allowed) {
             gb.tick();
-        }
 
-        debugger.tick();
+            debugger.check_breakpoints();
+
+            if(debugger_tick_allowed) {
+                debugger.tick();
+            }
+        } else {
+            debugger.tick();
+        }
     }
 
     return 0;

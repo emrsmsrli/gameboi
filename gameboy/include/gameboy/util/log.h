@@ -2,7 +2,7 @@
 #define GAMEBOY_LOG_H
 
 #if DEBUG
-#include <cstdio>
+#include <iostream>
 #endif
 
 #include <string_view>
@@ -14,7 +14,7 @@ template<typename... Args>
 void info(const std::string_view format, const Args& ... args) noexcept
 {
     if constexpr(DEBUG) {
-        fmt::print("[I] - {}\n", fmt::format(format.data(), args...));
+        std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
     }
 }
 
@@ -22,7 +22,7 @@ template<typename... Args>
 void warn(const std::string_view format, const Args& ... args) noexcept
 {
     if constexpr(DEBUG) {
-        fmt::print("[W] - {}\n", fmt::format(format.data(), args...));
+        // fmt::print("[W] - {}\n", fmt::format(format.data(), args...));
     }
 }
 
@@ -32,7 +32,7 @@ template<typename... Args>
     const auto log = fmt::format(format.data(), args...);
 
     if constexpr(DEBUG) {
-        fmt::print(stderr, "[E] - {}\n", log);
+        // fmt::print(stderr, "[E] - {}\n", log);
     }
 
     std::terminate();

@@ -17,7 +17,8 @@ debugger::debugger(const observer<bus> bus)
 {
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
-    window_.setVerticalSyncEnabled(true);
+    window_.setFramerateLimit(144);
+    texture_.create(160, 144);
 }
 
 debugger::~debugger()
@@ -39,6 +40,9 @@ void debugger::tick()
     timer_debugger_.draw();
     memory_bank_debugger_.draw();
     cartridge_debugger_.draw();
+
+    texture_.update(*img);
+    ImGui::Image(texture_);
 
     window_.clear(sf::Color::Black);
     ImGui::SFML::Render(window_);

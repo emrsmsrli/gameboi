@@ -1,9 +1,12 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
+#include <vector>
+
 #include "gameboy/cpu/register16.h"
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
+#include "instruction_info.h"
 
 namespace gameboy {
 
@@ -15,6 +18,11 @@ class cpu {
     friend cpu_debugger;
     friend cartridge_debugger;
     friend alu;
+
+    struct inst {
+        address16 addr;
+        instruction::instruction_info info;
+    };
 
 public:
     explicit cpu(observer<bus> bus) noexcept;
@@ -54,6 +62,7 @@ private:
 
     register16 stack_pointer_;
     register16 program_counter_;
+    std::vector<inst> last_100_instructions_;
     
     uint64_t total_cycles_;
 

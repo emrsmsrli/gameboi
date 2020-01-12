@@ -40,6 +40,7 @@ private:
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
+    sf::Texture texture_{};
 };
 
 } // namespace gameboy
