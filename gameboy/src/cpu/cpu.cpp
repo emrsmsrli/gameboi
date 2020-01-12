@@ -869,8 +869,7 @@ uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xA7: {
-            /* AND A */
-            nop();
+            alu_.logical_and(a_f_.high());
             break;
         }
         case 0xA8: {
