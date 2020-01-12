@@ -101,6 +101,8 @@ private:
     void render_background() const noexcept;
     void render_window() const noexcept;
     void render_obj() const noexcept;
+
+    static color correct_color(const color& c) noexcept;
 };
 
 } // namespace gameboy
