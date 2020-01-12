@@ -1205,7 +1205,7 @@ uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xF8: {
-            load_hlsp();
+            load_hlsp(static_cast<int8_t>(data));
             break;
         }
         case 0xF9: {
@@ -1996,10 +1996,9 @@ void cpu::load_d() noexcept
     --h_l_;
 }
 
-void cpu::load_hlsp() noexcept
+void cpu::load_hlsp(const int8_t data) noexcept
 {
-    const auto data = static_cast<int8_t>(read_immediate(imm8));
-    const uint16_t value = stack_pointer_.value() + data;
+    const auto value = stack_pointer_.value() + data;
 
     reset_flag(flag::all);
     if(((stack_pointer_.value() ^ data ^ value) & 0x0100) == 0x0100) {
@@ -2010,7 +2009,7 @@ void cpu::load_hlsp() noexcept
         set_flag(flag::half_carry);
     }
 
-    load(h_l_, value);
+    load(h_l_, static_cast<uint16_t>(value));
 }
 
 } // namespace gameboy

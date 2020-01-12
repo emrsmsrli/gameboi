@@ -128,7 +128,7 @@ private:
     void load_i() noexcept;
     void load_d() noexcept;
 
-    void load_hlsp() noexcept;
+    void load_hlsp(int8_t data) noexcept;
 };
 
 } // namespace gameboy
