@@ -298,35 +298,35 @@ void alu::complement() const noexcept
 
 void alu::decimal_adjust() const noexcept
 {
-    uint16_t acc = cpu_->a_f_.high().value();
+    int acc = cpu_->a_f_.high().value();
 
     if(cpu_->test_flag(cpu::flag::negative)) {
         if(cpu_->test_flag(cpu::flag::half_carry)) {
-            acc = (acc - 0x06u) & 0xFFu;
+            acc = (acc - 0x06) & 0xFF;
         }
 
         if(cpu_->test_flag(cpu::flag::carry)) {
-            acc -= 0x60u;
+            acc -= 0x60;
         }
     } else {
-        if(cpu_->test_flag(cpu::flag::half_carry) || (acc & 0x0Fu) > 0x09u) {
-            acc += 0x06u;
+        if(cpu_->test_flag(cpu::flag::half_carry) || (acc & 0x0F) > 0x09) {
+            acc += 0x06;
         }
 
         if(cpu_->test_flag(cpu::flag::carry) || acc > 0x9F) {
-            acc += 0x60u;
+            acc += 0x60;
         }
     }
 
     cpu_->reset_flag(cpu::flag::half_carry);
-    cpu_->reset_flag(cpu::flag::zero);
 
-    if(mask_test(acc, 0x100u)) {
+    if(mask_test(acc, 0x100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    acc &= 0xFFu;
+    acc &= 0xFF;
 
+    cpu_->reset_flag(cpu::flag::zero);
     if(acc == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
     }
