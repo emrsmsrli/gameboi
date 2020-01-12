@@ -153,7 +153,7 @@ bool cpu::test_flag(const flag flag) noexcept
     return mask_test(a_f_.low(), f);
 }
 
-uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
+uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
 {
     const auto info = instruction::standard_instruction_set[inst];
 
@@ -1236,7 +1236,7 @@ uint8_t cpu::decode(const uint16_t inst, standard_instruction_set_t)
     return info.cycle_count;
 }
 
-uint8_t cpu::decode(const uint16_t inst, extended_instruction_set_t)
+uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
 {
     const auto info = instruction::extended_instruction_set[inst];
 
