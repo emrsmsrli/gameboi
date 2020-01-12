@@ -20,7 +20,7 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
 
     const auto virtual_address = [](auto addr) -> uint16_t { return addr % 16_kb; };
     const auto make_dissassembly = [&](auto i) {
-        auto& [instruction_info, is_cgb] = rom[i] == 0xCB
+        auto [instruction_info, is_cgb] = rom[i] == 0xCB
             ? std::make_pair(instruction::extended_instruction_set[rom[i + 1]], true)
             : std::make_pair(instruction::standard_instruction_set[rom[i]], false);
 
