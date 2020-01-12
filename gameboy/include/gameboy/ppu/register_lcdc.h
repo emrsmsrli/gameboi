@@ -33,10 +33,6 @@ struct register_lcdc {
     }
 
     /**
-     * LCDC.0 - 1) Monochrome Gameboy and SGB: BG Display
-     * When Bit 0 is cleared, the background becomes blank (white).
-     * Window and Sprites may still be displayed (if enabled in Bit 1 and/or Bit 5).
-     *
      * LCDC.0 - 2) CGB in CGB Mode: BG and Window Master Priority
      * When Bit 0 is cleared, the background and window lose their priority - the sprites will be always
      * displayed on top of background and window, independently of the priority flags in OAM and BG Map attributes.
@@ -65,6 +61,11 @@ struct register_lcdc {
         return bit_test(reg, 4u)
                ? address16(0x8000u)
                : address16(0x8800u);
+    }
+
+    [[nodiscard]] bool unsigned_mode() const noexcept
+    {
+        return bit_test(reg, 4u);
     }
 
     [[nodiscard]] address16 bg_map_address() const noexcept
