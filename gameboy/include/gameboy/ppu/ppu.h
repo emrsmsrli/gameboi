@@ -64,6 +64,7 @@ private:
     register8 wx_;
     register8 wy_;
 
+    // todo implement different gb palettes (gold silver vs)
     static constexpr palette gb_palette_{
         color{255u},
         color{192u},
@@ -77,6 +78,12 @@ private:
     std::array<palette, 8> cgb_obj_palettes_;
     register8 bgpi_;
     register8 obpi_;
+
+    template<typename T>
+    uint16_t tile_addr(int32_t base_addr, uint8_t tilenum) const
+    {
+        return (uint16_t)(base_addr + ((T)tilenum * 8));
+    }
 
     dma_transfer_data dma_transfer_;
 
