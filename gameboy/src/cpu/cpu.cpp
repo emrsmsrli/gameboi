@@ -1286,7 +1286,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x07: {
-            alu_.rotate_left_c(b_c_.high());
+            alu_.rotate_left_c(a_f_.high());
             break;
         }
         case 0x08: {
@@ -1318,7 +1318,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x0F: {
-            alu_.rotate_right_c(b_c_.high());
+            alu_.rotate_right_c(a_f_.high());
             break;
         }
         case 0x10: {
@@ -1350,7 +1350,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x17: {
-            alu_.rotate_left(b_c_.high());
+            alu_.rotate_left(a_f_.high());
             break;
         }
         case 0x18: {
@@ -1382,7 +1382,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x1F: {
-            alu_.rotate_right(b_c_.high());
+            alu_.rotate_right(a_f_.high());
             break;
         }
         case 0x20: {
@@ -1414,7 +1414,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x27: {
-            alu_.shift_left(b_c_.high());
+            alu_.shift_left(a_f_.high());
             break;
         }
         case 0x28: {
@@ -1449,7 +1449,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x2F: {
-            alu_.shift_right(b_c_.high(), alu::preserve_last_bit);
+            alu_.shift_right(a_f_.high(), alu::preserve_last_bit);
             break;
         }
         case 0x30: {
