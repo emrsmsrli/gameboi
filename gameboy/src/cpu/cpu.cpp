@@ -1238,8 +1238,6 @@ uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
 
 uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
 {
-    const auto info = instruction::extended_instruction_set[inst];
-
     const auto get_bitop_mask = [&]() -> uint8_t {
         return 0x1u << (inst >> 0x3u & 0x7u);
     };
