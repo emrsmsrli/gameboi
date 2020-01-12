@@ -635,7 +635,8 @@ uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x6D: {
-            load(h_l_.low(), h_l_.low());
+            /* LD L, L */
+            nop();
             break;
         }
         case 0x6E: {
