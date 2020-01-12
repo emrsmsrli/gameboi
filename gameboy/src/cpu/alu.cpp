@@ -119,6 +119,12 @@ void alu::subtract_c(const register8& reg) const noexcept
 
 void alu::increment(uint8_t& value) const noexcept
 {
+    if(half_carry(value, 1u)) {
+        cpu_->set_flag(cpu::flag::half_carry);
+    } else {
+        cpu_->reset_flag(cpu::flag::half_carry);
+    }
+
     ++value;
 
     cpu_->reset_flag(cpu::flag::negative);
@@ -126,12 +132,6 @@ void alu::increment(uint8_t& value) const noexcept
         cpu_->set_flag(cpu::flag::zero);
     } else {
         cpu_->reset_flag(cpu::flag::zero);
-    }
-
-    if((value & 0x0Fu) != 0x00u) {
-        cpu_->reset_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->set_flag(cpu::flag::half_carry);
     }
 }
 
@@ -144,6 +144,12 @@ void alu::increment(register8& reg) const noexcept
 
 void alu::decrement(uint8_t& value) const noexcept
 {
+    if(half_borrow(value, 1u)) {
+        cpu_->set_flag(cpu::flag::half_carry);
+    } else {
+        cpu_->reset_flag(cpu::flag::half_carry);
+    }
+
     --value;
 
     cpu_->set_flag(cpu::flag::negative);
@@ -151,12 +157,6 @@ void alu::decrement(uint8_t& value) const noexcept
         cpu_->set_flag(cpu::flag::zero);
     } else {
         cpu_->reset_flag(cpu::flag::zero);
-    }
-
-    if(mask_test(value, 0x0Fu)) {
-        cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 }
 
