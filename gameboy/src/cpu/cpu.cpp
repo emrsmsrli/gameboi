@@ -1242,20 +1242,6 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
         return 0x1u << (inst >> 0x3u & 0x7u);
     };
 
-    const auto alu_do_one_param = [&](void (alu::*func)(uint8_t&) const) {
-        const auto address = make_address(h_l_);
-        auto data = read_data(address);
-        std::invoke(func, alu_, data);
-        write_data(address, data);
-    };
-
-    const auto alu_do_two_params = [&](void (alu::*func)(uint8_t&) const, auto&& param) {
-        const auto address = make_address(h_l_);
-        auto data = read_data(address);
-        std::invoke(func, alu_, data, std::forward<decltype(param)>(param));
-        write_data(address, data);
-    };
-
     switch(inst) {
         case 0x00: {
             alu_.rotate_left_c(b_c_.high());
@@ -2096,102 +2082,291 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
 
-        case 0xC0:
-        case 0xD0:
-        case 0xE0:
-        case 0xF0:
-        case 0xC8:
-        case 0xD8:
-        case 0xE8:
+        case 0xC0: {
+            alu_.set(b_c_.high(), 0);
+            break;
+        }
+        case 0xC1: {
+            alu_.set(b_c_.low(), 0);
+            break;
+        }
+        case 0xC2: {
+            alu_.set(d_e_.high(), 0);
+            break;
+        }
+        case 0xC3: {
+            alu_.set(d_e_.low(), 0);
+            break;
+        }
+        case 0xC4: {
+            alu_.set(h_l_.high(), 0);
+            break;
+        }
+        case 0xC5: {
+            alu_.set(h_l_.low(), 0);
+            break;
+        }
+        case 0xC6: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 0);
+            write_data(addr, data);
+            break;
+        }
+        case 0xC7: {
+            alu_.set(a_f_.high(), 0);
+            break;
+        }
+
+        case 0xC8: {
+            alu_.set(b_c_.high(), 1);
+            break;
+        }
+        case 0xC9: {
+            alu_.set(b_c_.low(), 1);
+            break;
+        }
+        case 0xCA: {
+            alu_.set(d_e_.high(), 1);
+            break;
+        }
+        case 0xCB: {
+            alu_.set(d_e_.low(), 1);
+            break;
+        }
+        case 0xCC: {
+            alu_.set(h_l_.high(), 1);
+            break;
+        }
+        case 0xCD: {
+            alu_.set(h_l_.low(), 1);
+            break;
+        }
+        case 0xCE: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 1);
+            write_data(addr, data);
+            break;
+        }
+        case 0xCF: {
+            alu_.set(a_f_.high(), 1);
+            break;
+        }
+
+        case 0xD0: {
+            alu_.set(b_c_.high(), 2);
+            break;
+        }
+        case 0xD1: {
+            alu_.set(b_c_.low(), 2);
+            break;
+        }
+        case 0xD2: {
+            alu_.set(d_e_.high(), 2);
+            break;
+        }
+        case 0xD3: {
+            alu_.set(d_e_.low(), 2);
+            break;
+        }
+        case 0xD4: {
+            alu_.set(h_l_.high(), 2);
+            break;
+        }
+        case 0xD5: {
+            alu_.set(h_l_.low(), 2);
+            break;
+        }
+        case 0xD6: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 2);
+            write_data(addr, data);
+            break;
+        }
+        case 0xD7: {
+            alu_.set(a_f_.high(), 2);
+            break;
+        }
+
+        case 0xD8: {
+            alu_.set(b_c_.high(), 3);
+            break;
+        }
+        case 0xD9: {
+            alu_.set(b_c_.low(), 3);
+            break;
+        }
+        case 0xDA: {
+            alu_.set(d_e_.high(), 3);
+            break;
+        }
+        case 0xDB: {
+            alu_.set(d_e_.low(), 3);
+            break;
+        }
+        case 0xDC: {
+            alu_.set(h_l_.high(), 3);
+            break;
+        }
+        case 0xDD: {
+            alu_.set(h_l_.low(), 3);
+            break;
+        }
+        case 0xDE: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 3);
+            write_data(addr, data);
+            break;
+        }
+        case 0xDF: {
+            alu_.set(a_f_.high(), 3);
+            break;
+        }
+
+        case 0xE0: {
+            alu_.set(b_c_.high(), 4);
+            break;
+        }
+        case 0xE1: {
+            alu_.set(b_c_.low(), 4);
+            break;
+        }
+        case 0xE2: {
+            alu_.set(d_e_.high(), 4);
+            break;
+        }
+        case 0xE3: {
+            alu_.set(d_e_.low(), 4);
+            break;
+        }
+        case 0xE4: {
+            alu_.set(h_l_.high(), 4);
+            break;
+        }
+        case 0xE5: {
+            alu_.set(h_l_.low(), 4);
+            break;
+        }
+        case 0xE6: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 4);
+            write_data(addr, data);
+            break;
+        }
+        case 0xE7: {
+            alu_.set(a_f_.high(), 4);
+            break;
+        }
+
+        case 0xE8: {
+            alu_.set(b_c_.high(), 5);
+            break;
+        }
+        case 0xE9: {
+            alu_.set(b_c_.low(), 5);
+            break;
+        }
+        case 0xEA: {
+            alu_.set(d_e_.high(), 5);
+            break;
+        }
+        case 0xEB: {
+            alu_.set(d_e_.low(), 5);
+            break;
+        }
+        case 0xEC: {
+            alu_.set(h_l_.high(), 5);
+            break;
+        }
+        case 0xED: {
+            alu_.set(h_l_.low(), 5);
+            break;
+        }
+        case 0xEE: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 5);
+            write_data(addr, data);
+            break;
+        }
+        case 0xEF: {
+            alu_.set(a_f_.high(), 5);
+            break;
+        }
+
+        case 0xF0: {
+            alu_.set(b_c_.high(), 6);
+            break;
+        }
+        case 0xF1: {
+            alu_.set(b_c_.low(), 6);
+            break;
+        }
+        case 0xF2: {
+            alu_.set(d_e_.high(), 6);
+            break;
+        }
+        case 0xF3: {
+            alu_.set(d_e_.low(), 6);
+            break;
+        }
+        case 0xF4: {
+            alu_.set(h_l_.high(), 6);
+            break;
+        }
+        case 0xF5: {
+            alu_.set(h_l_.low(), 6);
+            break;
+        }
+        case 0xF6: {
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 6);
+            write_data(addr, data);
+            break;
+        }
+        case 0xF7: {
+            alu_.set(a_f_.high(), 6);
+            break;
+        }
+
         case 0xF8: {
-            alu_.set(b_c_.high(), get_bitop_mask());
+            alu_.set(b_c_.high(), 7);
             break;
         }
-
-        case 0xC1:
-        case 0xD1:
-        case 0xE1:
-        case 0xF1:
-        case 0xC9:
-        case 0xD9:
-        case 0xE9:
         case 0xF9: {
-            alu_.set(b_c_.low(), get_bitop_mask());
+            alu_.set(b_c_.low(), 7);
             break;
         }
-
-        case 0xC2:
-        case 0xD2:
-        case 0xE2:
-        case 0xF2:
-        case 0xCA:
-        case 0xDA:
-        case 0xEA:
         case 0xFA: {
-            alu_.set(d_e_.high(), get_bitop_mask());
+            alu_.set(d_e_.high(), 7);
             break;
         }
-
-        case 0xC3:
-        case 0xD3:
-        case 0xE3:
-        case 0xF3:
-        case 0xCB:
-        case 0xDB:
-        case 0xEB:
         case 0xFB: {
-            alu_.set(d_e_.low(), get_bitop_mask());
+            alu_.set(d_e_.low(),75);
             break;
         }
-
-        case 0xC4:
-        case 0xD4:
-        case 0xE4:
-        case 0xF4:
-        case 0xCC:
-        case 0xDC:
-        case 0xEC:
         case 0xFC: {
-            alu_.set(h_l_.high(), get_bitop_mask());
+            alu_.set(h_l_.high(), 7);
             break;
         }
-
-        case 0xC5:
-        case 0xD5:
-        case 0xE5:
-        case 0xF5:
-        case 0xCD:
-        case 0xDD:
-        case 0xED:
         case 0xFD: {
-            alu_.set(h_l_.low(), get_bitop_mask());
+            alu_.set(h_l_.low(), 7);
             break;
         }
-
-        case 0xC6:
-        case 0xD6:
-        case 0xE6:
-        case 0xF6:
-        case 0xCE:
-        case 0xDE:
-        case 0xEE:
         case 0xFE: {
-            const auto address = make_address(h_l_);
-            auto data = read_data(address);
-            alu::set(data, get_bitop_mask());
-            write_data(address, data);
+            const auto addr = make_address(h_l_);
+            auto data = read_data(addr);
+            alu::set(data, 7);
+            write_data(addr, data);
             break;
         }
-
-        case 0xC7:
-        case 0xD7:
-        case 0xE7:
-        case 0xF7:
-        case 0xCF:
-        case 0xDF:
-        case 0xEF:
         case 0xFF: {
-            alu_.set(a_f_.high(), get_bitop_mask());
+            alu_.set(a_f_.high(), 7);
             break;
         }
 
