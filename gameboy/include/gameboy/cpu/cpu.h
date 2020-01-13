@@ -63,6 +63,9 @@ private:
     register16 stack_pointer_;
     register16 program_counter_;
     std::vector<inst> last_100_instructions_;
+
+    /* speed switch register */
+    register8 key_1_;
     
     uint64_t total_cycles_;
 
@@ -79,6 +82,9 @@ private:
 
     void on_if_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_if_read(const address16&) const noexcept;
+
+    void on_key_1_write(const address16&, uint8_t data) noexcept;
+    [[nodiscard]] uint8_t on_key_1_read(const address16&) const noexcept;
 
     [[nodiscard]] uint8_t decode(uint8_t inst, standard_instruction_set_t);
     [[nodiscard]] uint8_t decode(uint8_t inst, extended_instruction_set_t);

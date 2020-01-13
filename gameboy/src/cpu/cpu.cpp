@@ -17,6 +17,7 @@ using namespace magic_enum::bitwise_operators;
 
 constexpr address16 ie_addr{0xFFFFu};
 constexpr address16 if_addr{0xFF0Fu};
+constexpr address16 key_1_addr{0xFF40u};
 
 cpu::cpu(observer<bus> bus) noexcept
     : bus_{bus},
@@ -46,6 +47,11 @@ cpu::cpu(observer<bus> bus) noexcept
         {connect_arg<&cpu::on_if_read>, this},
         {connect_arg<&cpu::on_if_write>, this},
     });
+
+    mmu->add_memory_delegate(key_1_addr, {
+        {connect_arg<&cpu::on_key_1_read>, this},
+        {connect_arg<&cpu::on_key_1_write>, this},
+    });
 }
 
 void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
@@ -66,6 +72,16 @@ void cpu::on_if_write(const address16&, uint8_t data) noexcept
 uint8_t cpu::on_if_read(const address16&) const noexcept
 {
     return static_cast<uint8_t>(interrupt_flags_);
+}
+
+void cpu::on_key_1_write(const address16&, const uint8_t data) noexcept
+{
+    key_1_ = data;
+}
+
+uint8_t cpu::on_key_1_read(const address16&) const noexcept
+{
+    return key_1_.value();
 }
 
 uint8_t cpu::tick()
@@ -1404,6 +1420,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x26: {
+            // todo maybe read_do_write([](uint8_t& data) { // do sth });
             const auto address = make_address(h_l_);
             auto data = read_data(address);
             alu_.shift_left(data);
