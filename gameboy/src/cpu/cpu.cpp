@@ -2361,7 +2361,7 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0xFB: {
-            alu_.set(d_e_.low(),75);
+            alu_.set(d_e_.low(), 7);
             break;
         }
         case 0xFC: {
