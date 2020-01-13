@@ -1238,10 +1238,6 @@ uint8_t cpu::decode(uint8_t inst, standard_instruction_set_t)
 
 uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
 {
-    const auto get_bitop_mask = [&]() -> uint8_t {
-        return 0x1u << (inst >> 0x3u & 0x7u);
-    };
-
     switch(inst) {
         case 0x00: {
             alu_.rotate_left_c(b_c_.high());
@@ -1268,7 +1264,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x06: {
-            alu_do_one_param(&alu::rotate_left_c);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.rotate_left_c(data);
+            write_data(address, data);
             break;
         }
         case 0x07: {
@@ -1300,7 +1299,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x0E: {
-            alu_do_one_param(&alu::rotate_right_c);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.rotate_right_c(data);
+            write_data(address, data);
             break;
         }
         case 0x0F: {
@@ -1332,7 +1334,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x16: {
-            alu_do_one_param(&alu::rotate_left);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.rotate_left(data);
+            write_data(address, data);
             break;
         }
         case 0x17: {
@@ -1364,7 +1369,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x1E: {
-            alu_do_one_param(&alu::rotate_right);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.rotate_right(data);
+            write_data(address, data);
             break;
         }
         case 0x1F: {
@@ -1396,7 +1404,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x26: {
-            alu_do_one_param(&alu::shift_left);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.shift_left(data);
+            write_data(address, data);
             break;
         }
         case 0x27: {
@@ -1463,7 +1474,10 @@ uint8_t cpu::decode(uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x36: {
-            alu_do_one_param(&alu::swap);
+            const auto address = make_address(h_l_);
+            auto data = read_data(address);
+            alu_.swap(data);
+            write_data(address, data);
             break;
         }
         case 0x37: {
