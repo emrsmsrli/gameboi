@@ -85,24 +85,27 @@ void cartridge_debugger::draw() noexcept
             ImGui::Spacing();
 
             if(std::array<char, 5> buf{}; ImGui::InputText("", buf.data(), buf.size(), 
-                    ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue)) {
+                    ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
                 const auto addr_l = std::strtoul(buf.data(), nullptr, 16);
                 breakpoints_.emplace_back(addr_l);
             }
 
             if(!breakpoints_.empty()) {
+                auto to_delete = -1;
                 ImGuiListClipper clipper(breakpoints_.size());
                 while(clipper.Step()) {
                     for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-                        const auto deleted = ImGui::SmallButton("X");
+                        if(ImGui::SmallButton("X")) {
+                            to_delete = i;
+                        }
 
                         ImGui::SameLine(0, 20);
                         ImGui::Text("%04X", breakpoints_[i].value());
-
-                        if(deleted) {
-                            breakpoints_.erase(begin(breakpoints_) + i);
-                        }
                     }
+                }
+
+                if(to_delete != -1) {
+                    breakpoints_.erase(begin(breakpoints_) + to_delete);
                 }
             } else {
                 ImGui::Spacing();
