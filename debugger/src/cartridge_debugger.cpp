@@ -14,7 +14,6 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
     using namespace gameboy;
 
     auto bank_index = 0;
-    auto instruction_index = 0;
     
     const auto& rom = cartridge->rom();
 
@@ -24,8 +23,9 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
             ? std::make_pair(instruction::extended_instruction_set[rom[i + 1]], true)
             : std::make_pair(instruction::standard_instruction_set[rom[i]], false);
 
-        auto& diss = disassemblies_.emplace_back(instruction_index, bank_index, 
+        auto& diss = disassemblies_.emplace_back(bank_index,
             make_address(virtual_address(i)) + (bank_index < 1 ? 0 : 16_kb), instruction_info);
+        diss.area = "ROM";
 
         if(instruction_info.length == 0) {
             instruction_info.length = 1;
@@ -41,8 +41,6 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
 
             diss.disassembly = fmt::format(instruction_info.mnemonic.data(), data);
         }
-
-        ++instruction_index;
         
         i += instruction_info.length;
         if(is_cgb) {
@@ -72,72 +70,63 @@ void cartridge_debugger::draw() noexcept
         return;
     }
 
-    if(ImGui::BeginTabBar("cartridgetabs")) {
-        if(ImGui::BeginTabItem("Info")) {
-            draw_info();
+    draw_info();
 
-            ImGui::Spacing();
-            ImGui::Spacing();
-            ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
+    ImGui::Spacing();
 
-            ImGui::TextUnformatted("Breakpoints");
-            ImGui::Separator();
-            ImGui::Spacing();
+    ImGui::TextUnformatted("Breakpoints");
+    ImGui::Separator();
+    ImGui::Spacing();
 
-            if(std::array<char, 5> buf{}; ImGui::InputText("", buf.data(), buf.size(), 
-                    ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
-                const auto addr_l = std::strtoul(buf.data(), nullptr, 16);
-                breakpoints_.emplace_back(addr_l);
-            }
-
-            if(!breakpoints_.empty()) {
-                auto to_delete = -1;
-                ImGuiListClipper clipper(breakpoints_.size());
-                while(clipper.Step()) {
-                    for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-                        if(ImGui::SmallButton("X")) {
-                            to_delete = i;
-                        }
-
-                        ImGui::SameLine(0, 20);
-                        ImGui::Text("%04X", breakpoints_[i].value());
-                    }
-                }
-
-                if(to_delete != -1) {
-                    breakpoints_.erase(begin(breakpoints_) + to_delete);
-                }
-            } else {
-                ImGui::Spacing();
-                ImGui::Spacing();
-                ImGui::TextUnformatted("No breakpoints");
-            }
-
-            ImGui::EndTabItem();
-        }
-
-        if(ImGui::BeginTabItem("Disassembly")) {
-            draw_rom_disassembly();
-            ImGui::EndTabItem();
-        }
-
-        if(ImGui::BeginTabItem("Full Disassembly")) {
-            draw_rom_disassembly_full();
-            ImGui::EndTabItem();
-        }
-
-        ImGui::EndTabBar();
+    if(std::array<char, 5> buf{}; ImGui::InputText("", buf.data(), buf.size(), 
+            ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
+        const auto addr_l = std::strtoul(buf.data(), nullptr, 16);
+        breakpoints_.emplace_back(addr_l);
     }
+
+    if(!breakpoints_.empty()) {
+        auto to_delete = -1;
+        ImGuiListClipper clipper(breakpoints_.size());
+        while(clipper.Step()) {
+            for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+                if(ImGui::SmallButton("X")) {
+                    to_delete = i;
+                }
+
+                ImGui::SameLine(0, 20);
+                ImGui::Text("%04X", breakpoints_[i].value());
+            }
+        }
+
+        if(to_delete != -1) {
+            breakpoints_.erase(begin(breakpoints_) + to_delete);
+        }
+    } else {
+        ImGui::Spacing();
+        ImGui::Spacing();
+        ImGui::TextUnformatted("No breakpoints");
+    }
+
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    draw_rom_disassembly();
     
     ImGui::End();
 }
 
 void cartridge_debugger::check_breakpoints()
 {
-    if(const auto pc = make_address(cpu_->program_counter_);
-        std::find(begin(breakpoints_), end(breakpoints_), pc) != end(breakpoints_)) {
+    if(const auto pc = make_address(cpu_->program_counter_); has_breakpoint(pc)) {
         on_break_(); // break the execution
     }
+}
+
+bool cartridge_debugger::has_breakpoint(const address16& addr) const noexcept
+{
+    return std::find(begin(breakpoints_), end(breakpoints_), addr) != end(breakpoints_);
 }
 
 void cartridge_debugger::draw_info() const
@@ -174,51 +163,50 @@ void cartridge_debugger::draw_rom_disassembly() const noexcept
             return diss.address == pc_addr;
         });
 
-    if(it == std::end(disassemblies_)) {
-        return;
-    }
-
     if(ImGui::BeginChild("rom_disassembly")) {
-        const auto& disassembly = *it;
-        
-        constexpr auto half_size = 10;
-        do_draw_rom_disassembly(disassembly.index - half_size, disassembly.index + half_size, true);
-        ImGui::EndChild();
-    }
-}
+        if(it == std::end(disassemblies_)) {
+            // todo parse on the fly
 
-void cartridge_debugger::draw_rom_disassembly_full() const noexcept
-{
-    if(ImGui::BeginChild("rom_disassembly_full")) {
-        ImGuiListClipper clipper(disassemblies_.size());
-        while(clipper.Step()) {
-            do_draw_rom_disassembly(clipper.DisplayStart, clipper.DisplayEnd, false);
+
+            ImGui::EndChild();
+            return;
         }
-
+        
+        constexpr auto half_size = 5;
+        const auto distance = std::distance(begin(disassemblies_), it);
+        do_draw_rom_disassembly(disassemblies_, distance - half_size, distance + half_size, true);
         ImGui::EndChild();
     }
 }
 
-void cartridge_debugger::do_draw_rom_disassembly(const uint32_t start, const uint32_t end, const bool auto_scroll) const noexcept
+void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction_disassembly>& disassemblies, 
+    const uint32_t start, const uint32_t end, const bool auto_scroll) const noexcept
 {
     const auto clamped_start = std::max(0u, start);
-    const auto clamped_end = std::min(static_cast<size_t>(end), disassemblies_.size());
+    const auto clamped_end = std::min(static_cast<size_t>(end), disassemblies.size());
     const auto pc_addr = make_address(cpu_->program_counter_);
+
     for(auto i = clamped_start; i < clamped_end; ++i) {
-        const auto& data = disassemblies_[i];
-        const auto str = fmt::format("ROM{}:{:04X} | {}", 
-            data.bank, data.address.value(), data.disassembly);
-
-        if(pc_addr == data.address) {
-            ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.f, 1.f, 0.f, 1.f});
-            ImGui::TextUnformatted(str.c_str());
-            ImGui::PopStyleColor();
-
-            if(auto_scroll) {
-                ImGui::SetScrollHereY();
+        const auto& data = disassemblies[i];
+        const auto str = fmt::format("{}{}:{:04X} | {}", 
+            data.area, data.bank, data.address.value(), data.disassembly);
+        
+        ImGui::PushStyleColor(ImGuiCol_Text, [&]() {
+            if(data.address == pc_addr) {
+                return ImVec4{1.f, 1.f, 0.f, 1.f};
             }
-        } else {
-            ImGui::TextUnformatted(str.c_str());
+
+            if(has_breakpoint(data.address)) {
+                return ImVec4{1.f, 0.f, 0.f, 1.f};
+            }
+
+            return ImVec4{1.f, 1.f, 1.f, 1.f};
+        }());
+        ImGui::TextUnformatted(str.c_str());
+        ImGui::PopStyleColor();
+        
+        if(pc_addr == data.address && auto_scroll) {
+            ImGui::SetScrollHereY();
         }
     }
 }
