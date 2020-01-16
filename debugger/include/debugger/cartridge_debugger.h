@@ -25,10 +25,12 @@ struct instruction_disassembly {
     instruction_disassembly(
         const uint32_t bank,
         const address16 address,
-        const instruction::instruction_info info)
+        const instruction::instruction_info info,
+        const std::string_view area)
         : bank{bank},
           address{address},
-          info{info} {}
+          info{info},
+          area{area} {}
 };
 
 class cartridge_debugger {

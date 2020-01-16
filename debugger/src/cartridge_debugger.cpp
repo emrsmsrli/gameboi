@@ -23,9 +23,11 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
             ? std::make_pair(instruction::extended_instruction_set[rom[i + 1]], true)
             : std::make_pair(instruction::standard_instruction_set[rom[i]], false);
 
-        auto& diss = disassemblies_.emplace_back(bank_index,
-            make_address(virtual_address(i)) + (bank_index < 1 ? 0 : 16_kb), instruction_info);
-        diss.area = "ROM";
+        auto& diss = disassemblies_.emplace_back(
+            bank_index,
+            make_address(virtual_address(i)) + (bank_index < 1 ? 0 : 16_kb),
+            instruction_info,
+            "ROM");
 
         if(instruction_info.length == 0) {
             instruction_info.length = 1;
