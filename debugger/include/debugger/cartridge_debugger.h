@@ -50,7 +50,7 @@ private:
 
     delegate<void()> on_break_;
 
-    bool has_breakpoint(const address16& addr) const noexcept;
+    [[nodiscard]] bool has_breakpoint(const address16& addr) const noexcept;
 
     void draw_info() const;
     void draw_rom_disassembly() const noexcept;
