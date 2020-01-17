@@ -39,8 +39,8 @@ void timer::tick(const uint8_t cycles)
     // base clock dividers
     static constexpr std::array frequencies{
         64u, // 4   KHz
-        1u,  // 262 KHz (base)
-        4u,  // 65  KHz
+        1u,  // 256 KHz (base)
+        4u,  // 64  KHz
         16u  // 16  KHz
     };
 
