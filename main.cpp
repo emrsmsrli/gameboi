@@ -7,32 +7,39 @@
 
 namespace {
 
-constexpr auto resolution_multiplier = 1;
-constexpr auto screen_width = gameboy::screen_width * resolution_multiplier;
-constexpr auto screen_height = gameboy::screen_height * resolution_multiplier;
-
 struct renderer {
     sf::Image window_buffer;
     sf::Texture window_texture;
     sf::RenderWindow window;
 
-    explicit renderer(gameboy::gameboy& gb)
+    float scale;
+    sf::Vector2f position;
+
+    explicit renderer(gameboy::gameboy& gb, const uint32_t width, const uint32_t height)
         : window{
-            sf::VideoMode(500, 500),
+            sf::VideoMode(width, height),
             fmt::format("GAMEBOY - {}", gb.rom_name()),
             sf::Style::Default
+        },
+        scale{
+            width > height
+              ? height / static_cast<float>(gameboy::screen_height)
+              : width / static_cast<float>(gameboy::screen_width)
+        },
+        position{
+            (width - gameboy::screen_width * scale) * .5f,
+            (height - gameboy::screen_height * scale) * .5f
         }
     {
         window.setFramerateLimit(500);
-        window_buffer.create(screen_width, screen_height);
-        window_texture.create(screen_width, screen_height);
+        window_buffer.create(gameboy::screen_width, gameboy::screen_height);
+        window_texture.create(gameboy::screen_width, gameboy::screen_height);
         gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, this});
         gb.on_render_frame({gameboy::connect_arg<&renderer::render_frame>, this});
     }
 
     void render_line(const uint8_t line_number, const gameboy::render_line& line)
     {
-        // todo support resolution_multiplier other than 1
         for(size_t i = 0; i < line.size(); ++i) {
             const auto& color = line[i];
             window_buffer.setPixel(i, line_number, {
@@ -47,20 +54,23 @@ struct renderer {
 
         sf::Sprite sprite;
         sprite.setTexture(window_texture);
+        sprite.setScale(scale, scale);
+        sprite.setPosition(position);
 
+        window.clear();
         window.draw(sprite);
         window.display();
     }
 };
 
-}
+} // namespace
 
 int main(int /*argc*/, char** /*argv*/)
 {
     gameboy::gameboy gb("cpu_instrs.gb");
     // gb.start();
 
-    renderer renderer{gb};
+    renderer renderer{gb, 500u, 300u};
 
     gameboy::debugger debugger{gb.get_bus()};
     debugger.img = &renderer.window_buffer;
