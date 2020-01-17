@@ -34,14 +34,14 @@ cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<c
         }
 
         if(instruction_info.length == 1) {
-            diss.disassembly = instruction_info.mnemonic;
+            diss.representation = instruction_info.mnemonic;
         } else {
             uint16_t data = 0;
             for(auto d_i = 0; d_i < instruction_info.length - 1; ++d_i) {
                 data |= rom[i + d_i + 1] << (d_i * 8);
             }
 
-            diss.disassembly = fmt::format(instruction_info.mnemonic.data(), data);
+            diss.representation = fmt::format(instruction_info.mnemonic.data(), data);
         }
         
         i += instruction_info.length;
@@ -161,7 +161,7 @@ void cartridge_debugger::draw_rom_disassembly() const noexcept
     const auto it = std::find_if(
         std::begin(disassemblies_), 
         std::end(disassemblies_),
-        [&](const instruction_disassembly& diss) {
+        [&](const instruction::disassembly& diss) {
             return diss.address == pc_addr;
         });
 
@@ -181,7 +181,7 @@ void cartridge_debugger::draw_rom_disassembly() const noexcept
     }
 }
 
-void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction_disassembly>& disassemblies, 
+void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction::disassembly>& disassemblies, 
     const uint32_t start, const uint32_t end, const bool auto_scroll) const noexcept
 {
     const auto clamped_start = std::max(0u, start);
@@ -191,7 +191,7 @@ void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction_d
     for(auto i = clamped_start; i < clamped_end; ++i) {
         const auto& data = disassemblies[i];
         const auto str = fmt::format("{}{}:{:04X} | {}", 
-            data.area, data.bank, data.address.value(), data.disassembly);
+            data.area, data.bank, data.address.value(), data.representation);
         
         ImGui::PushStyleColor(ImGuiCol_Text, [&]() {
             if(data.address == pc_addr) {

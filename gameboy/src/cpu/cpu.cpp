@@ -87,21 +87,12 @@ uint8_t cpu::on_key_1_read(const address16&) const noexcept
 uint8_t cpu::tick()
 {
     const auto execute_next_op = [&]() -> uint8_t {
-        if(last_100_instructions_.size() > 100) {
-            last_100_instructions_.erase(last_100_instructions_.begin());
-        }
-
-        const auto pc = make_address(program_counter_);
-
         const auto opcode = read_immediate(imm8);
         if(opcode != 0xCB) {
-            last_100_instructions_.push_back({pc, instruction::standard_instruction_set[opcode]});
             return decode(opcode, standard_instruction_set);
         }
 
-        const auto newOpCode = read_immediate(imm8);
-        last_100_instructions_.push_back({pc, instruction::extended_instruction_set[newOpCode]});
-        return decode(newOpCode, extended_instruction_set);
+        return decode(read_immediate(imm8), extended_instruction_set);
     };
 
     const auto cycle_count =
