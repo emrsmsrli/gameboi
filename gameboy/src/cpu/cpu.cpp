@@ -100,7 +100,7 @@ uint8_t cpu::tick()
         }
 
         const auto newOpCode = read_immediate(imm8);
-        last_100_instructions_.push_back({pc, instruction::standard_instruction_set[newOpCode]});
+        last_100_instructions_.push_back({pc, instruction::extended_instruction_set[newOpCode]});
         return decode(newOpCode, extended_instruction_set);
     };
 
