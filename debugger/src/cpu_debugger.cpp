@@ -18,6 +18,12 @@ void gameboy::cpu_debugger::draw() const noexcept
         return;
     }
 
+    ImGui::Text("Total cycles: %lld", cpu_->total_cycles_);
+
+    ImGui::Spacing();
+    ImGui::Separator();
+    ImGui::Spacing();
+
     draw_registers();
     ImGui::Separator();
 
