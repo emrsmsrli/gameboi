@@ -132,10 +132,10 @@ uint8_t cpu::tick()
             interrupt::lcd_stat,
             interrupt::lcd_vblank
         };
-        for(auto i : interrupts) {
-            if(interrupt_requested(i)) {
-                do_interrupt(i);
-            }
+
+        if(const auto it = std::find_if(begin(interrupts), end(interrupts), interrupt_requested);
+                it != end(interrupts)) {
+            do_interrupt(*it);
         }
     }
 
