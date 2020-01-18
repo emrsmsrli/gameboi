@@ -20,9 +20,9 @@ public:
 private:
     observer<bus> bus_;
 
-    uint32_t timer_clock_;
-    uint32_t divider_clock_;
-    uint32_t base_clock_;
+    uint64_t timer_clock_;
+    uint64_t divider_clock_;
+    uint64_t base_clock_;
 
     register8 div_;
     register8 tima_;

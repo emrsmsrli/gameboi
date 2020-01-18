@@ -46,15 +46,15 @@ void timer::tick(const uint8_t cycles)
 
     timer_clock_ += cycles;
 
-    while(timer_clock_ >= 16) {
-        timer_clock_ -= 16;
+    while(timer_clock_ >= 16u) {
+        timer_clock_ -= 16u;
 
         ++base_clock_;
         ++divider_clock_;
 
-        if(divider_clock_ == 16) {
-            div_ += 1;
-            divider_clock_ = 0;
+        if(divider_clock_ == 16u) {
+            div_ += 1u;
+            divider_clock_ = 0u;
         }
 
         if(timer_enabled()) {
@@ -66,7 +66,7 @@ void timer::tick(const uint8_t cycles)
                     tima_ = tma_;
                     bus_->get_cpu()->request_interrupt(interrupt::timer);
                 } else {
-                    tima_ = tima_ + 1;
+                    tima_ += 1u;
                 }
             }
         }
@@ -80,7 +80,7 @@ bool timer::timer_enabled() const noexcept
 
 std::size_t timer::timer_clock_select() const noexcept
 {
-    return tac_.value() & 0x03;
+    return tac_.value() & 0x03u;
 }
 
 uint8_t timer::on_read(const address16& address) const noexcept
