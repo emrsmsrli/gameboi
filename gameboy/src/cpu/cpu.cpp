@@ -32,7 +32,8 @@ cpu::cpu(observer<bus> bus) noexcept
       interrupt_flags_{bus_->get_cartridge()->cgb_enabled() ? interrupt::lcd_vblank : interrupt::none},
       interrupt_enable_{interrupt::none},
       interrupt_master_enable_{false},
-      is_interrupt_status_change_pending_{false},
+      is_interrupt_master_change_pending_{false},
+      next_interrupt_master_enable_{false},
       is_halted_{false},
       is_halt_bug_triggered_{false}
 {
@@ -52,6 +53,12 @@ cpu::cpu(observer<bus> bus) noexcept
         {connect_arg<&cpu::on_key_1_read>, this},
         {connect_arg<&cpu::on_key_1_write>, this},
     });
+}
+
+void cpu::schedule_ime_change(const bool enabled) noexcept
+{
+    is_interrupt_master_change_pending_ = true;
+    next_interrupt_master_enable_ = enabled;
 }
 
 void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
@@ -100,7 +107,12 @@ uint8_t cpu::tick()
         ? execute_next_op()
         : static_cast<uint8_t>(0x4u);
 
-    // todo ime should be true or false AFTER one instruction is executed after EI or DI instruction
+    if(is_interrupt_master_change_pending_) {
+        is_interrupt_master_change_pending_ = false;
+    } else {
+        interrupt_master_enable_ = next_interrupt_master_enable_;
+    }
+
     // todo check_power_mode();
 
     if(interrupt_master_enable_) {
@@ -112,6 +124,7 @@ uint8_t cpu::tick()
 
         const auto do_interrupt = [&](const interrupt i) {
             interrupt_master_enable_ = false;
+            is_interrupt_master_change_pending_ = false;
             interrupt_flags_ &= ~i;
             rst(make_address(i));
         };
@@ -1196,7 +1209,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xF3: {
-            interrupt_master_enable_ = false;
+            schedule_ime_change(false);
             break;
         }
         case 0xF5: {
@@ -1224,7 +1237,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xFB: {
-            interrupt_master_enable_ = true;
+            schedule_ime_change(true);
             break;
         }
         case 0xFE: {
@@ -2500,7 +2513,7 @@ void cpu::call(const address16& address)
 
 void cpu::reti()
 {
-    interrupt_master_enable_ = true;
+    schedule_ime_change(true);
     ret();
 }
 

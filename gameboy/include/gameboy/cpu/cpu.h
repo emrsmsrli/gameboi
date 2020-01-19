@@ -62,11 +62,15 @@ private:
 
     interrupt interrupt_flags_;
     interrupt interrupt_enable_;
+
     bool interrupt_master_enable_;
+    bool is_interrupt_master_change_pending_;
+    bool next_interrupt_master_enable_;
 
     bool is_interrupt_status_change_pending_;
     bool is_halted_;
-    bool is_halt_bug_triggered_;
+
+    void schedule_ime_change(bool enabled) noexcept;
 
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;
