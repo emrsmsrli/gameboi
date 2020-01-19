@@ -2432,6 +2432,17 @@ void cpu::schedule_interrupt_if_available() noexcept
         return (pending_interrupts & i) != interrupt::none;
     };
 
+    if(!is_stopped_) {
+        if(pending_interrupts != interrupt::none) {
+            is_halted_ = false;
+        }
+    } else {
+        if(interrupt_requested(interrupt::joypad)) {
+            is_stopped_ = false;
+            is_halted_ = false;
+        }
+    }
+
     static constexpr std::array interrupts = {
         interrupt::joypad,
         interrupt::serial,
@@ -2455,15 +2466,6 @@ void cpu::nop() noexcept {}
 void cpu::halt() noexcept
 {
     is_halted_ = true;
-
-    // Check halt bug
-    // byte interruptEnabledflag = memory->read(IE_REGISTER);
-    // byte interruptflag = memory->read(IF_REGISTER);
-
-    // todo investigate this
-    // if(!is_interrupt_master_enabled && (interruptflag & interruptEnabledflag & 0x1F)) {
-    //     is_halt_bug_triggered = true;
-    // }
 }
 
 void cpu::stop() noexcept
