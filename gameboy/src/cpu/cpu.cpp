@@ -98,7 +98,7 @@ uint8_t cpu::tick()
     const auto cycle_count =
         !is_halted_
         ? execute_next_op()
-        : static_cast<uint8_t>(0x1u);
+        : static_cast<uint8_t>(0x4u);
 
     // todo ime should be true or false AFTER one instruction is executed after EI or DI instruction
     // todo check_power_mode();
