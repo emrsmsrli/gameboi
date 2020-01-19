@@ -2,6 +2,8 @@
 #define GAMEBOY_CARTRIDGE_DEBUGGER_H
 
 #include <vector>
+#include <string>
+#include <string_view>
 
 #include "gameboy/memory/address.h"
 #include "gameboy/cpu/instruction_info.h"
@@ -14,20 +16,21 @@ class cartridge;
 class cpu;
 
 struct instruction_disassembly {
-    uint32_t index = 0u;
     uint32_t bank = 0u;
     address16 address{0u};
     instruction::instruction_info info;
+    std::string_view area;
     std::string disassembly;
 
-    instruction_disassembly(const uint32_t index,
+    instruction_disassembly(
         const uint32_t bank,
         const address16 address,
-        const instruction::instruction_info info)
-        : index{index},
-          bank{bank},
+        const instruction::instruction_info info,
+        const std::string_view area)
+        : bank{bank},
           address{address},
-          info{info} {}
+          info{info},
+          area{area} {}
 };
 
 class cartridge_debugger {
@@ -47,11 +50,13 @@ private:
 
     delegate<void()> on_break_;
 
+    [[nodiscard]] bool has_breakpoint(const address16& addr) const noexcept;
+
     void draw_info() const;
     void draw_rom_disassembly() const noexcept;
-    void draw_rom_disassembly_full() const noexcept;
 
-    void do_draw_rom_disassembly(uint32_t start, uint32_t end, bool auto_scroll) const noexcept;
+    void do_draw_rom_disassembly(const std::vector<instruction_disassembly>& disassemblies, 
+        uint32_t start, uint32_t end, bool auto_scroll) const noexcept;
 };
 
 } // namespace gameboy

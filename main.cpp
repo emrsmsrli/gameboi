@@ -52,8 +52,7 @@ struct renderer {
     {
         window_texture.update(window_buffer);
 
-        sf::Sprite sprite;
-        sprite.setTexture(window_texture);
+        sf::Sprite sprite{window_texture};
         sprite.setScale(scale, scale);
         sprite.setPosition(position);
 
