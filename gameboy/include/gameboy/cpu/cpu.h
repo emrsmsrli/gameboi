@@ -81,8 +81,6 @@ private:
     delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
 #endif
 
-    void schedule_ime_change(bool enabled) noexcept;
-
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;
 
@@ -106,6 +104,7 @@ private:
     [[nodiscard]] uint8_t read_immediate(imm8_t);
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
+    void schedule_ime_change(bool enabled) noexcept;
     void schedule_interrupt_if_available() noexcept;
 
     /* instructions */

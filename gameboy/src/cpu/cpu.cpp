@@ -55,12 +55,6 @@ cpu::cpu(observer<bus> bus) noexcept
     });
 }
 
-void cpu::schedule_ime_change(const bool enabled) noexcept
-{
-    is_interrupt_master_change_pending_ = true;
-    next_interrupt_master_enable_ = enabled;
-}
-
 void cpu::on_ie_write(const address16&, const uint8_t data) noexcept
 {
     interrupt_enable_ = static_cast<interrupt>(data);
@@ -2422,6 +2416,12 @@ uint16_t cpu::read_immediate(imm16_t)
     const auto msb = read_immediate(imm8);
 
     return word(msb, lsb);
+}
+
+void cpu::schedule_ime_change(const bool enabled) noexcept
+{
+    is_interrupt_master_change_pending_ = true;
+    next_interrupt_master_enable_ = enabled;
 }
 
 void cpu::schedule_interrupt_if_available() noexcept
