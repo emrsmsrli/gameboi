@@ -71,6 +71,12 @@ inline uint16_t word(const uint8_t high, const uint8_t low) noexcept
     return static_cast<uint16_t>(high) << 8u | low;
 }
 
+template<typename T>
+uint8_t extract_bit(const T value, const uint32_t bit)
+{
+    return static_cast<uint8_t>(bit_test(value, bit));
+}
+
 } // namespace gameboy
 
 #endif //GAMEBOY_MATHUTIL_H

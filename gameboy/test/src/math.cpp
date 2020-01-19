@@ -30,3 +30,14 @@ TEST(math, bit_reset) {
     ASSERT_EQ(gameboy::bit_reset(0xFC, 0), 0xFC);
     ASSERT_EQ(gameboy::bit_reset(0xFC, 1), 0xFC);
 }
+
+TEST(math, extract_bit) {
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 0), 1);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 1), 1);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 2), 1);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 3), 1);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 4), 0);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 5), 0);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 6), 0);
+    ASSERT_EQ(gameboy::extract_bit(0x0F, 7), 0);
+}
