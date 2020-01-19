@@ -36,7 +36,7 @@ private:
     void draw_info() const;
     void draw_rom_disassembly() const noexcept;
 
-    void do_draw_rom_disassembly(const std::vector<instruction::disassembly>& disassemblies, 
+    void do_draw_rom_disassembly(const std::vector<instruction::disassembly>& disassemblies,
         uint32_t start, uint32_t end, bool auto_scroll) const noexcept;
 };
 

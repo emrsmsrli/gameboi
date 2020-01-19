@@ -5,6 +5,11 @@
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
 
+#ifdef DEBUG
+#include "gameboy/cpu/instruction_info.h"
+#include "gameboy/util/delegate.h"
+#endif
+
 namespace gameboy {
 
 class bus;
@@ -71,6 +76,10 @@ private:
 
     bool is_stopped_;
     bool is_halted_;
+
+#ifdef DEBUG
+    delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
+#endif
 
     void schedule_ime_change(bool enabled) noexcept;
 

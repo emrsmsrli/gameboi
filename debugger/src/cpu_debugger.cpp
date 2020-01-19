@@ -2,6 +2,7 @@
 
 #include "debugger/cpu_debugger.h"
 #include "gameboy/cpu/cpu.h"
+#include "gameboy/cpu/instruction_info.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "imgui.h"
@@ -9,7 +10,10 @@
 using namespace magic_enum::bitwise_operators;
 
 gameboy::cpu_debugger::cpu_debugger(observer<cpu> cpu) noexcept
-    : cpu_{cpu} {}
+    : cpu_{cpu}
+{
+    cpu_->on_instruction_executed_ = {connect_arg<&cpu_debugger::on_instruction>, this};
+}
 
 void gameboy::cpu_debugger::draw() const noexcept
 {
@@ -18,22 +22,39 @@ void gameboy::cpu_debugger::draw() const noexcept
         return;
     }
 
-    ImGui::Text("Total cycles: %lld", cpu_->total_cycles_);
+    if(ImGui::BeginTabBar("cputabs")) {
+        if(ImGui::BeginTabItem("Info")) {
+            ImGui::Text("Total cycles: %lld", cpu_->total_cycles_);
 
-    ImGui::Spacing();
-    ImGui::Separator();
-    ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Separator();
+            ImGui::Spacing();
 
-    draw_registers();
-    ImGui::Separator();
+            draw_registers();
+            ImGui::Separator();
 
-    ImGui::Spacing();
-    ImGui::Spacing();
+            ImGui::Spacing();
+            ImGui::Spacing();
 
-    draw_interrupts();
+            draw_interrupts();
 
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem("Last 100 Instructions")) {
+            draw_last_100_instructions();
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem("Call Stack")) {
+            draw_call_stack();
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
+    
     ImGui::End();
-
     ImGui::ShowDemoWindow();
 }
 
@@ -96,4 +117,49 @@ void gameboy::cpu_debugger::draw_interrupts() const noexcept
     ImGui::Text("joypad:     %d", interrupt_flag(interrupt::joypad));
 
     ImGui::Columns(1);
+}
+
+void gameboy::cpu_debugger::draw_last_100_instructions() const noexcept
+{
+    if(ImGui::BeginChild("cpulast100")) {
+        ImGuiListClipper clipper(last_executed_instructions_.size());
+        while(clipper.Step()) {
+            for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+                ImGui::TextUnformatted(last_executed_instructions_[i].c_str());
+            }
+        }
+        ImGui::EndChild();
+    }
+}
+
+void gameboy::cpu_debugger::draw_call_stack() const noexcept
+{
+    ImGuiListClipper clipper(call_stack_.size());
+    while(clipper.Step()) {
+        for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
+            ImGui::Text("%04X", call_stack_[i].value());
+        }
+    }
+}
+
+void gameboy::cpu_debugger::on_instruction(
+    const address16& addr,
+    const instruction::info& info,
+    const uint16_t data) noexcept
+{
+    const auto starts_with = [](const std::string_view str, const std::string_view what) {
+        return str.compare(0, what.size(), what) == 0;
+    };
+
+    if(starts_with(info.mnemonic, "CALL")) {
+        call_stack_.push_back(addr);
+    } else if(starts_with(info.mnemonic, "RET")) {
+        call_stack_.pop_back();
+    }
+
+    if(last_executed_instructions_.size() == 100) {
+        last_executed_instructions_.erase(begin(last_executed_instructions_));
+    }
+
+    last_executed_instructions_.push_back(fmt::format("{:04X}: {}", addr.value(), fmt::format(info.mnemonic.data(), data)));
 }

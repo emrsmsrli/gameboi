@@ -181,7 +181,7 @@ void cartridge_debugger::draw_rom_disassembly() const noexcept
     }
 }
 
-void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction::disassembly>& disassemblies, 
+void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction::disassembly>& disassemblies,
     const uint32_t start, const uint32_t end, const bool auto_scroll) const noexcept
 {
     const auto clamped_start = std::max(0u, start);

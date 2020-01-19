@@ -1248,9 +1248,13 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         default: {
-            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
+            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - info.length);
         }
     }
+
+#ifdef DEBUG
+    on_instruction_executed_(address16(program_counter_ - info.length), info, data);
+#endif
 
     return info.cycle_count;
 }
@@ -2409,7 +2413,13 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
         }
     }
 
-    return instruction::extended_instruction_set[inst].cycle_count;
+    const auto& info = instruction::extended_instruction_set[inst];
+
+#ifdef DEBUG
+    on_instruction_executed_(address16(program_counter_ - info.length + 1u), info, 0u);
+#endif
+
+    return info.cycle_count;
 }
 
 void cpu::write_data(const address16& address, const uint8_t data)
