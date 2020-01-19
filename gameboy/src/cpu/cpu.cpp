@@ -113,30 +113,7 @@ uint8_t cpu::tick()
     // todo check_power_mode();
 
     if(interrupt_master_enable_) {
-        const auto pending = interrupt_enable_ & interrupt_flags_;
-
-        const auto interrupt_requested = [&](const interrupt i) {
-            return (pending & i) != interrupt::none;
-        };
-
-        const auto do_interrupt = [&](const interrupt i) {
-            interrupt_master_enable_ = false;
-            interrupt_flags_ &= ~i;
-            rst(make_address(i));
-        };
-
-        static constexpr std::array interrupts = {
-            interrupt::joypad,
-            interrupt::serial,
-            interrupt::timer,
-            interrupt::lcd_stat,
-            interrupt::lcd_vblank
-        };
-
-        if(const auto it = std::find_if(begin(interrupts), end(interrupts), interrupt_requested);
-                it != end(interrupts)) {
-            do_interrupt(*it);
-        }
+        schedule_interrupt_if_available();
     }
 
     total_cycles_ += cycle_count;
@@ -2432,6 +2409,31 @@ uint16_t cpu::read_immediate(imm16_t)
     const auto msb = read_immediate(imm8);
 
     return word(msb, lsb);
+}
+
+void cpu::schedule_interrupt_if_available() noexcept
+{
+    const auto pending_interrupts = interrupt_enable_ & interrupt_flags_;
+
+    const auto interrupt_requested = [&](const interrupt i) {
+        return (pending_interrupts & i) != interrupt::none;
+    };
+
+    static constexpr std::array interrupts = {
+        interrupt::joypad,
+        interrupt::serial,
+        interrupt::timer,
+        interrupt::lcd_stat,
+        interrupt::lcd_vblank
+    };
+
+    if(const auto it = std::find_if(begin(interrupts), end(interrupts), interrupt_requested); it != end(interrupts)) {
+        const auto i = *it;
+
+        interrupt_master_enable_ = false;
+        interrupt_flags_ &= ~i;
+        rst(make_address(i));
+    }
 }
 
 void cpu::nop() noexcept {}
