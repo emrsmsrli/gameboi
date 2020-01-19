@@ -24,6 +24,8 @@ public:
     [[nodiscard]] bool interrupts_enabled() const noexcept { return interrupt_master_enable_; }
     void request_interrupt(interrupt request) noexcept;
 
+    [[nodiscard]] bool is_stopped() const noexcept { return is_stopped_; }
+
 private:
     enum class flag : uint8_t {
         none = 0u,
@@ -67,7 +69,7 @@ private:
     bool is_interrupt_master_change_pending_;
     bool next_interrupt_master_enable_;
 
-    bool is_interrupt_status_change_pending_;
+    bool is_stopped_;
     bool is_halted_;
 
     void schedule_ime_change(bool enabled) noexcept;

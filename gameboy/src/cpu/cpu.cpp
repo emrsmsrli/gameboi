@@ -34,8 +34,7 @@ cpu::cpu(observer<bus> bus) noexcept
       interrupt_master_enable_{false},
       is_interrupt_master_change_pending_{false},
       next_interrupt_master_enable_{false},
-      is_halted_{false},
-      is_halt_bug_triggered_{false}
+      is_halted_{false}
 {
     auto mmu = bus->get_mmu();
 
@@ -2456,8 +2455,12 @@ void cpu::halt() noexcept
 
 void cpu::stop() noexcept
 {
-    // todo make this a separate instruction to save energy by turning off the system completely
-    halt();
+    if(bit_test(key_1_, 0u)) {
+        key_1_ = bit_reset(key_1_, 0u);
+        return;
+    }
+
+    is_stopped_ = true;
 }
 
 void cpu::push(const register16& reg)

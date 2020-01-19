@@ -39,6 +39,11 @@ void gameboy::start()
 void gameboy::tick()
 {
     const auto cycles = cpu_.tick();
+
+    if(cpu_.is_stopped()) {
+        return;
+    }
+
     ppu_.tick(cycles);
     // apu.tick(cycles);
     timer_.tick(cycles);
