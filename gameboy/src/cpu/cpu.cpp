@@ -17,7 +17,7 @@ using namespace magic_enum::bitwise_operators;
 
 constexpr address16 ie_addr{0xFFFFu};
 constexpr address16 if_addr{0xFF0Fu};
-constexpr address16 key_1_addr{0xFF40u};
+constexpr address16 key_1_addr{0xFF4Du};
 
 cpu::cpu(observer<bus> bus) noexcept
     : bus_{bus},
