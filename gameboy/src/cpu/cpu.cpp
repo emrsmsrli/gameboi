@@ -2531,8 +2531,8 @@ void cpu::call(const address16& address)
 
 void cpu::reti()
 {
-    schedule_ime_change(true);
     ret();
+    interrupt_master_enable_ = true;
 }
 
 void cpu::ret()
