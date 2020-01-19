@@ -106,6 +106,8 @@ private:
     [[nodiscard]] uint8_t read_immediate(imm8_t);
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
+    void schedule_interrupt_if_available() noexcept;
+
     /* instructions */
     static void nop() noexcept;
     void halt() noexcept;
