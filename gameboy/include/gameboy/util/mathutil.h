@@ -38,22 +38,22 @@ constexpr T bit_reset(const T n, const uint32_t bit) noexcept
 
 constexpr bool half_carry(const uint8_t x, const uint8_t y) noexcept
 {
-    return (((x & 0x0Fu) + (y & 0x0Fu)) & 0x10u) != 0;
+    return mask_test((x & 0x0Fu) + (y & 0x0Fu), 0x10u);
 }
 
 constexpr bool half_carry(const uint16_t x, const uint16_t y) noexcept
 {
-    return (((x & 0x0FFFu) + (y & 0x0FFFu)) & 0x1000u) != 0;
+    return mask_test((x & 0x0FFFu) + (y & 0x0FFFu), 0x1000u);
 }
 
 constexpr bool full_carry(const uint8_t x, const uint8_t y) noexcept
 {
-    return (((x & 0xFFu) + (y & 0xFFu)) & 0x100u) != 0;
+    return mask_test((x & 0xFFu) + (y & 0xFFu), 0x100u);
 }
 
 constexpr bool full_carry(const uint16_t x, const uint16_t y) noexcept
 {
-    return (((x & 0xFFFFu) + ((y & 0xFFFFu))) & 0x10000u) != 0;
+    return mask_test((x & 0xFFFFu) + (y & 0xFFFFu), 0x10000u);
 }
 
 constexpr bool half_borrow(const uint8_t x, const uint8_t y) noexcept
