@@ -535,11 +535,11 @@ void alu::rotate_right_c(register8& reg) const noexcept
 
 void alu::shift_left(uint8_t& value) const noexcept
 {
-    const auto msb = value & 0x80u;
-    value <<= 0x1u;
+    const auto bit_7 = extract_bit(value, 7u);
+    value <<= 1u;
 
     cpu_->reset_flag(cpu::flag::all);
-    if(msb != 0x00u) {
+    if(bit_7 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -557,19 +557,13 @@ void alu::shift_left(register8& reg) const noexcept
 
 void alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
 {
-    const auto msb = value & 0x80u;
-    const auto lsb = value & 0x01u;
+    const auto bit_7 = value & 0x80u;
+    const auto bit_0 = extract_bit(value, 0u);
 
-    value >>= 0x1u;
-
-    if(msb != 0x00u) {
-        value = bit_set(value, 7u);
-    } else {
-        value = bit_reset(value, 7u);
-    }
+    value = (value >> 1u) | bit_7;
 
     cpu_->reset_flag(cpu::flag::all);
-    if(lsb == 0x01u) {
+    if(bit_0 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -587,13 +581,12 @@ void alu::shift_right(register8& reg, const preserve_last_bit_t tag) const noexc
 
 void alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
 {
-    const auto lsb = value & 0x01u;
+    const auto bit_0 = extract_bit(value, 0u);
 
     value >>= 0x1u;
-    value = bit_reset(value, 7u);
 
     cpu_->reset_flag(cpu::flag::all);
-    if(lsb == 0x01u) {
+    if(bit_0 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
