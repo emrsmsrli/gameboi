@@ -2472,10 +2472,12 @@ void cpu::stop() noexcept
 {
     if(bit_test(key_1_, 0u)) {
         key_1_ = bit_reset(key_1_, 0u);
+        // todo speed switch
         return;
     }
 
     is_stopped_ = true;
+    is_halted_ = true;
 }
 
 void cpu::push(const register16& reg)
