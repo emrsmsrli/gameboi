@@ -1,8 +1,6 @@
 #ifndef GAMEBOY_GAMEBOY_H
 #define GAMEBOY_GAMEBOY_H
 
-#include <string_view>
-
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
@@ -12,6 +10,7 @@
 #include "gameboy/joypad/joypad.h"
 #include "gameboy/timer/timer.h"
 #include "gameboy/util/delegate.h"
+#include "gameboy/link/link.h"
 
 namespace gameboy {
 
@@ -50,6 +49,7 @@ private:
     cpu cpu_;
     ppu ppu_;
     apu apu_;
+    link link_;
     joypad joypad_;
     timer timer_;
 };

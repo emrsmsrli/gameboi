@@ -45,7 +45,8 @@ void gameboy::tick()
     }
 
     ppu_.tick(cycles);
-    // apu.tick(cycles);
+    apu_.tick(cycles);
+    link_.tick(cycles);
     timer_.tick(cycles);
 }
 
