@@ -2607,11 +2607,11 @@ void cpu::load_hlsp(const int8_t data) noexcept
     const auto value = stack_pointer_.value() + data;
 
     reset_flag(flag::all);
-    if(((stack_pointer_.value() ^ data ^ value) & 0x0100) == 0x0100) {
+    if(mask_test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0100)) {
         set_flag(flag::carry);
     }
 
-    if(((stack_pointer_.value() ^ data ^ value) & 0x0010) == 0x0010) {
+    if(mask_test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0010)) {
         set_flag(flag::half_carry);
     }
 
