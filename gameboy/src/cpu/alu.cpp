@@ -38,7 +38,7 @@ void alu::add_c(const uint8_t value) const noexcept
 
     cpu_->reset_flag(cpu::flag::all);
 
-    if(((acc & 0x0Fu) + (value & 0x0Fu) + carry) > 0x0Fu) {
+    if((acc & 0x0Fu) + (value & 0x0Fu) + carry > 0x0Fu) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
