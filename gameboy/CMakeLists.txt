@@ -11,6 +11,7 @@ add_library(${PROJECT_NAME}
         src/cpu/cpu.cpp
         src/cpu/alu.cpp
         src/timer/timer.cpp
+        src/link/link.cpp
         src/joypad/joypad.cpp
         src/memory/mmu.cpp
         src/memory/controller/mbc1.cpp
