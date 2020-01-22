@@ -2,7 +2,7 @@
 #define GAMEBOY_ADDRESS_H
 
 #include <type_traits>
-#include <utility>
+#include <functional>
 
 #include "gameboy/cpu/register16.h"
 #include "gameboy/memory/addressfwd.h"
