@@ -152,6 +152,7 @@ int main(int /*argc*/, char** /*argv*/)
                         break;
                     case sf::Keyboard::G:
                         gb.tick_one_frame();
+                        break;
                     case sf::Keyboard::T:
                     case sf::Keyboard::F9:
                         tick_allowed = !tick_allowed;
