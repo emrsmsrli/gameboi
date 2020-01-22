@@ -57,9 +57,10 @@ jobs:
           execute_process(COMMAND pip install conan)
         endif()
 
-    - name: Configure conan
-      if: steps.cache.outputs.cache-hit != 'true'
-      run: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+    - name: Configure conan-bincrafters
+      shell: conan remote add bincrafters https://api.bintray.com/conan/bincrafters/public-conan
+    - name: Configure conan-neargye
+      shell: conan remote add neargye https://api.bintray.com/conan/neargye/conan-packages
 
     - name: Download Ninja and CMake
       id: cmake_and_ninja
