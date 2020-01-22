@@ -107,8 +107,6 @@ uint8_t cpu::tick()
         interrupt_master_enable_ = next_interrupt_master_enable_;
     }
 
-    // todo check_power_mode();
-
     if(interrupt_master_enable_) {
         schedule_interrupt_if_available();
     }
