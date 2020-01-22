@@ -14,6 +14,7 @@ gameboy::gameboy(const std::string_view rom_path)
       cpu_{make_observer(bus_)},
       ppu_{make_observer(bus_)},
       apu_{make_observer(bus_)},
+      link_{make_observer(bus_)},
       joypad_{make_observer(bus_)},
       timer_{make_observer(bus_)}
 {
