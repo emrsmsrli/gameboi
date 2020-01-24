@@ -49,7 +49,7 @@ jobs:
 
     - name: Setup PyWheel
       if: runner.os == 'macOS' && steps.cache.outputs.cache-hit != 'true'
-      run: pip3 install wheel
+      run: pip3 install wheel setuptools
 
     - name: Install Conan
       if: steps.cache.outputs.cache-hit != 'true'
