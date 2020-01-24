@@ -47,6 +47,10 @@ jobs:
         path: build
         key: ${{ runner.os }}-cache
 
+    - name: Setup PyWheel
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: pip3 install wheel
+
     - name: Install Conan
       if: steps.cache.outputs.cache-hit != 'true'
       shell: cmake -P {0}
@@ -54,7 +58,7 @@ jobs:
         if("${{ runner.os }}" STREQUAL "macOS")
           execute_process(COMMAND brew install conan)
         else()
-          execute_process(COMMAND pip install conan)
+          execute_process(COMMAND pip3 install conan)
         endif()
 
     - name: Download Ninja and CMake
