@@ -47,6 +47,10 @@ jobs:
         path: build
         key: ${{ runner.os }}-cache
 
+    - name: Setup PyWheel
+      if: steps.cache.outputs.cache-hit != 'true'
+      run: pip3 install wheel setuptools
+
     - name: Install Conan
       if: steps.cache.outputs.cache-hit != 'true'
       shell: cmake -P {0}
@@ -54,7 +58,7 @@ jobs:
         if("${{ runner.os }}" STREQUAL "macOS")
           execute_process(COMMAND brew install conan)
         else()
-          execute_process(COMMAND pip install conan)
+          execute_process(COMMAND pip3 install conan)
         endif()
 
     - name: Download Ninja and CMake
@@ -129,9 +133,9 @@ jobs:
             -S .
             -B build
             -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
-            -G Ninja
+            # -G Ninja
             # todo this lines gives an error
-            -D CMAKE_MAKE_PROGRAM=${{ steps.cmake_and_ninja.outputs.ninja_path }}
+            #-D CMAKE_MAKE_PROGRAM=${{ steps.cmake_and_ninja.outputs.ninja_path }}
           RESULT_VARIABLE result
         )
 
