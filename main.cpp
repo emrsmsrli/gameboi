@@ -10,6 +10,7 @@ namespace {
 struct renderer {
     sf::Image window_buffer;
     sf::Texture window_texture;
+    sf::Sprite window_sprite;
     sf::RenderWindow window;
 
     float scale;
@@ -32,8 +33,15 @@ struct renderer {
         }
     {
         window.setFramerateLimit(500);
-        window_buffer.create(gameboy::screen_width, gameboy::screen_height);
+        window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
         window_texture.create(gameboy::screen_width, gameboy::screen_height);
+
+        window_sprite.setTexture(window_texture);
+        window_sprite.setScale(scale, scale);
+        window_sprite.setPosition(position);
+
+        render_frame();
+
         gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, this});
         gb.on_render_frame({gameboy::connect_arg<&renderer::render_frame>, this});
     }
@@ -52,12 +60,8 @@ struct renderer {
     {
         window_texture.update(window_buffer);
 
-        sf::Sprite sprite{window_texture};
-        sprite.setScale(scale, scale);
-        sprite.setPosition(position);
-
         window.clear();
-        window.draw(sprite);
+        window.draw(window_sprite);
         window.display();
     }
 };
