@@ -89,10 +89,13 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 
 void gameboy::cpu_debugger::draw_interrupts() const noexcept
 {
+    ImGui::Text("stop flag %d", cpu_->is_stopped_);
+    ImGui::Text("halt flag %d", cpu_->is_halted_);
     ImGui::Text("ime: %s", 
         cpu_->interrupts_enabled() 
             ? "enabled" 
             : "disabled");
+    ImGui::Separator();
     
     ImGui::Columns(2, "interrupts", true);
     
