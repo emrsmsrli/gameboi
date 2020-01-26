@@ -9,7 +9,6 @@
 #include "gameboy/memory/address.h"
 #include "gameboy/util/log.h"
 #include "gameboy/util/observer.h"
-#include "gameboy/util/mathutil.h"
 
 namespace gameboy {
     

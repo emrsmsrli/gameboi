@@ -4,6 +4,7 @@
 #include "gameboy/cpu/register16.h"
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
+#include "gameboy/util/mathutil.h"
 
 #ifdef DEBUG
 #include "gameboy/cpu/instruction_info.h"
@@ -30,6 +31,7 @@ public:
     void request_interrupt(interrupt request) noexcept;
 
     [[nodiscard]] bool is_stopped() const noexcept { return is_stopped_; }
+    [[nodiscard]] bool is_double_speed() const noexcept { return bit_test(key_1_, 7u); }
 
 private:
     enum class flag : uint8_t {
