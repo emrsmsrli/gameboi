@@ -1,5 +1,6 @@
 project(gameboycore VERSION 0.0.1)
-configure_file(cmake/version.h.in version.h)
+configure_file(cmake/version.h.in
+        ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
 add_library(${PROJECT_NAME}
         src/gameboy.cpp
@@ -29,7 +30,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         ${CONAN_LIBS}
         project_warnings)
 target_include_directories(${PROJECT_NAME}
-        PUBLIC ${PROJECT_SOURCE_DIR}/include
-        PRIVATE ${PROJECT_BINARY_DIR})
+        PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
 add_subdirectory(test)
