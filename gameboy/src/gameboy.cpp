@@ -2,8 +2,7 @@
 #include <thread>
 
 #include "gameboy/gameboy.h"
-
-#include "version.h"
+#include "gameboy/version.h"
 
 namespace gameboy {
 
