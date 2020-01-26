@@ -29,8 +29,8 @@ if(MSVC)
 else()
     option(ENABLE_ASAN "Enable address sanitizer" FALSE)
     if(ENABLE_ASAN)
-      target_compile_options(project_options INTERFACE -fsanitize=address)
-      target_link_libraries(project_options INTERFACE -fsanitize=address)
+        target_compile_options(project_options INTERFACE -fsanitize=address)
+        target_link_libraries(project_options INTERFACE -fsanitize=address)
     endif()
 
     target_compile_options(project_warnings
