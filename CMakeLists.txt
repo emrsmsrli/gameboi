@@ -95,10 +95,14 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         gb::debugger
         project_warnings)
 
-add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy
-        ${CMAKE_CURRENT_SOURCE_DIR}/res/cpu_instrs.gb
-        $<TARGET_FILE_DIR:${PROJECT_NAME}>/cpu_instrs.gb)
+file(GLOB RESOURCE_FILES "${CMAKE_CURRENT_SOURCE_DIR}/res/*")
+foreach(RESOURCE_FILE ${RESOURCE_FILES})
+    get_filename_component(RESOURCE_FILE_NAME ${RESOURCE_FILE} NAME)
+    add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy
+            ${RESOURCE_FILE}
+            $<TARGET_FILE_DIR:${PROJECT_NAME}>/${RESOURCE_FILE_NAME})
+endforeach()
 
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
