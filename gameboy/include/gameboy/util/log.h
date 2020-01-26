@@ -14,7 +14,7 @@ template<typename... Args>
 void info(const std::string_view format, const Args& ... args) noexcept
 {
     if constexpr(DEBUG) {
-        std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
+        //std::cout << "[I] - " << fmt::format(format.data(), args...) << '\n';
     }
 }
 
