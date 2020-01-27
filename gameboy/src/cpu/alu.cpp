@@ -1,8 +1,12 @@
+#include <magic_enum.hpp>
+
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
+
+using namespace magic_enum::bitwise_operators;
 
 void alu::add(const uint8_t value) const noexcept
 {
@@ -119,19 +123,16 @@ void alu::subtract_c(const register8& reg) const noexcept
 
 void alu::increment(uint8_t& value) const noexcept
 {
+    cpu_->reset_flag(cpu::flag::negative | cpu::flag::zero | cpu::flag::half_carry);
+
     if(half_carry(value, 1u)) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     ++value;
 
-    cpu_->reset_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
-    } else {
-        cpu_->reset_flag(cpu::flag::zero);
     }
 }
 
@@ -144,19 +145,17 @@ void alu::increment(register8& reg) const noexcept
 
 void alu::decrement(uint8_t& value) const noexcept
 {
+    cpu_->set_flag(cpu::flag::negative);
+    cpu_->reset_flag(cpu::flag::half_carry | cpu::flag::zero);
+
     if(half_borrow(value, 1u)) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     --value;
 
-    cpu_->set_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
-    } else {
-        cpu_->reset_flag(cpu::flag::zero);
     }
 }
 
@@ -243,18 +242,14 @@ void alu::logical_compare(const register8& reg) const noexcept
 
 void alu::add(register16& r_left, const register16& r_right) const noexcept
 {
-    cpu_->reset_flag(cpu::flag::negative);
+    cpu_->reset_flag(cpu::flag::negative | cpu::flag::half_carry | cpu::flag::carry);
 
     if(half_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     if(full_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::carry);
     }
 
     r_left += r_right;
@@ -292,8 +287,7 @@ void alu::decrement(register16& r) noexcept
 void alu::complement() const noexcept
 {
     cpu_->a_f_.high() = ~cpu_->a_f_.high();
-    cpu_->set_flag(cpu::flag::negative);
-    cpu_->set_flag(cpu::flag::half_carry);
+    cpu_->set_flag(cpu::flag::negative | cpu::flag::half_carry);
 }
 
 void alu::decimal_adjust() const noexcept
