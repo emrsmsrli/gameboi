@@ -4,4 +4,3 @@
 
 ## Major
 - implement mbc5
-- implement speed switch
