@@ -312,16 +312,14 @@ void alu::decimal_adjust() const noexcept
         }
     }
 
-    cpu_->reset_flag(cpu::flag::half_carry);
+    cpu_->reset_flag(cpu::flag::half_carry | cpu::flag::zero);
 
     if(mask_test(acc, 0x100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
     acc &= 0xFF;
-
-    cpu_->reset_flag(cpu::flag::zero);
-    if(acc == 0x00u) {
+    if(acc == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
