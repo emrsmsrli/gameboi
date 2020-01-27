@@ -392,8 +392,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x37: { /* SCF */
-            reset_flag(flag::negative);
-            reset_flag(flag::half_carry);
+            reset_flag(flag::negative | flag::half_carry);
             set_flag(flag::carry);
             break;
         }
@@ -431,8 +430,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
         }
         case 0x3F: {
             /* CCF */
-            reset_flag(flag::negative);
-            reset_flag(flag::half_carry);
+            reset_flag(flag::negative | flag::half_carry);
             flip_flag(flag::carry);
             break;
         }
