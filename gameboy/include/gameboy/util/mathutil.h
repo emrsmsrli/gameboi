@@ -36,6 +36,12 @@ constexpr T bit_reset(const T n, const uint32_t bit) noexcept
     return n & ~(0x1u << bit);
 }
 
+template<typename T>
+constexpr T bit_flip(const T n, const uint32_t bit) noexcept
+{
+    return n ^ (0x1u << bit);
+}
+
 constexpr bool half_carry(const uint8_t x, const uint8_t y) noexcept
 {
     return mask_test((x & 0x0Fu) + (y & 0x0Fu), 0x10u);

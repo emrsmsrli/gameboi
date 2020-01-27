@@ -41,3 +41,10 @@ TEST(math, extract_bit) {
     ASSERT_EQ(gameboy::extract_bit(0x0F, 6), 0);
     ASSERT_EQ(gameboy::extract_bit(0x0F, 7), 0);
 }
+
+TEST(math, bit_flip) {
+    ASSERT_EQ(gameboy::bit_flip(0b1001, 0), 0b1000);
+    ASSERT_EQ(gameboy::bit_flip(0b1001, 1), 0b1011);
+    ASSERT_EQ(gameboy::bit_flip(0b1001, 2), 0b1101);
+    ASSERT_EQ(gameboy::bit_flip(0b1001, 3), 0b0001);
+}
