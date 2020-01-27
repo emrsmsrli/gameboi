@@ -95,10 +95,14 @@ uint8_t cpu::tick()
         return decode(read_immediate(imm8), extended_instruction_set);
     };
 
-    const auto cycle_count =
+    auto cycle_count =
         !is_halted_
         ? execute_next_op()
         : static_cast<uint8_t>(0x4u);
+
+    if(is_double_speed()) {
+        cycle_count /= 2;
+    }
 
     if(is_interrupt_master_change_pending_) {
         is_interrupt_master_change_pending_ = false;
@@ -2469,7 +2473,7 @@ void cpu::stop() noexcept
 {
     if(bit_test(key_1_, 0u)) {
         key_1_ = bit_reset(key_1_, 0u);
-        // todo speed switch
+        key_1_ = bit_flip(key_1_, 7u);
         return;
     }
 
