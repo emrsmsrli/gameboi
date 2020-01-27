@@ -395,61 +395,36 @@ void alu::reset(register8& reg, const uint8_t bit) const noexcept
 
 void alu::rotate_left_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_7 = extract_bit(acc, 7u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    acc = (acc.value() << 1u) | carry;
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_left(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_right_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_0 = extract_bit(acc, 0u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    acc = (acc.value() >> 1u) | (carry << 7u);
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_right(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_left_c_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_7 = extract_bit(acc, 7u);
-    acc = (acc.value() << 1u) | bit_7;
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_left_c(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_right_c_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_0 = extract_bit(acc, 0u);
-    acc = (acc.value() >> 1u) | (bit_0 << 7u);
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_right_c(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_left(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7);
-    value = (value << 1u) | bit_7;
+    const auto bit_7 = extract_bit(value, 7u);
+    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    value = (value << 1u) | carry;
 
     cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 != 0x00u) {
+    if(bit_7 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -468,10 +443,11 @@ void alu::rotate_left(register8& reg) const noexcept
 void alu::rotate_right(uint8_t& value) const noexcept
 {
     const auto bit_0 = extract_bit(value, 0);
-    value = (value >> 1u) | (bit_0 << 7u);
+    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    value = (value >> 1u) | (carry << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x01u) {
+    if(bit_0 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -489,9 +465,8 @@ void alu::rotate_right(register8& reg) const noexcept
 
 void alu::rotate_left_c(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    value = (value << 1u) | carry;
+    const auto bit_7 = extract_bit(value, 7);
+    value = (value << 1u) | bit_7;
 
     cpu_->reset_flag(cpu::flag::all);
     if(bit_7 == 0x1u) {
@@ -513,8 +488,7 @@ void alu::rotate_left_c(register8& reg) const noexcept
 void alu::rotate_right_c(uint8_t& value) const noexcept
 {
     const auto bit_0 = extract_bit(value, 0);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    value = (value >> 1u) | (carry << 7u);
+    value = (value >> 1u) | (bit_0 << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
     if(bit_0 == 0x1u) {
