@@ -95,13 +95,19 @@ uint8_t cpu::tick()
         return decode(read_immediate(imm8), extended_instruction_set);
     };
 
-    auto cycle_count =
-        !is_halted_
+    auto cycle_count = modified_cycles(!is_halted_
         ? execute_next_op()
-        : static_cast<uint8_t>(0x4u);
+        : static_cast<uint8_t>(0x4u));
 
-    if(is_double_speed()) {
-        cycle_count /= 2;
+    if(!is_stopped_) {
+        if(is_halted_ && pending_interrupts() != interrupt::none /* check for remaining cycles != 0*/) {
+            is_halted_ = false; // todo delay 12 cycles instead
+        }
+    } else {
+        if(is_interrupt_requested(interrupt::joypad)) {
+            is_stopped_ = false;
+            is_halted_ = false;
+        }
     }
 
     if(is_interrupt_master_change_pending_) {
@@ -111,7 +117,7 @@ uint8_t cpu::tick()
     }
 
     if(interrupt_master_enable_) {
-        schedule_interrupt_if_available();
+        cycle_count += schedule_interrupt_if_available();
     }
 
     total_cycles_ += cycle_count;
@@ -2423,24 +2429,21 @@ void cpu::schedule_ime_change(const bool enabled) noexcept
     next_interrupt_master_enable_ = enabled;
 }
 
-void cpu::schedule_interrupt_if_available() noexcept
+interrupt cpu::pending_interrupts() const noexcept
 {
-    const auto pending_interrupts = interrupt_enable_ & interrupt_flags_;
+    return interrupt_enable_ & interrupt_flags_;
+}
 
-    const auto interrupt_requested = [&](const interrupt i) {
-        return (pending_interrupts & i) != interrupt::none;
+bool cpu::is_interrupt_requested(const interrupt i) const noexcept
+{
+    return (pending_interrupts() & i) != interrupt::none;
+}
+
+uint8_t cpu::schedule_interrupt_if_available() noexcept
+{
+    const auto int_requested = [&](const interrupt i) {
+        return is_interrupt_requested(i);
     };
-
-    if(!is_stopped_) {
-        if(pending_interrupts != interrupt::none) {
-            is_halted_ = false;
-        }
-    } else {
-        if(interrupt_requested(interrupt::joypad)) {
-            is_stopped_ = false;
-            is_halted_ = false;
-        }
-    }
 
     static constexpr std::array interrupts = {
         interrupt::joypad,
@@ -2450,14 +2453,18 @@ void cpu::schedule_interrupt_if_available() noexcept
         interrupt::lcd_vblank
     };
 
-    if(const auto it = std::find_if(begin(interrupts), end(interrupts), interrupt_requested); it != end(interrupts)) {
+    if(const auto it = std::find_if(begin(interrupts), end(interrupts), int_requested); it != end(interrupts)) {
         const auto i = *it;
 
         interrupt_master_enable_ = false;
         is_interrupt_master_change_pending_ = false;
         interrupt_flags_ &= ~i;
         rst(make_address(i));
+
+        return modified_cycles(20u);
     }
+
+    return 0u;
 }
 
 void cpu::nop() noexcept {}
