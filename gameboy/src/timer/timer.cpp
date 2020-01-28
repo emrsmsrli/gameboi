@@ -61,7 +61,7 @@ void timer::tick(const uint8_t cycles)
         while(timer_clock_ >= timer_cycles) {
             timer_clock_ -= timer_cycles;
 
-            if(div_ == 0xFFu) {
+            if(tima_ == 0xFFu) {
                 tima_ = tma_;
                 bus_->get_cpu()->request_interrupt(interrupt::timer);
             } else {
