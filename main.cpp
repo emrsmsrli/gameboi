@@ -174,7 +174,7 @@ int main(int argc, char* argv[])
         }
 
         if(tick_allowed) {
-            gb.tick();
+            gb.tick_one_frame();
 
             debugger.check_breakpoints();
 
