@@ -1,26 +1,6 @@
 cmake_minimum_required(VERSION 3.12.4)
 project(gameboy)
 
-# configure gtest
-configure_file(cmake/GTest.in googletest-download/CMakeLists.txt)
-execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if(result)
-    message(FATAL_ERROR "CMake step for googletest failed: ${result}")
-endif()
-execute_process(COMMAND ${CMAKE_COMMAND} --build .
-        RESULT_VARIABLE result
-        WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}/googletest-download)
-if(result)
-    message(FATAL_ERROR "Build step for googletest failed: ${result}")
-endif()
-
-add_subdirectory(${CMAKE_CURRENT_BINARY_DIR}/googletest-src
-        ${CMAKE_CURRENT_BINARY_DIR}/googletest-build
-        EXCLUDE_FROM_ALL)
-# end configure gtest
-
 # Link this 'library' to use the following warnings
 add_library(project_warnings INTERFACE)
 
@@ -74,7 +54,11 @@ conan_check(REQUIRED)
 
 conan_add_remote(NAME bincrafters URL https://api.bintray.com/conan/bincrafters/public-conan)
 conan_add_remote(NAME neargye URL https://api.bintray.com/conan/neargye/conan-packages)
-conan_cmake_run(CONANFILE conanfile.txt BASIC_SETUP BUILD missing)
+conan_cmake_run(CONANFILE conanfile.txt 
+        BASIC_SETUP 
+        CMAKE_TARGETS
+        BUILD_TYPE ${CMAKE_BUILD_TYPE}
+        BUILD missing)
 
 # add debugger dependencies
 add_subdirectory(3rdparty/imgui_sfml
@@ -89,7 +73,9 @@ add_executable(${PROJECT_NAME} main.cpp)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${CONAN_LIBS}
+        CONAN_PKG::fmt
+        CONAN_PKG::sfml
+        CONAN_PKG::magic_enum
         imgui_sfml
         gb::core
         gb::debugger

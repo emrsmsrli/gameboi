@@ -26,10 +26,14 @@ add_library(gb::core ALIAS ${PROJECT_NAME})
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_compile_definitions(${PROJECT_NAME} 
         PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        ${CONAN_LIBS}
+target_link_libraries(${PROJECT_NAME} PUBLIC
+        CONAN_PKG::fmt
+        CONAN_PKG::magic_enum
         project_warnings)
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-add_subdirectory(test)
+option(ENABLE_TESTING "Enable testing" FALSE)
+if(ENABLE_TESTING)
+    add_subdirectory(test)
+endif()

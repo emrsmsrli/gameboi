@@ -11,7 +11,7 @@ add_executable(${PROJECT_NAME}
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gb::core
-        gtest_main
+        CONAN_PKG::gtest
         project_warnings)
 
 add_test(gbcore_test ${PROJECT_NAME})
