@@ -54,12 +54,12 @@ constexpr bool half_carry(const uint16_t x, const uint16_t y) noexcept
 
 constexpr bool full_carry(const uint8_t x, const uint8_t y) noexcept
 {
-    return mask_test((x & 0xFFu) + (y & 0xFFu), 0x100u);
+    return mask_test(static_cast<uint16_t>(x) + static_cast<uint16_t>(y), 0x100u);
 }
 
 constexpr bool full_carry(const uint16_t x, const uint16_t y) noexcept
 {
-    return mask_test((x & 0xFFFFu) + (y & 0xFFFFu), 0x10000u);
+    return mask_test(x + y, 0x10000u);
 }
 
 constexpr bool half_borrow(const uint8_t x, const uint8_t y) noexcept
@@ -69,7 +69,7 @@ constexpr bool half_borrow(const uint8_t x, const uint8_t y) noexcept
 
 constexpr bool full_borrow(const uint8_t x, const uint8_t y) noexcept
 {
-    return (x & 0xFFu) < (y & 0xFFu);
+    return x < y;
 }
 
 inline uint16_t word(const uint8_t high, const uint8_t low) noexcept

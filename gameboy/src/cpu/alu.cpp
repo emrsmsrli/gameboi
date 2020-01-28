@@ -1,8 +1,12 @@
+#include <magic_enum.hpp>
+
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
+
+using namespace magic_enum::bitwise_operators;
 
 void alu::add(const uint8_t value) const noexcept
 {
@@ -119,19 +123,16 @@ void alu::subtract_c(const register8& reg) const noexcept
 
 void alu::increment(uint8_t& value) const noexcept
 {
+    cpu_->reset_flag(cpu::flag::negative | cpu::flag::zero | cpu::flag::half_carry);
+
     if(half_carry(value, 1u)) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     ++value;
 
-    cpu_->reset_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
-    } else {
-        cpu_->reset_flag(cpu::flag::zero);
     }
 }
 
@@ -144,19 +145,17 @@ void alu::increment(register8& reg) const noexcept
 
 void alu::decrement(uint8_t& value) const noexcept
 {
+    cpu_->set_flag(cpu::flag::negative);
+    cpu_->reset_flag(cpu::flag::half_carry | cpu::flag::zero);
+
     if(half_borrow(value, 1u)) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     --value;
 
-    cpu_->set_flag(cpu::flag::negative);
     if(value == 0x00u) {
         cpu_->set_flag(cpu::flag::zero);
-    } else {
-        cpu_->reset_flag(cpu::flag::zero);
     }
 }
 
@@ -243,18 +242,14 @@ void alu::logical_compare(const register8& reg) const noexcept
 
 void alu::add(register16& r_left, const register16& r_right) const noexcept
 {
-    cpu_->reset_flag(cpu::flag::negative);
+    cpu_->reset_flag(cpu::flag::negative | cpu::flag::half_carry | cpu::flag::carry);
 
     if(half_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::half_carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::half_carry);
     }
 
     if(full_carry(r_left.value(), r_right.value())) {
         cpu_->set_flag(cpu::flag::carry);
-    } else {
-        cpu_->reset_flag(cpu::flag::carry);
     }
 
     r_left += r_right;
@@ -292,8 +287,7 @@ void alu::decrement(register16& r) noexcept
 void alu::complement() const noexcept
 {
     cpu_->a_f_.high() = ~cpu_->a_f_.high();
-    cpu_->set_flag(cpu::flag::negative);
-    cpu_->set_flag(cpu::flag::half_carry);
+    cpu_->set_flag(cpu::flag::negative | cpu::flag::half_carry);
 }
 
 void alu::decimal_adjust() const noexcept
@@ -318,16 +312,14 @@ void alu::decimal_adjust() const noexcept
         }
     }
 
-    cpu_->reset_flag(cpu::flag::half_carry);
+    cpu_->reset_flag(cpu::flag::half_carry | cpu::flag::zero);
 
     if(mask_test(acc, 0x100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
     acc &= 0xFF;
-
-    cpu_->reset_flag(cpu::flag::zero);
-    if(acc == 0x00u) {
+    if(acc == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
@@ -395,61 +387,36 @@ void alu::reset(register8& reg, const uint8_t bit) const noexcept
 
 void alu::rotate_left_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_7 = extract_bit(acc, 7u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    acc = (acc.value() << 1u) | carry;
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_left(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_right_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_0 = extract_bit(acc, 0u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    acc = (acc.value() >> 1u) | (carry << 7u);
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_right(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_left_c_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_7 = extract_bit(acc, 7u);
-    acc = (acc.value() << 1u) | bit_7;
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_left_c(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_right_c_acc() const noexcept
 {
-    auto& acc = cpu_->a_f_.high();
-    const auto bit_0 = extract_bit(acc, 0u);
-    acc = (acc.value() >> 1u) | (bit_0 << 7u);
-
-    cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x1u) {
-        cpu_->set_flag(cpu::flag::carry);
-    }
+    rotate_right_c(cpu_->a_f_.high());
+    cpu_->reset_flag(cpu::flag::zero);
 }
 
 void alu::rotate_left(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7);
-    value = (value << 1u) | bit_7;
+    const auto bit_7 = extract_bit(value, 7u);
+    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    value = (value << 1u) | carry;
 
     cpu_->reset_flag(cpu::flag::all);
-    if(bit_7 != 0x00u) {
+    if(bit_7 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -468,10 +435,11 @@ void alu::rotate_left(register8& reg) const noexcept
 void alu::rotate_right(uint8_t& value) const noexcept
 {
     const auto bit_0 = extract_bit(value, 0);
-    value = (value >> 1u) | (bit_0 << 7u);
+    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    value = (value >> 1u) | (carry << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
-    if(bit_0 == 0x01u) {
+    if(bit_0 == 0x1u) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -489,9 +457,8 @@ void alu::rotate_right(register8& reg) const noexcept
 
 void alu::rotate_left_c(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    value = (value << 1u) | carry;
+    const auto bit_7 = extract_bit(value, 7);
+    value = (value << 1u) | bit_7;
 
     cpu_->reset_flag(cpu::flag::all);
     if(bit_7 == 0x1u) {
@@ -513,8 +480,7 @@ void alu::rotate_left_c(register8& reg) const noexcept
 void alu::rotate_right_c(uint8_t& value) const noexcept
 {
     const auto bit_0 = extract_bit(value, 0);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
-    value = (value >> 1u) | (carry << 7u);
+    value = (value >> 1u) | (bit_0 << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
     if(bit_0 == 0x1u) {
