@@ -8,13 +8,6 @@ TEST(math, mask_test) {
     ASSERT_TRUE(gameboy::mask_test(0x111, 0x110));
 }
 
-TEST(math, mask_reset) {
-    ASSERT_EQ(gameboy::mask_reset(0x100, 0x100), 0x0);
-    ASSERT_EQ(gameboy::mask_reset(0x100, 0x01), 0x100);
-    ASSERT_EQ(gameboy::mask_reset(0xFC, 0x0C), 0xF0);
-    ASSERT_EQ(gameboy::mask_reset(0x111, 0x110), 0x1);
-}
-
 TEST(math, bit_test) {
     ASSERT_FALSE(gameboy::bit_test(0x0, 7));
     ASSERT_TRUE(gameboy::bit_test(0xFC, 7));

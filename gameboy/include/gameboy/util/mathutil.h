@@ -12,12 +12,6 @@ constexpr bool mask_test(const T n, const uint32_t m) noexcept
 }
 
 template<typename T>
-constexpr T mask_reset(const T n, const uint32_t m) noexcept
-{
-    return n & ~m;
-}
-
-template<typename T>
 constexpr bool bit_test(const T n, const uint32_t bit) noexcept
 {
     const auto mask = 0x1u << bit;
