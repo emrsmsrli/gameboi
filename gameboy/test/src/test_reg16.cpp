@@ -29,8 +29,8 @@ TEST(Register16, AddSub) {
     r -= 0x000C;
     ASSERT_EQ(r, 0x00F4);
 
-    ASSERT_EQ(r, gameboy::register16(0x0001) + 0x0001);
-    ASSERT_EQ(r, gameboy::register16(0x0003) - 0x0001);
+    ASSERT_EQ(r, gameboy::register16(0x00F0) + 0x0004);
+    ASSERT_EQ(r, gameboy::register16(0x00F5) - 0x0001);
 }
 
 TEST(Register16, Logical) {
@@ -40,7 +40,7 @@ TEST(Register16, Logical) {
     r = r & 0x0001;
     ASSERT_EQ(r, 0x0001);
     r = r ^ 0x0001;
-    ASSERT_EQ(r, 0xFFFD);
+    ASSERT_EQ(r, 0x0000);
 
     ASSERT_EQ(gameboy::register16(0x0001) & 0x0000, 0x0000);
     ASSERT_EQ(gameboy::register16(0x00F0) | 0x0001, 0x00F1);

@@ -17,16 +17,16 @@ TEST(math, mask_reset) {
 
 TEST(math, bit_test) {
     ASSERT_FALSE(gameboy::bit_test(0x0, 7));
-    ASSERT_TRUE(gameboy::bit_test(0xFC, 15));
-    ASSERT_TRUE(gameboy::bit_test(0xFC, 14));
+    ASSERT_TRUE(gameboy::bit_test(0xFC, 7));
+    ASSERT_TRUE(gameboy::bit_test(0xFC, 6));
     ASSERT_FALSE(gameboy::bit_test(0xFC, 0));
     ASSERT_FALSE(gameboy::bit_test(0xFC, 1));
 }
 
 TEST(math, bit_reset) {
     ASSERT_EQ(gameboy::bit_reset(0x01, 0), 0x0);
-    ASSERT_EQ(gameboy::bit_reset(0xFC, 15), 0x7C);
-    ASSERT_EQ(gameboy::bit_reset(0xFC, 14), 0xBC);
+    ASSERT_EQ(gameboy::bit_reset(0xFC, 7), 0x7C);
+    ASSERT_EQ(gameboy::bit_reset(0xFC, 6), 0xBC);
     ASSERT_EQ(gameboy::bit_reset(0xFC, 0), 0xFC);
     ASSERT_EQ(gameboy::bit_reset(0xFC, 1), 0xFC);
 }
