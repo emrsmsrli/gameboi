@@ -68,11 +68,14 @@ struct renderer {
 
 } // namespace
 
-int main(int /*argc*/, char** /*argv*/)
+int main(int argc, char* argv[])
 {
-    gameboy::gameboy gb("cpu_instrs.gb");
-    // gb.start();
+    if(argc < 2) {
+        fmt::print("Usage: {} <rom_path>", argv[0]);
+        return 1;
+    }
 
+    gameboy::gameboy gb(argv[1]);
     renderer renderer{gb, 500u, 300u};
 
     gameboy::debugger debugger{gb.get_bus()};
