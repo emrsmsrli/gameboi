@@ -25,7 +25,7 @@ TEST(Register8, Logical) {
     r &= 0x01;
     ASSERT_EQ(r, 0x01);
     r ^= 0x01;
-    ASSERT_EQ(r, 0xFD);
+    ASSERT_EQ(r, 0x00);
 
     ASSERT_EQ(gameboy::register8(0x01) & 0x00, 0x00);
     ASSERT_EQ(gameboy::register8(0xF0) | 0x01, 0xF1);

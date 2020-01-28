@@ -4,9 +4,10 @@ enable_testing()
 
 add_executable(${PROJECT_NAME} 
         src/main.cpp
-        src/math.cpp
-        src/TestRegister8.cpp
-        src/TestRegister16.cpp)
+        src/test_math.cpp
+        src/test_reg8.cpp
+        src/test_reg16.cpp)
+
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gb::core
