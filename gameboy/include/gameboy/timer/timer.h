@@ -20,9 +20,8 @@ public:
 private:
     observer<bus> bus_;
 
+    uint64_t div_clock_;
     uint64_t timer_clock_;
-    uint64_t divider_clock_;
-    uint64_t base_clock_;
 
     register8 div_;
     register8 tima_;
@@ -30,7 +29,7 @@ private:
     register8 tac_;
 
     [[nodiscard]] bool timer_enabled() const noexcept;
-    [[nodiscard]] std::size_t timer_clock_select() const noexcept;
+    [[nodiscard]] std::size_t timer_clock_freq_select() const noexcept;
 
     [[nodiscard]] uint8_t on_read(const address16& address) const noexcept;
     void on_write(const address16& address, uint8_t data) noexcept;

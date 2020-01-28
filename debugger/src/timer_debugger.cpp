@@ -21,8 +21,7 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Separator();
 
     ImGui::Text("Timer clock:   %08X", timer_->timer_clock_);
-    ImGui::Text("Divider clock: %08X", timer_->divider_clock_);
-    ImGui::Text("Base clock:    %08X", timer_->base_clock_);
+    ImGui::Text("Divider clock: %08X", timer_->div_clock_);
 
     ImGui::NextColumn();
 
@@ -37,7 +36,7 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Text("Enabled: %d", timer_->timer_enabled());
     ImGui::SameLine(0, 20.f);
     ImGui::Text("Frequency: %s", [&]() {
-        switch(timer_->timer_clock_select()) {
+        switch(timer_->timer_clock_freq_select()) {
             case 0b00: return "4096 Hz";
             case 0b01: return "262144 Hz";
             case 0b10: return "65536 Hz";

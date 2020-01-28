@@ -16,9 +16,8 @@ constexpr address16 tac_addr{0xFF07u};
 
 timer::timer(const observer<bus> bus)
     : bus_{bus},
+      div_clock_{0u},
       timer_clock_{0u},
-      divider_clock_{0u},
-      base_clock_{0u},
       div_{0x00u},
       tima_{0x00u},
       tma_{0x00u},
@@ -36,38 +35,37 @@ timer::timer(const observer<bus> bus)
 
 void timer::tick(const uint8_t cycles)
 {
+    const auto cpu = bus_->get_cpu();
+
     // base clock dividers
-    static constexpr std::array frequencies{
-        64u, // 4   KHz
-        1u,  // 256 KHz (base)
-        4u,  // 64  KHz
-        16u  // 16  KHz
+    static constexpr std::array frequency_cycle_counts{
+        1024u, // 4   KHz
+        16u,   // 256 KHz (base)
+        64u,   // 64  KHz
+        256u   // 16  KHz
     };
 
-    timer_clock_ += cycles;
+    div_clock_ += cycles;
 
-    while(timer_clock_ >= 16u) {
-        timer_clock_ -= 16u;
+    const auto div_cycles = cpu->modified_cycles(256u);
+    while(div_clock_ >= div_cycles) {
+        div_clock_ -= div_cycles;
 
-        ++base_clock_;
-        ++divider_clock_;
+        div_ += 1u;
+    }
 
-        if(divider_clock_ == 16u) {
-            div_ += 1u;
-            divider_clock_ = 0u;
-        }
+    if(timer_enabled()) {
+        timer_clock_ += cycles;
 
-        if(timer_enabled()) {
-            const auto frequency = frequencies[timer_clock_select()];
-            while(base_clock_ >= frequency) {
-                base_clock_ -= frequency;
+        const auto timer_cycles = cpu->modified_cycles(frequency_cycle_counts[timer_clock_freq_select()]);
+        while(timer_clock_ >= timer_cycles) {
+            timer_clock_ -= timer_cycles;
 
-                if(div_ == 0xFFu) {
-                    tima_ = tma_;
-                    bus_->get_cpu()->request_interrupt(interrupt::timer);
-                } else {
-                    tima_ += 1u;
-                }
+            if(div_ == 0xFFu) {
+                tima_ = tma_;
+                bus_->get_cpu()->request_interrupt(interrupt::timer);
+            } else {
+                tima_ += 1u;
             }
         }
     }
@@ -78,7 +76,7 @@ bool timer::timer_enabled() const noexcept
     return bit_test(tac_, 2);
 }
 
-std::size_t timer::timer_clock_select() const noexcept
+std::size_t timer::timer_clock_freq_select() const noexcept
 {
     return tac_.value() & 0x03u;
 }
