@@ -20,6 +20,13 @@ TEST(Register16, IncDec) {
     ASSERT_EQ(r, 0x0002);
     --r;
     ASSERT_EQ(r, 0x0001);
+
+    gameboy::register16 r2(0x0000);
+    ASSERT_EQ(r2++, 0x0000);
+    ASSERT_EQ(r2, 0x0001);
+
+    ASSERT_EQ(r2--, 0x0001);
+    ASSERT_EQ(r2, 0x0000);
 }
 
 TEST(Register16, AddSub) {
