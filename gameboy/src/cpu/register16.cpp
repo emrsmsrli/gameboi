@@ -35,10 +35,24 @@ register16& register16::operator++() noexcept
     return *this;
 }
 
+register16 register16::operator++(int) noexcept
+{
+    register16 copy{*this};
+    ++copy;
+    return copy;
+}
+
 register16& register16::operator--() noexcept
 {
     *this -= 1;
     return *this;
+}
+
+register16 register16::operator--(int) noexcept
+{
+    register16 copy{*this};
+    --copy;
+    return copy;
 }
 
 register16& register16::operator+=(const uint16_t val) noexcept

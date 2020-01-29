@@ -39,7 +39,9 @@ public:
 
     /* math ops */
     register16& operator++() noexcept;
+    register16 operator++(int) noexcept;
     register16& operator--() noexcept;
+    register16 operator--(int) noexcept;
 
     register16& operator+=(uint16_t val) noexcept;
     register16& operator+=(const register16& reg) noexcept;
