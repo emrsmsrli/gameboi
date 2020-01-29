@@ -304,7 +304,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x22: {
-            store_i();
+            store(make_address(h_l_++), a_f_.high());
             break;
         }
         case 0x23: {
@@ -340,7 +340,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x2A: {
-            load_i();
+            load(a_f_.high(), read_data(make_address(h_l_++)));
             break;
         }
         case 0x2B: {
@@ -376,7 +376,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x32: {
-            store_d();
+            store(make_address(h_l_--), a_f_.high());
             break;
         }
         case 0x33: {
@@ -419,7 +419,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0x3A: {
-            load_d();
+            load(a_f_.high(), read_data(make_address(h_l_--)));
             break;
         }
         case 0x3B: {
@@ -2410,9 +2410,7 @@ uint8_t cpu::read_data(const address16& address) const
 
 uint8_t cpu::read_immediate(imm8_t)
 {
-    const auto data = read_data(make_address(program_counter_));
-    ++program_counter_;
-    return data;
+    return read_data(make_address(program_counter_++));
 }
 
 uint16_t cpu::read_immediate(imm16_t)
@@ -2488,25 +2486,14 @@ void cpu::stop() noexcept
 
 void cpu::push(const register16& reg)
 {
-    const auto write_to_stack = [&](const register8& reg_8) {
-        --stack_pointer_;
-        write_data(make_address(stack_pointer_), reg_8.value());
-    };
-
-    write_to_stack(reg.high());
-    write_to_stack(reg.low());
+    write_data(make_address(--stack_pointer_), reg.high().value());
+    write_data(make_address(--stack_pointer_), reg.low().value());
 }
 
 void cpu::pop(register16& reg)
 {
-    const auto read_from_stack = [&]() {
-        const auto data = read_data(make_address(stack_pointer_));
-        ++stack_pointer_;
-        return data;
-    };
-
-    reg.low() = read_from_stack();
-    reg.high() = read_from_stack();
+    reg.low() = read_data(make_address(stack_pointer_++));
+    reg.high() = read_data(make_address(stack_pointer_++));
 }
 
 void cpu::rst(const address8& address)
@@ -2582,32 +2569,6 @@ void cpu::load(register16& reg, const uint16_t data) noexcept
 void cpu::load(register16& r_left, const register16& r_right) noexcept
 {
     r_left = r_right;
-}
-
-void cpu::store_i() noexcept
-{
-    store(make_address(h_l_), a_f_.high());
-    ++h_l_;
-}
-
-void cpu::store_d() noexcept
-{
-    store(make_address(h_l_), a_f_.high());
-    --h_l_;
-}
-
-void cpu::load_i() noexcept
-{
-    const auto data = read_data(make_address(h_l_));
-    load(a_f_.high(), data);
-    ++h_l_;
-}
-
-void cpu::load_d() noexcept
-{
-    const auto data = read_data(make_address(h_l_));
-    load(a_f_.high(), data);
-    --h_l_;
 }
 
 void cpu::load_hlsp(const int8_t data) noexcept

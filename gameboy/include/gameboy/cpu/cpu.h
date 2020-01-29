@@ -142,12 +142,6 @@ private:
     static void load(register16& reg, uint16_t data) noexcept;
     static void load(register16& r_left, const register16& r_right) noexcept;
 
-    void store_i() noexcept;
-    void store_d() noexcept;
-
-    void load_i() noexcept;
-    void load_d() noexcept;
-
     void load_hlsp(int8_t data) noexcept;
 };
 
