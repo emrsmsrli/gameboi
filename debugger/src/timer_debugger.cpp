@@ -20,8 +20,8 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Text("Registers"); ImGui::NextColumn();
     ImGui::Separator();
 
-    ImGui::Text("Timer clock:   %08X", timer_->timer_clock_);
-    ImGui::Text("Divider clock: %08X", timer_->div_clock_);
+    ImGui::Text("Timer clock:   %08llX", timer_->timer_clock_);
+    ImGui::Text("Divider clock: %08llX", timer_->div_clock_);
 
     ImGui::NextColumn();
 
