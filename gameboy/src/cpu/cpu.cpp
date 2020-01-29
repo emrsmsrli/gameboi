@@ -1785,7 +1785,7 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x7B: {
-            alu_.test(d_e_.low(),75);
+            alu_.test(d_e_.low(), 7);
             break;
         }
         case 0x7C: {
@@ -2073,7 +2073,7 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0xBB: {
-            alu_.reset(d_e_.low(),75);
+            alu_.reset(d_e_.low(), 7);
             break;
         }
         case 0xBC: {
