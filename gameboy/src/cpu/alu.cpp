@@ -345,14 +345,12 @@ void alu::swap(register8& reg) const noexcept
 
 void alu::test(const uint8_t value, const uint8_t bit) const noexcept
 {
-    if(bit_test(value, bit)) {
-        cpu_->set_flag(cpu::flag::zero);
-    } else {
-        cpu_->reset_flag(cpu::flag::zero);
-    }
-
     cpu_->set_flag(cpu::flag::half_carry);
-    cpu_->reset_flag(cpu::flag::negative);
+    cpu_->reset_flag(cpu::flag::negative | cpu::flag::zero);
+
+    if(!bit_test(value, bit)) {
+        cpu_->set_flag(cpu::flag::zero);
+    }
 }
 
 void alu::test(const register8& reg, const uint8_t bit) const noexcept
