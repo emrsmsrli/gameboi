@@ -260,14 +260,13 @@ void alu::add_to_stack_pointer(const int8_t immediate) const noexcept
     auto& sp = cpu_->stack_pointer_;
     cpu_->reset_flag(cpu::flag::all);
 
-    const int result = sp.value() + immediate;
+    const auto result = sp.value() + immediate;
 
-    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x100)) {
+    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    // signed arithmetic
-    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x10)) {
+    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0010)) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
