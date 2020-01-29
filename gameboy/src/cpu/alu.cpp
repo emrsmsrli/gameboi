@@ -48,11 +48,11 @@ void alu::add_c(const uint8_t value) const noexcept
 
     const auto result = acc + value + carry;
 
-    if(result > 0xFFu) {
+    if(result > 0xFF) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    if((result & 0xFFu) == 0x00u) {
+    if((result & 0xFF) == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
@@ -96,12 +96,12 @@ void alu::subtract_c(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     const auto carry = static_cast<int8_t>(cpu_->test_flag(cpu::flag::carry));
-    const auto result = acc - value - carry;
+    const auto result = acc.value() - value - carry;
 
     cpu_->reset_flag(cpu::flag::all);
     cpu_->set_flag(cpu::flag::negative);
 
-    if(result == 0x00) {
+    if((result & 0xFF) == 0x00) {
         cpu_->set_flag(cpu::flag::zero);
     }
 
@@ -109,7 +109,7 @@ void alu::subtract_c(const uint8_t value) const noexcept
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    if((acc & 0x0Fu) - (value & 0x0Fu) - carry < 0x00) {
+    if((acc.value() & 0x0F) - (value & 0x0F) - carry < 0x00) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
