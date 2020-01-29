@@ -37,7 +37,7 @@ register16& register16::operator++() noexcept
 
 register16 register16::operator++(int) noexcept
 {
-    register16 copy{*this};
+    const auto copy = *this;
     *this += 1;
     return copy;
 }
@@ -50,7 +50,7 @@ register16& register16::operator--() noexcept
 
 register16 register16::operator--(int) noexcept
 {
-    register16 copy{*this};
+    const auto copy = *this;
     *this -= 1;
     return copy;
 }
