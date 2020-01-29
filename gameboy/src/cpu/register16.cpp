@@ -38,7 +38,7 @@ register16& register16::operator++() noexcept
 register16 register16::operator++(int) noexcept
 {
     register16 copy{*this};
-    ++copy;
+    *this += 1;
     return copy;
 }
 
@@ -51,7 +51,7 @@ register16& register16::operator--() noexcept
 register16 register16::operator--(int) noexcept
 {
     register16 copy{*this};
-    --copy;
+    *this -= 1;
     return copy;
 }
 
