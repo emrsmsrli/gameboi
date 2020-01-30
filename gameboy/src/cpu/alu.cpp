@@ -39,14 +39,13 @@ void alu::add_c(const uint8_t value) const noexcept
     auto& acc = cpu_->a_f_.high();
 
     const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    const auto result = acc + value + carry;
 
     cpu_->reset_flag(cpu::flag::all);
 
     if((acc & 0x0Fu) + (value & 0x0Fu) + carry > 0x0Fu) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
-
-    const auto result = acc + value + carry;
 
     if(result > 0xFF) {
         cpu_->set_flag(cpu::flag::carry);
