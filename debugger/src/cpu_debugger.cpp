@@ -157,7 +157,9 @@ void gameboy::cpu_debugger::on_instruction(
     if(starts_with(info.mnemonic, "CALL")) {
         call_stack_.push_back(addr);
     } else if(starts_with(info.mnemonic, "RET")) {
-        call_stack_.pop_back();
+        if(!call_stack_.empty()) {
+            call_stack_.pop_back();
+        }
     }
 
     if(last_executed_instructions_.size() == 100) {
