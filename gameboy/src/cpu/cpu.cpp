@@ -2548,7 +2548,7 @@ void cpu::store(const address16& address, const register8& reg)
 void cpu::store(const address16& address, const register16& reg)
 {
     store(address, reg.low());
-    store(address, reg.high());
+    store(address + 1, reg.high());
 }
 
 void cpu::load(register8& reg, const uint8_t data) noexcept
