@@ -81,6 +81,8 @@ private:
     bool is_stopped_;
     bool is_halted_;
 
+    uint8_t wait_before_unhalt_cycles_;
+
 #ifdef DEBUG
     delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
 #endif

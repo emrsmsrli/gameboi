@@ -34,7 +34,8 @@ cpu::cpu(observer<bus> bus) noexcept
       is_interrupt_master_change_pending_{false},
       next_interrupt_master_enable_{false},
       is_stopped_{false},
-      is_halted_{false}
+      is_halted_{false},
+      wait_before_unhalt_cycles_{0u}
 {
     auto mmu = bus->get_mmu();
 
@@ -97,11 +98,20 @@ uint8_t cpu::tick()
 
     auto cycle_count = modified_cycles(!is_halted_
         ? execute_next_op()
-        : static_cast<uint8_t>(0x4u));
+        : static_cast<uint8_t>(4u));
+
+    if(wait_before_unhalt_cycles_ > 0) {
+        wait_before_unhalt_cycles_ -= cycle_count;
+
+        if(wait_before_unhalt_cycles_ <= 0) {
+            wait_before_unhalt_cycles_ = 0;
+            is_halted_ = false;
+        }
+    }
 
     if(!is_stopped_) {
-        if(is_halted_ && pending_interrupts() != interrupt::none /* check for remaining cycles != 0*/) {
-            is_halted_ = false; // todo delay 12 cycles instead
+        if(is_halted_ && pending_interrupts() != interrupt::none && wait_before_unhalt_cycles_ == 0) {
+            wait_before_unhalt_cycles_ = modified_cycles(12u);
         }
     } else {
         if(is_interrupt_requested(interrupt::joypad)) {
