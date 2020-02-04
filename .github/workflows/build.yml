@@ -4,38 +4,7 @@ on: [push]
 
 jobs:
   build:
-    name: ${{ matrix.config.name }}
-    runs-on: ${{ matrix.config.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-        - {
-            name: "Windows MSVC",
-            os: windows-latest,
-            build_type: "Release", cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat"
-          }
-        - {
-            name: "Windows MinGW",
-            os: windows-latest,
-            build_type: "Release", cc: "gcc", cxx: "g++"
-          }
-        - {
-            name: "Ubuntu GCC",
-            os: ubuntu-latest,
-            build_type: "Release", cc: "gcc", cxx: "g++"
-          }
-        - {
-            name: "Ubuntu Clang",
-            os: ubuntu-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
-          }
-        - {
-            name: "macOS",
-            os: macos-latest,
-            build_type: "Release", cc: "clang", cxx: "clang++"
-          }
+    runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v1
@@ -47,121 +16,14 @@ jobs:
         path: build
         key: ${{ runner.os }}-cache
 
-    - name: Setup PyWheel
+    - name: Setup
       if: steps.cache.outputs.cache-hit != 'true'
-      run: pip3 install wheel setuptools
-
-    - name: Install Conan
-      if: steps.cache.outputs.cache-hit != 'true'
-      shell: cmake -P {0}
-      run: |
-        if("${{ runner.os }}" STREQUAL "macOS")
-          execute_process(COMMAND brew install conan)
-        else()
-          execute_process(COMMAND pip3 install conan)
-        endif()
-
-    - name: Download Ninja and CMake
-      id: cmake_and_ninja
-      if: steps.gameboy-ci-cache.outputs.cache-hit != 'true'
-      shell: cmake -P {0}
-      run: |
-        set(ninja_version "1.9.0")
-        set(cmake_version "3.16.2")
-
-        message(STATUS "Using host CMake version: ${CMAKE_VERSION}")
-
-        if("${{ runner.os }}" STREQUAL "Windows")
-          set(ninja_suffix "win.zip")
-          set(cmake_suffix "win64-x64.zip")
-          set(cmake_dir "cmake-${cmake_version}-win64-x64/bin")
-        elseif("${{ runner.os }}" STREQUAL "Linux")
-          set(ninja_suffix "linux.zip")
-          set(cmake_suffix "Linux-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Linux-x86_64/bin")
-        elseif("${{ runner.os }}" STREQUAL "macOS")
-          set(ninja_suffix "mac.zip")
-          set(cmake_suffix "Darwin-x86_64.tar.gz")
-          set(cmake_dir "cmake-${cmake_version}-Darwin-x86_64/CMake.app/Contents/bin")
-        endif()
-
-        set(ninja_url "https://github.com/ninja-build/ninja/releases/download/v${ninja_version}/ninja-${ninja_suffix}")
-        file(DOWNLOAD "${ninja_url}" ./ninja.zip SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./ninja.zip)
-
-        set(cmake_url "https://github.com/Kitware/CMake/releases/download/v${cmake_version}/cmake-${cmake_version}-${cmake_suffix}")
-        file(DOWNLOAD "${cmake_url}" ./cmake.zip SHOW_PROGRESS)
-        execute_process(COMMAND ${CMAKE_COMMAND} -E tar xvf ./cmake.zip)
-
-        if("${{ runner.os }}" STREQUAL "Windows")
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja.exe" ninja_program)
-        else()
-          file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/ninja" ninja_program)
-        endif()
-        file(TO_CMAKE_PATH "$ENV{GITHUB_WORKSPACE}/${cmake_dir}" cmake_dir)
-        message("::set-output name=cmake_dir::${cmake_dir}")
-        message("::set-output name=ninja_path::${ninja_program}")
-
-        if(NOT "${{ runner.os }}" STREQUAL "Windows")
-          execute_process(
-            COMMAND chmod +x ninja
-            COMMAND chmod +x ${cmake_dir}/cmake
-          )
-        endif()
+      run: pip3 install wheel setuptools conan ninja
 
     - name: Configure
-      shell: cmake -P {0}
       run: |
-        set(ENV{CC} ${{ matrix.config.cc }})
-        set(ENV{CXX} ${{ matrix.config.cxx }})
-
-        if("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-          execute_process(
-            COMMAND "${{ matrix.config.environment_script }}" && set
-            OUTPUT_FILE environment_script_output.txt
-          )
-          file(STRINGS environment_script_output.txt output_lines)
-          foreach(line IN LISTS output_lines)
-            if(line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-            endif()
-          endforeach()
-        endif()
-
-        execute_process(
-          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake
-            -S .
-            -B build
-            -D CMAKE_BUILD_TYPE=${{ matrix.config.build_type }}
-            # -G Ninja
-            # todo this lines gives an error
-            #-D CMAKE_MAKE_PROGRAM=${{ steps.cmake_and_ninja.outputs.ninja_path }}
-          RESULT_VARIABLE result
-        )
-
-        if(NOT result EQUAL 0)
-          message(FATAL_ERROR "Bad exit status")
-        endif()
+        mkdir build && cd build
+        cmake -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_BUILD_TYPE=Release -DENABLE_TESTING=FALSE -G Ninja ..
 
     - name: Build
-      shell: cmake -P {0}
-      run: |
-        set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-
-        if("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-          file(STRINGS environment_script_output.txt output_lines)
-          foreach(line IN LISTS output_lines)
-            if(line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-              set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-            endif()
-          endforeach()
-        endif()
-
-        execute_process(
-          COMMAND ${{ steps.cmake_and_ninja.outputs.cmake_dir }}/cmake --build build
-          RESULT_VARIABLE result
-        )
-
-        if(NOT result EQUAL 0)
-          message(FATAL_ERROR "Bad exit status")
-        endif()
+      run: cmake --build .
