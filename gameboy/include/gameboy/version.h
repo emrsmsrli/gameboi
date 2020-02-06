@@ -6,10 +6,10 @@
 namespace gameboy::version {
 
 [[maybe_unused]] constexpr auto major = 0;
-[[maybe_unused]] constexpr auto minor = 1;
+[[maybe_unused]] constexpr auto minor = 3;
 [[maybe_unused]] constexpr auto patch = 0;
 
-[[maybe_unused]] constexpr std::string_view version = "0.1.0";
+[[maybe_unused]] constexpr std::string_view version = "0.3.0";
 
 } // namespace gameboy::version
 
