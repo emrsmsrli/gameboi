@@ -29,14 +29,16 @@ class ppu {
     friend memory_bank_debugger;
 
 public:
-    static constexpr address16 ly_addr{0xFF44u};
+    using render_line_func = delegate<void(uint8_t, const render_line&)>;
+    using vblank_func = delegate<void()>;
 
-    delegate<void(uint8_t, const render_line&)> on_render_line;
-    delegate<void()> on_render_frame;
+    static constexpr address16 ly_addr{0xFF44u};
 
     explicit ppu(observer<bus> bus);
 
     void tick(uint8_t cycles);
+    void on_render_line(const render_line_func on_render_line) noexcept { on_render_line_ = on_render_line; }
+    void on_vblank(const vblank_func on_vblank) noexcept { on_vblank_ = on_vblank; }
 
     [[nodiscard]] uint8_t read_ram(const address16& address) const;
     void write_ram(const address16& address, uint8_t data);
@@ -86,6 +88,9 @@ private:
     }
 
     dma_transfer_data dma_transfer_;
+
+    render_line_func on_render_line_;
+    vblank_func on_vblank_;
 
     [[nodiscard]] uint8_t read_ram_by_bank(const address16& address, uint8_t bank) const;
     void write_ram_by_bank(const address16& address, uint8_t data, uint8_t bank);

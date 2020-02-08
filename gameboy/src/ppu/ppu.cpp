@@ -148,7 +148,7 @@ void ppu::tick(const uint8_t cycles)
                 update_ly();
 
                 if(ly_ == screen_height) {
-                    on_render_frame();
+                    on_vblank_();
                     stat_.set_mode(stat_mode::v_blank);
                     bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
                 } else {
@@ -564,7 +564,7 @@ void ppu::render() const noexcept
         }*/
     }
 
-    on_render_line(ly_.value(), line);
+    on_render_line_(ly_.value(), line);
 }
 
 void ppu::render_background() const noexcept

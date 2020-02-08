@@ -26,8 +26,8 @@ public:
 
     [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 
-    void on_render_line(const delegate<void(uint8_t, const render_line&)> delegate) noexcept { ppu_.on_render_line = delegate; }
-    void on_render_frame(const delegate<void()> delegate) noexcept { ppu_.on_render_frame = delegate; }
+    void on_render_line(const ppu::render_line_func on_render_line) noexcept { ppu_.on_render_line(on_render_line); }
+    void on_vblank(const ppu::vblank_func on_vblank) noexcept { ppu_.on_vblank(on_vblank); }
     void on_link_transfer(const link::transfer_func on_transfer) { link_.on_transfer(on_transfer); }
 
     void press_key(const joypad::key key) noexcept { joypad_.press(key); }

@@ -43,7 +43,7 @@ struct renderer {
         render_frame();
 
         gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, this});
-        gb.on_render_frame({gameboy::connect_arg<&renderer::render_frame>, this});
+        gb.on_vblank({gameboy::connect_arg<&renderer::render_frame>, this});
     }
 
     void render_line(const uint8_t line_number, const gameboy::render_line& line)
