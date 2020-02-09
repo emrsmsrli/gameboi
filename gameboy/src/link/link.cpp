@@ -10,7 +10,9 @@ constexpr address16 sb_addr{0xFF01u};
 constexpr address16 sc_addr{0xFF02u};
 
 link::link(const observer<bus> bus) noexcept
-    : bus_{bus}
+    : bus_{bus},
+      shift_clock_{0u},
+      shift_counter_{0u}
 {
     auto mmu = bus_->get_mmu();
     mmu->add_memory_delegate(sb_addr, {
