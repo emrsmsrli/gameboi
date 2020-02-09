@@ -34,7 +34,7 @@ public:
         constexpr auto timeout = 1min;
         const auto start = steady_clock::now();
 
-        gb_.on_link_transfer({gameboy::connect_arg<&test_rom_runner::on_link_transfer>, this});
+        gb_.on_link_transfer_master({gameboy::connect_arg<&test_rom_runner::on_link_transfer>, this});
 
         while(!test_completed_) {
             gb_.tick_one_frame();

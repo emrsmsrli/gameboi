@@ -47,6 +47,13 @@ void link::tick(const uint8_t cycles) noexcept
     }
 }
 
+uint8_t link::on_transfer_slave(const uint8_t data) noexcept
+{
+    const auto to_send = sb_.value();
+    sb_ = data;
+    return to_send;
+}
+
 void link::on_sb_write(const address16&, const uint8_t data) noexcept
 {
     sb_ = data;

@@ -23,7 +23,9 @@ public:
     explicit link(observer<bus> bus) noexcept;
 
     void tick(uint8_t cycles) noexcept;
-    void on_transfer(const transfer_func on_transfer) { on_transfer_ = on_transfer; }
+
+    void on_transfer_master(const transfer_func on_transfer) { on_transfer_ = on_transfer; }
+    uint8_t on_transfer_slave(uint8_t data) noexcept;
 
 private:
     observer<bus> bus_;

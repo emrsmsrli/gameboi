@@ -28,7 +28,9 @@ public:
 
     void on_render_line(const ppu::render_line_func on_render_line) noexcept { ppu_.on_render_line(on_render_line); }
     void on_vblank(const ppu::vblank_func on_vblank) noexcept { ppu_.on_vblank(on_vblank); }
-    void on_link_transfer(const link::transfer_func on_transfer) { link_.on_transfer(on_transfer); }
+
+    void on_link_transfer_master(const link::transfer_func on_transfer) noexcept { link_.on_transfer_master(on_transfer); }
+    [[nodiscard]] uint8_t on_link_transfer_slave(const uint8_t data) noexcept { return link_.on_transfer_slave(data); }
 
     void press_key(const joypad::key key) noexcept { joypad_.press(key); }
     void release_key(const joypad::key key) noexcept { joypad_.release(key); }
