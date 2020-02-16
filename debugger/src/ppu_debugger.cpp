@@ -90,10 +90,10 @@ void gameboy::ppu_debugger::draw_lcdc_n_stat() const
     ImGui::Separator();
     
     ImGui::Text("LCD:  %s", ppu_->lcdc_.lcd_enabled() ? "on" : "off");
-    ImGui::Text("WIN:  %04X", ppu_->lcdc_.window_map_address().value());
+    ImGui::Text("WIN:  %04X", ppu_->lcdc_.window_map_secondary() ? 0x9C00u : 0x9800u);
     ImGui::Text("WIN:  %s", ppu_->lcdc_.window_enabled() ? "on" : "off");
-    ImGui::Text("CHR:  %04X", ppu_->lcdc_.tile_base_address().value());
-    ImGui::Text("BG:   %04X", ppu_->lcdc_.bg_map_address().value());
+    ImGui::Text("CHR:  %04X", ppu_->lcdc_.unsigned_mode() ? 0x8800u : 0x8000u);
+    ImGui::Text("BG:   %04X", ppu_->lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
     ImGui::Text("OBJ:  %s", ppu_->lcdc_.large_obj() ? "8x16" : "8x8");
     ImGui::Text("OBJ:  %s" ,ppu_->lcdc_.obj_enabled() ? "on" : "off");
     ImGui::Text("BG:   %s", ppu_->lcdc_.bg_enabled() ? "on" : "off");
