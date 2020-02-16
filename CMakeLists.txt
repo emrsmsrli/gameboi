@@ -4,10 +4,14 @@ project(gameboy)
 # Link this 'library' to use the following warnings
 add_library(project_warnings INTERFACE)
 
+option(ENABLE_ASAN "Enable address sanitizer" FALSE)
 if(MSVC)
     target_compile_options(project_warnings INTERFACE /W4)
+
+    if(ENABLE_ASAN)
+        target_compile_options(project_options INTERFACE /fsanitize=address)
+    endif()
 else()
-    option(ENABLE_ASAN "Enable address sanitizer" FALSE)
     if(ENABLE_ASAN)
         target_compile_options(project_options INTERFACE -fsanitize=address)
         target_link_libraries(project_options INTERFACE -fsanitize=address)
