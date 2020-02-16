@@ -27,6 +27,7 @@ public:
     register8& operator+=(uint8_t val) noexcept;
     register8& operator-=(uint8_t val) noexcept;
 
+    [[nodiscard]] register8 operator+(const register8& val) const noexcept;
     [[nodiscard]] uint16_t operator+(uint16_t val) const noexcept;
     [[nodiscard]] uint16_t operator-(uint16_t val) const noexcept;
 

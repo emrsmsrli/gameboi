@@ -27,6 +27,11 @@ register8& register8::operator-=(const uint8_t val) noexcept
     return *this;
 }
 
+register8 register8::operator+(const register8& val) const noexcept
+{
+    return register8(bits_ + val.value());
+}
+
 uint16_t register8::operator+(const uint16_t val) const noexcept
 {
     return bits_ + val;
