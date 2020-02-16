@@ -13,7 +13,7 @@ using namespace magic_enum::bitwise_operators;
 constexpr address16 joypad_addr{0xFF00u};
 
 joypad::joypad(observer<bus> bus)
-    : bus_(bus),
+    : bus_{bus},
       joyp_{0x0Fu},
       keys_{0xFFu}
 {
