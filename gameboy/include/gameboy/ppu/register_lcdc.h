@@ -2,7 +2,6 @@
 #define GAMEBOY_REGISTER_LCDC_H
 
 #include "gameboy/cpu/register8.h"
-#include "gameboy/memory/address.h"
 
 namespace gameboy {
 
@@ -12,25 +11,10 @@ struct register_lcdc {
     explicit register_lcdc(const uint8_t val)
         : reg{val} {}
 
-    [[nodiscard]] bool lcd_enabled() const noexcept
-    {
-        return bit_test(reg, 7u);
-    }
-
-    [[nodiscard]] bool window_enabled() const noexcept
-    {
-        return bit_test(reg, 5u);
-    }
-
-    [[nodiscard]] bool large_obj() const noexcept
-    {
-        return bit_test(reg, 2u);
-    }
-
-    [[nodiscard]] bool obj_enabled() const noexcept
-    {
-        return bit_test(reg, 1u);
-    }
+    [[nodiscard]] bool lcd_enabled() const noexcept { return bit_test(reg, 7u); }
+    [[nodiscard]] bool window_enabled() const noexcept { return bit_test(reg, 5u); }
+    [[nodiscard]] bool large_obj() const noexcept { return bit_test(reg, 2u); }
+    [[nodiscard]] bool obj_enabled() const noexcept { return bit_test(reg, 1u); }
 
     /**
      * LCDC.0 - 2) CGB in CGB Mode: BG and Window Master Priority
@@ -44,36 +28,15 @@ struct register_lcdc {
      * This is a possible compatibility problem - any monochrome games (if any) that disable the background,
      * but still want to display the window wouldn't work properly on CGBs.
      */
-    [[nodiscard]] bool bg_enabled() const noexcept
-    {
-        return bit_test(reg, 0u);
-    }
+    [[nodiscard]] bool bg_enabled() const noexcept { return bit_test(reg, 0u); }
 
-    [[nodiscard]] address16 window_map_address() const noexcept
-    {
-        return bit_test(reg, 6u)
-               ? address16(0x9C00u)
-               : address16(0x9800u);
-    }
-
-    [[nodiscard]] address16 tile_base_address() const noexcept
-    {
-        return bit_test(reg, 4u)
-               ? address16(0x8000u)
-               : address16(0x8800u);
-    }
-
-    [[nodiscard]] bool unsigned_mode() const noexcept
-    {
-        return bit_test(reg, 4u);
-    }
-
-    [[nodiscard]] address16 bg_map_address() const noexcept
-    {
-        return bit_test(reg, 3u)
-               ? address16(0x9C00u)
-               : address16(0x9800u);
-    }
+    /**
+     * primary   : address16(0x9800u)
+     * secondary : address16(0x9C00u)
+     */
+    [[nodiscard]] bool window_map_secondary() const noexcept { return bit_test(reg, 6u); }
+    [[nodiscard]] bool unsigned_mode() const noexcept { return bit_test(reg, 4u); }
+    [[nodiscard]] bool bg_map_secondary() const noexcept { return bit_test(reg, 3u); }
 };
 
 } // namespace gameboy
