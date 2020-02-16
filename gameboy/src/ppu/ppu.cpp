@@ -466,7 +466,7 @@ void ppu::render() const noexcept
                     line[pixel_idx] = cgb_bg_palettes_[obj_attr.cgb_palette_index()].colors[color];
                 } else {
                     const auto background_palette =
-                        palette::from(gb_palette_,obp_[obj_attr.gb_palette_index()].value());
+                        palette::from(gb_palette_, obp_[obj_attr.gb_palette_index()].value());
                     line[pixel_idx] = background_palette.colors[color];
                 }
             }
