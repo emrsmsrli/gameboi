@@ -318,7 +318,7 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 
         lcdc_.reg = data;
     } else if(address == stat_addr) {
-        stat_.reg = data;
+        stat_.reg = data & 0xFCu;
     } else if(address == scy_addr) {
         scy_ = data;
     } else if(address == scx_addr) {
