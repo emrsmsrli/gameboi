@@ -254,7 +254,7 @@ static constexpr std::array standard_instruction_set{
 
     info{2, 12, "LD (0xFF00+{:#04x}),A"},
     info{1, 12, "POP HL"},
-    info{2, 8, "LD (0xFF00+C),A"},
+    info{1, 8, "LD (0xFF00+C),A"},
     info{}, // placeholder
     info{}, // placeholder
     info{1, 16, "PUSH HL"},
@@ -271,7 +271,7 @@ static constexpr std::array standard_instruction_set{
 
     info{2, 12, "LD A,(0xFF00+{:#04x})"},
     info{1, 12, "POP AF"},
-    info{2, 8, "LD A,(0xFF00+C)"},
+    info{1, 8, "LD A,(0xFF00+C)"},
     info{1, 4, "DI"},
     info{}, // placeholder
     info{1, 16, "PUSH AF"},
