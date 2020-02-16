@@ -35,12 +35,32 @@ public:
     using vblank_func = delegate<void()>;
 
     static constexpr address16 ly_addr{0xFF44u};
+    static constexpr palette palette_default{
+        color{255u},
+        color{192u},
+        color{96u},
+        color{0u}
+    };
+    static constexpr palette palette_gold{
+        color{252, 232, 140},
+        color{220, 180, 92},
+        color{152, 124, 60},
+        color{76,60, 28}
+    };
+    static constexpr palette palette_green{
+        color{155, 188, 15},
+        color{139, 172, 15},
+        color{48, 98, 48},
+        color{15, 56, 15}
+    };
 
     explicit ppu(observer<bus> bus);
 
     void tick(uint8_t cycles);
     void on_render_line(const render_line_func on_render_line) noexcept { on_render_line_ = on_render_line; }
     void on_vblank(const vblank_func on_vblank) noexcept { on_vblank_ = on_vblank; }
+
+    void set_gb_palette(const palette& palette) noexcept { gb_palette_ = palette; }
 
     [[nodiscard]] uint8_t read_ram(const address16& address) const;
     void write_ram(const address16& address, uint8_t data);
@@ -75,13 +95,7 @@ private:
     register8 wx_;
     register8 wy_;
 
-    // todo implement different gb palettes (gold silver vs)
-    static constexpr palette gb_palette_{
-        color{255u},
-        color{192u},
-        color{96u},
-        color{0u}
-    };
+    palette gb_palette_{palette_default};
     register8 bgp_;
     std::array<register8, 2> obp_;
 
