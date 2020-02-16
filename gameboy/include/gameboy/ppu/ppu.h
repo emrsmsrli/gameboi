@@ -19,8 +19,8 @@ class bus;
 class ppu_debugger;
 class memory_bank_debugger;
 
-static constexpr auto screen_width = 160;
-static constexpr auto screen_height = 144;
+static constexpr auto screen_width = 160u;
+static constexpr auto screen_height = 144u;
 
 using render_line = std::array<color, screen_width>;
 
