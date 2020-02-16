@@ -6,6 +6,7 @@
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/util/mathutil.h"
+#include "gameboy/util/overloaded.h"
 
 namespace gameboy {
 
@@ -22,9 +23,6 @@ constexpr address16 stat_addr{0xFF41u};
 constexpr address16 scy_addr{0xFF42u};
 constexpr address16 scx_addr{0xFF43u};
 
-// The gameboy permanently compares the value of the LYC and LY registers.
-// When both values are identical, the coincident bit in the STAT register becomes set,
-// and (if enabled) a STAT interrupt is requested.
 constexpr address16 lyc_addr{0xFF45u};
 
 // Specifies the upper/left positions of the Window area.
@@ -442,43 +440,134 @@ void ppu::render() const noexcept
     const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
 
     render_line line{};
-    std::array<uint8_t, screen_width> color_line{};
-    std::fill(begin(line), end(line), color{0xFFu});
-    std::fill(begin(color_line), end(color_line), 0u);
+    render_buffer buffer{}; ;
+    std::fill(begin(buffer), end(buffer), std::make_pair(0u, attributes::uninitialized{}));
 
-    const auto background = get_background_row();
-    // const auto window = get_window_overlay(ly_);
+    render_background(buffer);
+    render_obj(buffer);
 
     for(auto pixel_idx = 0u; pixel_idx < line.size(); ++pixel_idx) {
-        const auto [color_idx, attr] = background[pixel_idx];
+        const auto [color_idx, attr] = buffer[pixel_idx];
 
-        if (bus_->get_cartridge()->cgb_enabled())
-        {
-            line[pixel_idx] = cgb_bg_palettes_[attr.palette_index()].colors[color_idx];
-        }
-        else
-        {
-            const auto background_palette = palette::from(gb_palette_, bgp_.value());
-            line[pixel_idx] = background_palette.colors[color_idx];
-        }
+        std::visit(overloaded{
+            [&](attributes::uninitialized) {
+                line[pixel_idx] = color{0xFFu};
+            },
+            [&, color = color_idx](const attributes::bg& bg_attr) {
+                if(cgb_enabled) {
+                    line[pixel_idx] = cgb_bg_palettes_[bg_attr.palette_index()].colors[color];
+                } else {
+                    const auto background_palette = palette::from(gb_palette_, bgp_.value());
+                    line[pixel_idx] = background_palette.colors[color];
+                }
+            },
+            [&, color = color_idx](const attributes::obj& obj_attr) {
+                if(cgb_enabled) {
+                    line[pixel_idx] = cgb_bg_palettes_[obj_attr.cgb_palette_index()].colors[color];
+                } else {
+                    const auto background_palette =
+                        palette::from(gb_palette_,obp_[obj_attr.gb_palette_index()].value());
+                    line[pixel_idx] = background_palette.colors[color];
+                }
+            }
+        }, attr);
     }
 
     on_render_line_(ly_.value(), line);
 }
 
-void ppu::render_background() const noexcept
+void ppu::render_background(render_buffer& buffer) const noexcept
 {
+    if(!bus_->get_cartridge()->cgb_enabled() && !lcdc_.bg_enabled()) {
+        return;
+    }
 
+    const auto tile_start_addr = address16(lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
+    const auto tile_y_to_render = (scy_ + ly_).value() % tile_pixel_count;
+    const auto tile_map_y = ((scy_ + ly_).value() / tile_pixel_count) % map_tile_count;
+
+    constexpr auto max_render_tile_count = screen_width / tile_pixel_count + 1;
+    const auto tile_map_x_start = scx_.value() / tile_pixel_count;
+    const auto tile_map_x_end = tile_map_x_start + max_render_tile_count;
+
+    auto rendered_pix_idx = 0u;
+    for(auto tile_map_x = tile_map_x_start;
+        tile_map_x < tile_map_x_end;
+        tile_map_x = (tile_map_x + 1) % map_tile_count
+    ) {
+        const auto tile_map_idx = tile_start_addr + tile_map_y * map_tile_count + tile_map_x;
+
+        const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
+        const attributes::bg tile_attr{read_ram_by_bank(tile_map_idx, 1)};
+
+        const auto tile_y = tile_attr.v_flipped()
+            ? tile_pixel_count - tile_y_to_render - 1u
+            : tile_y_to_render;
+
+        auto tile_row = get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
+        if(tile_attr.h_flipped()) {
+            std::reverse(begin(tile_row), end(tile_row));
+        }
+
+        const auto scroll_offset = (scx_ + screen_width) % map_pixel_count;
+        for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
+            const auto pix_idx = tile_map_x * tile_pixel_count + tile_x;
+
+            if(rendered_pix_idx < screen_width && (scx_ <= pix_idx || pix_idx < scroll_offset)) {
+                buffer[rendered_pix_idx++] = std::make_pair(tile_row[tile_x], tile_attr);
+            }
+        }
+    }
+
+    render_window(buffer);
 }
 
-void ppu::render_window() const noexcept
+void ppu::render_window(render_buffer& buffer) const noexcept
 {
+    if(lcdc_.window_enabled()) {
+        return;
+    }
 
+    if(wy_ > ly_ || wy_ >= screen_height || wx_ - 7u >= screen_width) {
+        return;
+    }
+
+    const auto tile_start_addr = address16(lcdc_.window_map_secondary() ? 0x9C00u : 0x9800u);
+    const auto tile_y_to_render = (wy_ + ly_).value() % tile_pixel_count;
+
+    const auto tile_map_y = ((wy_ + ly_).value() / tile_pixel_count) % map_tile_count;
+    const auto tile_map_x_start = (wx_.value() - 7u) / tile_pixel_count;
+    const auto tile_map_x_end = std::min(tile_map_x_start + screen_width / tile_pixel_count, map_tile_count);
+
+    for(auto tile_map_x = tile_map_x_start; tile_map_x < tile_map_x_end; ++tile_map_x) {
+        const auto tile_map_idx = tile_start_addr + tile_map_y * map_tile_count + tile_map_x;
+
+        const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
+        const attributes::bg tile_attr{read_ram_by_bank(tile_map_idx, 1)};
+
+        const auto tile_y = tile_attr.v_flipped()
+            ? tile_pixel_count - tile_y_to_render - 1u
+            : tile_y_to_render;
+
+        auto tile_row = get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
+        if(tile_attr.h_flipped()) {
+            std::reverse(begin(tile_row), end(tile_row));
+        }
+
+        auto tile_idx = 0u;
+        const auto tile_x_start = wx_.value() - 7u;
+        const auto tile_x_end = std::min(tile_x_start + tile_pixel_count, screen_width);
+        for(auto tile_x = tile_x_start; tile_x < tile_x_end; ++tile_x) {
+            buffer[tile_x] = std::make_pair(tile_row[tile_idx++], tile_attr);
+        }
+    }
 }
 
-void ppu::render_obj() const noexcept
+void ppu::render_obj(render_buffer& buffer) const noexcept
 {
-
+    if(lcdc_.obj_enabled()) {
+        return;
+    }
 }
 
 std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
@@ -501,50 +590,6 @@ std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
     });
 
     return tile_row;
-}
-
-std::array<std::pair<uint8_t, bg_attributes>, screen_width> ppu::get_background_row() const noexcept
-{
-    std::array<std::pair<uint8_t, bg_attributes>, screen_width> bg_row{};
-
-    const auto tile_start_addr = address16(lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
-    const auto tile_y_to_render = (scy_ + ly_).value() % tile_pixel_count;
-    const auto tile_map_y = ((scy_ + ly_).value() / tile_pixel_count) % map_tile_count;
-
-    constexpr auto max_render_tile_count = screen_width / tile_pixel_count + 1;
-    const auto tile_map_x_start = scx_.value() / tile_pixel_count;
-    const auto tile_map_x_end = tile_map_x_start + max_render_tile_count;
-
-    auto rendered_pix_idx = 0u;
-    for(auto tile_map_x = tile_map_x_start;
-        tile_map_x < tile_map_x_end;
-        tile_map_x = (tile_map_x + 1) % map_tile_count) {
-        const auto tile_map_idx = tile_start_addr + tile_map_y * map_tile_count + tile_map_x;
-
-        const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
-        const bg_attributes tile_attr{read_ram_by_bank(tile_map_idx, 1)};
-
-        const auto tile_y = 
-            tile_attr.v_flipped()
-            ? tile_pixel_count - tile_y_to_render - 1u
-            : tile_y_to_render;
-
-        auto tile_row = get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
-        if(tile_attr.h_flipped()) {
-            std::reverse(begin(tile_row), end(tile_row));
-        }
-
-        const auto scroll_offset = (scx_ + screen_width) % map_pixel_count;
-        for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
-            const auto pix_idx = tile_map_x * tile_pixel_count + tile_x;
-
-            if(rendered_pix_idx < screen_width && (scx_ <= pix_idx || pix_idx < scroll_offset)) {
-                bg_row[rendered_pix_idx++] = std::make_pair(tile_row[tile_x], tile_attr);
-            }
-        }
-    }
-
-    return bg_row;
 }
 
 color ppu::correct_color(const color& c) noexcept

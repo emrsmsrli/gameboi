@@ -3,13 +3,13 @@
 
 #include <array>
 #include <vector>
+#include <variant>
 
 #include "gameboy/ppu/dma_transfer_data.h"
 #include "gameboy/ppu/color.h"
 #include "gameboy/ppu/register_stat.h"
 #include "gameboy/ppu/register_lcdc.h"
-#include "gameboy/ppu/data/bg_attributes.h"
-#include "gameboy/ppu/data/obj.h"
+#include "gameboy/ppu/data/attributes.h"
 #include "gameboy/ppu/data/palette.h"
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/util/delegate.h"
@@ -49,6 +49,9 @@ public:
     void write_oam(const address16& address, uint8_t data);
 
 private:
+    using tile_attribute = std::variant<attributes::uninitialized, attributes::bg, attributes::obj>;
+    using render_buffer = std::array<std::pair<uint8_t, tile_attribute>, screen_width>;
+
     static constexpr auto map_tile_count = 32u;
     static constexpr auto tile_pixel_count = 8u;
     static constexpr auto map_pixel_count = map_tile_count * tile_pixel_count;
@@ -111,14 +114,12 @@ private:
     void hdma();
     void render() const noexcept;
 
-    void render_background() const noexcept;
-    void render_window() const noexcept;
-    void render_obj() const noexcept;
+    void render_background(render_buffer& buffer) const noexcept;
+    void render_window(render_buffer& buffer) const noexcept;
+    void render_obj(render_buffer& buffer) const noexcept;
 
     [[nodiscard]] std::array<uint8_t, tile_pixel_count> get_tile_row(
         uint8_t row, uint8_t tile_no, uint8_t bank) const noexcept;
-
-    [[nodiscard]] std::array<std::pair<uint8_t, bg_attributes>, screen_width> get_background_row() const noexcept;
 
     [[nodiscard]] static color correct_color(const color& c) noexcept;
 
