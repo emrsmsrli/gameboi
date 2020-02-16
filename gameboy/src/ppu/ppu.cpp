@@ -226,11 +226,19 @@ void ppu::write_oam(const address16& address, const uint8_t data)
 
 uint8_t ppu::read_ram_by_bank(const address16& address, const uint8_t bank) const
 {
+    if(!bus_->get_cartridge()->cgb_enabled() && bank != 0u) {
+        return 0x00u;
+    }
+
     return ram_[address.value() - *begin(vram_range) + bank * 8_kb];
 }
 
 void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const uint8_t bank)
 {
+    if(!bus_->get_cartridge()->cgb_enabled() && bank != 0u) {
+        return;
+    }
+
    ram_[address.value() - *begin(vram_range) + bank * 8_kb] = data;
 }
 
