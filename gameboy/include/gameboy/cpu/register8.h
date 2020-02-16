@@ -27,7 +27,7 @@ public:
     register8& operator+=(uint8_t val) noexcept;
     register8& operator-=(uint8_t val) noexcept;
 
-    [[nodiscard]] register8 operator+(const register8& val) const noexcept;
+    [[nodiscard]] register8 operator+(const register8& other) const noexcept;
     [[nodiscard]] uint16_t operator+(uint16_t val) const noexcept;
     [[nodiscard]] uint16_t operator-(uint16_t val) const noexcept;
 
@@ -45,7 +45,9 @@ public:
     bool operator==(uint8_t val) const noexcept;
     bool operator==(const register8& other) const noexcept;
     bool operator>(uint8_t val) const noexcept;
+    bool operator>(const register8& other) const noexcept;
     bool operator<(uint8_t val) const noexcept;
+    bool operator<(const register8& other) const noexcept;
     bool operator>=(uint8_t val) const noexcept;
     bool operator>=(const register8& other) const noexcept;
     bool operator<=(uint8_t val) const noexcept;
