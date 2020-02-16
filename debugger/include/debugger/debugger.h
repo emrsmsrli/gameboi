@@ -16,8 +16,6 @@ namespace gameboy {
 
 class debugger {
 public:
-    sf::Image* img = nullptr;
-
     explicit debugger(observer<bus> bus);
     ~debugger();
     debugger(const debugger&) = delete;
@@ -27,7 +25,7 @@ public:
     debugger& operator=(debugger&&) = delete;
 
     void tick();
-    void on_break(delegate<void()> delegate) { cartridge_debugger_.on_break(delegate); }
+    void on_break(const delegate<void()> delegate) { cartridge_debugger_.on_break(delegate); }
     void check_breakpoints() { cartridge_debugger_.check_breakpoints(); }
 
 private:

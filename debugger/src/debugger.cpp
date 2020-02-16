@@ -41,9 +41,6 @@ void debugger::tick()
     memory_bank_debugger_.draw();
     cartridge_debugger_.draw();
 
-    texture_.update(*img);
-    ImGui::Image(texture_);
-
     window_.clear(sf::Color::Black);
     ImGui::SFML::Render(window_);
 
