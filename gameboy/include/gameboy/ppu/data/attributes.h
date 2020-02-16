@@ -1,14 +1,25 @@
-#ifndef GAMEBOY_OBJ_H
-#define GAMEBOY_OBJ_H
+#ifndef GAMEBOY_BG_ATTRIBUTES_H
+#define GAMEBOY_BG_ATTRIBUTES_H
 
 #include <cstdint>
 
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::attributes {
+
+struct uninitialized {};
+
+struct bg {
+    uint8_t attributes = 0u;
+
+    [[nodiscard]] bool prioritized() const noexcept { return !bit_test(attributes, 7u); }
+    [[nodiscard]] bool v_flipped() const noexcept { return bit_test(attributes, 6u); }
+    [[nodiscard]] bool h_flipped() const noexcept { return bit_test(attributes, 5u); }
+    [[nodiscard]] uint8_t vram_bank() const noexcept { return extract_bit(attributes, 3u); }
+    [[nodiscard]] uint8_t palette_index() const noexcept { return attributes & 0x7u; }
+};
 
 /*
-
 Byte2 - Tile/Pattern Number
 Specifies the sprites Tile Number (00-FF). This (unsigned) value selects a tile from memory at 8000h-8FFFh.
  In CGB Mode this could be either in VRAM Bank 0 or 1, depending on Bit 3 of the following byte.
@@ -40,10 +51,10 @@ struct obj {
     [[nodiscard]] bool v_flipped() const noexcept { return bit_test(attributes, 6u); }
     [[nodiscard]] bool h_flipped() const noexcept { return bit_test(attributes, 5u); }
     [[nodiscard]] uint8_t gb_palette_index() const noexcept { return extract_bit(attributes, 4u); }
-    [[nodiscard]] uint8_t vram_bank() const noexcept { return extract_bit(attributes, 3u); } // todo cgb only
+    [[nodiscard]] uint8_t vram_bank() const noexcept { return extract_bit(attributes, 3u); }  // todo cgb only
     [[nodiscard]] uint8_t cgb_palette_index() const noexcept { return attributes & 0x7u; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::attributes
 
-#endif //GAMEBOY_OBJ_H
+#endif //GAMEBOY_BG_ATTRIBUTES_H
