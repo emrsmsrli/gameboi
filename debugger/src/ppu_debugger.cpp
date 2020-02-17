@@ -217,7 +217,7 @@ void gameboy::ppu_debugger::draw_vram_view()
 
         if(ImGui::BeginTabItem("Tiles")) {
             draw_tiles();
-            ImGui::Image(tiles_);
+            ImGui::Image(tiles_, {tiles_.getSize().x * 3.f, tiles_.getSize().y * 3.f});
             ImGui::EndTabItem();
         }
 
