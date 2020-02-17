@@ -23,9 +23,10 @@ struct renderer {
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
         window_texture.create(gameboy::screen_width, gameboy::screen_height);
         
+        window_sprite.setTexture(window_texture);
+
         const auto sprite_local_bounds = window_sprite.getLocalBounds();
         window_sprite.setOrigin(sprite_local_bounds.width * .5f, sprite_local_bounds.height * .5f);
-        window_sprite.setTexture(window_texture);
 
         rescale(width, height);
         render_frame();
