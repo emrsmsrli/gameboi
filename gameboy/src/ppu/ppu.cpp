@@ -582,7 +582,7 @@ std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
     const auto msb = read_ram_by_bank(tile_addr + tile_y_offset + 1, bank);
     
     std::array<uint8_t, tile_pixel_count> tile_row{};
-    std::generate(begin(tile_row), end(tile_row), [&, bit = tile_pixel_count]() mutable {
+    std::generate(begin(tile_row), end(tile_row), [&, bit = tile_pixel_count - 1]() mutable {
         const uint8_t mask = (1u << bit);
         const auto pix_color = static_cast<uint8_t>((msb & mask) >> bit << 1u | (lsb & mask) >> bit);
         --bit;
