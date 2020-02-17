@@ -256,8 +256,8 @@ void gameboy::ppu_debugger::draw_tiles()
             const auto tile_dot_msb = tile_data[row * 2 + 1];
 
             for(auto col = 0; col < tile_pixel_count; ++col) {
-                const auto col_lsb = (tile_dot_lsb >> (tile_pixel_count - col)) & 0x1;
-                const auto col_msb = (tile_dot_msb >> (tile_pixel_count - col)) & 0x1;
+                const auto col_lsb = (tile_dot_lsb >> (tile_pixel_count - col - 1)) & 0x1;
+                const auto col_msb = (tile_dot_msb >> (tile_pixel_count - col - 1)) & 0x1;
                 const auto dot = (col_msb << 1) | col_lsb;
 
                 tiles_img_.setPixel(
