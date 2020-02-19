@@ -15,12 +15,6 @@ struct register_lcdc {
     [[nodiscard]] bool window_enabled() const noexcept { return bit_test(reg, 5u); }
     [[nodiscard]] bool large_obj() const noexcept { return bit_test(reg, 2u); }
     [[nodiscard]] bool obj_enabled() const noexcept { return bit_test(reg, 1u); }
-
-    /**
-     * LCDC.0 - 2) CGB in CGB Mode: BG and Window Master Priority
-     * When Bit 0 is cleared, the background and window lose their priority - the sprites will be always
-     * displayed on top of background and window, independently of the priority flags in OAM and BG Map attributes.
-     */
     [[nodiscard]] bool bg_enabled() const noexcept { return bit_test(reg, 0u); }
     [[nodiscard]] bool window_map_secondary() const noexcept { return bit_test(reg, 6u); }
     [[nodiscard]] bool unsigned_mode() const noexcept { return bit_test(reg, 4u); }

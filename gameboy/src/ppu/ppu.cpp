@@ -25,11 +25,6 @@ constexpr address16 scx_addr{0xFF43u};
 
 constexpr address16 lyc_addr{0xFF45u};
 
-// Specifies the upper/left positions of the Window area.
-// (The window is an alternate background area which can be displayed above of the normal background.
-// OBJs (sprites) may be still displayed above or behinf the window, just as for normal BG.)
-// The window becomes visible (if enabled) when positions are set in range WX=0..166, WY=0..143.
-// A postion of WX=7, WY=0 locates the window at upper left, it is then completly covering normal background.
 constexpr address16 wy_addr{0xFF4Au};
 constexpr address16 wx_addr{0xFF4Bu};
 
@@ -567,6 +562,72 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
 {
     if(lcdc_.obj_enabled()) {
         return;
+    }
+
+    const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
+
+    std::array<attributes::obj, 40> objs{};
+    std::memcpy(&objs, oam_.data(), oam_.size());
+
+    if(!cgb_enabled) {
+        std::stable_sort(begin(objs), end(objs), [](const attributes::obj& l, const attributes::obj& r) {
+            return l.x > r.x;
+        });
+    }
+
+    auto rendered_obj_count = 0u;
+    for(auto it = rbegin(objs); it != rend(objs); ++it) {
+        const auto& obj = *it;
+
+        const auto obj_size = lcdc_.large_obj() ? 16 : 8;
+        const auto obj_y = obj.y - 16;
+        const auto obj_x = obj.x - 8;
+
+        if(ly_ < obj_y || ly_ >= obj_y + obj_size) {
+            continue;
+        }
+
+        if(-7 > obj_x || obj_x >= static_cast<int32_t>(screen_width)) {
+            continue;
+        }
+
+        auto tile_row = get_tile_row(
+            obj.v_flipped() 
+                ? obj_size - (ly_ - obj_y) - 1u 
+                : ly_ - obj_y,
+            tile_address<uint8_t>(0x8000u, lcdc_.large_obj() 
+                ? obj.tile_number & 0xFEu 
+                : obj.tile_number),
+            obj.vram_bank());
+
+        if(obj.h_flipped()) {
+            std::reverse(begin(tile_row), end(tile_row));
+        }
+
+        for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
+            const auto x = obj_x + tile_x;
+            if(0u > x || x >= screen_width) {
+                continue;
+            }
+
+            const auto& [color_idx, attr] = buffer[x];
+            std::visit(overloaded{
+                [&](auto&&) {
+                    buffer[x] = std::make_pair(tile_row[tile_x], obj);
+                },
+                [&, color = color_idx](const attributes::bg& bg_attr) {
+                    if((cgb_enabled && !lcdc_.bg_enabled()) ||
+                        (color == 0x0 || (!bg_attr.prioritized() && obj.prioritized()))
+                    ) {
+                        buffer[x] = std::make_pair(tile_row[tile_x], obj);
+                    }
+                }
+            }, attr);
+        }
+
+        if(++rendered_obj_count == 10u) {
+            break;
+        }
     }
 }
 
