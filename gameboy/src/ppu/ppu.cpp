@@ -560,7 +560,7 @@ void ppu::render_window(render_buffer& buffer) const noexcept
 
 void ppu::render_obj(render_buffer& buffer) const noexcept
 {
-    if(lcdc_.obj_enabled()) {
+    if(!lcdc_.obj_enabled()) {
         return;
     }
 
