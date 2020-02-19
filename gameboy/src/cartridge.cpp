@@ -162,6 +162,23 @@ cartridge::cartridge(const std::string_view rom_path)
             log::error("unimplemented cartridge type {}", magic_enum::underlying_type_t<mbc_type>{});
         }
     }
+
+    switch(mbc) {
+        case mbc_type::mbc_1_ram_battery:
+        case mbc_type::mbc_2_battery:
+        case mbc_type::rom_ram_battery:
+        case mbc_type::mmm_01_ram_battery:
+        case mbc_type::mbc_3_timer_battery:
+        case mbc_type::mbc_3_timer_ram_battery:
+        case mbc_type::mbc_4_ram_battery:
+        case mbc_type::mbc_5_ram_battery:
+        case mbc_type::mbc_5_rumble_ram_battery:
+        case mbc_type::huc_1_ram_battery:
+            has_battery_ = true;
+            break;
+        default:
+            break;
+    }
 }
 
 uint8_t cartridge::read_rom(const address16& address) const

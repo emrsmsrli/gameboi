@@ -35,9 +35,11 @@ public:
 
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
     [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
+    [[nodiscard]] bool has_battery() const noexcept { return has_battery_; }
 
 private:
     bool cgb_enabled_ = false;
+    bool has_battery_ = false;
     std::string_view cgb_type_;
     std::string_view mbc_type_;
     std::string_view rom_type_;
