@@ -25,10 +25,6 @@ struct obj {
     uint8_t tile_number;
     uint8_t attributes;
 
-    /**
-     * OBJ-to-BG Priority (0=OBJ Above BG, 1=OBJ Behind BG color 1-3)
-     * (Used for both BG and Window. BG color 0 is always behind OBJ)
-     */
     [[nodiscard]] bool prioritized() const noexcept { return !bit_test(attributes, 7u); }
     [[nodiscard]] bool v_flipped() const noexcept { return bit_test(attributes, 6u); }
     [[nodiscard]] bool h_flipped() const noexcept { return bit_test(attributes, 5u); }
