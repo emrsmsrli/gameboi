@@ -167,7 +167,7 @@ cartridge::cartridge(const std::string_view rom_path)
         case mbc_type::mmm_01_ram_battery:
         case mbc_type::mbc_3_timer_battery:
         case mbc_type::mbc_3_timer_ram_battery:
-        case mbc_type::mbc_4_ram_battery:
+        case mbc_type::mbc_3_ram_battery:
         case mbc_type::mbc_5_ram_battery:
         case mbc_type::mbc_5_rumble_ram_battery:
         case mbc_type::huc_1_ram_battery:
