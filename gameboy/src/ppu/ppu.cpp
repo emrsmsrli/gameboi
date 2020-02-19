@@ -573,13 +573,21 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
 std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
     const uint8_t row, const uint8_t tile_no, const uint8_t bank) const noexcept
 {
-    const auto tile_addr = lcdc_.unsigned_mode()
+    const auto tile_base_addr = lcdc_.unsigned_mode()
         ? tile_address<uint8_t>(0x8000u, tile_no)
         : tile_address<int8_t>(0x9000u, tile_no);
 
+    return get_tile_row(row, tile_base_addr, bank);
+}
+
+std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
+    const uint8_t row,
+    const address16& tile_base_addr,
+    const uint8_t bank) const noexcept
+{
     const auto tile_y_offset = row * 2;
-    const auto lsb = read_ram_by_bank(tile_addr + tile_y_offset, bank);
-    const auto msb = read_ram_by_bank(tile_addr + tile_y_offset + 1, bank);
+    const auto lsb = read_ram_by_bank(tile_base_addr + tile_y_offset, bank);
+    const auto msb = read_ram_by_bank(tile_base_addr + tile_y_offset + 1, bank);
     
     std::array<uint8_t, tile_pixel_count> tile_row{};
     std::generate(begin(tile_row), end(tile_row), [&, bit = tile_pixel_count - 1]() mutable {

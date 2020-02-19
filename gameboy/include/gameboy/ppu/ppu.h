@@ -134,6 +134,8 @@ private:
 
     [[nodiscard]] std::array<uint8_t, tile_pixel_count> get_tile_row(
         uint8_t row, uint8_t tile_no, uint8_t bank) const noexcept;
+    [[nodiscard]] std::array<uint8_t, tile_pixel_count> get_tile_row(
+        uint8_t row, const address16& tile_base_addr, uint8_t bank) const noexcept;
 
     [[nodiscard]] static color correct_color(const color& c) noexcept;
 
