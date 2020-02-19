@@ -222,8 +222,8 @@ uint32_t cartridge::rom_bank() const noexcept
     return std::visit(overloaded{
         [](const mbc1& mbc) {
             const auto bank = mbc.rom_banking_active
-                              ? (mbc.ram_bank & 0x3u) << 0x5u | mbc.rom_bank
-                              : mbc.rom_bank;
+                ? mbc.ram_bank << 0x5u | mbc.rom_bank
+                : mbc.rom_bank;
 
             switch(bank) {
                 case 0x00u:
