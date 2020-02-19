@@ -1,5 +1,5 @@
-#ifndef GAMEBOY_BG_ATTRIBUTES_H
-#define GAMEBOY_BG_ATTRIBUTES_H
+#ifndef GAMEBOY_ATTRIBUTES_H
+#define GAMEBOY_ATTRIBUTES_H
 
 #include <cstdint>
 
@@ -57,4 +57,4 @@ struct obj {
 
 } // namespace gameboy::attributes
 
-#endif //GAMEBOY_BG_ATTRIBUTES_H
+#endif //GAMEBOY_ATTRIBUTES_H
