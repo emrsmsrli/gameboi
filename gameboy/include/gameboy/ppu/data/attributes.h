@@ -20,10 +20,10 @@ struct bg {
 };
 
 struct obj {
-    uint8_t y;
-    uint8_t x;
-    uint8_t tile_number;
-    uint8_t attributes;
+    uint8_t y = 0u;
+    uint8_t x = 0u;
+    uint8_t tile_number = 0u;
+    uint8_t attributes = 0u;
 
     [[nodiscard]] bool prioritized() const noexcept { return !bit_test(attributes, 7u); }
     [[nodiscard]] bool v_flipped() const noexcept { return bit_test(attributes, 6u); }
