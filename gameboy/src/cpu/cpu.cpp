@@ -2402,7 +2402,7 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
     const auto& info = instruction::extended_instruction_set[inst];
 
 #ifdef DEBUG
-    on_instruction_executed_(address16(program_counter_ - info.length + 1u), info, 0u);
+    on_instruction_executed_(address16(program_counter_ - info.length - 1u), info, 0u);
 #endif
 
     return info.cycle_count;
