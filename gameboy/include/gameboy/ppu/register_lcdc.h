@@ -22,11 +22,6 @@ struct register_lcdc {
      * displayed on top of background and window, independently of the priority flags in OAM and BG Map attributes.
      */
     [[nodiscard]] bool bg_enabled() const noexcept { return bit_test(reg, 0u); }
-
-    /**
-     * primary   : address16(0x9800u)
-     * secondary : address16(0x9C00u)
-     */
     [[nodiscard]] bool window_map_secondary() const noexcept { return bit_test(reg, 6u); }
     [[nodiscard]] bool unsigned_mode() const noexcept { return bit_test(reg, 4u); }
     [[nodiscard]] bool bg_map_secondary() const noexcept { return bit_test(reg, 3u); }
