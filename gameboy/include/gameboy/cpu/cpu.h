@@ -84,6 +84,7 @@ private:
     uint8_t wait_before_unhalt_cycles_;
 
 #ifdef DEBUG
+    register16 prev_program_counter_;
     delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
 #endif
 
