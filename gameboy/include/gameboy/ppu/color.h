@@ -12,9 +12,9 @@ struct color {
 
     constexpr color() = default;
     constexpr explicit color(const uint8_t intensity)
-	: color{intensity, intensity, intensity} {}
+	    : color{intensity, intensity, intensity} {}
     constexpr color(const uint8_t r, const uint8_t g, const uint8_t b)
-	: red{r}, green{g}, blue{b} {}
+	    : red{r}, green{g}, blue{b} {}
 };
 
 } // namespace gameboy
