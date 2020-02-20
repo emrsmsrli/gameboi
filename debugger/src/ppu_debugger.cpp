@@ -326,6 +326,10 @@ void gameboy::ppu_debugger::draw_bg_map()
             if(ImGui::IsItemHovered()) {
                 ImGui::BeginTooltip();
 
+                ImGui::Text("x:   %02X", x); ImGui::SameLine();
+                ImGui::Text("y:   %02X", y);
+                ImGui::Text("attributes:  %02X", tile_attr.attributes);
+                ImGui::Separator();
                 ImGui::Text("tile no:     %02X", tile_no);
                 ImGui::Text("prioritized: %d", tile_attr.prioritized());
                 ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
