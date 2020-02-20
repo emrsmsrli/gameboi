@@ -3,6 +3,7 @@
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"
+#include "gameboy/memory/memory_constants.h"
 #include "imgui.h"
 #include "imgui-SFML.h"
 
@@ -21,6 +22,11 @@ gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
     for(size_t i = 0u; i < 32u * 32u; ++i) {
         bg_map_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
         bg_map_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
+    }
+
+    for(size_t i = 0u; i < 40u; ++i) {
+        oam_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
+        oam_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
     }
 }
 
@@ -224,7 +230,7 @@ void gameboy::ppu_debugger::draw_vram_view()
         }
 
         if(ImGui::BeginTabItem("OAM")) {
-            // todo draw_oam();
+            draw_oam();
             ImGui::EndTabItem();
         }
 
@@ -344,5 +350,76 @@ void gameboy::ppu_debugger::draw_bg_map()
         }
 
         ImGui::NewLine();
+    }
+}
+
+void gameboy::ppu_debugger::draw_oam()
+{
+    ImGui::Spacing();
+    ImGui::Spacing();
+
+    std::array<attributes::obj, 40> objs{};
+    std::memcpy(&objs, ppu_->oam_.data(), ppu_->oam_.size());
+
+    for(auto obj_idx = 0u; obj_idx < 40u; ++obj_idx) {
+        const auto& obj = objs[obj_idx];
+        auto& img = oam_imgs_[obj_idx];
+        auto& tex = oam_[obj_idx];
+
+        for(auto tile_y = 0u; tile_y < ppu::tile_pixel_count; ++tile_y) {
+            const auto tile_row = ppu_->get_tile_row(
+                tile_y, 
+                ppu_->tile_address<uint8_t>(0x8000u, obj.tile_number), 
+                obj.vram_bank());
+
+            for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
+                const auto color_idx = tile_row[tile_x];
+                const auto color = [&]() {
+                    if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
+                        return ppu_->cgb_bg_palettes_[obj.cgb_palette_index()].colors[color_idx];
+                    } 
+                    
+                    const auto background_palette = palette::from(ppu_->gb_palette_, ppu_->obp_[obj.gb_palette_index()].value());
+                    return background_palette.colors[color_idx];
+                }();
+
+                img.setPixel(tile_x, tile_y, sf::Color(
+                    color.red,
+                    color.green,
+                    color.blue,
+                    color_idx == 0u ? 0u : 255u
+                ));
+            }
+        }
+
+        tex.update(img);
+        ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
+        ImGui::SameLine();
+        ImGui::Image(tex, {64, 64});
+
+        if(ImGui::IsItemHovered()) {
+            ImGui::BeginTooltip();
+
+            ImGui::Text("x:     %02X", obj.x); ImGui::SameLine();
+            ImGui::Text("y:     %02X", obj.y);
+            ImGui::Text("attributes:      %02X", obj.attributes);
+            ImGui::Separator();
+            ImGui::Text("tile no:         %02X", obj.tile_number);
+            ImGui::Text("prioritized:     %d", obj.prioritized());
+            ImGui::Text("v flipped:       %d", obj.v_flipped());
+            ImGui::Text("h flipped:       %d", obj.h_flipped());
+            ImGui::Text("vram_bank:       %d", obj.vram_bank());
+            ImGui::Text(" gb palette_idx: %d", obj.gb_palette_index());
+            ImGui::Text("cgb palette_idx: %d", obj.cgb_palette_index());
+
+            ImGui::EndTooltip();
+        }
+
+        if((obj_idx + 1) % 5 != 0) {
+            ImGui::SameLine(0, 32);
+        } else {
+            ImGui::Spacing();
+            ImGui::Spacing();
+        }
     }
 }

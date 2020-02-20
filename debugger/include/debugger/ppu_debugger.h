@@ -25,6 +25,9 @@ private:
     std::array<sf::Image, 32u * 32u> bg_map_imgs_; 
     std::array<sf::Texture, 32u * 32u> bg_map_; 
 
+    std::array<sf::Image, 40u> oam_imgs_; 
+    std::array<sf::Texture, 40u> oam_; 
+
     void draw_registers() const noexcept;
     void draw_lcdc_n_stat() const;
     void draw_palettes() const;
@@ -33,6 +36,7 @@ private:
     void draw_vram_view();
     void draw_tiles();
     void draw_bg_map();
+    void draw_oam();
 };
 
 } // namespace gameboy
