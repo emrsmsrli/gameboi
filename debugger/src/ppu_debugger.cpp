@@ -8,7 +8,6 @@
 
 namespace {
 constexpr auto tiles_per_row = 16;
-constexpr auto tile_pixel_count = 8;
 constexpr auto tile_row_count = 8;
 }
 
@@ -16,8 +15,13 @@ gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
     : ppu_{ppu}
 {
     constexpr auto tile_area_count = 3;
-    tiles_img_.create(tiles_per_row * tile_pixel_count, tile_row_count * tile_pixel_count * tile_area_count);
-    tiles_.create(tiles_per_row * tile_pixel_count, tile_row_count * tile_pixel_count * tile_area_count);
+    tiles_img_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
+    tiles_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
+
+    for(size_t i = 0u; i < 32u * 32u; ++i) {
+        bg_map_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
+        bg_map_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
+    }
 }
 
 void gameboy::ppu_debugger::draw() noexcept
@@ -210,14 +214,12 @@ void gameboy::ppu_debugger::draw_vram_view()
 {
     if(ImGui::BeginTabBar("vramviewtabs")) {
         if(ImGui::BeginTabItem("BG Map")) {
-            //todo draw_bg_map();
-            //ImGui::Image(bg_map_);
+            draw_bg_map();
             ImGui::EndTabItem();
         }
 
         if(ImGui::BeginTabItem("Tiles")) {
             draw_tiles();
-            ImGui::Image(tiles_, {tiles_.getSize().x * 3.f, tiles_.getSize().y * 3.f});
             ImGui::EndTabItem();
         }
 
@@ -251,18 +253,18 @@ void gameboy::ppu_debugger::draw_tiles()
         std::array<uint8_t, tile_physical_size> tile_data;
         std::copy(begin(ram) + i, begin(ram) + i +tile_physical_size, begin(tile_data));
 
-        for(auto row = 0; row < tile_pixel_count; ++row) {
+        for(auto row = 0; row < ppu::tile_pixel_count; ++row) {
             const auto tile_dot_lsb = tile_data[row * 2];
             const auto tile_dot_msb = tile_data[row * 2 + 1];
 
-            for(auto col = 0; col < tile_pixel_count; ++col) {
-                const auto col_lsb = (tile_dot_lsb >> (tile_pixel_count - col - 1)) & 0x1;
-                const auto col_msb = (tile_dot_msb >> (tile_pixel_count - col - 1)) & 0x1;
+            for(auto col = 0; col < ppu::tile_pixel_count; ++col) {
+                const auto col_lsb = (tile_dot_lsb >> (ppu::tile_pixel_count - col - 1)) & 0x1;
+                const auto col_msb = (tile_dot_msb >> (ppu::tile_pixel_count - col - 1)) & 0x1;
                 const auto dot = (col_msb << 1) | col_lsb;
 
                 tiles_img_.setPixel(
-                    tile_x * tile_pixel_count + col,
-                    tile_y * tile_pixel_count + row,
+                    tile_x * ppu::tile_pixel_count + col,
+                    tile_y * ppu::tile_pixel_count + row,
                     sf::Color{
                         palette.colors[dot].red,
                         palette.colors[dot].green,
@@ -280,4 +282,63 @@ void gameboy::ppu_debugger::draw_tiles()
     }
 
     tiles_.update(tiles_img_);
+    ImGui::Image(tiles_, {tiles_.getSize().x * 3.f, tiles_.getSize().y * 3.f});
+}
+
+void gameboy::ppu_debugger::draw_bg_map()
+{
+    const auto tile_start_addr = address16(ppu_->lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
+    for(size_t y = 0u; y < 32u; ++y) {
+        for(size_t x = 0u; x < 32u; ++x) {
+            const auto idx = y * 32u + x;
+            auto& img = bg_map_imgs_[idx];
+            auto& tex = bg_map_[idx];
+            
+            const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + idx, 0);
+            const attributes::bg tile_attr{ ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
+
+            for(auto tile_y = 0u; tile_y < ppu::tile_pixel_count; ++tile_y) {
+                auto tile_row = ppu_->get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
+
+                for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
+                    const auto color_idx = tile_row[tile_x];
+                    const auto color = [&]() {
+                        if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
+                            return ppu_->cgb_bg_palettes_[tile_attr.palette_index()].colors[color_idx];
+                        } 
+
+                        const auto background_palette = palette::from(ppu_->gb_palette_, ppu_->bgp_.value());
+                        return background_palette.colors[color_idx];
+                    }();
+
+                    img.setPixel(tile_x, tile_y, sf::Color{
+                        color.red,
+                        color.green,
+                        color.blue,
+                        255
+                    });
+                }
+            }
+
+            tex.update(img);
+            ImGui::Image(tex, {16, 16});
+
+            if(ImGui::IsItemHovered()) {
+                ImGui::BeginTooltip();
+
+                ImGui::Text("tile no:     %02X", tile_no);
+                ImGui::Text("prioritized: %d", tile_attr.prioritized());
+                ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
+                ImGui::Text("h flipped:   %d", tile_attr.h_flipped());
+                ImGui::Text("vram_bank:   %d", tile_attr.vram_bank());
+                ImGui::Text("palette_idx: %d", tile_attr.palette_index());
+
+                ImGui::EndTooltip();
+            }
+
+            ImGui::SameLine(0, 4);
+        }
+
+        ImGui::NewLine();
+    }
 }

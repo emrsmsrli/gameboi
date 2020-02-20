@@ -1,10 +1,11 @@
 #ifndef GAMEBOY_PPU_DEBUGGER_H
 #define GAMEBOY_PPU_DEBUGGER_H
 
-#include "gameboy/util/observer.h"
-
+#include <array>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
+
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 
@@ -21,6 +22,9 @@ private:
     sf::Image tiles_img_;
     sf::Texture tiles_;
 
+    std::array<sf::Image, 32u * 32u> bg_map_imgs_; 
+    std::array<sf::Texture, 32u * 32u> bg_map_; 
+
     void draw_registers() const noexcept;
     void draw_lcdc_n_stat() const;
     void draw_palettes() const;
@@ -28,6 +32,7 @@ private:
 
     void draw_vram_view();
     void draw_tiles();
+    void draw_bg_map();
 };
 
 } // namespace gameboy
