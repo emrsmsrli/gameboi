@@ -301,7 +301,7 @@ void gameboy::ppu_debugger::draw_bg_map()
             auto& tex = bg_map_[idx];
             
             const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + idx, 0);
-            const attributes::bg tile_attr{ ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
+            const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
 
             for(auto tile_y = 0u; tile_y < ppu::tile_pixel_count; ++tile_y) {
                 auto tile_row = ppu_->get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
