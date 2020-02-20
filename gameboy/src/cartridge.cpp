@@ -114,7 +114,7 @@ cartridge::cartridge(const std::string_view rom_path)
     const auto xram_banks = xram_type == ram_type::kb_32
                             ? 4u
                             : 1u;
-    ram_.reserve(xram_banks * 8_kb);
+    ram_.resize(xram_banks * 8_kb);
     std::fill(begin(ram_), end(ram_), 0u);
     ram_type_ = magic_enum::enum_name(xram_type);
 
