@@ -29,7 +29,7 @@ struct obj {
     [[nodiscard]] bool v_flipped() const noexcept { return bit_test(attributes, 6u); }
     [[nodiscard]] bool h_flipped() const noexcept { return bit_test(attributes, 5u); }
     [[nodiscard]] uint8_t gb_palette_index() const noexcept { return extract_bit(attributes, 4u); }
-    [[nodiscard]] uint8_t vram_bank() const noexcept { return extract_bit(attributes, 3u); }  // todo cgb only
+    [[nodiscard]] uint8_t vram_bank() const noexcept { return extract_bit(attributes, 3u); }
     [[nodiscard]] uint8_t cgb_palette_index() const noexcept { return attributes & 0x7u; }
 };
 
