@@ -616,10 +616,15 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                     buffer[x] = std::make_pair(tile_row[tile_x], obj);
                 },
                 [&, color = color_idx](const attributes::bg& bg_attr) {
+                    const auto obj_color = tile_row[tile_x];
+                    if(obj_color == 0x0u) {
+                        return;
+                    }
+
                     if((cgb_enabled && !lcdc_.bg_enabled()) ||
                         (color == 0x0 || (!bg_attr.prioritized() && obj.prioritized()))
                     ) {
-                        buffer[x] = std::make_pair(tile_row[tile_x], obj);
+                        buffer[x] = std::make_pair(obj_color, obj);
                     }
                 }
             }, attr);
