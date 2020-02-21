@@ -519,7 +519,7 @@ void ppu::render_background(render_buffer& buffer) const noexcept
 
 void ppu::render_window(render_buffer& buffer) const noexcept
 {
-    if(lcdc_.window_enabled()) {
+    if(!lcdc_.window_enabled()) {
         return;
     }
 
