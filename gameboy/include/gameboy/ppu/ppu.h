@@ -35,11 +35,17 @@ public:
     using vblank_func = delegate<void()>;
 
     static constexpr address16 ly_addr{0xFF44u};
-    static constexpr palette palette_default{
+    static constexpr palette palette_grayscale{
         color{255u},
         color{192u},
         color{96u},
         color{0u}
+    };
+    static constexpr palette palette_zelda{
+        color{224, 248, 208},
+        color{136, 192, 112},
+        color{52, 104, 84},
+        color{8, 24, 32}
     };
     static constexpr palette palette_gold{
         color{252, 232, 140},
@@ -95,7 +101,7 @@ private:
     register8 wx_;
     register8 wy_;
 
-    palette gb_palette_{palette_default};
+    palette gb_palette_;
     register8 bgp_;
     std::array<register8, 2> obp_;
 

@@ -71,6 +71,7 @@ ppu::ppu(observer<bus> bus)
       scy_{0x00u},
       wx_{0x00u},
       wy_{0x00u},
+      gb_palette_{palette_zelda},
       bgp_{0xFCu},
       bgpi_{0x00u},
       obpi_{0x00u}
