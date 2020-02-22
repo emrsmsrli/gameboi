@@ -34,6 +34,8 @@ public:
 
     template<typename T>
     [[nodiscard]] T modified_cycles(T cycles) const noexcept { return cycles >> extract_bit(key_1_, 7u); }
+    template<typename T>
+    [[nodiscard]] T unmodified_cycles(T cycles) const noexcept { return cycles << extract_bit(key_1_, 7u); }
 
 private:
     enum class flag : uint8_t {
