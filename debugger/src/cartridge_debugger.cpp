@@ -145,7 +145,13 @@ void cartridge_debugger::draw_info() const
 
     ImGui::TextUnformatted(cartridge_->name_.c_str());
 
-    const auto show_type = [](const auto& type) { ImGui::TextUnformatted(type.data(), type.data() + type.size()); };
+    const auto show_type = [](const auto& type) {
+        if(type.data())  {
+            ImGui::TextUnformatted(type.data(), type.data() + type.size());
+        } else {
+            ImGui::TextUnformatted("");
+        }
+    };
     
     show_type(cartridge_->cgb_type_);
     show_type(cartridge_->mbc_type_);
