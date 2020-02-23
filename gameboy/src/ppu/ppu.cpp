@@ -308,7 +308,7 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
     } else if(address == lcdc_addr) {
         if(!bit_test(data, 7u) && lcdc_.lcd_enabled()) {
             set_ly(register8{0x00u});
-            stat_.set_mode(stat_mode::reading_oam);
+            stat_.set_mode(stat_mode::h_blank);
             cycle_count_ = 0;
         }
 
