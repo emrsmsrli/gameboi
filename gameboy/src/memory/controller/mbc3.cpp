@@ -20,7 +20,6 @@ uint8_t rtc::read() const noexcept
         case register_type::hours: return time.tm_hour;
         case register_type::days_lower_bits: return time.tm_yday & 0xFFu;
         case register_type::days_higher_bits: return (time.tm_yday & 0x100u) >> 8u;
-        default: return 0u;
     }
 }
 
