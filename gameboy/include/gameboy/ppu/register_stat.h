@@ -27,7 +27,7 @@ struct register_stat {
     [[nodiscard]] bool coincidence_interrupt_set() const noexcept { return bit_test(reg, 6u); }
     [[nodiscard]] bool mode_interrupt_set() const noexcept
     {
-        return bit_test(reg, 1u << (static_cast<uint8_t>(get_mode()) + 3u));
+        return bit_test(reg, static_cast<uint8_t>(get_mode()) + 3u);
     }
 };
 
