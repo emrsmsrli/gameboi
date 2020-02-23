@@ -186,7 +186,7 @@ uint8_t cartridge::read_rom(const address16& address) const
             return address.value();
         }
 
-        return address.value() + 16_kb * rom_bank();
+        return address.value() + 16_kb * (rom_bank() - 1u);
     }();
 
     return rom_[physical_addr];
@@ -245,14 +245,13 @@ uint32_t cartridge::rom_bank() const noexcept
                 case 0x40u:
                 case 0x60u:
                     // these banks are unusuable, must return the next one
-                    return bank;
+                    return bank + 1;
                 default:
-                    // we already have first bank between 0x0000-0x3FFF
-                    return bank - 1;
+                    return bank;
             }
         },
         [](auto&& mbc) {
-            return mbc.rom_bank ? mbc.rom_bank - 1 : 0u;
+            return mbc.rom_bank;
         }
     }, mbc_);
 }

@@ -46,6 +46,9 @@ void mbc3::control(const address16& address, const uint8_t data) noexcept
         set_xram_enabled(data);
     } else if(rom_bank_select_range.has(address)) {
         rom_bank = data & 0x7Fu;
+        if(rom_bank == 0u) {
+            rom_bank = 1u;
+        }
     } else if(ram_bank_or_rtc_reg_select_range.has(address)) {
         if(data <= 0x03u) {
             ram_bank = data & 0x03u;

@@ -16,6 +16,9 @@ void mbc2::control(const address16& address, const uint8_t data) noexcept
     } else if(rom_bank_select_range.has(address)) {
         if(mask_test(address.value(), 0x0100u)) {
             rom_bank = data & 0x0Fu;
+            if(rom_bank == 0u) {
+                rom_bank = 1u;
+            }
         }
     }
 }
