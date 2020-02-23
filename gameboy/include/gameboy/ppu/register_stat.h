@@ -22,12 +22,12 @@ struct register_stat {
     void set_mode(const stat_mode mode) noexcept { reg = (reg & 0xFCu) | static_cast<uint8_t>(mode); }
 
     void set_coincidence_flag() noexcept { reg = bit_set(reg, 2u); }
-    void reset_coincidence_flag() noexcept {  reg = bit_reset(reg, 2u); }
+    void reset_coincidence_flag() noexcept { reg = bit_reset(reg, 2u); }
 
     [[nodiscard]] bool coincidence_interrupt_set() const noexcept { return bit_test(reg, 6u); }
     [[nodiscard]] bool mode_interrupt_set() const noexcept
     {
-        return bit_test(reg, 1u << static_cast<uint8_t>(get_mode()));
+        return bit_test(reg, 1u << (static_cast<uint8_t>(get_mode()) + 3u));
     }
 };
 
