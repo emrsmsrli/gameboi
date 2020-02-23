@@ -335,8 +335,22 @@ uint8_t ppu::palette_read(const address16& address) const
     if(address == bgp_addr) { return bgp_.value(); }
     if(address == obp_0_addr) { return obp_[0].value(); }
     if(address == obp_1_addr) { return obp_[1].value(); }
-    if(address == bgpi_addr) { return bgpi_.value(); }
-    if(address == obpi_addr) { return obpi_.value(); }
+
+    if(address == bgpi_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return 0xFFu;
+        }
+
+        return bgpi_.value();
+    }
+
+    if(address == obpi_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return 0xFFu;
+        }
+
+        return obpi_.value();
+    }
 
     return 0u;
 }
@@ -374,8 +388,16 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     } else if(address == obp_1_addr) {
         obp_[1] = data;
     } else if(address == bgpi_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         bgpi_ = data;
     } else if(address == obpi_addr) {
+        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
+            return;
+        }
+
         obpi_ = data;
     } else if(address == bgpd_addr) {
         if(stat_.get_mode() == stat_mode::reading_oam_vram) {
