@@ -9,7 +9,11 @@
 
 namespace gameboy {
 
+class cartridge_debugger;
+
 class rtc {
+    friend cartridge_debugger;
+
 public:
     bool enabled = false;
 
@@ -31,6 +35,8 @@ private:
 };
 
 class mbc3 : public mbc {
+    friend cartridge_debugger;
+
 public:
     void control(const address16& address, uint8_t data) noexcept;
 

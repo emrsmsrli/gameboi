@@ -1,9 +1,11 @@
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 
 #include "debugger/cartridge_debugger.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
-#include "debugger/debugger.h"
+#include "gameboy/util/overloaded.h"
+#include "imgui.h"
 
 namespace gameboy {
 
@@ -133,32 +135,65 @@ bool cartridge_debugger::has_breakpoint(const address16& addr) const noexcept
 
 void cartridge_debugger::draw_info() const
 {
-    ImGui::Columns(2, "cartridgeinfo", false);
-
-    ImGui::TextUnformatted("Name:");
-    ImGui::TextUnformatted("CGB Flag:");
-    ImGui::TextUnformatted("MBC Type:");
-    ImGui::TextUnformatted("ROM Type:");
-    ImGui::TextUnformatted("RAM Type:");
-
-    ImGui::NextColumn();
-
-    ImGui::TextUnformatted(cartridge_->name_.c_str());
-
-    const auto show_type = [](const auto& type) {
-        if(type.data())  {
-            ImGui::TextUnformatted(type.data(), type.data() + type.size());
+    const auto show_string_view = [](const auto& view) {
+        if(!view.empty())  {
+            ImGui::TextUnformatted(view.data(), view.data() + view.size());
         } else {
             ImGui::TextUnformatted("");
         }
     };
-    
-    show_type(cartridge_->cgb_type_);
-    show_type(cartridge_->mbc_type_);
-    show_type(cartridge_->rom_type_);
-    show_type(cartridge_->ram_type_);
 
-    ImGui::Columns(1);
+    if(ImGui::BeginTabBar("cartinfotab")) {
+        if(ImGui::BeginTabItem("Info")) {
+            ImGui::Columns(2, "cartridgeinfo", false);
+
+            ImGui::TextUnformatted("Name:");
+            ImGui::TextUnformatted("CGB Flag:");
+            ImGui::TextUnformatted("ROM Type:");
+            ImGui::TextUnformatted("RAM Type:");
+
+            ImGui::NextColumn();
+
+            ImGui::TextUnformatted(cartridge_->name_.c_str());
+            
+            show_string_view(cartridge_->cgb_type_);
+            show_string_view(cartridge_->rom_type_);
+            show_string_view(cartridge_->ram_type_);
+
+            ImGui::Columns(1);
+            ImGui::EndTabItem();
+        }
+
+        if(ImGui::BeginTabItem("MBC")) {
+            
+            ImGui::TextUnformatted("type:        "); ImGui::SameLine(0, 0);
+            show_string_view(cartridge_->mbc_type_);
+            ImGui::Text("ram enabled: %d", cartridge_->xram_enabled());
+            ImGui::Text("rom bank:    %d", cartridge_->rom_bank());
+            ImGui::Text("ram bank:    %d", cartridge_->ram_bank());
+
+            std::visit(overloaded{
+                [](const mbc1& mbc) {
+                    ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active);
+                },
+                [&](const mbc3& mbc) {
+                    ImGui::Text("rtc enabled:             %d", mbc.rtc_.enabled);
+                    ImGui::Text("rtc latched time:        %lld", mbc.rtc_.latched_time_);
+                    ImGui::Text("rtc read:                %d", mbc.rtc_.read());
+
+                    ImGui::TextUnformatted("rtc selected register:   "); ImGui::SameLine(0, 0);
+                    show_string_view(magic_enum::enum_name(mbc.rtc_.selected_register_));
+
+                    ImGui::Text("rtc latch on next write: %d", mbc.rtc_latch_on_next_one_write_);
+                },
+                [](auto&&) { }
+            }, cartridge_->mbc_);
+
+            ImGui::EndTabItem();
+        }
+
+        ImGui::EndTabBar();
+    }
 }
 
 void cartridge_debugger::draw_rom_disassembly() const noexcept
