@@ -53,7 +53,7 @@ void mbc3::control(const address16& address, const uint8_t data) noexcept
             ram_bank = data & 0x03u;
             rtc_.enabled = false;
         } else if(0x08u <= data && data <= 0x0Cu) {
-            rtc_.enabled = (true);
+            rtc_.enabled = true;
             rtc_.write(data);
         }
     } else if(latch_clock_data_range.has(address)) {
