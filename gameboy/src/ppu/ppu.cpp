@@ -118,10 +118,6 @@ void ppu::tick(const uint8_t cycles)
 
     const auto update_ly = [&]() {
         set_ly(register8((ly_ + 1) % ly_max));
-
-        if(stat_.coincidence_flag_set() && bus_->get_cpu()->interrupts_enabled()) {
-            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
-        }
     };
 
     const auto check_stat_interrupt = [&]() {
@@ -167,8 +163,8 @@ void ppu::tick(const uint8_t cycles)
         case stat_mode::reading_oam_vram: {
             if(has_elapsed(reading_oam_vram_cycles)) {
                 render();
-                stat_.set_mode(stat_mode::h_blank);
                 hdma();
+                stat_.set_mode(stat_mode::h_blank);
                 check_stat_interrupt();
             }
             break;
@@ -418,6 +414,10 @@ void ppu::compare_coincidence() noexcept
 {
     if(ly_ == lyc_) {
         stat_.set_coincidence_flag();
+
+        if(stat_.coincidence_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
+            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+        }
     } else {
         stat_.reset_coincidence_flag();
     }
