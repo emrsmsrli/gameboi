@@ -18,6 +18,7 @@ add_library(${PROJECT_NAME}
         src/memory/controller/mbc1.cpp
         src/memory/controller/mbc2.cpp
         src/memory/controller/mbc3.cpp
+        src/memory/controller/mbc5.cpp
         src/ppu/ppu.cpp
         src/util/data_loader.cpp)
 

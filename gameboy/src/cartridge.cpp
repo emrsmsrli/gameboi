@@ -152,7 +152,7 @@ cartridge::cartridge(const std::string_view rom_path)
         case mbc_type::mbc_5_rumble:
         case mbc_type::mbc_5_rumble_ram:
         case mbc_type::mbc_5_rumble_ram_battery: {
-            // todo mbc_ = mbc5{};
+            mbc_ = mbc5{};
             break;
         }
         default: {

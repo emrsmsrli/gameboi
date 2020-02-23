@@ -10,6 +10,7 @@
 #include "gameboy/memory/controller/mbc1.h"
 #include "gameboy/memory/controller/mbc2.h"
 #include "gameboy/memory/controller/mbc3.h"
+#include "gameboy/memory/controller/mbc5.h"
 #include "gameboy/memory/controller/mbc_regular.h"
 
 namespace gameboy {
@@ -49,7 +50,7 @@ private:
     std::vector<uint8_t> rom_;
     std::vector<uint8_t> ram_;
 
-    std::variant<mbc_regular, mbc1, mbc2, mbc3> mbc_;
+    std::variant<mbc_regular, mbc1, mbc2, mbc3, mbc5> mbc_;
 
     [[nodiscard]] bool xram_enabled() const noexcept;
     [[nodiscard]] uint32_t rom_bank() const noexcept;
