@@ -19,12 +19,12 @@ struct register_stat {
         : reg{val} {}
 
     [[nodiscard]] stat_mode get_mode() const noexcept { return static_cast<stat_mode>(reg.value() & 0x03u); }
-    void set_mode(stat_mode mode) noexcept { reg = (reg & 0xFCu) | static_cast<uint8_t>(mode); }
+    void set_mode(const stat_mode mode) noexcept { reg = (reg & 0xFCu) | static_cast<uint8_t>(mode); }
 
-    [[nodiscard]] bool coincidence_flag_set() const noexcept { return bit_test(reg, 2u); }
     void set_coincidence_flag() noexcept { reg = bit_set(reg, 2u); }
     void reset_coincidence_flag() noexcept {  reg = bit_reset(reg, 2u); }
 
+    [[nodiscard]] bool coincidence_interrupt_set() const noexcept { return bit_test(reg, 6u); }
     [[nodiscard]] bool mode_interrupt_set() const noexcept
     {
         return bit_test(reg, 1u << static_cast<uint8_t>(get_mode()));
