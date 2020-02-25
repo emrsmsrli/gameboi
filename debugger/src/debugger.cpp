@@ -7,7 +7,8 @@
 namespace gameboy {
 
 debugger::debugger(const observer<bus> bus)
-    : bus_{bus},
+    : gb_tick_allowed{false},
+      bus_{bus},
       cartridge_debugger_{bus_->get_cartridge(), bus_->get_cpu()},
       cpu_debugger_{bus_->get_cpu(), make_observer(cartridge_debugger_)},
       ppu_debugger_{bus_->get_ppu()},

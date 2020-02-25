@@ -16,6 +16,8 @@ namespace gameboy {
 
 class debugger {
 public:
+    bool gb_tick_allowed;
+
     explicit debugger(observer<bus> bus);
     ~debugger();
     debugger(const debugger&) = delete;
@@ -25,7 +27,6 @@ public:
     debugger& operator=(debugger&&) = delete;
 
     void tick();
-    void on_break(const delegate<void()> delegate) { cartridge_debugger_.on_break(delegate); }
 
 private:
     observer<bus> bus_;

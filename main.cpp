@@ -95,7 +95,7 @@ struct renderer {
 
 } // namespace
 
-int main(int argc, char* argv[])
+int main(const int argc, const char* argv[])
 {
     if(argc < 2) {
         fmt::print("Usage: {} <rom_path>", argv[0]);
@@ -108,13 +108,6 @@ int main(int argc, char* argv[])
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
     renderer.set_debugger(gameboy::make_observer(debugger));
-    
-    struct ticker_t {
-        bool tick_allowed = false;
-        void on_break() { tick_allowed = false; }
-    } ticker;
-
-    debugger.on_break({gameboy::connect_arg<&ticker_t::on_break>, ticker});
 #endif // WITH_DEBUGGER
 
     while(renderer.window.isOpen()) {
@@ -191,7 +184,7 @@ int main(int argc, char* argv[])
 #if WITH_DEBUGGER
                     case sf::Keyboard::T:
                     case sf::Keyboard::F9:
-                        ticker.tick_allowed = !ticker.tick_allowed;
+                        debugger.gb_tick_allowed = !debugger.gb_tick_allowed;
                         break;
 #endif // WITH_DEBUGGER
                     default:
@@ -201,7 +194,7 @@ int main(int argc, char* argv[])
         }
 
 #if WITH_DEBUGGER
-        if(ticker.tick_allowed) {
+        if(debugger.gb_tick_allowed) {
             gb.tick_one_frame();
         } else {
             debugger.tick();
