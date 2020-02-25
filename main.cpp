@@ -2,8 +2,11 @@
 #include <fmt/format.h>
 
 #include "gameboy/gameboy.h"
+
+#if WITH_DEBUGGER
+#include "gameboy/util/observer.h"
 #include "debugger/debugger.h"
-#include "gameboy/util/delegate.h"
+#endif // WITH_DEBUGGER
 
 namespace {
 
@@ -13,13 +16,18 @@ struct renderer {
     sf::Sprite window_sprite;
     sf::RenderWindow window;
 
-    explicit renderer(gameboy::gameboy& gb, const uint32_t width, const uint32_t height)
+#if WITH_DEBUGGER
+    gameboy::observer<gameboy::debugger> debugger;
+#endif // WITH_DEBUGGER
+
+    explicit renderer(gameboy::gameboy& gb, const uint32_t width, const uint32_t height) noexcept
         : window{
             sf::VideoMode(width, height),
             fmt::format("GAMEBOY - {}", gb.rom_name()),
             sf::Style::Default
         }
     {
+        window.setFramerateLimit(60u);
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
         window_texture.create(gameboy::screen_width, gameboy::screen_height);
         
@@ -35,7 +43,7 @@ struct renderer {
         gb.on_vblank({gameboy::connect_arg<&renderer::render_frame>, this});
     }
 
-    void rescale(const uint32_t width, const uint32_t height)
+    void rescale(const uint32_t width, const uint32_t height) noexcept
     {
         const auto sprite_local_bounds = window_sprite.getLocalBounds();
 
@@ -51,7 +59,7 @@ struct renderer {
         draw_sprite();
     }
 
-    void render_line(const uint8_t line_number, const gameboy::render_line& line)
+    void render_line(const uint8_t line_number, const gameboy::render_line& line) noexcept
     {
         for(size_t i = 0; i < line.size(); ++i) {
             const auto& color = line[i];
@@ -61,18 +69,28 @@ struct renderer {
         }
     }
 
-    void draw_sprite()
+    void draw_sprite() noexcept
     {
         window.clear();
         window.draw(window_sprite);
         window.display();
     }
 
-    void render_frame()
+    void render_frame() noexcept
     {
         window_texture.update(window_buffer);
         draw_sprite();
+
+#if WITH_DEBUGGER
+        if(debugger) {
+            debugger->tick();
+        }
+#endif // WITH_DEBUGGER
     }
+
+#if WITH_DEBUGGER
+    void set_debugger(const gameboy::observer<gameboy::debugger> dbgr) noexcept { debugger = dbgr; }
+#endif // WITH_DEBUGGER
 };
 
 } // namespace
@@ -85,22 +103,19 @@ int main(int argc, char* argv[])
     }
 
     gameboy::gameboy gb(argv[1]);
-    renderer renderer{gb, 500u, 300u};
+    renderer renderer{gb, 600u, 600u};
 
+#if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
-    debugger.img = &renderer.window_buffer;
+    renderer.set_debugger(gameboy::make_observer(debugger));
+    
+    struct ticker_t {
+        bool tick_allowed = false;
+        void on_break() { tick_allowed = false; }
+    } ticker;
 
-    auto tick_allowed = false;
-    auto debugger_tick_allowed = false;
-
-    struct ticker {
-        bool& allowd;
-
-        void b() { allowd = false; }
-    };
-
-    ticker t{tick_allowed};
-    debugger.on_break({gameboy::connect_arg<&ticker::b>, t});
+    debugger.on_break({gameboy::connect_arg<&ticker_t::on_break>, ticker});
+#endif // WITH_DEBUGGER
 
     while(renderer.window.isOpen()) {
         sf::Event event{};
@@ -173,30 +188,27 @@ int main(int argc, char* argv[])
                     case sf::Keyboard::G:
                         gb.tick_one_frame();
                         break;
+#if WITH_DEBUGGER
                     case sf::Keyboard::T:
                     case sf::Keyboard::F9:
-                        tick_allowed = !tick_allowed;
+                        ticker.tick_allowed = !ticker.tick_allowed;
                         break;
-                    case sf::Keyboard::F10:
-                        debugger_tick_allowed = !debugger_tick_allowed;
-                        break;
+#endif // WITH_DEBUGGER
                     default:
                         break;
                 }
             }
         }
 
-        if(tick_allowed) {
+#if WITH_DEBUGGER
+        if(ticker.tick_allowed) {
             gb.tick_one_frame();
-
-            debugger.check_breakpoints();
-
-            if(debugger_tick_allowed) {
-                debugger.tick();
-            }
         } else {
             debugger.tick();
         }
+#else
+        gb.tick_one_frame();
+#endif // WITH_DEBUGGER
     }
 
     return 0;

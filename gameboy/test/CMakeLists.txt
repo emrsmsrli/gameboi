@@ -1,4 +1,4 @@
-project(gameboycore_test)
+project(gameboycore_test CXX)
 
 enable_testing()
 
@@ -9,11 +9,11 @@ add_executable(${PROJECT_NAME}
         src/test_reg16.cpp
         src/test_run_roms.cpp)
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         gb::core
         CONAN_PKG::gtest
-        project_warnings)
+        project_warnings
+        project_options)
 
 add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         COMMAND ${CMAKE_COMMAND} -E copy_directory

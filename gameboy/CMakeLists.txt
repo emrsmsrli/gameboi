@@ -1,4 +1,4 @@
-project(gameboycore VERSION 0.5.0)
+project(gameboycore VERSION 0.5.0 LANGUAGES CXX)
 configure_file(cmake/version.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
@@ -24,17 +24,15 @@ add_library(${PROJECT_NAME}
 
 add_library(gb::core ALIAS ${PROJECT_NAME})
 
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-target_compile_definitions(${PROJECT_NAME} 
-        PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
-target_link_libraries(${PROJECT_NAME} PUBLIC
+target_link_libraries(${PROJECT_NAME} PRIVATE
         CONAN_PKG::fmt
         CONAN_PKG::magic_enum
-        project_warnings)
+        project_warnings
+        project_options)
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}/include)
 
-option(ENABLE_TESTING "Enable testing" FALSE)
 if(ENABLE_TESTING)
+    message("building gb::core tests")
     add_subdirectory(test)
 endif()

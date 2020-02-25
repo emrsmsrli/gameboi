@@ -1,89 +1,58 @@
 cmake_minimum_required(VERSION 3.12.4)
-project(gameboy)
+project(gameboy CXX)
 
-# Link this 'library' to use the following warnings
+include(cmake/StandardProjectSettings.cmake)
+include(cmake/CompilerWarnings.cmake)
+include(cmake/Sanitizers.cmake)
+include(cmake/Doxygen.cmake)
+include(cmake/StaticAnalyzers.cmake)
+include(cmake/Conan.cmake)
+
+add_library(project_options INTERFACE)
+target_compile_features(project_options INTERFACE cxx_std_17)
+target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)
+
 add_library(project_warnings INTERFACE)
+set_project_warnings(project_warnings)
 
-option(ENABLE_ASAN "Enable address sanitizer" FALSE)
-if(MSVC)
-    target_compile_options(project_warnings INTERFACE /W4)
+enable_sanitizers(project_options)
+enable_doxygen()
 
-    if(ENABLE_ASAN)
-        target_compile_options(project_options INTERFACE /fsanitize=address)
-    endif()
-else()
-    if(ENABLE_ASAN)
-        target_compile_options(project_options INTERFACE -fsanitize=address)
-        target_link_libraries(project_options INTERFACE -fsanitize=address)
-    endif()
-
-    target_compile_options(project_warnings
-            INTERFACE
-            -Wall
-            -Wextra # reasonable and standard
-            -Wshadow # warn the user if a variable declaration shadows one from a parent context
-            -Wnon-virtual-dtor # warn the user if a class with virtual functions has a
-                               # non-virtual destructor. This helps catch hard to
-                               # track down memory errors
-            -Wold-style-cast # warn for c-style casts
-            -Wcast-align # warn for potential performance problem casts
-            -Wunused # warn on anything being unused
-            -Woverloaded-virtual # warn if you overload (not override) a virtual function
-            -Wpedantic # warn if non-standard C++ is used
-            -Wconversion # warn on type conversions that may lose data
-            -Wsign-conversion # warn on sign conversions
-            -Wnull-dereference # warn if a null dereference is detected
-            -Wdouble-promotion # warn if float is implicit promoted to double
-            -Wformat=2) # warn on security issues around functions that format output (ie printf)
-            
-    if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
-        target_compile_options(project_warnings
-                INTERFACE 
-                -Wmisleading-indentation # warn if identation implies blocks where blocks do not exist
-                -Wduplicated-cond # warn if if / else chain has duplicated conditions
-                -Wduplicated-branches # warn if if / else branches have duplicated code
-                -Wlogical-op # warn about logical operations being used where bitwise were probably wanted
-                -Wuseless-cast) # warn if you perform a cast to the same type
-    endif()
+option(ENABLE_PCH "Enable Precompiled Headers" OFF)
+if(ENABLE_PCH)
+    # This sets a global PCH parameter, each project will build its own PCH, which
+    # is a good idea if any #define's change
+    target_precompile_headers(project_options INTERFACE
+            <array> <vector> <string> <unordered_map> <utility>)
 endif()
 
-if(NOT EXISTS "${CMAKE_BINARY_DIR}/conan.cmake")
-    message(STATUS "Downloading conan.cmake from https://github.com/conan-io/cmake-conan")
-    file(DOWNLOAD "https://raw.githubusercontent.com/conan-io/cmake-conan/v0.14/conan.cmake"
-            "${CMAKE_BINARY_DIR}/conan.cmake")
-endif()
+option(ENABLE_TESTING "Enable Tests" OFF)
+option(ENABLE_DEBUGGER "Enable Gameboy Debugger" OFF)
 
-include(${CMAKE_BINARY_DIR}/conan.cmake)
-conan_check(REQUIRED)
+# end cmake configuration
 
-conan_add_remote(NAME bincrafters URL https://api.bintray.com/conan/bincrafters/public-conan)
-conan_add_remote(NAME neargye URL https://api.bintray.com/conan/neargye/conan-packages)
-conan_cmake_run(CONANFILE conanfile.txt 
-        BASIC_SETUP 
-        CMAKE_TARGETS
-        BUILD_TYPE ${CMAKE_BUILD_TYPE}
-        BUILD missing)
+run_conan()
 
-# add debugger dependencies
 add_subdirectory(3rdparty/imgui_sfml
-	    ${CMAKE_CURRENT_BINARY_DIR}/sfml-build)
-
+        ${CMAKE_CURRENT_BINARY_DIR}/imgui-sfml-build)
 add_subdirectory(gameboy
-	    ${CMAKE_CURRENT_BINARY_DIR}/gbcore-build)
-add_subdirectory(debugger
-	    ${CMAKE_CURRENT_BINARY_DIR}/gbdebugger-build)
+        ${CMAKE_CURRENT_BINARY_DIR}/gb-core-build)
+if(ENABLE_DEBUGGER)
+    add_subdirectory(debugger
+            ${CMAKE_CURRENT_BINARY_DIR}/gb-debugger-build)
+endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
-target_compile_definitions(${PROJECT_NAME} PRIVATE DEBUG=$<STREQUAL:${CMAKE_BUILD_TYPE},Debug>)
+target_compile_definitions(${PROJECT_NAME} 
+        PRIVATE WITH_DEBUGGER=$<BOOL:${ENABLE_DEBUGGER}>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CONAN_PKG::fmt
         CONAN_PKG::sfml
-        CONAN_PKG::magic_enum
         imgui_sfml
         gb::core
-        gb::debugger
-        project_warnings)
+        $<$<BOOL:${ENABLE_DEBUGGER}>:gb::debugger>
+        project_warnings
+        project_options)
 
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES
