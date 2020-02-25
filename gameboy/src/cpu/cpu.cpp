@@ -1243,7 +1243,9 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
     }
 
 #ifdef DEBUG
-    on_instruction_executed_(make_address(prev_program_counter_), info, data);
+    if(on_instruction_executed_) {
+        on_instruction_executed_(make_address(prev_program_counter_), info, data);
+    }
 #endif
 
     return info.cycle_count;
@@ -2406,7 +2408,9 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
     const auto& info = instruction::extended_instruction_set[inst];
 
 #ifdef DEBUG
-    on_instruction_executed_(make_address(prev_program_counter_), info, 0u);
+    if(on_instruction_executed_) {
+        on_instruction_executed_(make_address(prev_program_counter_), info, 0u);
+    }
 #endif
 
     return info.cycle_count;
