@@ -18,7 +18,7 @@
                 },
                 {
                     "name": "ENABLE_DEBUGGER",
-                    "value": "True",
+                    "value": "False",
                     "type": "BOOL"
                 },
                 {
@@ -43,11 +43,6 @@
                     "name": "INSTALL_GTEST",
                     "value": "False",
                     "type": "BOOL"
-                },
-                {
-                    "name": "CMAKE_BUILD_TYPE",
-                    "value": "Release",
-                    "type": "STRING"
                 },
                 {
                     "name": "BUILD_GMOCK",
