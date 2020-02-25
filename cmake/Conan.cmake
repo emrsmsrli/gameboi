@@ -13,6 +13,7 @@ macro(run_conan)
             REQUIRES
               gtest/1.8.1@bincrafters/stable
               fmt/6.0.0@bincrafters/stable
+              spdlog/1.4.2@bincrafters/stable
               sfml/2.5.1@bincrafters/stable
               magic_enum/0.6.4@neargye/stable
             OPTIONS

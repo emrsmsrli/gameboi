@@ -7,8 +7,6 @@
 #include <functional>
 #include <type_traits>
 
-#include "gameboy/util/log.h"
-
 namespace gameboy {
 
 namespace internal {
@@ -255,10 +253,6 @@ public:
      */
     Ret operator()(Args... args) const noexcept
     {
-        if(!func_) {
-            log::error("unbound delegate called");
-        }
-
         return func_(data_, std::forward_as_tuple(std::forward<Args>(args)...));
     }
 

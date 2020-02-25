@@ -1,4 +1,5 @@
-#include "gameboy/util/log.h"
+#include <spdlog/spdlog.h>
+
 #include "gameboy/memory/mmu.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
@@ -39,7 +40,7 @@ void mmu::write(const address16& address, const uint8_t data)
     } else if(address == svbk_addr) {
         wram_bank_ = data & 0x7u;
     } else {
-        log::info("out of bounds address: {:#x}", address.value());
+        spdlog::warn("out of bounds write: {:#x}", address.value());
     }
 }
 
@@ -83,7 +84,7 @@ uint8_t mmu::read(const address16& address) const
         return wram_bank_;
     } 
 
-    log::error("out of bounds address: {:#x}", address.value());
+    spdlog::warn("out of bounds read: {:#x}", address.value());
 }
 
 void mmu::write_wram(const address16& address, const uint8_t data)

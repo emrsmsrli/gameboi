@@ -1,6 +1,8 @@
 #include <chrono>
 #include <thread>
 
+#include <spdlog/spdlog.h>
+
 #include "gameboy/gameboy.h"
 #include "gameboy/version.h"
 
@@ -17,7 +19,7 @@ gameboy::gameboy(const std::string_view rom_path)
       joypad_{make_observer(bus_)},
       timer_{make_observer(bus_)}
 {
-    log::info("gameboy v{}", version::version);
+    spdlog::info("gameboy v{}", version::version);
 }
 
 void gameboy::start()

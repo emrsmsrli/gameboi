@@ -2,6 +2,7 @@
 #include <numeric>
 
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"
@@ -9,7 +10,6 @@
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/util/overloaded.h"
 #include "gameboy/util/data_loader.h"
-#include "gameboy/util/log.h"
 
 namespace gameboy {
 
@@ -96,7 +96,7 @@ cartridge::cartridge(const std::string_view rom_path)
         });
 
     if(const auto expected = read(rom_, header_checksum_addr); checksum != expected) {
-        log::error("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
+        spdlog::critical("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
     }
 
     std::copy(
@@ -156,7 +156,7 @@ cartridge::cartridge(const std::string_view rom_path)
             break;
         }
         default: {
-            log::error("unimplemented cartridge type {}", magic_enum::underlying_type_t<mbc_type>{});
+            spdlog::critical("unimplemented cartridge type {}", magic_enum::underlying_type_t<mbc_type>{});
         }
     }
 
@@ -172,6 +172,7 @@ cartridge::cartridge(const std::string_view rom_path)
         case mbc_type::mbc_5_rumble_ram_battery:
         case mbc_type::huc_1_ram_battery:
             has_battery_ = true;
+            spdlog::info("mbc has battery, saving on exit..");
             break;
         default:
             break;

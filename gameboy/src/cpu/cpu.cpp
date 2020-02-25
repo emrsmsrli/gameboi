@@ -1,5 +1,7 @@
 #include <array>
+
 #include <magic_enum.hpp>
+#include <spdlog/spdlog.h>
 
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/cpu/instruction_info.h"
@@ -7,7 +9,6 @@
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/memory/address.h"
-#include "gameboy/util/log.h"
 #include "gameboy/util/observer.h"
 
 namespace gameboy {
@@ -1238,7 +1239,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         default: {
-            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - info.length);
+            spdlog::critical("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - info.length);
         }
     }
 
@@ -2401,7 +2402,7 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
         }
 
         default: {
-            log::error("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
+            spdlog::critical("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
         }
     }
 
