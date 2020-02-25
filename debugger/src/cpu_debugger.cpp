@@ -1,6 +1,7 @@
 #include <magic_enum.hpp>
 
 #include "debugger/cpu_debugger.h"
+#include "debugger/cartridge_debugger.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/bus.h"
@@ -9,8 +10,11 @@
 
 using namespace magic_enum::bitwise_operators;
 
-gameboy::cpu_debugger::cpu_debugger(observer<cpu> cpu) noexcept
-    : cpu_{cpu}
+gameboy::cpu_debugger::cpu_debugger(
+    const observer<cpu> cpu, 
+    const observer<cartridge_debugger> cartridge_debugger) noexcept
+    : cpu_{cpu},
+      cartridge_debugger_{cartridge_debugger}
 {
     cpu_->on_instruction_executed_ = {connect_arg<&cpu_debugger::on_instruction>, this};
 }
@@ -168,4 +172,5 @@ void gameboy::cpu_debugger::on_instruction(
     }
 
     last_executed_instructions_.push_back(fmt::format("{:04X}: {}", addr.value(), fmt::format(info.mnemonic.data(), data)));
+    cartridge_debugger_->check_breakpoints();
 }

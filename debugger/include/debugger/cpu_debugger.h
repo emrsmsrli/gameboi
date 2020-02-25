@@ -10,6 +10,7 @@
 namespace gameboy {
 
 class cpu;
+class cartridge_debugger;
 
 namespace instruction
 {
@@ -18,12 +19,13 @@ struct info;
 
 class cpu_debugger {
 public:
-    explicit cpu_debugger(observer<cpu> cpu) noexcept;
+    explicit cpu_debugger(observer<cpu> cpu, observer<cartridge_debugger> cartridge_debugger) noexcept;
 
     void draw() const noexcept;
 
 private:
     observer<cpu> cpu_;
+    observer<cartridge_debugger> cartridge_debugger_;
 
     std::vector<address16> call_stack_;
     std::vector<std::string> last_executed_instructions_;

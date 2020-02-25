@@ -1,15 +1,18 @@
 #include "debugger/debugger.h"
+
+#include "gameboy/util/observer.h"
+
 #include "imgui-SFML.h"
 
 namespace gameboy {
 
 debugger::debugger(const observer<bus> bus)
     : bus_{bus},
-      cpu_debugger_{bus_->get_cpu()},
+      cartridge_debugger_{bus_->get_cartridge(), bus_->get_cpu()},
+      cpu_debugger_{bus_->get_cpu(), make_observer(cartridge_debugger_)},
       ppu_debugger_{bus_->get_ppu()},
       timer_debugger_{bus_->get_timer()},
       memory_bank_debugger_{bus},
-      cartridge_debugger_{bus_->get_cartridge(), bus_->get_cpu()},
       window_{
           sf::VideoMode{1200, 1200},
           "Debugger"

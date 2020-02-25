@@ -26,15 +26,14 @@ public:
 
     void tick();
     void on_break(const delegate<void()> delegate) { cartridge_debugger_.on_break(delegate); }
-    void check_breakpoints() { cartridge_debugger_.check_breakpoints(); }
 
 private:
     observer<bus> bus_;
+    cartridge_debugger cartridge_debugger_;
     cpu_debugger cpu_debugger_;
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
     memory_bank_debugger memory_bank_debugger_;
-    cartridge_debugger cartridge_debugger_;
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
