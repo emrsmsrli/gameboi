@@ -145,10 +145,12 @@ int main(const int argc, const char* argv[])
                     case sf::Keyboard::Space:
                         gb.press_key(gameboy::joypad::key::select);
                         break;
+#if WITH_DEBUGGER
                     case sf::Keyboard::F:
                     case sf::Keyboard::F7:
                         gb.tick();
                         break;
+#endif // WITH_DEBUGGER
                     default:
                         break;
                 }
@@ -178,10 +180,10 @@ int main(const int argc, const char* argv[])
                     case sf::Keyboard::Space:
                         gb.release_key(gameboy::joypad::key::select);
                         break;
+#if WITH_DEBUGGER
                     case sf::Keyboard::G:
                         gb.tick_one_frame();
                         break;
-#if WITH_DEBUGGER
                     case sf::Keyboard::T:
                     case sf::Keyboard::F9:
                         debugger.gb_tick_allowed = !debugger.gb_tick_allowed;
