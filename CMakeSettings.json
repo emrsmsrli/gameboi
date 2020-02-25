@@ -7,10 +7,26 @@
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DENABLE_TESTING=TRUE",
+            "cmakeCommandArgs": "",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
-            "variables": []
+            "variables": [
+                {
+                    "name": "ENABLE_TESTING",
+                    "value": "False",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_DEBUGGER",
+                    "value": "True",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_IPO",
+                    "value": "False",
+                    "type": "BOOL"
+                }
+            ]
         },
         {
             "name": "x64-Release",
@@ -26,6 +42,59 @@
                 {
                     "name": "INSTALL_GTEST",
                     "value": "False",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "CMAKE_BUILD_TYPE",
+                    "value": "Release",
+                    "type": "STRING"
+                },
+                {
+                    "name": "BUILD_GMOCK",
+                    "value": "False",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_DOXYGEN",
+                    "value": "True",
+                    "type": "BOOL"
+                }
+            ]
+        },
+        {
+            "name": "x64-DoxyNAnayzers",
+            "generator": "Ninja",
+            "configurationType": "Debug",
+            "buildRoot": "${projectDir}\\out\\build\\${name}",
+            "installRoot": "${projectDir}\\out\\install\\${name}",
+            "cmakeCommandArgs": "",
+            "buildCommandArgs": "-v",
+            "ctestCommandArgs": "",
+            "inheritEnvironments": [ "msvc_arm64_x64" ],
+            "variables": [
+                {
+                    "name": "ENABLE_DOXYGEN",
+                    "value": "True",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_IPO",
+                    "value": "False",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_TESTING",
+                    "value": "True",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_CPPCHECK",
+                    "value": "True",
+                    "type": "BOOL"
+                },
+                {
+                    "name": "ENABLE_CLANG_TIDY",
+                    "value": "True",
                     "type": "BOOL"
                 }
             ]
