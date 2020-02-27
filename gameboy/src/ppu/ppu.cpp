@@ -534,7 +534,7 @@ void ppu::render_background(render_buffer& buffer) const noexcept
         }
     }
 
-    render_window(buffer);
+    // render_window(buffer);
 }
 
 void ppu::render_window(render_buffer& buffer) const noexcept
