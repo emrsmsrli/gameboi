@@ -615,11 +615,11 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
         }
 
         auto tile_row = get_tile_row(
-            obj.v_flipped() 
-                ? obj_size - (ly_ - obj_y) - 1u 
+            obj.v_flipped()
+                ? obj_size - (ly_ - obj_y) - 1u
                 : ly_ - obj_y,
-            tile_address<uint8_t>(0x8000u, lcdc_.large_obj() 
-                ? obj.tile_number & 0xFEu 
+            tile_address<uint8_t>(0x8000u, lcdc_.large_obj()
+                ? obj.tile_number & 0xFEu
                 : obj.tile_number),
             obj.vram_bank());
 
@@ -638,14 +638,15 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                 [&](auto&&) {
                     buffer[x] = std::make_pair(tile_row[tile_x], obj);
                 },
-                [&, color = color_idx](const attributes::bg& bg_attr) {
+                [&, existing_color = color_idx](const attributes::bg& bg_attr) {
                     const auto obj_color = tile_row[tile_x];
                     if(obj_color == 0x0u) {
                         return;
                     }
 
+                    // fixme broken impl?
                     if((cgb_enabled && !lcdc_.bg_enabled()) ||
-                        (color == 0x0 || (!bg_attr.prioritized() && obj.prioritized()))
+                        (existing_color == 0x0 || (!bg_attr.prioritized() && obj.prioritized()))
                     ) {
                         buffer[x] = std::make_pair(obj_color, obj);
                     }
