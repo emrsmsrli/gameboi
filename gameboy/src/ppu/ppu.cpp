@@ -282,7 +282,7 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
 {
     if(address == vbk_addr) { return vram_bank_; }
     if(address == lcdc_addr) { return lcdc_.reg.value(); }
-    if(address == stat_addr) { return stat_.reg.value(); }
+    if(address == stat_addr) { return stat_.reg.value() | 0x80u; }
     if(address == scy_addr) { return scy_.value(); }
     if(address == scx_addr) { return scx_.value(); }
     if(address == ly_addr) { return ly_.value(); }
@@ -310,7 +310,7 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 
         lcdc_.reg = data;
     } else if(address == stat_addr) {
-        stat_.reg = data & 0xFCu;
+        stat_.reg = (stat_.reg & 0x7u) | (data & 0x78u);
     } else if(address == scy_addr) {
         scy_ = data;
     } else if(address == scx_addr) {
