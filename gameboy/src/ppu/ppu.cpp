@@ -500,19 +500,17 @@ void ppu::render_background(render_buffer& buffer) const noexcept
         return;
     }
 
+    const auto scroll_offset = (scx_ + screen_width) % map_pixel_count;
     const auto tile_start_addr = address16(lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
-    const auto tile_y_to_render = (scy_ + ly_).value() % tile_pixel_count;
-    const auto tile_map_y = ((scy_ + ly_).value() / tile_pixel_count) % map_tile_count;
+    const auto tile_y_to_render = (scy_ + ly_.value()) % tile_pixel_count;
+    const auto tile_map_y = ((scy_ + ly_.value()) / tile_pixel_count) % map_tile_count;
 
     constexpr auto max_render_tile_count = screen_width / tile_pixel_count + 1;
     const auto tile_map_x_start = scx_.value() / tile_pixel_count;
-    const auto tile_map_x_end = tile_map_x_start + max_render_tile_count;
 
     auto rendered_pix_idx = 0u;
-    for(auto tile_map_x = tile_map_x_start;
-        tile_map_x < tile_map_x_end;
-        tile_map_x = (tile_map_x + 1) % map_tile_count
-    ) {
+    for(auto tile_render_count = 0u; tile_render_count < max_render_tile_count; ++tile_render_count) {
+        const auto tile_map_x = (tile_map_x_start + tile_render_count) % map_tile_count;
         const auto tile_map_idx = tile_start_addr + tile_map_y * map_tile_count + tile_map_x;
 
         const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
@@ -527,7 +525,6 @@ void ppu::render_background(render_buffer& buffer) const noexcept
             std::reverse(begin(tile_row), end(tile_row));
         }
 
-        const auto scroll_offset = (scx_ + screen_width) % map_pixel_count;
         for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
             const auto pix_idx = tile_map_x * tile_pixel_count + tile_x;
 
