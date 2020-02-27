@@ -539,11 +539,14 @@ void ppu::render_background(render_buffer& buffer) const noexcept
 
 void ppu::render_window(render_buffer& buffer) const noexcept
 {
+    // fixme broken impl?
     if(!lcdc_.window_enabled()) {
         return;
     }
 
-    if(wy_ > ly_ || wy_ >= screen_height || wx_ - 7u >= screen_width) {
+    const auto wx = wx_ - 7u;
+
+    if(wy_ > ly_ || wy_ >= screen_height || wx >= screen_width) {
         return;
     }
 
@@ -551,7 +554,7 @@ void ppu::render_window(render_buffer& buffer) const noexcept
     const auto tile_y_to_render = (wy_ + ly_).value() % tile_pixel_count;
 
     const auto tile_map_y = ((wy_ + ly_).value() / tile_pixel_count) % map_tile_count;
-    const auto tile_map_x_start = (wx_.value() - 7u) / tile_pixel_count;
+    const auto tile_map_x_start = wx / tile_pixel_count;
     const auto tile_map_x_end = std::min(tile_map_x_start + screen_width / tile_pixel_count, map_tile_count);
 
     for(auto tile_map_x = tile_map_x_start; tile_map_x < tile_map_x_end; ++tile_map_x) {
@@ -570,7 +573,7 @@ void ppu::render_window(render_buffer& buffer) const noexcept
         }
 
         auto tile_idx = 0u;
-        const auto tile_x_start = wx_.value() - 7u;
+        const auto tile_x_start = wx; // fixme incorrect start
         const auto tile_x_end = std::min(tile_x_start + tile_pixel_count, screen_width);
         for(auto tile_x = tile_x_start; tile_x < tile_x_end; ++tile_x) {
             buffer[tile_x] = std::make_pair(tile_row[tile_idx++], tile_attr);
