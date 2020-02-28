@@ -18,7 +18,11 @@ jobs:
 
     - name: Setup
       if: steps.cache.outputs.cache-hit != 'true'
-      run: pip3 install wheel setuptools conan ninja
+      run: |
+        pip install --user wheel
+        pip install --user setuptools
+        pip install --user conan
+        pip install --user ninja
 
     - name: Configure
       run: |
