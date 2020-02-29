@@ -35,5 +35,5 @@ install:
 
 script:
   - pip install --user conan
-  - cmake -G Ninja .
+  - cmake -G Ninja -DENABLE_IPO=OFF .
   - cmake --build .
