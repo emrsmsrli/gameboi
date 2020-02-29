@@ -43,7 +43,7 @@ if(ENABLE_DEBUGGER)
 endif()
 
 add_executable(${PROJECT_NAME} main.cpp)
-target_compile_definitions(${PROJECT_NAME} 
+target_compile_definitions(${PROJECT_NAME}
         PRIVATE WITH_DEBUGGER=$<BOOL:${ENABLE_DEBUGGER}>)
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CONAN_PKG::fmt
