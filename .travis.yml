@@ -1,11 +1,12 @@
 dist: xenial
 sudo: false
 language: cpp
-python: 3.7
+cache: ccache
 
 matrix:
   include:
     - os: linux
+      python: 3.8
       addons:
         apt:
           sources:
@@ -36,4 +37,13 @@ install:
 script:
   - pip install --user conan
   - cmake -G Ninja -DENABLE_IPO=OFF .
-  - cmake --build .
+  - cmake --build . --target gameboy
+
+deploy:
+  provider: releases
+  api_key:
+    secure: fJbeMJdHr9luQhHSvF6s58RXGWqFzDCyzcV3CTo5ipupTPuEFCm/EVg9cEihXKg8cCkABubWKRhyfUn0BzOqyclE+bYJDmxsA2AkNtwgfD8OJx3k7wmVKyzVRqA4EsIQ3ksqJ+oMcYDWwpSMAepwoZp2jJIYNEqYFjSi/N/omEaG6BJtWrx+fg+saFsF5rmgOQrQQSZAjaneCJ/w5COBX6ef3yZCTth/V2Tuzix4wO7zfr0ol1WGdxLXkLVuROyxCpltb/LB3cOscMSoQyPzwdvd5rUJw1B3+VK62UiCCZWztOPqaNAxemh30ykisE5ysjT/kvK0OHNzmOMFD/huFzdxgTakDn5DgT4VUouyn3ffIDolcbS0X0feFfeG00IAGfu2gD8/KSceL0xiIo8z0o+/Iyw5KAjD8CcJ4c5nPlKkN7XfUa2WTz5ON3z8JBvFatFcoTJmlPKrB13pquSWRSlpXoK7Fex0CHrXtxf1Nov+nT74289HQupyAglI2FGzwd+n89O2rB08DSrEWonsrvprIak6n5hCLANBkQXbwANHf9NYuuyZW5tejiM5Pf/Tlqx35G0r0a8MwGWTwpglRKhl4Y04HZcMEnThz68jW7qd/XHGnZtHNalMTvFXevR4ZCaoHgA75qIAWZAhPEuhEfSwxsIX5YcTRtFLL/YcwOg=
+  file: "./bin/gameboy"
+  skip_cleanup: true
+  on:
+    branch: master
