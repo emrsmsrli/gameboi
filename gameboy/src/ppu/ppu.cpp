@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "gameboy/ppu/ppu.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
