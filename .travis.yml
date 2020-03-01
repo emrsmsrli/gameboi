@@ -1,5 +1,4 @@
-dist: xenial
-sudo: false
+dist: bionic
 language: cpp
 cache: ccache
 
@@ -7,6 +6,7 @@ matrix:
   include:
     - os: linux
       python: 3.8
+      compiler: gcc
       addons:
         apt:
           sources:
@@ -16,17 +16,21 @@ matrix:
       env:
         - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9"
 
-    # - os: linux
-    #   addons:
-    #     apt:
-    #       sources:
-    #         - ubuntu-toolchain-r-tes
-    #         - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
-    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-    #       packages:
-    #         - clang-9
-    #   env:
-    #     - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9"
+     - os: linux
+       python: 3.8
+       compiler: clang
+       addons:
+         apt:
+           sources:
+             - ubuntu-toolchain-r-test
+             - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+           packages:
+             - clang-9
+             - libc++-9-dev
+             - libc++abi-9-dev
+       env:
+         - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9"
 
 before_install:
   - eval "${MATRIX_EVAL}"
