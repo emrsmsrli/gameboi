@@ -265,18 +265,22 @@ void ppu::dma_write(const address16& address, const uint8_t data)
     } else if(address == hdma_5_addr) {
         if(!bit_test(data, 7u)) {
             if(dma_transfer_.disabled()) {
+                // perform gdma
+                dma_transfer_.length_mode_start = data;
+
                 bus_->get_mmu()->dma(
                     make_address(dma_transfer_.source),
                     make_address(dma_transfer_.destination),
                     dma_transfer_.length());
+
+                dma_transfer_.length_mode_start = 0xFFu;
             } else {
                 dma_transfer_.disable();
             }
         } else {
+            dma_transfer_.length_mode_start = data;
             dma_transfer_.remaining_length = dma_transfer_.length();
         }
-
-        dma_transfer_.length_mode_start = data;
     }
 }
 
