@@ -286,7 +286,7 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 
 uint8_t ppu::general_purpose_register_read(const address16& address) const
 {
-    if(address == vbk_addr) { return vram_bank_; }
+    if(address == vbk_addr) { return vram_bank_ | 0xFEu; }
     if(address == lcdc_addr) { return lcdc_.reg.value(); }
     if(address == stat_addr) { return stat_.reg.value() | 0x80u; }
     if(address == scy_addr) { return scy_.value(); }
