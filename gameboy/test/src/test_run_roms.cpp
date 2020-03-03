@@ -28,6 +28,9 @@ public:
         return 0xFFu;
     }
 
+    void mock_render_line(uint8_t, const gameboy::ppu::render_line&) noexcept {}
+    void mock_on_vblank() noexcept {}
+
     bool run() {
         using namespace std::chrono;
 
@@ -35,6 +38,8 @@ public:
         const auto start = steady_clock::now();
 
         gb_.on_link_transfer_master({gameboy::connect_arg<&test_rom_runner::on_link_transfer>, this});
+        gb_.on_render_line({gameboy::connect_arg<&test_rom_runner::mock_render_line>, this});
+        gb_.on_vblank({gameboy::connect_arg<&test_rom_runner::mock_on_vblank>, this});
 
         while(!test_completed_) {
             gb_.tick_one_frame();
