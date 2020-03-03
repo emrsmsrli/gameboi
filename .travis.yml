@@ -38,8 +38,11 @@ before_script:
   - pip install --user conan cmake ninja
 
 script:
-  - cmake -G Ninja -DENABLE_IPO=OFF .
+  - cmake -G Ninja -DENABLE_IPO=OFF -DENABLE_COVERAGE=ON .
   - cmake --build . --target gameboy
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
 
 before_deploy:
   - git config --local user.name  "emrsmsrli"
