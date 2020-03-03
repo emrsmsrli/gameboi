@@ -35,11 +35,12 @@ matrix:
 
 before_script:
   - eval "${MATRIX_EVAL}"
-  - pip install --user conan cmake ninja
+  - pip install --user conan cmake ninja coverage
 
 script:
-  - cmake -G Ninja -DENABLE_IPO=OFF -DENABLE_COVERAGE=ON .
+  - cmake -G Ninja -DENABLE_IPO=OFF -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON .
   - cmake --build . --target gameboy
+  - ctest --output-on-failure
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
