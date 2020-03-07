@@ -39,7 +39,7 @@ before_script:
 
 script:
   - cmake -G Ninja -DENABLE_IPO=OFF -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON .
-  - cmake --build . --target gameboy
+  - cmake --build .
   - ctest --output-on-failure
 
 after_success:
