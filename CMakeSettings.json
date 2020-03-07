@@ -51,7 +51,7 @@
                 },
                 {
                     "name": "ENABLE_DOXYGEN",
-                    "value": "True",
+                    "value": "False",
                     "type": "BOOL"
                 }
             ]
