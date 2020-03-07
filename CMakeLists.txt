@@ -12,10 +12,6 @@ add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
 target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    target_compile_options(project_options INTERFACE -stdlib=libc++)
-endif()
-
 add_library(project_warnings INTERFACE)
 set_project_warnings(project_warnings)
 
