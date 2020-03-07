@@ -26,8 +26,6 @@ if(ENABLE_PCH)
             <array> <vector> <string> <unordered_map> <utility>)
 endif()
 
-option(ENABLE_TESTING "Enable Tests" OFF)
-option(ENABLE_DEBUGGER "Enable Gameboy Debugger" OFF)
 
 # end cmake configuration
 
@@ -37,6 +35,8 @@ add_subdirectory(3rdparty/imgui_sfml
         ${CMAKE_CURRENT_BINARY_DIR}/imgui-sfml-build)
 add_subdirectory(gameboy
         ${CMAKE_CURRENT_BINARY_DIR}/gb-core-build)
+
+option(ENABLE_DEBUGGER "Enable Gameboy Debugger" OFF)
 if(ENABLE_DEBUGGER)
     add_subdirectory(debugger
             ${CMAKE_CURRENT_BINARY_DIR}/gb-debugger-build)
@@ -53,6 +53,13 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         $<$<BOOL:${ENABLE_DEBUGGER}>:gb::debugger>
         project_warnings
         project_options)
+
+option(ENABLE_TESTING "Enable Tests" OFF)
+if(ENABLE_TESTING)
+    message("building tests")
+    enable_testing()
+    add_subdirectory(test)
+endif()
 
 if(APPLE)
     set_target_properties(${PROJECT_NAME} PROPERTIES

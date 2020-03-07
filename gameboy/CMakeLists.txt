@@ -32,8 +32,3 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         project_options)
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}/include)
-
-if(ENABLE_TESTING)
-    message("building gb::core tests")
-    add_subdirectory(test)
-endif()
