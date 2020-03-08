@@ -2,7 +2,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
 #include "gameboy/gameboy.h"
 
 namespace fs = std::filesystem;
@@ -12,9 +12,11 @@ namespace
 
 class test_rom_runner {
 public:
-    explicit test_rom_runner(const std::string& path) : gb_{path} {}
+    explicit test_rom_runner(std::string path)
+        : rom_path_{std::move(path)},
+          gb_{rom_path_} {}
 
-    uint8_t on_link_transfer(uint8_t data) noexcept
+    uint8_t on_link_transfer(const uint8_t data) noexcept
     {
         link_buffer_ += static_cast<char>(data);
 
@@ -45,6 +47,7 @@ public:
             gb_.tick_one_frame();
 
             if(steady_clock::now() - start > timeout) {
+                std::cout << "test for " << rom_path_ << " timed out.\n";
                 return false;
             }
         }
@@ -57,6 +60,7 @@ public:
     }
 
 private:
+    std::string rom_path_;
     gameboy::gameboy gb_;
 
     std::string link_buffer_;
