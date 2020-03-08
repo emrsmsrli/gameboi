@@ -36,7 +36,7 @@ public:
     bool run() {
         using namespace std::chrono;
 
-        constexpr auto timeout = 1min;
+        constexpr auto timeout = 20s;
         const auto start = steady_clock::now();
 
         gb_.on_link_transfer_master({gameboy::connect_arg<&test_rom_runner::on_link_transfer>, this});
