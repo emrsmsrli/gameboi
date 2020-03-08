@@ -40,7 +40,7 @@ before_script:
 script:
   - cmake -G Ninja -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON .
   - cmake --build .
-  - ctest --output-on-failure
+  - ctest -V --output-on-failure
 
 after_success:
   - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
