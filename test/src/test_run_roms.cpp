@@ -28,7 +28,7 @@ public:
         return 0xFFu;
     }
 
-    void mock_render_line(uint8_t, const gameboy::ppu::render_line&) noexcept {}
+    void mock_render_line(uint8_t, const gameboy::render_line&) noexcept {}
     void mock_on_vblank() noexcept {}
 
     bool run() {
