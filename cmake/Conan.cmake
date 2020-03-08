@@ -21,9 +21,6 @@ macro(run_conan)
               sfml:window=True
               sfml:audio=True
               sfml:network=False
-            ENV
-              CXX=${CMAKE_CXX_COMPILER}
-              CC=${CMAKE_C_COMPILER}
             BASIC_SETUP
             CMAKE_TARGETS
             BUILD missing)
