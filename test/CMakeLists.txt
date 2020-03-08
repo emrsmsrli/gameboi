@@ -16,4 +16,4 @@ add_custom_command(TARGET gameboycore_test POST_BUILD
         ${CMAKE_CURRENT_SOURCE_DIR}/res
         $<TARGET_FILE_DIR:gameboycore_test>/res)
 
-add_test(NAME gbcore_test COMMAND $<TARGET_FILE:gameboycore_test>)
+add_test(NAME gbcore_test COMMAND $<TARGET_FILE:gameboycore_test> $<TARGET_FILE_DIR:gameboycore_test>/res)
