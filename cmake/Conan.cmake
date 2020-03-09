@@ -12,7 +12,7 @@ macro(run_conan)
     set(CONAN_LIBCXX "")
     if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
         set(CONAN_LIBCXX compiler.libcxx=libc++)
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
         set(CONAN_LIBCXX compiler.libcxx=libstdc++11)
     endif()
 
