@@ -90,6 +90,16 @@ bool register8::operator==(const register8& other) const noexcept
     return bits_ == other.bits_;
 }
 
+bool register8::operator!=(const uint8_t val) const noexcept
+{
+    return bits_ != val;
+}
+
+bool register8::operator!=(const register8& other) const noexcept
+{
+    return bits_ != other.bits_;
+}
+
 bool register8::operator>(const uint8_t val) const noexcept
 {
     return bits_ > val;

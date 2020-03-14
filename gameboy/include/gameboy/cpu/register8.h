@@ -44,6 +44,8 @@ public:
     /* comparison */
     bool operator==(uint8_t val) const noexcept;
     bool operator==(const register8& other) const noexcept;
+    bool operator!=(uint8_t val) const noexcept;
+    bool operator!=(const register8& other) const noexcept;
     bool operator>(uint8_t val) const noexcept;
     bool operator>(const register8& other) const noexcept;
     bool operator<(uint8_t val) const noexcept;
