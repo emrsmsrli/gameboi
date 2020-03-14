@@ -33,13 +33,20 @@ matrix:
       env:
         - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9"
 
+addons:
+  sonarcloud:
+    organization: "emrsmsrli"
+    token:
+      secure: "OpitDZhmDDpaWrJAioy2mOL0bKwTqWG51g4HcPXuwvxaPJbVRF+DoGUYErqxxUdYGj0P/Dx6lu0sMUIhAE+UylLw1KhHcrIuUfAgKUTJo+3mMWlIwQ+4xdDF4IFYHsJ918ogES8hpLHYUb92TdQpNHZ/rz4tgQ43o4Caqk9Lm60oIi7otb3W555wLJjruMWW6/sHMmBjE2zzEefOD7K/v/Uk4mytpg/WiwgYTHiL4lUAagC4TqIXhYpV1n/8OwC5u3RadruFExr4tG6qWzZAnCdjmnNw3W9PIkXeRoE3q48bVqbh8BkdPvY9AB8YrG+k3rNTGE9ukoj/Voob9bGrGxM6Jl8ZyjbppfPq1yxvWypGAsGCO/rVnUg1Ou5b63tX8dNqWMh0/7Mm10lQqRsubeQX9q1mY/QPmbQrBVv+9adcv8MBxeHo6GFOzJ21Le3Erf3R93SXO+VYu4dIeyvA4gMqWzCSah1JTb0wmeIwcEysfQgY9Cbc8Atd5mn0KX78PG3mSq4/phHwMm5UZcIUXaNNpFKZ0gd3ba3dt5SZHcGwVODCytUdUwCApLOMbwr6ck4gAFcLotqcT8UzkcEFd3BGYTXt8o60sWsGyTdnmN6PLHm91YLTTXodl4HjEQJs82AQQX5dGRHSjVasDoibUxCqLc6biDNwlFJm1uvrthU="
+
 before_script:
   - eval "${MATRIX_EVAL}"
   - pip install --user conan cmake ninja coverage
 
 script:
   - cmake -G Ninja -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON .
-  - cmake --build .
+  - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build .
+  - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
   - ctest -V --output-on-failure
 
 after_success:
