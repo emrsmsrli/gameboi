@@ -36,7 +36,7 @@ cpu::cpu(observer<bus> bus) noexcept
       next_interrupt_master_enable_{false},
       is_stopped_{false},
       is_halted_{false},
-      wait_before_unhalt_cycles_{0u}
+      wait_before_unhalt_cycles_{0}
 {
     auto mmu = bus->get_mmu();
 

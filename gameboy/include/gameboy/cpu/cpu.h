@@ -83,7 +83,7 @@ private:
     bool is_stopped_;
     bool is_halted_;
 
-    uint8_t wait_before_unhalt_cycles_;
+    int8_t wait_before_unhalt_cycles_;
 
 #ifdef DEBUG
     register16 prev_program_counter_;
