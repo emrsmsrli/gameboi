@@ -1,4 +1,5 @@
 #include <magic_enum.hpp>
+#include <fmt/format.h>
 
 #include "debugger/cpu_debugger.h"
 #include "debugger/cartridge_debugger.h"
