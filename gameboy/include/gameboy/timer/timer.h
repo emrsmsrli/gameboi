@@ -3,6 +3,7 @@
 
 #include "gameboy/util/observer.h"
 #include "gameboy/cpu/register8.h"
+#include "gameboy/util/mathutil.h"
 
 namespace gameboy {
 
@@ -28,7 +29,7 @@ private:
     register8 tma_;
     register8 tac_;
 
-    [[nodiscard]] bool timer_enabled() const noexcept;
+    [[nodiscard]] bool timer_enabled() const noexcept { return bit_test(tac_, 2u); }
     [[nodiscard]] std::size_t timer_clock_freq_select() const noexcept;
 
     [[nodiscard]] uint8_t on_read(const address16& address) const noexcept;

@@ -5,7 +5,6 @@
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/util/delegate.h"
-#include "gameboy/util/mathutil.h"
 
 namespace gameboy {
 
@@ -59,11 +58,6 @@ void timer::tick(const uint8_t cycles)
             }
         }
     }
-}
-
-bool timer::timer_enabled() const noexcept
-{
-    return bit_test(tac_, 2);
 }
 
 std::size_t timer::timer_clock_freq_select() const noexcept
