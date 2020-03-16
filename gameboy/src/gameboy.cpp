@@ -42,14 +42,14 @@ void gameboy::tick()
 {
     const auto cycles = cpu_.tick();
 
-    if(cpu_.is_stopped()) {
-        return;
+    if(!cpu_.is_stopped()) {
+        ppu_.tick(cycles);
+        apu_.tick(cycles);
+        link_.tick(cycles);
+        timer_.tick(cycles);
     }
 
-    ppu_.tick(cpu_.unmodified_cycles(cycles));
-    apu_.tick(cpu_.unmodified_cycles(cycles));
-    link_.tick(cycles);
-    timer_.tick(cycles);
+    cpu_.process_interrupts();
 }
 
 void gameboy::tick_one_frame()

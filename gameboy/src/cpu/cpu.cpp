@@ -32,8 +32,8 @@ cpu::cpu(observer<bus> bus) noexcept
       interrupt_flags_{bus_->get_cartridge()->cgb_enabled() ? interrupt::lcd_vblank : interrupt::none},
       interrupt_enable_{interrupt::none},
       interrupt_master_enable_{false},
-      is_interrupt_master_change_pending_{false},
-      next_interrupt_master_enable_{false},
+      pending_disable_interrupts_counter_{-1},
+      pending_enable_interrupts_counter_{-1},
       is_stopped_{false},
       is_halted_{false},
       wait_before_unhalt_cycles_{0}
@@ -101,9 +101,9 @@ uint8_t cpu::tick()
         return decode(read_immediate(imm8), extended_instruction_set);
     };
 
-    auto cycle_count = modified_cycles(!is_halted_
+    const auto cycle_count = !is_halted_
         ? execute_next_op()
-        : static_cast<uint8_t>(4u));
+        : static_cast<uint8_t>(4u);
 
     if(wait_before_unhalt_cycles_ > 0) {
         wait_before_unhalt_cycles_ -= cycle_count;
@@ -114,29 +114,62 @@ uint8_t cpu::tick()
         }
     }
 
-    if(!is_stopped_) {
-        if(is_halted_ && pending_interrupts() != interrupt::none && wait_before_unhalt_cycles_ == 0) {
-            wait_before_unhalt_cycles_ = modified_cycles(12u);
+    if(!is_halted_) {
+        if(pending_enable_interrupts_counter_ != -1) {
+            if(pending_enable_interrupts_counter_ == 0) {
+               interrupt_master_enable_ = true;
+            }
+
+            --pending_enable_interrupts_counter_;
         }
-    } else {
-        if(is_interrupt_requested(interrupt::joypad)) {
-            is_stopped_ = false;
-            is_halted_ = false;
+
+        if(pending_disable_interrupts_counter_ != -1) {
+            if(pending_disable_interrupts_counter_ == 0) {
+                interrupt_master_enable_ = false;
+            }
+
+            --pending_disable_interrupts_counter_;
         }
     }
 
-    if(is_interrupt_master_change_pending_) {
-        is_interrupt_master_change_pending_ = false;
-    } else {
-        interrupt_master_enable_ = next_interrupt_master_enable_;
+    total_cycles_ += modified_cycles(cycle_count);
+    return modified_cycles(cycle_count);
+}
+
+void cpu::process_interrupts() noexcept
+{
+    const auto int_requested = [&](const interrupt i) {
+        return is_interrupt_requested(i);
+    };
+
+    static constexpr std::array interrupts{
+        interrupt::joypad,
+        interrupt::serial,
+        interrupt::timer,
+        interrupt::lcd_stat,
+        interrupt::lcd_vblank
+    };
+
+    if(is_stopped_ && int_requested(interrupt::joypad)) {
+        is_stopped_ = false;
+        is_halted_ = false;
+    }
+
+    if(std::any_of(begin(interrupts), end(interrupts), int_requested)) {
+        if(is_halted_ && wait_before_unhalt_cycles_ == 0) {
+            wait_before_unhalt_cycles_ = 12;
+        }
     }
 
     if(interrupt_master_enable_) {
-        cycle_count += schedule_interrupt_if_available();
-    }
+        if(const auto it = std::find_if(begin(interrupts), end(interrupts), int_requested); it != end(interrupts)) {
+            const auto interrupt_request = *it;
 
-    total_cycles_ += cycle_count;
-    return cycle_count;
+            interrupt_master_enable_ = false;
+            interrupt_flags_ &= ~interrupt_request;
+            rst(make_address(interrupt_request));
+        }
+    }
 }
 
 void cpu::request_interrupt(const interrupt request) noexcept
@@ -1199,7 +1232,10 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xF3: {
-            schedule_ime_change(false);
+            pending_enable_interrupts_counter_ = -1;
+            if(pending_disable_interrupts_counter_ == -1) {
+                pending_disable_interrupts_counter_ = 1;
+            }
             break;
         }
         case 0xF5: {
@@ -1227,7 +1263,10 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             break;
         }
         case 0xFB: {
-            schedule_ime_change(true);
+            pending_disable_interrupts_counter_ = -1;
+            if(pending_enable_interrupts_counter_ == -1) {
+                pending_enable_interrupts_counter_ = 1;
+            }
             break;
         }
         case 0xFE: {
@@ -2440,12 +2479,6 @@ uint16_t cpu::read_immediate(imm16_t)
     return word(msb, lsb);
 }
 
-void cpu::schedule_ime_change(const bool enabled) noexcept
-{
-    is_interrupt_master_change_pending_ = true;
-    next_interrupt_master_enable_ = enabled;
-}
-
 interrupt cpu::pending_interrupts() const noexcept
 {
     return interrupt_enable_ & interrupt_flags_;
@@ -2456,39 +2489,21 @@ bool cpu::is_interrupt_requested(const interrupt i) const noexcept
     return (pending_interrupts() & i) != interrupt::none;
 }
 
-uint8_t cpu::schedule_interrupt_if_available() noexcept
-{
-    const auto int_requested = [&](const interrupt i) {
-        return is_interrupt_requested(i);
-    };
-
-    static constexpr std::array interrupts = {
-        interrupt::joypad,
-        interrupt::serial,
-        interrupt::timer,
-        interrupt::lcd_stat,
-        interrupt::lcd_vblank
-    };
-
-    if(const auto it = std::find_if(begin(interrupts), end(interrupts), int_requested); it != end(interrupts)) {
-        const auto i = *it;
-
-        interrupt_master_enable_ = false;
-        is_interrupt_master_change_pending_ = false;
-        interrupt_flags_ &= ~i;
-        rst(make_address(i));
-
-        return modified_cycles(20u);
-    }
-
-    return 0u;
-}
-
 void cpu::nop() noexcept {}
 
 void cpu::halt() noexcept
 {
-    is_halted_ = true;
+    if(pending_enable_interrupts_counter_ != -1) {
+        interrupt_master_enable_ = true;
+        pending_enable_interrupts_counter_ = -1;
+        --program_counter_;
+    } else if(pending_disable_interrupts_counter_ != -1) {
+        interrupt_master_enable_ = false;
+        pending_disable_interrupts_counter_ = -1;
+        --program_counter_;
+    } else {
+        is_halted_ = true;
+    }
 }
 
 void cpu::stop() noexcept
@@ -2546,6 +2561,8 @@ void cpu::call(const address16& address)
 void cpu::reti()
 {
     ret();
+    pending_disable_interrupts_counter_ = -1;
+    pending_enable_interrupts_counter_ = -1;
     interrupt_master_enable_ = true;
 }
 

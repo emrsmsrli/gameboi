@@ -28,14 +28,13 @@ public:
     [[nodiscard]] uint8_t tick();
 
     [[nodiscard]] bool interrupts_enabled() const noexcept { return interrupt_master_enable_; }
+    void process_interrupts() noexcept;
     void request_interrupt(interrupt request) noexcept;
 
     [[nodiscard]] bool is_stopped() const noexcept { return is_stopped_; }
 
     template<typename T>
     [[nodiscard]] T modified_cycles(T cycles) const noexcept { return cycles >> extract_bit(key_1_, 7u); }
-    template<typename T>
-    [[nodiscard]] T unmodified_cycles(T cycles) const noexcept { return cycles << extract_bit(key_1_, 7u); }
 
 private:
     enum class flag : uint8_t {
@@ -77,8 +76,8 @@ private:
     interrupt interrupt_enable_;
 
     bool interrupt_master_enable_;
-    bool is_interrupt_master_change_pending_;
-    bool next_interrupt_master_enable_;
+    int8_t pending_disable_interrupts_counter_;
+    int8_t pending_enable_interrupts_counter_;
 
     bool is_stopped_;
     bool is_halted_;
@@ -113,11 +112,8 @@ private:
     [[nodiscard]] uint8_t read_immediate(imm8_t);
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
-    void schedule_ime_change(bool enabled) noexcept;
-
     [[nodiscard]] interrupt pending_interrupts() const noexcept;
     [[nodiscard]] bool is_interrupt_requested(interrupt i) const noexcept;
-    [[nodiscard]] uint8_t schedule_interrupt_if_available() noexcept;
 
     /* instructions */
     static void nop() noexcept;
