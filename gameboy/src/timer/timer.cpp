@@ -35,19 +35,9 @@ timer::timer(const observer<bus> bus)
 
 void timer::tick(const uint8_t cycles)
 {
-    const auto cpu = bus_->get_cpu();
-
-    // base clock dividers
-    static constexpr std::array frequency_cycle_counts{
-        1024u, // 4   KHz
-        16u,   // 256 KHz (base)
-        64u,   // 64  KHz
-        256u   // 16  KHz
-    };
-
     div_clock_ += cycles;
 
-    const auto div_cycles = cpu->modified_cycles(256u);
+    constexpr auto div_cycles = 256u;
     while(div_clock_ >= div_cycles) {
         div_clock_ -= div_cycles;
 
@@ -57,7 +47,7 @@ void timer::tick(const uint8_t cycles)
     if(timer_enabled()) {
         timer_clock_ += cycles;
 
-        const auto timer_cycles = cpu->modified_cycles(frequency_cycle_counts[timer_clock_freq_select()]);
+        const auto timer_cycles = timer_clock_freq_select();
         while(timer_clock_ >= timer_cycles) {
             timer_clock_ -= timer_cycles;
 
@@ -78,7 +68,15 @@ bool timer::timer_enabled() const noexcept
 
 std::size_t timer::timer_clock_freq_select() const noexcept
 {
-    return tac_.value() & 0x03u;
+    // base clock dividers
+    static constexpr std::array frequency_cycle_counts{
+        1024u, // 4   KHz
+        16u,   // 256 KHz (base)
+        64u,   // 64  KHz
+        256u   // 16  KHz
+    };
+
+    return frequency_cycle_counts[tac_.value() & 0x03u];
 }
 
 uint8_t timer::on_read(const address16& address) const noexcept
