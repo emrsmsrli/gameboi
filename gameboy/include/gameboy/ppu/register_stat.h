@@ -24,11 +24,13 @@ struct register_stat {
     void set_coincidence_flag() noexcept { reg = bit_set(reg, 2u); }
     void reset_coincidence_flag() noexcept { reg = bit_reset(reg, 2u); }
 
-    [[nodiscard]] bool coincidence_interrupt_set() const noexcept { return bit_test(reg, 6u); }
-    [[nodiscard]] bool mode_interrupt_set() const noexcept
+    [[nodiscard]] bool coincidence_interrupt_enabled() const noexcept { return bit_test(reg, 6u); }
+    [[nodiscard]] bool mode_interrupt_enabled(const stat_mode mode) const noexcept
     {
-        return bit_test(reg, static_cast<uint8_t>(get_mode()) + 3u);
+        return bit_test(reg, static_cast<uint8_t>(mode) + 3u);
     }
+
+    [[nodiscard]] bool mode_interrupt_enabled() const noexcept { return mode_interrupt_enabled(get_mode()); }
 };
 
 } // namespace gameboy
