@@ -421,11 +421,16 @@ void ppu::compare_coincidence() noexcept
     if(ly_ == lyc_) {
         stat_.set_coincidence_flag();
 
-        if(stat_.coincidence_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
-            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+        if(stat_.coincidence_interrupt_enabled()) {
+            if(interrupt_request_.none()) {
+                bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+            }
+
+            interrupt_request_.set(interrupt_request::coincidence);
         }
     } else {
         stat_.reset_coincidence_flag();
+        interrupt_request_.reset(interrupt_request::coincidence);
     }
 }
 
