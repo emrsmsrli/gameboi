@@ -442,8 +442,12 @@ void ppu::set_ly(const register8& ly) noexcept
 
 void ppu::set_lyc(const register8& lyc) noexcept
 {
-    lyc_ = lyc;
-    compare_coincidence();
+    if(lyc_ != lyc) {
+        lyc_ = lyc;
+        if(lcdc_.lcd_enabled()) {
+            compare_coincidence();
+        }
+    }
 }
 
 void ppu::hdma()
