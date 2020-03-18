@@ -15,7 +15,7 @@ matrix:
           packages:
             - g++-9
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9"
+        - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9 W_LIBCXX=OFF"
 
     - os: linux
       python: 3.8
@@ -31,14 +31,14 @@ matrix:
             - libc++-9-dev
             - libc++abi-9-dev
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9"
+        - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9 W_LIBCXX=ON"
 
 before_script:
   - eval "${MATRIX_EVAL}"
   - pip install --user conan cmake ninja coverage
 
 script:
-  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=ON .
+  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=$W_LIBCXX .
   - cmake --build .
   - ctest -V --output-on-failure
 
