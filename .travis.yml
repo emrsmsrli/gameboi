@@ -44,7 +44,7 @@ script:
   - ctest -V --output-on-failure
 
 after_success:
-  - chmod +x /scripts/report_coverage.sh
+  - chmod +x ./scripts/report_coverage.sh
   - ./scripts/report_coverage.sh
 
 before_deploy:
