@@ -9,6 +9,11 @@ macro(run_conan)
     conan_add_remote(NAME bincrafters URL https://api.bintray.com/conan/bincrafters/public-conan)
     conan_add_remote(NAME neargye URL https://api.bintray.com/conan/neargye/conan-packages)
 
+    set(CONAN_LIBCXX "") # auto-detected
+    if(WITH_LIBCXX)
+        set(CONAN_LIBCXX compiler.libcxx=libc++)
+    endif()
+
     conan_cmake_run(
             REQUIRES
               gtest/1.8.1@bincrafters/stable
@@ -21,6 +26,8 @@ macro(run_conan)
               sfml:window=True
               sfml:audio=True
               sfml:network=False
+            SETTINGS
+              ${CONAN_LIBCXX}
             BASIC_SETUP
             CMAKE_TARGETS
             BUILD missing)
