@@ -4,7 +4,7 @@
 
 #include <gtest/gtest.h>
 #include "gameboy/gameboy.h"
-#include "test_helper.h"
+#include "rom_tester_env.h"
 
 namespace fs = std::filesystem;
 
@@ -82,36 +82,29 @@ void do_run_test(const fs::path& path)
 } // namespace
 
 TEST(run_roms, test_cpu_instrs) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("cpu_instrs"));
+    do_run_test(rom_tester_env::get_base_path().append("cpu_instrs"));
 }
 
-TEST(run_roms, test_cgb_sound) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("cgb_sound"));
+TEST(run_roms, DISABLED_test_cgb_sound) {
+    do_run_test(rom_tester_env::get_base_path().append("cgb_sound"));
 }
 
-TEST(run_roms, test_dmg_sound) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("dmg_sound"));
+TEST(run_roms, DISABLED_test_dmg_sound) {
+    do_run_test(rom_tester_env::get_base_path().append("dmg_sound"));
 }
 
-TEST(run_roms, test_mem_timing) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("mem_timing"));
+TEST(run_roms, DISABLED_test_mem_timing) {
+    do_run_test(rom_tester_env::get_base_path().append("mem_timing"));
 }
 
-TEST(run_roms, test_mem_timing_2) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("mem_timing_2"));
+TEST(run_roms, DISABLED_test_mem_timing_2) {
+    do_run_test(rom_tester_env::get_base_path().append("mem_timing_2"));
 }
 
-TEST(run_roms, test_oam_bug) {
-    fs::path base = base_path;
-    do_run_test(base.append("res").append("oam_bug"));
+TEST(run_roms, DISABLED_test_oam_bug) {
+    do_run_test(rom_tester_env::get_base_path().append("oam_bug"));
 }
 
-TEST(run_roms, test_general) {
-    fs::path base = base_path;
-    do_run_test(base.append("res"));
+TEST(run_roms, DISABLED_test_general) {
+    do_run_test(rom_tester_env::get_base_path());
 }

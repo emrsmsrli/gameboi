@@ -1,5 +1,7 @@
 add_executable(gameboycore_test
         src/main.cpp
+        src/rom_tester_env.h
+        src/rom_tester_env.cpp
         src/test_math.cpp
         src/test_reg8.cpp
         src/test_reg16.cpp
