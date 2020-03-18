@@ -39,7 +39,7 @@ before_script:
   - pip install --user conan cmake ninja
 
 script:
-  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=$W_LIBCXX .
+  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=${W_LIBCXX} .
   - cmake --build .
   - ctest -V --output-on-failure
 
