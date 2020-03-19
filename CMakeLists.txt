@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.12.4)
 project(gameboy CXX)
 
+option(WITH_LIBCXX "Use libc++" OFF)
+
 include(cmake/StandardProjectSettings.cmake)
 include(cmake/CompilerWarnings.cmake)
 include(cmake/Sanitizers.cmake)
@@ -12,8 +14,9 @@ add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
 target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)
 
-if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+if(WITH_LIBCXX)
     target_compile_options(project_options INTERFACE -stdlib=libc++)
+    target_link_options(project_options INTERFACE -lc++)
 endif()
 
 add_library(project_warnings INTERFACE)

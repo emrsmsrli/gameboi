@@ -9,11 +9,9 @@ macro(run_conan)
     conan_add_remote(NAME bincrafters URL https://api.bintray.com/conan/bincrafters/public-conan)
     conan_add_remote(NAME neargye URL https://api.bintray.com/conan/neargye/conan-packages)
 
-    set(CONAN_LIBCXX "")
-    if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CONAN_LIBCXX "") # auto-detected
+    if(WITH_LIBCXX)
         set(CONAN_LIBCXX compiler.libcxx=libc++)
-    elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-        set(CONAN_LIBCXX compiler.libcxx=libstdc++11)
     endif()
 
     conan_cmake_run(

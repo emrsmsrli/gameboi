@@ -14,8 +14,9 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - g++-9
+            - lcov
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9"
+        - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9 W_LIBCXX=OFF COV=1"
 
     - os: linux
       python: 3.8
@@ -31,7 +32,7 @@ matrix:
             - libc++-9-dev
             - libc++abi-9-dev
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9"
+        - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9 W_LIBCXX=ON COV=0"
 
 addons:
   sonarcloud:
@@ -41,18 +42,19 @@ addons:
 
 before_script:
   - eval "${MATRIX_EVAL}"
-  - pip install --user conan cmake ninja coverage
+  - pip install --user conan cmake ninja
 
 script:
   - mkdir build
   - cd build
-  - cmake -G Ninja -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON ..
+  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=${W_LIBCXX} ..
   - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build .
   - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
   - ctest -V --output-on-failure
 
 after_success:
-  - bash <(curl -s https://codecov.io/bash) || echo "Codecov did not collect coverage reports"
+  - chmod +x ./scripts/report_coverage.sh
+  - ./scripts/report_coverage.sh
 
 before_deploy:
   - git config --local user.name  "emrsmsrli"
