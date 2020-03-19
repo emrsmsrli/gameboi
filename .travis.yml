@@ -53,8 +53,7 @@ script:
   - ctest -V --output-on-failure
 
 after_success:
-  - chmod +x ../scripts/report_coverage.sh
-  - ../scripts/report_coverage.sh
+  - if [ "${COV}" = "1" ]; then bash ../scripts/report_coverage.sh ; fi
 
 before_deploy:
   - git config --local user.name  "emrsmsrli"
