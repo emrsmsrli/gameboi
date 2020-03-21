@@ -473,14 +473,14 @@ void ppu::render() const noexcept
     const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
 
     render_line line{};
-    render_buffer buffer{}; ;
+    render_buffer buffer{};
     std::fill(begin(buffer), end(buffer), std::make_pair(0u, attributes::uninitialized{}));
 
     render_background(buffer);
     render_obj(buffer);
 
     for(auto pixel_idx = 0u; pixel_idx < line.size(); ++pixel_idx) {
-        const auto [color_idx, attr] = buffer[pixel_idx];
+        const auto& [color_idx, attr] = buffer[pixel_idx];
 
         std::visit(overloaded{
             [&](attributes::uninitialized) {
@@ -543,7 +543,9 @@ void ppu::render_background(render_buffer& buffer) const noexcept
         for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
             const auto pix_idx = tile_map_x * tile_pixel_count + tile_x;
 
-            if(rendered_pix_idx < screen_width && (scx_ <= pix_idx || pix_idx < scroll_offset)) {
+            if(rendered_pix_idx < screen_width && (scx_ <= pix_idx ||
+                (scx_ > scroll_offset && pix_idx < scroll_offset)) // bg window overflow
+            ) {
                 buffer[rendered_pix_idx++] = std::make_pair(tile_row[tile_x], tile_attr);
             }
         }
