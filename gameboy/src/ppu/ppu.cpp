@@ -225,7 +225,7 @@ void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const 
         return;
     }
 
-   ram_[address.value() - *begin(vram_range) + bank * 8_kb] = data;
+    ram_[address.value() - *begin(vram_range) + bank * 8_kb] = data;
 }
 
 uint8_t ppu::dma_read(const address16& address) const
@@ -245,7 +245,7 @@ void ppu::dma_write(const address16& address, const uint8_t data)
         bus_->get_mmu()->dma(
             make_address(static_cast<uint16_t>(data << 8u)),
             make_address(*begin(oam_range)),
-            oam_range.size() - 1);
+            oam_range.size());
     } else if(address == hdma_1_addr) {
         if(!dma_transfer_.disabled()) {
             return;
