@@ -1,3 +1,5 @@
+#include <cstring>
+
 #include "debugger/ppu_debugger.h"
 #include "gameboy/ppu/ppu.h"
 #include "gameboy/bus.h"
@@ -212,8 +214,7 @@ void gameboy::ppu_debugger::draw_dma() const noexcept
 
     ImGui::Spacing();
 
-    ImGui::Text("Total Length:     %04X", ppu_->dma_transfer_.length());
-    ImGui::Text("Remaining Length: %04X", ppu_->dma_transfer_.remaining_length);
+    ImGui::Text("Length:           %04X", ppu_->dma_transfer_.length());
 }
 
 void gameboy::ppu_debugger::draw_vram_view()

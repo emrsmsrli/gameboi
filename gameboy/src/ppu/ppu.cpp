@@ -12,12 +12,17 @@
 
 namespace gameboy {
 
-constexpr auto ly_max = 153;
+constexpr auto ly_max = 153u;
 
+constexpr auto lcd_enable_delay_frames = 3;
+constexpr auto lcd_enable_delay_cycles = 244;
 constexpr auto hblank_cycles = 204u;
-constexpr auto vblank_line_cycles = 456u;
 constexpr auto reading_oam_cycles = 80u;
+constexpr auto reading_oam_vram_render_cycles = 160u;
 constexpr auto reading_oam_vram_cycles = 172u;
+constexpr auto total_line_cycles = 456u;
+constexpr auto total_vblank_cycles = total_line_cycles * 10u;
+constexpr auto total_frame_cycles = total_line_cycles * (ly_max + 1);
 
 constexpr address16 lcdc_addr{0xFF40u};
 constexpr address16 stat_addr{0xFF41u};
@@ -61,10 +66,17 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 
 ppu::ppu(observer<bus> bus)
     : bus_{bus},
+      lcd_enabled_{true},
+      line_rendered_{false},
+      vblank_line_{0},
+      lcd_enable_delay_frame_count_{0},
+      lcd_enable_delay_cycle_count_{0},
       cycle_count_{0u},
+      secondary_cycle_count_{0u},
       vram_bank_{0u},
       ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u),
+      interrupt_request_{0u},
       lcdc_{0x91u},
       stat_(bus_->get_cartridge()->cgb_enabled() ? 0x01u : 0x06u),
       ly_(bus_->get_cartridge()->cgb_enabled() ? 0x90u : 0x00u),
@@ -104,70 +116,144 @@ ppu::ppu(observer<bus> bus)
 
 void ppu::tick(const uint8_t cycles)
 {
-    if(!lcdc_.lcd_enabled()) {
+    cycle_count_ += cycles;
+
+    if(!lcd_enabled_) {
+        if(lcd_enable_delay_cycle_count_ > 0) {
+            lcd_enable_delay_cycle_count_ -= cycles;
+
+            if(lcd_enable_delay_cycle_count_ <= 0) {
+                lcd_enable_delay_cycle_count_ = 0;
+                lcd_enable_delay_frame_count_ = lcd_enable_delay_frames;
+                vblank_line_ = 0;
+                ly_ = 0u;
+
+                cycle_count_ = 0u;
+                secondary_cycle_count_ = 0u;
+                lcd_enabled_ = true;
+                stat_.set_mode(stat_mode::h_blank);
+
+                interrupt_request_.reset_all();
+                if(stat_.mode_interrupt_enabled(stat_mode::reading_oam)) {
+                    bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+                    interrupt_request_.set(interrupt_request::oam);
+                }
+
+                compare_coincidence();
+            }
+        } else if(cycle_count_ >= total_frame_cycles) {
+            cycle_count_ -= total_frame_cycles;
+            on_vblank_();
+        }
+
         return;
     }
 
-    cycle_count_ += cycles;
-
-    const auto has_elapsed = [&](const auto c) {
-        if(cycle_count_ >= c) {
-            cycle_count_ -= c;
+    const auto has_elapsed = [&](const auto cycle_count) {
+        if(cycle_count_ >= cycle_count) {
+            cycle_count_ -= cycle_count;
             return true;
         }
         return false;
     };
 
-    const auto update_ly = [&]() {
-        set_ly(register8((ly_ + 1) % ly_max));
-    };
-
-    const auto check_stat_interrupt = [&]() {
-        if(stat_.mode_interrupt_set() && bus_->get_cpu()->interrupts_enabled()) {
-            bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
-        }
-    };
-
     switch(stat_.get_mode()) {
         case stat_mode::h_blank: {
             if(has_elapsed(hblank_cycles)) {
-                update_ly();
+                set_ly(register8(ly_ + 1));
+                stat_.set_mode(stat_mode::reading_oam);
 
-                if(ly_ == screen_height) {
-                    on_vblank_();
-                    stat_.set_mode(stat_mode::v_blank);
-                    bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
-                } else {
-                    stat_.set_mode(stat_mode::reading_oam);
+                if(bus_->get_cartridge()->cgb_enabled() && !dma_transfer_.disabled()) {
+                    hdma();
                 }
 
-                check_stat_interrupt();
+                reset_interrupt_requests({interrupt_request::v_blank, interrupt_request::oam});
+
+                if(ly_ == screen_height) {
+                    stat_.set_mode(stat_mode::v_blank);
+                    secondary_cycle_count_ = cycle_count_;
+                    vblank_line_ = 0;
+
+                    bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
+
+                    if(stat_.mode_interrupt_enabled()) {
+                        request_interrupt(interrupt_request::v_blank);
+                    }
+
+                    if(lcd_enable_delay_frame_count_ > 0) {
+                        --lcd_enable_delay_frame_count_;
+                    } else {
+                        on_vblank_();
+                    }
+                } else {
+                    if(stat_.mode_interrupt_enabled()) {
+                        request_interrupt(interrupt_request::oam);
+                    }
+                }
+
+                interrupt_request_.reset(interrupt_request::h_blank);
             }
             break;
         }
         case stat_mode::v_blank: {
-            if(has_elapsed(vblank_line_cycles)) {
-                update_ly();
+            secondary_cycle_count_ += cycles;
 
-                if(ly_ == 0) {
-                    stat_.set_mode(stat_mode::reading_oam);
-                    check_stat_interrupt();
+            if(secondary_cycle_count_ >= total_line_cycles) {
+                secondary_cycle_count_ -= total_line_cycles;
+
+                ++vblank_line_;
+                if(vblank_line_ < 10) {
+                    set_ly(register8(ly_ + 1u));
                 }
+            }
+
+            if(cycle_count_ >= 4104u && secondary_cycle_count_ >= 4u && ly_ == ly_max) {
+                set_ly(register8{0u});
+            }
+
+            if(has_elapsed(total_vblank_cycles)) {
+                stat_.set_mode(stat_mode::reading_oam);
+
+                reset_interrupt_requests({interrupt_request::h_blank, interrupt_request::oam});
+                if(stat_.mode_interrupt_enabled()) {
+                    request_interrupt(interrupt_request::oam);
+                }
+
+                interrupt_request_.reset(interrupt_request::v_blank);
             }
             break;
         }
         case stat_mode::reading_oam: {
             if(has_elapsed(reading_oam_cycles)) {
                 stat_.set_mode(stat_mode::reading_oam_vram);
+                line_rendered_ = false;
+
+                reset_interrupt_requests({
+                    interrupt_request::h_blank,
+                    interrupt_request::v_blank,
+                    interrupt_request::oam
+                });
             }
             break;
         }
         case stat_mode::reading_oam_vram: {
-            if(has_elapsed(reading_oam_vram_cycles)) {
+            if(cycle_count_ >= reading_oam_vram_render_cycles && !line_rendered_) {
+                line_rendered_ = true;
                 render();
-                hdma();
+            }
+
+            if(has_elapsed(reading_oam_vram_cycles)) {
                 stat_.set_mode(stat_mode::h_blank);
-                check_stat_interrupt();
+
+                reset_interrupt_requests({
+                    interrupt_request::h_blank,
+                    interrupt_request::v_blank,
+                    interrupt_request::oam
+                });
+
+                if(stat_.mode_interrupt_enabled()) {
+                    request_interrupt(interrupt_request::h_blank);
+                }
             }
             break;
         }
@@ -230,10 +316,10 @@ void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const 
 
 uint8_t ppu::dma_read(const address16& address) const
 {
-    if(address == hdma_1_addr) { return (dma_transfer_.source.value() & 0xFF00u) >> 8u; }
-    if(address == hdma_2_addr) { return dma_transfer_.source.value() & 0x00FFu; }
-    if(address == hdma_3_addr) { return (dma_transfer_.destination.value() & 0xFF00u) >> 8u; }
-    if(address == hdma_4_addr) { return dma_transfer_.destination.value() & 0x00FFu; }
+    if(address == hdma_1_addr) { return dma_transfer_.source.high().value(); }
+    if(address == hdma_2_addr) { return dma_transfer_.source.low().value(); }
+    if(address == hdma_3_addr) { return dma_transfer_.destination.high().value(); }
+    if(address == hdma_4_addr) { return dma_transfer_.destination.low().value(); }
     if(address == hdma_5_addr) { return dma_transfer_.length_mode_start.value(); }
 
     return 0u;
@@ -251,35 +337,38 @@ void ppu::dma_write(const address16& address, const uint8_t data)
             return;
         }
 
-        dma_transfer_.source.low() = data & 0xF0u;
+        if((data > 0x7Fu && data < 0xA0u) || data > 0xDFu) {
+            dma_transfer_.source.high() = 0x00u;
+        } else {
+            dma_transfer_.source.high() = data;
+        }
     } else if(address == hdma_2_addr) {
         if(!dma_transfer_.disabled()) {
             return;
         }
 
-        dma_transfer_.source.high() = data;
+        dma_transfer_.source.low() = data & 0xF0u;
     } else if(address == hdma_3_addr) {
-        dma_transfer_.destination.low() = data & 0xF0u;
+        dma_transfer_.destination.high() = (data & 0x1Fu) | 0x80u;
     } else if(address == hdma_4_addr) {
-        dma_transfer_.destination.high() = data & 0x1Fu;
+        dma_transfer_.destination.low() = data & 0xF0u;
     } else if(address == hdma_5_addr) {
-        if(!bit_test(data, 7u)) {
-            if(dma_transfer_.disabled()) {
-                // perform gdma
-                dma_transfer_.length_mode_start = data;
-
-                bus_->get_mmu()->dma(
-                    make_address(dma_transfer_.source),
-                    make_address(dma_transfer_.destination),
-                    dma_transfer_.length());
-
-                dma_transfer_.length_mode_start = 0xFFu;
+        if(!dma_transfer_.disabled()) {
+            if(bit_test(data, 7u)) {
+                dma_transfer_.length_mode_start = data & 0x7Fu;
             } else {
-                dma_transfer_.disable();
+                dma_transfer_.length_mode_start = data;
             }
         } else {
-            dma_transfer_.length_mode_start = data;
-            dma_transfer_.remaining_length = dma_transfer_.length();
+            if(bit_test(data, 7u)) {
+                dma_transfer_.length_mode_start = data & 0x7Fu;
+                if(stat_.get_mode() == stat_mode::h_blank) {
+                    hdma();
+                }
+            } else {
+                dma_transfer_.length_mode_start = data;
+                gdma();
+            }
         }
     }
 }
@@ -291,7 +380,7 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
     if(address == stat_addr) { return stat_.reg.value() | 0x80u; }
     if(address == scy_addr) { return scy_.value(); }
     if(address == scx_addr) { return scx_.value(); }
-    if(address == ly_addr) { return ly_.value(); }
+    if(address == ly_addr) { return lcd_enabled_ ? ly_.value() : 0u; }
     if(address == lyc_addr) { return lyc_.value(); }
     if(address == wy_addr) { return wy_.value(); }
     if(address == wx_addr) { return wx_.value(); }
@@ -308,15 +397,43 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
 
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
-        if(!bit_test(data, 7u) && lcdc_.lcd_enabled()) {
-            set_ly(register8{0x00u});
-            stat_.set_mode(stat_mode::h_blank);
-            cycle_count_ = 0;
+        register_lcdc new_lcdc{data};
+
+        if(new_lcdc.lcd_enabled()) {
+            if(!lcd_enabled_) {
+                lcd_enable_delay_cycle_count_ = lcd_enable_delay_cycles;
+            }
+        } else {
+            disable_screen();
         }
 
         lcdc_.reg = data;
     } else if(address == stat_addr) {
-        stat_.reg = (stat_.reg & 0x7u) | (data & 0x78u);
+        stat_.reg = (stat_.reg & 0x07u) | (data & 0x78u);
+
+        auto irq_copy = interrupt_request_;
+        irq_copy.request &= (stat_.reg.value() >> 3u) & 0x0Fu;
+        interrupt_request_ = irq_copy;
+
+        if(lcdc_.lcd_enabled()) {
+            if(stat_.mode_interrupt_enabled()) {
+                switch(stat_.get_mode()) {
+                    case stat_mode::h_blank:
+                        request_interrupt(irq_copy, interrupt_request::h_blank);
+                        break;
+                    case stat_mode::v_blank:
+                        request_interrupt(irq_copy, interrupt_request::v_blank);
+                        break;
+                    case stat_mode::reading_oam:
+                        request_interrupt(irq_copy, interrupt_request::oam);
+                        break;
+                    case stat_mode::reading_oam_vram:
+                        break;
+                }
+            }
+
+            compare_coincidence();
+        }
     } else if(address == scy_addr) {
         scy_ = data;
     } else if(address == scx_addr) {
@@ -422,11 +539,7 @@ void ppu::compare_coincidence() noexcept
         stat_.set_coincidence_flag();
 
         if(stat_.coincidence_interrupt_enabled()) {
-            if(interrupt_request_.none()) {
-                bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
-            }
-
-            interrupt_request_.set(interrupt_request::coincidence);
+            request_interrupt(interrupt_request::coincidence);
         }
     } else {
         stat_.reset_coincidence_flag();
@@ -450,22 +563,65 @@ void ppu::set_lyc(const register8& lyc) noexcept
     }
 }
 
+void ppu::disable_screen() noexcept
+{
+    lcd_enabled_ = false;
+    stat_.set_mode(stat_mode::h_blank);
+    interrupt_request_.reset_all();
+
+    cycle_count_ = 0;
+    secondary_cycle_count_ = 0;
+    ly_ = 0;
+}
+
+void ppu::request_interrupt(interrupt_request::type type) noexcept
+{
+    request_interrupt(interrupt_request_, type);
+}
+
+void ppu::request_interrupt(interrupt_request& irq, interrupt_request::type type) noexcept
+{
+    if(irq.none()) {
+        bus_->get_cpu()->request_interrupt(interrupt::lcd_stat);
+    }
+
+    irq.set(type);
+}
+
+void ppu::reset_interrupt_requests(const std::initializer_list<interrupt_request::type> irqs) noexcept
+{
+    for(const auto irq : irqs) {
+        interrupt_request_.reset(irq);
+    }
+}
+
 void ppu::hdma()
 {
-    if(!dma_transfer_.disabled() && ly_ < screen_height) {
-        const auto total_length = dma_transfer_.length();
-        const auto offset = total_length - dma_transfer_.remaining_length;
+    bus_->get_mmu()->dma(
+        make_address(dma_transfer_.source),
+        make_address(dma_transfer_.destination),
+        dma_transfer_data::unit_transfer_length);
 
-        bus_->get_mmu()->dma(
-            make_address(static_cast<uint16_t>(dma_transfer_.source + offset)),
-            make_address(static_cast<uint16_t>(dma_transfer_.destination + offset)),
-            0x10u);
-
-        dma_transfer_.remaining_length -= 0x10u;
-        if(dma_transfer_.remaining_length == 0u) {
-            dma_transfer_.disable();
-        }
+    dma_transfer_.source += dma_transfer_data::unit_transfer_length;
+    if(dma_transfer_.source == 0x8000u) {
+        dma_transfer_.source = 0xA000u;
     }
+
+    dma_transfer_.destination += dma_transfer_data::unit_transfer_length;
+    if(dma_transfer_.destination == 0xA000u) {
+        dma_transfer_.destination = 0x8000u;
+    }
+
+    dma_transfer_.length_mode_start -= 1u;
+}
+
+void ppu::gdma()
+{
+    bus_->get_mmu()->dma(
+        make_address(dma_transfer_.source),
+        make_address(dma_transfer_.destination),
+        dma_transfer_.length());
+    dma_transfer_.length_mode_start = 0xFFu;
 }
 
 void ppu::render() const noexcept
@@ -695,7 +851,7 @@ std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
     const auto tile_y_offset = row * 2;
     const auto lsb = read_ram_by_bank(tile_base_addr + tile_y_offset, bank);
     const auto msb = read_ram_by_bank(tile_base_addr + tile_y_offset + 1, bank);
-    
+
     std::array<uint8_t, tile_pixel_count> tile_row{};
     std::generate(begin(tile_row), end(tile_row), [&, bit = tile_pixel_count - 1]() mutable {
         const uint8_t mask = (1u << bit);

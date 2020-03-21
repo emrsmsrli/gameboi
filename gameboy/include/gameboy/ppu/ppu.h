@@ -4,11 +4,13 @@
 #include <array>
 #include <vector>
 #include <variant>
+#include <initializer_list>
 
 #include "gameboy/ppu/dma_transfer_data.h"
 #include "gameboy/ppu/color.h"
 #include "gameboy/ppu/register_stat.h"
 #include "gameboy/ppu/register_lcdc.h"
+#include "gameboy/ppu/data/interrupt_request.h"
 #include "gameboy/ppu/data/attributes.h"
 #include "gameboy/ppu/data/palette.h"
 #include "gameboy/memory/addressfwd.h"
@@ -84,12 +86,19 @@ private:
 
     observer<bus> bus_;
 
+    bool lcd_enabled_;
+    bool line_rendered_;
+    int8_t vblank_line_;
+    int8_t lcd_enable_delay_frame_count_;
+    int16_t lcd_enable_delay_cycle_count_;
     uint32_t cycle_count_;
+    uint32_t secondary_cycle_count_;
     uint8_t vram_bank_;
 
     std::vector<uint8_t> ram_;
     std::vector<uint8_t> oam_;
 
+    interrupt_request interrupt_request_;
     register_lcdc lcdc_;
     register_stat stat_;
 
@@ -131,7 +140,14 @@ private:
     void set_ly(const register8& ly) noexcept;
     void set_lyc(const register8& lyc) noexcept;
 
+    void disable_screen() noexcept;
+
+    void request_interrupt(interrupt_request::type type) noexcept;
+    void request_interrupt(interrupt_request& irq, interrupt_request::type type) noexcept;
+    void reset_interrupt_requests(std::initializer_list<interrupt_request::type> irqs) noexcept;
+
     void hdma();
+    void gdma();
     void render() const noexcept;
 
     void render_background(render_buffer& buffer) const noexcept;
