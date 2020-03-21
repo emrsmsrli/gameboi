@@ -37,10 +37,10 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::SameLine(0, 20.f);
     ImGui::Text("Frequency: %s", [&]() {
         switch(timer_->timer_clock_freq_select()) {
-            case 0b00: return "4096 Hz";
-            case 0b01: return "262144 Hz";
-            case 0b10: return "65536 Hz";
-            case 0b11: return "16384 Hz";
+            case 1024u: return "4096 Hz";
+            case 16u:   return "262144 Hz";
+            case 64u:   return "65536 Hz";
+            case 256u:  return "16384 Hz";
             default: return "invalid";
         }
     }());
