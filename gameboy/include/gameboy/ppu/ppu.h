@@ -89,6 +89,7 @@ private:
     bool lcd_enabled_;
     bool line_rendered_;
     int8_t vblank_line_;
+    uint8_t window_line_;
     int8_t lcd_enable_delay_frame_count_;
     int16_t lcd_enable_delay_cycle_count_;
     uint32_t cycle_count_;
@@ -148,10 +149,10 @@ private:
 
     void hdma();
     void gdma();
-    void render() const noexcept;
+    void render() noexcept;
 
     void render_background(render_buffer& buffer) const noexcept;
-    void render_window(render_buffer& buffer) const noexcept;
+    void render_window(render_buffer& buffer) noexcept;
     void render_obj(render_buffer& buffer) const noexcept;
 
     [[nodiscard]] std::array<uint8_t, tile_pixel_count> get_tile_row(
