@@ -52,11 +52,11 @@ script:
   - |
     if [ "${COV}" = "1" ]; then
       cd ..
-      build-wrapper-linux-x86-64 --out-dir bw-output c
+      build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/
       sonar-scanner
       cd build
     else
-      cmake --build build/
+      cmake --build .
     fi
   - ctest -V --output-on-failure
   - if [ "${COV}" = "1" ]; then bash ../scripts/report_coverage.sh ; fi
