@@ -734,7 +734,7 @@ void ppu::render_window(render_buffer& buffer) noexcept
     const auto tile_map_y_start = tile_start_addr + window_line_ / tile_pixel_count * map_tile_count;
     const auto tile_map_x_end = screen_width / tile_pixel_count;
 
-    for(auto tile_map_x = 0; tile_map_x < tile_map_x_end; ++tile_map_x) {
+    for(auto tile_map_x = 0; tile_map_x < tile_map_x_end + 1u; ++tile_map_x) {
         const auto tile_map_idx = tile_map_y_start + tile_map_x;
         const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
         const attributes::bg tile_attr{read_ram_by_bank(tile_map_idx, 1)};
@@ -750,13 +750,17 @@ void ppu::render_window(render_buffer& buffer) noexcept
 
         for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
             const int16_t pix_idx = tile_map_x * tile_pixel_count + tile_x + wx_.value() - 7;
-            if(0 <= pix_idx && pix_idx < screen_width) {
+
+            if(pix_idx >= static_cast<int32_t>(screen_width)) {
+                ++window_line_;
+                return;
+            }
+
+            if(0 <= pix_idx) {
                 buffer[pix_idx] = std::make_pair(tile_row[tile_x], tile_attr);
             }
         }
     }
-
-    ++window_line_;
 }
 
 void ppu::render_obj(render_buffer& buffer) const noexcept
