@@ -1,3 +1,4 @@
+os: linux
 dist: xenial
 sudo: false
 language: cpp
@@ -48,13 +49,16 @@ script:
   - mkdir build
   - cd build
   - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=${W_LIBCXX} ..
-  - cd ..
-  - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/
-  - sonar-scanner
-  - cd build
+  - |
+    if [ "${COV}" = "1" ]; then
+      cd ..
+      build-wrapper-linux-x86-64 --out-dir bw-output c
+      sonar-scanner
+      cd build
+    else
+      cmake --build build/
+    fi
   - ctest -V --output-on-failure
-
-after_success:
   - if [ "${COV}" = "1" ]; then bash ../scripts/report_coverage.sh ; fi
 
 before_deploy:
