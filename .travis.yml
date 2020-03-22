@@ -38,7 +38,7 @@ addons:
   sonarcloud:
     organization: "emrsmsrli"
     token:
-      secure: "OpitDZhmDDpaWrJAioy2mOL0bKwTqWG51g4HcPXuwvxaPJbVRF+DoGUYErqxxUdYGj0P/Dx6lu0sMUIhAE+UylLw1KhHcrIuUfAgKUTJo+3mMWlIwQ+4xdDF4IFYHsJ918ogES8hpLHYUb92TdQpNHZ/rz4tgQ43o4Caqk9Lm60oIi7otb3W555wLJjruMWW6/sHMmBjE2zzEefOD7K/v/Uk4mytpg/WiwgYTHiL4lUAagC4TqIXhYpV1n/8OwC5u3RadruFExr4tG6qWzZAnCdjmnNw3W9PIkXeRoE3q48bVqbh8BkdPvY9AB8YrG+k3rNTGE9ukoj/Voob9bGrGxM6Jl8ZyjbppfPq1yxvWypGAsGCO/rVnUg1Ou5b63tX8dNqWMh0/7Mm10lQqRsubeQX9q1mY/QPmbQrBVv+9adcv8MBxeHo6GFOzJ21Le3Erf3R93SXO+VYu4dIeyvA4gMqWzCSah1JTb0wmeIwcEysfQgY9Cbc8Atd5mn0KX78PG3mSq4/phHwMm5UZcIUXaNNpFKZ0gd3ba3dt5SZHcGwVODCytUdUwCApLOMbwr6ck4gAFcLotqcT8UzkcEFd3BGYTXt8o60sWsGyTdnmN6PLHm91YLTTXodl4HjEQJs82AQQX5dGRHSjVasDoibUxCqLc6biDNwlFJm1uvrthU="
+      secure: "LzDe005exShyNA/5zNs6pDmSajVBMYv9eN6fWLebqrCJOHlr5e+uVsYcUbfPcF4UKevQP5YZWZXSMuwUeY/HlNU9Gij6Y5aQZAojel/vSb4F5BQVtuJ9Xj3lbXn4AZ87trrFt6XCBcNYf/jmtEFeWARsfhWwrqrIg7FYZPCcSJB0AIuBpRqrONF3jiuR7F1Clnx/OVWCzZYkkVr+qTC6359P1xoMqco8kYkxLkvHg1iOUlD42tkZJz+aH2H3Pc1lvIiFbDfzcWDUY9Gcb4wlaJGbKVytwHP5i5+ExP2x2EnilaTKPOzKLlbu2Yr/OOM9sxvSl2TcVnWr2ZkYQuKsfhH7/aBkXPUMVMF8NkqcreoTKQKocK9Z13eEWlIYfWbPGGCio+RZubxhitCQAnRmHhQbJIImenL9GZPAqrNqmw4OCTK7vlILib4Zgl9reCC3yLzzw+mcVRb7ZbkT7YgKBYQYAgiU074PGx3q/iK7QHkgXsiNxjM4mAhWZEpXeqtLxdVjnKDUoV0YWVbgHJR1EbcgHKtpfZzuxoeXo5PzxBTzOqUZ26YryRi24FbZn3x2xuUF69QPUZvpu0aPX6Y3xzEp4FsUc+0k8XEpZTcHFwlUQtVSdj2G3E+Gaw8GOAt8+zzycS7AW+fISuBZhzucStJwhnmkgvXa7LkzIpEVWbI="
 
 before_script:
   - eval "${MATRIX_EVAL}"
@@ -48,8 +48,10 @@ script:
   - mkdir build
   - cd build
   - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=${W_LIBCXX} ..
-  - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build .
-  - sonar-scanner -Dsonar.cfamily.build-wrapper-output=bw-output
+  - cd ..
+  - build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/
+  - sonar-scanner
+  - cd build
   - ctest -V --output-on-failure
 
 after_success:
