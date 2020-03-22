@@ -294,7 +294,15 @@ void gameboy::ppu_debugger::draw_tiles()
 
 void gameboy::ppu_debugger::draw_bg_map()
 {
-    const auto tile_start_addr = address16(ppu_->lcdc_.bg_map_secondary() ? 0x9C00u : 0x9800u);
+    constexpr std::array bg_map_areas{"Primary(0x9800)", "Secondary(0x9C00)"};
+    static int current_bg_map_area = 0;
+    ImGui::Combo("BG Map Area", &current_bg_map_area, bg_map_areas.data(), bg_map_areas.size());
+
+    constexpr std::array tile_addresses{"0x8800", "0x8000"};
+    static int current_tile_address = 0;
+    ImGui::Combo("Tile Address", &current_tile_address, tile_addresses.data(), tile_addresses.size());
+
+    const auto tile_start_addr = address16(current_bg_map_area == 1 ? 0x9C00u : 0x9800u);
     for(size_t y = 0u; y < 32u; ++y) {
         for(size_t x = 0u; x < 32u; ++x) {
             const auto idx = y * 32u + x;
@@ -305,7 +313,10 @@ void gameboy::ppu_debugger::draw_bg_map()
             const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
 
             for(auto tile_y = 0u; tile_y < ppu::tile_pixel_count; ++tile_y) {
-                auto tile_row = ppu_->get_tile_row(tile_y, tile_no, tile_attr.vram_bank());
+                const auto tile_base_addr = current_tile_address == 1
+                    ? ppu_->tile_address<uint8_t>(0x8000u, tile_no)
+                    : ppu_->tile_address<int8_t>(0x9000u, tile_no);
+                auto tile_row = ppu_->get_tile_row(tile_y, tile_base_addr, tile_attr.vram_bank());
 
                 for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
                     const auto color_idx = tile_row[tile_x];
