@@ -807,21 +807,23 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             }
 
             const auto& [color_idx, attr] = buffer[x];
+
+            const auto dot_color = tile_row[tile_x];
+            if(dot_color == 0x0u) { // obj color0 is transparent
+                continue;
+            }
+
             std::visit(overloaded{
                 [&](auto&&) {
-                    buffer[x] = std::make_pair(tile_row[tile_x], obj);
+                    buffer[x] = std::make_pair(dot_color, obj);
                 },
-                [&, existing_color = color_idx](const attributes::bg& bg_attr) {
-                    const auto obj_color = tile_row[tile_x];
-                    if(obj_color == 0x0u) {
+                [&, existing_bg_color = color_idx](const attributes::bg& bg_attr) {
+                    if(bg_attr.prioritized() && existing_bg_color != 0x0u) {
                         return;
                     }
 
-                    // fixme broken impl?
-                    if((cgb_enabled && !lcdc_.bg_enabled()) ||
-                        (existing_color == 0x0 || (!bg_attr.prioritized() && obj.prioritized()))
-                    ) {
-                        buffer[x] = std::make_pair(obj_color, obj);
+                    if(obj.prioritized() || existing_bg_color == 0x0u) {
+                        buffer[x] = std::make_pair(dot_color, obj);
                     }
                 }
             }, attr);
