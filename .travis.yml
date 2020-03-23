@@ -2,7 +2,11 @@ os: linux
 dist: xenial
 sudo: false
 language: cpp
-cache: ccache
+cache:
+  ccache: true
+  directories:
+    - ./.sonar_cache
+    - $HOME/.conan/data
 
 addons: &addons_base
   sonarcloud:
