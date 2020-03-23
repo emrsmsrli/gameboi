@@ -20,7 +20,6 @@ class gameboy {
 public:
     explicit gameboy(std::string_view rom_path);
 
-    void start();
     void tick();
     void tick_one_frame();
 

@@ -1,6 +1,3 @@
-#include <chrono>
-#include <thread>
-
 #include <spdlog/spdlog.h>
 
 #include "gameboy/gameboy.h"
@@ -20,22 +17,6 @@ gameboy::gameboy(const std::string_view rom_path)
       timer_{make_observer(bus_)}
 {
     spdlog::info("gameboy v{}", version::version);
-}
-
-void gameboy::start()
-{
-    using namespace std::chrono;
-
-    constexpr auto delay = 16.742ms;
-    auto next_tick = steady_clock::now() + delay;
-
-    while(true) {
-        tick_one_frame();
-
-        std::this_thread::sleep_until(next_tick);
-        next_tick += delay;
-        break;
-    }
 }
 
 void gameboy::tick()
