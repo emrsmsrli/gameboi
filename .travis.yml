@@ -4,12 +4,19 @@ sudo: false
 language: cpp
 cache: ccache
 
+addons: &addons_base
+  sonarcloud:
+    organization: "emrsmsrli"
+    token:
+      secure: "LzDe005exShyNA/5zNs6pDmSajVBMYv9eN6fWLebqrCJOHlr5e+uVsYcUbfPcF4UKevQP5YZWZXSMuwUeY/HlNU9Gij6Y5aQZAojel/vSb4F5BQVtuJ9Xj3lbXn4AZ87trrFt6XCBcNYf/jmtEFeWARsfhWwrqrIg7FYZPCcSJB0AIuBpRqrONF3jiuR7F1Clnx/OVWCzZYkkVr+qTC6359P1xoMqco8kYkxLkvHg1iOUlD42tkZJz+aH2H3Pc1lvIiFbDfzcWDUY9Gcb4wlaJGbKVytwHP5i5+ExP2x2EnilaTKPOzKLlbu2Yr/OOM9sxvSl2TcVnWr2ZkYQuKsfhH7/aBkXPUMVMF8NkqcreoTKQKocK9Z13eEWlIYfWbPGGCio+RZubxhitCQAnRmHhQbJIImenL9GZPAqrNqmw4OCTK7vlILib4Zgl9reCC3yLzzw+mcVRb7ZbkT7YgKBYQYAgiU074PGx3q/iK7QHkgXsiNxjM4mAhWZEpXeqtLxdVjnKDUoV0YWVbgHJR1EbcgHKtpfZzuxoeXo5PzxBTzOqUZ26YryRi24FbZn3x2xuUF69QPUZvpu0aPX6Y3xzEp4FsUc+0k8XEpZTcHFwlUQtVSdj2G3E+Gaw8GOAt8+zzycS7AW+fISuBZhzucStJwhnmkgvXa7LkzIpEVWbI="
+
 matrix:
   include:
     - os: linux
       python: 3.8
       compiler: gcc
       addons:
+        <<: *addons_base
         apt:
           sources:
             - ubuntu-toolchain-r-test
@@ -34,12 +41,6 @@ matrix:
             - libc++abi-9-dev
       env:
         - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9 W_LIBCXX=ON COV=0"
-
-addons:
-  sonarcloud:
-    organization: "emrsmsrli"
-    token:
-      secure: "LzDe005exShyNA/5zNs6pDmSajVBMYv9eN6fWLebqrCJOHlr5e+uVsYcUbfPcF4UKevQP5YZWZXSMuwUeY/HlNU9Gij6Y5aQZAojel/vSb4F5BQVtuJ9Xj3lbXn4AZ87trrFt6XCBcNYf/jmtEFeWARsfhWwrqrIg7FYZPCcSJB0AIuBpRqrONF3jiuR7F1Clnx/OVWCzZYkkVr+qTC6359P1xoMqco8kYkxLkvHg1iOUlD42tkZJz+aH2H3Pc1lvIiFbDfzcWDUY9Gcb4wlaJGbKVytwHP5i5+ExP2x2EnilaTKPOzKLlbu2Yr/OOM9sxvSl2TcVnWr2ZkYQuKsfhH7/aBkXPUMVMF8NkqcreoTKQKocK9Z13eEWlIYfWbPGGCio+RZubxhitCQAnRmHhQbJIImenL9GZPAqrNqmw4OCTK7vlILib4Zgl9reCC3yLzzw+mcVRb7ZbkT7YgKBYQYAgiU074PGx3q/iK7QHkgXsiNxjM4mAhWZEpXeqtLxdVjnKDUoV0YWVbgHJR1EbcgHKtpfZzuxoeXo5PzxBTzOqUZ26YryRi24FbZn3x2xuUF69QPUZvpu0aPX6Y3xzEp4FsUc+0k8XEpZTcHFwlUQtVSdj2G3E+Gaw8GOAt8+zzycS7AW+fISuBZhzucStJwhnmkgvXa7LkzIpEVWbI="
 
 before_script:
   - eval "${MATRIX_EVAL}"
