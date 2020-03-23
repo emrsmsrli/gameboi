@@ -13,7 +13,7 @@ constexpr address16 svbk_addr{0xFF70u};
 
 mmu::mmu(observer<bus> bus)
     : bus_{bus},
-      wram_bank_{0u},
+      wram_bank_{1u},
       work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
       high_ram_(hram_range.size(), 0u) {}
 
@@ -39,6 +39,9 @@ void mmu::write(const address16& address, const uint8_t data)
         write_hram(address, data);
     } else if(address == svbk_addr) {
         wram_bank_ = data & 0x7u;
+        if(wram_bank_ == 0u) {
+            wram_bank_ = 1u;
+        }
     } else {
         spdlog::warn("out of bounds write: {:#x}", address.value());
     }
@@ -82,9 +85,10 @@ uint8_t mmu::read(const address16& address) const
 
     if(address == svbk_addr) {
         return wram_bank_;
-    } 
+    }
 
     spdlog::warn("out of bounds read: {:#x}", address.value());
+    return 0xFFu;
 }
 
 void mmu::write_wram(const address16& address, const uint8_t data)
@@ -114,8 +118,7 @@ physical_address mmu::physical_wram_addr(const address16& address) const noexcep
         return physical_address(address.value() - *begin(wram_first_bank_range));
     }
 
-    const auto wram_bank = wram_bank_ < 2 ? 0u : wram_bank_;
-    return physical_address{address.value() - *begin(wram_range) + 4_kb * wram_bank};
+    return physical_address{address.value() - *begin(wram_range) + 4_kb * (wram_bank_ - 1u)};
 }
 
 void mmu::dma(const address16& source, const address16& destination, const uint16_t length)
