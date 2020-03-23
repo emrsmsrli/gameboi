@@ -13,10 +13,9 @@ addons: &addons_base
     token:
       secure: "LzDe005exShyNA/5zNs6pDmSajVBMYv9eN6fWLebqrCJOHlr5e+uVsYcUbfPcF4UKevQP5YZWZXSMuwUeY/HlNU9Gij6Y5aQZAojel/vSb4F5BQVtuJ9Xj3lbXn4AZ87trrFt6XCBcNYf/jmtEFeWARsfhWwrqrIg7FYZPCcSJB0AIuBpRqrONF3jiuR7F1Clnx/OVWCzZYkkVr+qTC6359P1xoMqco8kYkxLkvHg1iOUlD42tkZJz+aH2H3Pc1lvIiFbDfzcWDUY9Gcb4wlaJGbKVytwHP5i5+ExP2x2EnilaTKPOzKLlbu2Yr/OOM9sxvSl2TcVnWr2ZkYQuKsfhH7/aBkXPUMVMF8NkqcreoTKQKocK9Z13eEWlIYfWbPGGCio+RZubxhitCQAnRmHhQbJIImenL9GZPAqrNqmw4OCTK7vlILib4Zgl9reCC3yLzzw+mcVRb7ZbkT7YgKBYQYAgiU074PGx3q/iK7QHkgXsiNxjM4mAhWZEpXeqtLxdVjnKDUoV0YWVbgHJR1EbcgHKtpfZzuxoeXo5PzxBTzOqUZ26YryRi24FbZn3x2xuUF69QPUZvpu0aPX6Y3xzEp4FsUc+0k8XEpZTcHFwlUQtVSdj2G3E+Gaw8GOAt8+zzycS7AW+fISuBZhzucStJwhnmkgvXa7LkzIpEVWbI="
 
-matrix:
+jobs:
   include:
-    - os: linux
-      python: 3.8
+    - name: "linux-gcc"
       compiler: gcc
       addons:
         <<: *addons_base
@@ -27,10 +26,12 @@ matrix:
             - g++-9
             - lcov
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/g++-9 CC=/usr/bin/gcc-9 W_LIBCXX=OFF COV=1"
+        - CC=/usr/bin/gcc-9
+        - CXX=/usr/bin/g++-9
+        - CMAKE_ARGS="-DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=OFF"
+        - REPORT_COVERAGE=1
 
-    - os: linux
-      python: 3.8
+    - name: "linux-clang"
       compiler: clang
       addons:
         apt:
@@ -43,27 +44,31 @@ matrix:
             - libc++-9-dev
             - libc++abi-9-dev
       env:
-        - MATRIX_EVAL="CXX=/usr/bin/clang++-9 CC=/usr/bin/clang-9 W_LIBCXX=ON COV=0"
+        - CC=/usr/bin/clang-9
+        - CXX=/usr/bin/clang++-9
+        - CMAKE_ARGS="-DWITH_LIBCXX=ON"
+        - REPORT_COVERAGE=0
 
 before_script:
-  - eval "${MATRIX_EVAL}"
   - pip install --user conan cmake ninja
 
 script:
   - mkdir build
-  - cd build
-  - cmake -G Ninja -DCMAKE_BUILD_TYPE=Debug -DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=${W_LIBCXX} ..
+  - cmake -B build -G Ninja --config Release $CMAKE_ARGS .
   - |
-    if [ "${COV}" = "1" ]; then
-      cd ..
-      build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/
+    if [ "$REPORT_COVERAGE" = "1" ]; then
+      build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/ -j $(nproc)
       sonar-scanner
-      cd build
     else
-      cmake --build .
+      cmake --build build/ -j $(nproc)
     fi
+  - cd build
   - ctest -V --output-on-failure
-  - if [ "${COV}" = "1" ]; then bash ../scripts/report_coverage.sh ; fi
+  - |
+    if [ "$REPORT_COVERAGE" = "1" ]; then
+      bash ../scripts/report_coverage.sh
+    fi
+  - mv "./bin/gameboy" "./bin/gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER"
 
 before_deploy:
   - cd ..
@@ -76,7 +81,7 @@ deploy:
   provider: releases
   api_key:
     secure: fN18Vwf2TY5blbIx9rNFA1YaP9LW1PnUorSf6jCkFpTpkU7V6J6CF2nSDTjDWJdj0Pf+7nu5laZ6Pd9CwHhkjuGW8iKK0O7ZG7gcM3aicD7msJihR3evzCDtAnW9qxOtZvMJ9XrIQ20DKVaV4s1i7v1ojKlhir+5m8GCoSvc3pt1j2QREypi1hHVJVRtgOXDun5BKwBbyCy2uHSGW6T4NrmA9usejdpaTaJFq2u6VpwsKtmBcoO2+km3OW/MQHFl+KsOsHUNaNAh2ryHjerXD9+Mf13JC11IvKEAGSjGhsrG3tZOXxEWFI+KdktzXh+9ZZLZMUCNeTsbNIlgUpp74vXvoWrbu3a0WsfjUEI7NSUIo86KuSctHLCC0xBQfLGoINdXvVjIdkJIv0eQhxZ4PftOJeJmg8ypYz3U0UFdUMQzE1QXtYBTx8ONpQyTifoRXawNzVzd2vwHURLpZE6jBLNSgJ+xgEhNvRPm8nfBplmldtXGvPQ8UxG4KDcMFzy1IZSbv7ZR06lsz2LlR9XKw7IwSnSiwVImXiG+4SUrKWXcC2qXqbwxc5E+yxBT5i2cqMaHTq6LgacS7SU0xAMzlYoIxdbpSZl8RjTDIIzBFGnICr4cWqCkunTIgNijtoWFr9u5LSasQgolJqoLP+30tDVZW/lJeicQpMYr4FbDgpk=
-  file: "./bin/gameboy"
+  file: "./bin/gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER"
   skip_cleanup: true
   on:
     branch: master
