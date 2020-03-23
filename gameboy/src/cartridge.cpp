@@ -63,6 +63,8 @@ enum class mbc_type : uint8_t {
     mbc_5_rumble = 0x1Cu,
     mbc_5_rumble_ram = 0x1Du,
     mbc_5_rumble_ram_battery = 0x1Eu,
+    mbc_6 = 0x20u,
+    mbc_7_sensor_rumble_ram_battery = 0x22u,
     pocket_camera = 0xFCu,
     bandai_tama_5 = 0xFDu,
     huc_3 = 0xFEu,
@@ -171,6 +173,7 @@ cartridge::cartridge(const std::string_view rom_path)
         case mbc_type::mbc_5_ram_battery:
         case mbc_type::mbc_5_rumble_ram_battery:
         case mbc_type::huc_1_ram_battery:
+        case mbc_type::mbc_7_sensor_rumble_ram_battery:
             has_battery_ = true;
             spdlog::info("mbc has battery, saving on exit..");
             break;
