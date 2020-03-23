@@ -6,7 +6,6 @@ cache:
   ccache: true
   directories:
     - ./.sonar_cache
-    - $HOME/.conan/data
 
 addons: &addons_base
   sonarcloud:
