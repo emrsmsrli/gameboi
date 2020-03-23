@@ -162,6 +162,13 @@ cartridge::cartridge(const std::string_view rom_path)
         }
     }
 
+    spdlog::info("cartridge info:");
+    spdlog::info("name: {}", name_);
+    spdlog::info("cgb: {}, {}", cgb_enabled_, cgb_type_);
+    spdlog::info("rom: {} ram: {}", rom_type_, ram_type_);
+    spdlog::info("name: {}", name_);
+    spdlog::info("mbc type: {}", mbc_type_);
+
     switch(mbc) {
         case mbc_type::mbc_1_ram_battery:
         case mbc_type::mbc_2_battery:
