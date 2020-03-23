@@ -20,7 +20,7 @@ add_library(${PROJECT_NAME}
         src/memory/controller/mbc3.cpp
         src/memory/controller/mbc5.cpp
         src/ppu/ppu.cpp
-        src/util/data_loader.cpp)
+        src/util/fileutil.cpp)
 
 add_library(gb::core ALIAS ${PROJECT_NAME})
 

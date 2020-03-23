@@ -9,8 +9,9 @@
 #include "gameboy/apu/apu.h"
 #include "gameboy/joypad/joypad.h"
 #include "gameboy/timer/timer.h"
-#include "gameboy/util/delegate.h"
 #include "gameboy/link/link.h"
+#include "gameboy/util/delegate.h"
+#include "gameboy/util/fileutil.h"
 
 namespace gameboy {
 
@@ -18,7 +19,7 @@ class gameboy {
     friend bus;
 
 public:
-    explicit gameboy(std::string_view rom_path);
+    explicit gameboy(const filesystem::path& rom_path);
 
     void tick();
     void tick_one_frame();

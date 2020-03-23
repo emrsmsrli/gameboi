@@ -12,6 +12,7 @@
 #include "gameboy/memory/controller/mbc3.h"
 #include "gameboy/memory/controller/mbc5.h"
 #include "gameboy/memory/controller/mbc_regular.h"
+#include "gameboy/util/fileutil.h"
 
 namespace gameboy {
     
@@ -23,7 +24,8 @@ class cartridge {
     friend memory_bank_debugger;
 
 public:
-    explicit cartridge(std::string_view rom_path);
+    explicit cartridge(const filesystem::path& rom_path);
+    ~cartridge();
 
     [[nodiscard]] uint8_t read_rom(const address16& address) const;
     void write_rom(const address16& address, uint8_t data);
@@ -36,9 +38,9 @@ public:
 
     [[nodiscard]] const std::string& name() const noexcept { return name_; }
     [[nodiscard]] bool cgb_enabled() const noexcept { return cgb_enabled_; }
-    [[nodiscard]] bool has_battery() const noexcept { return has_battery_; }
 
 private:
+    filesystem::path rom_path_;
     bool cgb_enabled_ = false;
     bool has_battery_ = false;
     std::string_view cgb_type_;
@@ -57,6 +59,9 @@ private:
     [[nodiscard]] uint32_t ram_bank() const noexcept;
 
     [[nodiscard]] physical_address physical_ram_addr(const address16& address) const noexcept;
+
+    void load_ram();
+    void save_ram();
 };
 
 } // namespace gameboy

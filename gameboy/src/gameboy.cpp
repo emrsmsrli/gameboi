@@ -5,7 +5,7 @@
 
 namespace gameboy {
 
-gameboy::gameboy(const std::string_view rom_path)
+gameboy::gameboy(const filesystem::path& rom_path)
     : cartridge_{rom_path},
       bus_{make_observer(this)},
       mmu_{make_observer(bus_)},
