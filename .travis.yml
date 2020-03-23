@@ -66,6 +66,7 @@ script:
   - if [ "${COV}" = "1" ]; then bash ../scripts/report_coverage.sh ; fi
 
 before_deploy:
+  - cd ..
   - git config --local user.name  "emrsmsrli"
   - git config --local user.email "emrsmsrli1@gmail.com"
   - export RELEASE_TAG=release-$(head -1 gameboy/CMakeLists.txt | awk '{print $3}')-$(git log --format=%h -1)
