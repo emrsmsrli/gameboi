@@ -7,6 +7,10 @@ cache:
   directories:
     - ./.sonar_cache
 
+branches:
+  only:
+    - master
+
 addons: &addons_base
   sonarcloud:
     organization: "emrsmsrli"
