@@ -165,7 +165,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
             break;
         }
         default: {
-            spdlog::critical("unimplemented cartridge type {}", magic_enum::underlying_type_t<mbc_type>{});
+            spdlog::critical("unimplemented cartridge type {:#04x}", magic_enum::enum_integer(mbc));
         }
     }
 
