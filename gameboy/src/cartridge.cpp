@@ -26,7 +26,7 @@ enum class rom_type : uint8_t {
     kb_512 = 0x04u,
     mb_1 = 0x05u,
     mb_2 = 0x06u,
-    mb_5 = 0x07u,
+    mb_4 = 0x07u,
     mb_1_1 = 0x52u,
     mb_1_2 = 0x53u,
     mb_1_5 = 0x54u
@@ -36,7 +36,9 @@ enum class ram_type : uint8_t {
     none = 0x00u,
     kb_2 = 0x01u,
     kb_8 = 0x02u,
-    kb_32 = 0x03u
+    kb_32 = 0x03u,
+    kb_128 = 0x04u,
+    kb_64 = 0x05u
 };
 
 enum class mbc_type : uint8_t {
@@ -51,8 +53,8 @@ enum class mbc_type : uint8_t {
     mmm_01 = 0x0Bu,
     mmm_01_ram = 0x0Cu,
     mmm_01_ram_battery = 0x0Du,
-    mbc_3_timer_battery = 0x0Fu,
-    mbc_3_timer_ram_battery = 0x10u,
+    mbc_3_rtc_battery = 0x0Fu,
+    mbc_3_rtc_ram_battery = 0x10u,
     mbc_3 = 0x11u,
     mbc_3_ram = 0x12u,
     mbc_3_ram_battery = 0x13u,
@@ -85,12 +87,13 @@ filesystem::path get_save_path(const filesystem::path& rom_path) noexcept
 
 cartridge::cartridge(const filesystem::path& rom_path)
     : rom_path_{rom_path},
-      rom_{load_file(rom_path)}
+      rom_{load_file(rom_path)},
+      mbc_{mbc_regular{make_observer(this)}}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
     constexpr auto mbc_type_addr = make_address(0x0147u);
     constexpr auto rom_size_addr = make_address(0x0148u);
-    constexpr auto xram_size_addr = make_address(0x0149u);
+    constexpr auto ram_size_addr = make_address(0x0149u);
     constexpr auto header_checksum_addr = make_address(0x014Du);
 
     constexpr address_range rom_header_range(0x0134u, 0x014Cu);
@@ -117,16 +120,6 @@ cartridge::cartridge(const filesystem::path& rom_path)
     cgb_enabled_ = cgb != cgb_type::only_gb;
     cgb_type_ = magic_enum::enum_name(cgb);
 
-    rom_type_ = magic_enum::enum_name(read<rom_type>(rom_, rom_size_addr));
-
-    const auto xram_type = read<ram_type>(rom_, xram_size_addr);
-    const auto xram_banks = xram_type == ram_type::kb_32
-                            ? 4u
-                            : 1u;
-    ram_.resize(xram_banks * 8_kb);
-    std::fill(begin(ram_), end(ram_), 0u);
-    ram_type_ = magic_enum::enum_name(xram_type);
-
     const auto mbc = read<mbc_type>(rom_, mbc_type_addr);
     mbc_type_ = magic_enum::enum_name(mbc);
     switch(mbc) {
@@ -139,20 +132,20 @@ cartridge::cartridge(const filesystem::path& rom_path)
         case mbc_type::mbc_1:
         case mbc_type::mbc_1_ram:
         case mbc_type::mbc_1_ram_battery: {
-            mbc_ = mbc1{};
+            mbc_ = mbc1{make_observer(this)};
             break;
         }
         case mbc_type::mbc_2:
         case mbc_type::mbc_2_battery: {
-            mbc_ = mbc2{};
+            mbc_ = mbc2{make_observer(this)};
             break;
         }
-        case mbc_type::mbc_3_timer_battery:
-        case mbc_type::mbc_3_timer_ram_battery:
+        case mbc_type::mbc_3_rtc_battery:
+        case mbc_type::mbc_3_rtc_ram_battery:
         case mbc_type::mbc_3:
         case mbc_type::mbc_3_ram:
         case mbc_type::mbc_3_ram_battery: {
-            mbc_ = mbc3{};
+            mbc_ = mbc3{make_observer(this)};
             break;
         }
         case mbc_type::mbc_5:
@@ -161,7 +154,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
         case mbc_type::mbc_5_rumble:
         case mbc_type::mbc_5_rumble_ram:
         case mbc_type::mbc_5_rumble_ram_battery: {
-            mbc_ = mbc5{};
+            mbc_ = mbc5{make_observer(this)};
             break;
         }
         default: {
@@ -169,34 +162,78 @@ cartridge::cartridge(const filesystem::path& rom_path)
         }
     }
 
-    spdlog::info("cartridge info");
-    spdlog::info("name: {}", name_);
-    spdlog::info("cgb: {}, {}", cgb_enabled_, cgb_type_);
-    spdlog::info("rom: {} ram: {}", rom_type_, ram_type_);
-    spdlog::info("name: {}", name_);
-    spdlog::info("mbc type: {}\n", mbc_type_);
+    const auto rom_size_type = read<rom_type>(rom_, rom_size_addr);
+    rom_type_ = magic_enum::enum_name(rom_size_type);
+    rom_bank_count_ = [](rom_type type) {
+        switch(type) {
+            case rom_type::kb_32:   return 0u;
+            case rom_type::kb_64:   return 4u;
+            case rom_type::kb_128:  return 8u;
+            case rom_type::kb_256:  return 16u;
+            case rom_type::kb_512:  return 32u;
+            case rom_type::mb_1:    return 64u;
+            case rom_type::mb_2:    return 128u;
+            case rom_type::mb_4:    return 256u;
+            case rom_type::mb_1_1:  return 72u;
+            case rom_type::mb_1_2:  return 80u;
+            case rom_type::mb_1_5:  return 96u;
+        }
+    }(rom_size_type);
+
+    const auto ram_size_type = read<ram_type>(rom_, ram_size_addr);
+    ram_type_ = magic_enum::enum_name(ram_size_type);
+    ram_bank_count_ = [](ram_type type) {
+        switch(type) {
+            case ram_type::none:    return 0u;
+            case ram_type::kb_2:
+            case ram_type::kb_8:    return 1u;
+            case ram_type::kb_32:   return 4u;
+            case ram_type::kb_128:  return 16u;
+            case ram_type::kb_64:   return 8u;
+        }
+    }(ram_size_type);
+
+    const auto allocate_ram = [&](size_t amount) {
+        ram_.resize(amount);
+        std::fill(begin(ram_), end(ram_), 0u);
+    };
+
+    if(mbc == mbc_type::mbc_2 || mbc == mbc_type::mbc_2_battery) { // has 512 * 4 bits of ram
+        allocate_ram(512u);
+    } else if(ram_bank_count_ != 0u) {
+        allocate_ram(ram_bank_count_ * 8_kb);
+    }
 
     switch(mbc) {
         case mbc_type::mbc_1_ram_battery:
         case mbc_type::mbc_2_battery:
         case mbc_type::rom_ram_battery:
         case mbc_type::mmm_01_ram_battery:
-        case mbc_type::mbc_3_timer_battery:
-        case mbc_type::mbc_3_timer_ram_battery:
+        case mbc_type::mbc_3_rtc_battery:
+        case mbc_type::mbc_3_rtc_ram_battery:
         case mbc_type::mbc_3_ram_battery:
         case mbc_type::mbc_5_ram_battery:
         case mbc_type::mbc_5_rumble_ram_battery:
         case mbc_type::huc_1_ram_battery:
         case mbc_type::mbc_7_sensor_rumble_ram_battery:
             has_battery_ = true;
-            spdlog::info("found mbc battery, will save on exit");
             load_ram();
             break;
         default:
             break;
     }
 
-    spdlog::info("-------------");
+    has_rtc_ = mbc == mbc_type::mbc_3_rtc_battery || mbc == mbc_type::mbc_3_rtc_ram_battery;
+
+    spdlog::info("----- cartridge -----");
+    spdlog::info("name: {}", name_);
+    spdlog::info("type: {}", mbc_type_);
+    spdlog::info("cgb: {}, {}", cgb_enabled_, cgb_type_);
+    spdlog::info("battery: {}", has_battery());
+    spdlog::info("rtc: {}", has_rtc());
+    spdlog::info("rom: {}", rom_type_);
+    spdlog::info("ram: {}", ram_type_);
+    spdlog::info("---------------------\n");
 }
 
 cartridge::~cartridge()
@@ -230,55 +267,37 @@ void cartridge::write_rom(const address16& address, uint8_t data)
 
 uint8_t cartridge::read_ram(const address16& address) const
 {
-    if(!xram_enabled()) {
+    if(!ram_enabled()) {
         return 0xFFu;
     }
 
     return std::visit([&](auto&& mbc) {
-        return mbc.read_ram(ram_, physical_ram_addr(address));
+        return mbc.read_ram(physical_ram_addr(address));
     }, mbc_);
 }
 
 void cartridge::write_ram(const address16& address, uint8_t data)
 {
-    if(!xram_enabled()) {
+    if(!ram_enabled()) {
         return;
     }
 
     std::visit([&](auto&& mbc) {
-        mbc.write_ram(ram_, physical_ram_addr(address), data);
+        mbc.write_ram(physical_ram_addr(address), data);
     }, mbc_);
 }
 
-bool cartridge::xram_enabled() const noexcept
+bool cartridge::ram_enabled() const noexcept
 {
     return std::visit([](auto&& mbc) {
-        return mbc.xram_enabled;
+        return mbc.is_ram_enabled();
     }, mbc_);
 }
 
 uint32_t cartridge::rom_bank() const noexcept
 {
-    return std::visit(overloaded{
-        [](const mbc1& mbc) {
-            const auto bank = mbc.rom_banking_active
-                ? mbc.ram_bank << 0x5u | mbc.rom_bank
-                : mbc.rom_bank;
-
-            switch(bank) {
-                case 0x00u:
-                case 0x20u:
-                case 0x40u:
-                case 0x60u:
-                    // these banks are unusuable, must return the next one
-                    return bank + 1;
-                default:
-                    return bank;
-            }
-        },
-        [](auto&& mbc) {
-            return mbc.rom_bank;
-        }
+    return std::visit([](auto&& mbc) {
+        return mbc.rom_bank();
     }, mbc_);
 }
 
@@ -286,14 +305,14 @@ uint32_t cartridge::ram_bank() const noexcept
 {
     return std::visit(overloaded{
         [](const mbc1& mbc) {
-            if(mbc.rom_banking_active) {
+            if(mbc.rom_banking_active()) {
                 return 0u;
             }
 
-            return mbc.ram_bank;
+            return mbc.ram_bank();
         },
         [](auto&& mbc) {
-            return mbc.ram_bank;
+            return mbc.ram_bank();
         }
     }, mbc_);
 }
@@ -307,14 +326,13 @@ void cartridge::load_ram()
 {
     const auto save_path = get_save_path(rom_path_);
     if(filesystem::exists(save_path) && filesystem::file_size(save_path) == ram_.size()) {
-        spdlog::info("found existing save, loading");
         ram_ = load_file(save_path);
     }
 }
 
 void cartridge::save_ram()
 {
-    if(has_battery_) {
+    if(has_battery()) {
         write_file(get_save_path(rom_path_), ram_);
     }
 }

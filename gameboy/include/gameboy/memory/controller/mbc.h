@@ -3,20 +3,27 @@
 
 #include <cstdint>
 
+#include "gameboy/util/observer.h"
+
 namespace gameboy {
 
 class cartridge;
 
-struct mbc {
-    /** in range [0, N) */
-    uint32_t rom_bank = 1u;
+class mbc {
+public:
+    explicit mbc(const observer<cartridge> cartridge) : cartridge_{cartridge} {}
 
-    /** in range [0, N] */
-    uint32_t ram_bank = 0u;
+    void set_ram_enabled(const uint8_t data) noexcept { ram_enabled_ = (data & 0x0Fu) == 0x0Au; }
+    [[nodiscard]] bool is_ram_enabled() const noexcept { return ram_enabled_; }
+    [[nodiscard]] uint32_t rom_bank() const noexcept { return rom_bank_; }
+    [[nodiscard]] uint32_t ram_bank() const noexcept { return ram_bank_; }
 
-    bool xram_enabled = false;
+protected:
+    observer<cartridge> cartridge_;
 
-    void set_xram_enabled(const uint8_t data) noexcept { xram_enabled = (data & 0x0Fu) == 0x0Au; }
+    uint32_t rom_bank_ = 1u;
+    uint32_t ram_bank_ = 0u;
+    bool ram_enabled_ = false;
 };
 
 } // namespace gameboy

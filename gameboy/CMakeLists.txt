@@ -15,6 +15,7 @@ add_library(${PROJECT_NAME}
         src/link/link.cpp
         src/joypad/joypad.cpp
         src/memory/mmu.cpp
+        src/memory/controller/mbc_regular.cpp
         src/memory/controller/mbc1.cpp
         src/memory/controller/mbc2.cpp
         src/memory/controller/mbc3.cpp
