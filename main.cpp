@@ -102,7 +102,7 @@ int main(const int argc, const char* argv[])
         return 1;
     }
 
-    gameboy::gameboy gb(argv[1]);
+    gameboy::gameboy gb{argv[1]};
     renderer renderer{gb, 600u, 600u};
 
 #if WITH_DEBUGGER

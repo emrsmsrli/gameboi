@@ -88,7 +88,7 @@ uint8_t mmu::read(const address16& address) const
     }
 
     spdlog::warn("out of bounds read: {:#x}", address.value());
-    return 0xFFu;;
+    return 0xFFu;
 }
 
 void mmu::write_wram(const address16& address, const uint8_t data)

@@ -69,6 +69,7 @@ ppu::ppu(observer<bus> bus)
       lcd_enabled_{true},
       line_rendered_{false},
       vblank_line_{0},
+      window_line_{0u},
       lcd_enable_delay_frame_count_{0},
       lcd_enable_delay_cycle_count_{0},
       cycle_count_{0u},
@@ -126,6 +127,7 @@ void ppu::tick(const uint8_t cycles)
                 lcd_enable_delay_cycle_count_ = 0;
                 lcd_enable_delay_frame_count_ = lcd_enable_delay_frames;
                 vblank_line_ = 0;
+                window_line_ = 0;
                 ly_ = 0u;
 
                 cycle_count_ = 0u;
@@ -173,6 +175,7 @@ void ppu::tick(const uint8_t cycles)
                     stat_.set_mode(stat_mode::v_blank);
                     secondary_cycle_count_ = cycle_count_;
                     vblank_line_ = 0;
+                    window_line_ = 0;
 
                     bus_->get_cpu()->request_interrupt(interrupt::lcd_vblank);
 
@@ -399,6 +402,12 @@ void ppu::general_purpose_register_write(const address16& address, const uint8_t
     } else if(address == lcdc_addr) {
         register_lcdc new_lcdc{data};
 
+        if(!lcdc_.window_enabled() && new_lcdc.window_enabled()) {
+            if(window_line_ == 0u && ly_ < screen_height && ly_ > wy_) {
+                window_line_ = screen_height;
+            }
+        }
+
         if(new_lcdc.lcd_enabled()) {
             if(!lcd_enabled_) {
                 lcd_enable_delay_cycle_count_ = lcd_enable_delay_cycles;
@@ -624,7 +633,7 @@ void ppu::gdma()
     dma_transfer_.length_mode_start = 0xFFu;
 }
 
-void ppu::render() const noexcept
+void ppu::render() noexcept
 {
     const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
 
@@ -633,6 +642,7 @@ void ppu::render() const noexcept
     std::fill(begin(buffer), end(buffer), std::make_pair(0u, attributes::uninitialized{}));
 
     render_background(buffer);
+    render_window(buffer);
     render_obj(buffer);
 
     for(auto pixel_idx = 0u; pixel_idx < line.size(); ++pixel_idx) {
@@ -706,33 +716,26 @@ void ppu::render_background(render_buffer& buffer) const noexcept
             }
         }
     }
-
-    // render_window(buffer);
 }
 
-void ppu::render_window(render_buffer& buffer) const noexcept
+void ppu::render_window(render_buffer& buffer) noexcept
 {
-    // fixme broken impl?
-    if(!lcdc_.window_enabled()) {
+    if(window_line_ >= screen_height || !lcdc_.window_enabled()) {
         return;
     }
 
-    const auto wx = wx_ - 7u;
-
-    if(wy_ > ly_ || wy_ >= screen_height || wx >= screen_width) {
+    if(wy_ > ly_ || wy_ >= screen_height || wx_ >= screen_width + 7u) {
         return;
     }
 
     const auto tile_start_addr = address16(lcdc_.window_map_secondary() ? 0x9C00u : 0x9800u);
-    const auto tile_y_to_render = (wy_ + ly_).value() % tile_pixel_count;
+    const auto tile_y_to_render = window_line_ % tile_pixel_count;
 
-    const auto tile_map_y = ((wy_ + ly_).value() / tile_pixel_count) % map_tile_count;
-    const auto tile_map_x_start = wx / tile_pixel_count;
-    const auto tile_map_x_end = std::min(tile_map_x_start + screen_width / tile_pixel_count, map_tile_count);
+    const auto tile_map_y_start = tile_start_addr + window_line_ / tile_pixel_count * map_tile_count;
+    const auto tile_map_x_end = screen_width / tile_pixel_count;
 
-    for(auto tile_map_x = tile_map_x_start; tile_map_x < tile_map_x_end; ++tile_map_x) {
-        const auto tile_map_idx = tile_start_addr + tile_map_y * map_tile_count + tile_map_x;
-
+    for(auto tile_map_x = 0; tile_map_x < tile_map_x_end + 1u; ++tile_map_x) {
+        const auto tile_map_idx = tile_map_y_start + tile_map_x;
         const auto tile_no = read_ram_by_bank(tile_map_idx, 0);
         const attributes::bg tile_attr{read_ram_by_bank(tile_map_idx, 1)};
 
@@ -745,11 +748,17 @@ void ppu::render_window(render_buffer& buffer) const noexcept
             std::reverse(begin(tile_row), end(tile_row));
         }
 
-        auto tile_idx = 0u;
-        const auto tile_x_start = wx; // fixme incorrect start
-        const auto tile_x_end = std::min(tile_x_start + tile_pixel_count, screen_width);
-        for(auto tile_x = tile_x_start; tile_x < tile_x_end; ++tile_x) {
-            buffer[tile_x] = std::make_pair(tile_row[tile_idx++], tile_attr);
+        for(auto tile_x = 0u; tile_x < tile_pixel_count; ++tile_x) {
+            const int16_t pix_idx = tile_map_x * tile_pixel_count + tile_x + wx_.value() - 7;
+
+            if(pix_idx >= static_cast<int32_t>(screen_width)) {
+                ++window_line_;
+                return;
+            }
+
+            if(0 <= pix_idx) {
+                buffer[pix_idx] = std::make_pair(tile_row[tile_x], tile_attr);
+            }
         }
     }
 }

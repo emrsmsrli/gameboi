@@ -9,7 +9,6 @@
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/util/overloaded.h"
-#include "gameboy/util/data_loader.h"
 
 namespace gameboy {
 
@@ -77,8 +76,16 @@ template<typename T = uint8_t, typename AddrType>
     return static_cast<T>(rom_data[addr.value()]);
 }
 
-cartridge::cartridge(const std::string_view rom_path)
-    : rom_{data_loader::load(rom_path)}
+filesystem::path get_save_path(const filesystem::path& rom_path) noexcept
+{
+    auto save_path = rom_path;
+    save_path.replace_extension(".sav");
+    return save_path;
+}
+
+cartridge::cartridge(const filesystem::path& rom_path)
+    : rom_path_{rom_path},
+      rom_{load_file(rom_path)}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
     constexpr auto mbc_type_addr = make_address(0x0147u);
@@ -162,12 +169,12 @@ cartridge::cartridge(const std::string_view rom_path)
         }
     }
 
-    spdlog::info("cartridge info:");
+    spdlog::info("cartridge info");
     spdlog::info("name: {}", name_);
     spdlog::info("cgb: {}, {}", cgb_enabled_, cgb_type_);
     spdlog::info("rom: {} ram: {}", rom_type_, ram_type_);
     spdlog::info("name: {}", name_);
-    spdlog::info("mbc type: {}", mbc_type_);
+    spdlog::info("mbc type: {}\n", mbc_type_);
 
     switch(mbc) {
         case mbc_type::mbc_1_ram_battery:
@@ -182,11 +189,19 @@ cartridge::cartridge(const std::string_view rom_path)
         case mbc_type::huc_1_ram_battery:
         case mbc_type::mbc_7_sensor_rumble_ram_battery:
             has_battery_ = true;
-            spdlog::info("mbc has battery, saving on exit..");
+            spdlog::info("found mbc battery, will save on exit");
+            load_ram();
             break;
         default:
             break;
     }
+
+    spdlog::info("-------------");
+}
+
+cartridge::~cartridge()
+{
+    save_ram();
 }
 
 uint8_t cartridge::read_rom(const address16& address) const
@@ -286,6 +301,22 @@ uint32_t cartridge::ram_bank() const noexcept
 physical_address cartridge::physical_ram_addr(const address16& address) const noexcept
 {
     return physical_address{address.value() - *begin(xram_range) + 8_kb * ram_bank()};
+}
+
+void cartridge::load_ram()
+{
+    const auto save_path = get_save_path(rom_path_);
+    if(filesystem::exists(save_path) && filesystem::file_size(save_path) == ram_.size()) {
+        spdlog::info("found existing save, loading");
+        ram_ = load_file(save_path);
+    }
+}
+
+void cartridge::save_ram()
+{
+    if(has_battery_) {
+        write_file(get_save_path(rom_path_), ram_);
+    }
 }
 
 } // namespace gameboy
