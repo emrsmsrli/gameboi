@@ -33,7 +33,6 @@ void mbc1::control(const address16& address, const uint8_t data) noexcept
             ram_bank_ = data & 0x03u;
             ram_bank_ &= cartridge_->ram_bank_count() - 1u;
         }
-        ram_bank_ = data & 0x03u;
     } else if(memory_mode_select_range.has(address)) {
         rom_banking_active_ = !bit_test(data, 0u);
     }
