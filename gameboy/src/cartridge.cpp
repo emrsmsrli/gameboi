@@ -166,7 +166,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
     rom_type_ = magic_enum::enum_name(rom_size_type);
     rom_bank_count_ = [](rom_type type) {
         switch(type) {
-            case rom_type::kb_32:   return 0u;
+            case rom_type::kb_32:   return 2u;
             case rom_type::kb_64:   return 4u;
             case rom_type::kb_128:  return 8u;
             case rom_type::kb_256:  return 16u;
