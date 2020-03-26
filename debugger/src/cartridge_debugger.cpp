@@ -171,8 +171,8 @@ void cartridge_debugger::draw_info() const
             ImGui::Text("has battery: %d", cartridge_->has_battery());
             ImGui::Text("has rtc:     %d", cartridge_->has_rtc());
             ImGui::Text("ram enabled: %d", cartridge_->ram_enabled());
-            ImGui::Text("rom banks:    %d", cartridge_->rom_bank_count());
-            ImGui::Text("ram banks:    %d", cartridge_->ram_bank_count());
+            ImGui::Text("rom banks:   %d", cartridge_->rom_bank_count());
+            ImGui::Text("ram banks:   %d", cartridge_->ram_bank_count());
 
             std::visit(overloaded{
                 [](const mbc1& mbc) {
