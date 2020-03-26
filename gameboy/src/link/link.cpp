@@ -1,5 +1,6 @@
 #include "gameboy/link/link.h"
 #include "gameboy/bus.h"
+#include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/mmu.h"
@@ -11,6 +12,7 @@ constexpr address16 sc_addr{0xFF02u};
 
 link::link(const observer<bus> bus) noexcept
     : bus_{bus},
+      sc_(bus_->get_cartridge()->cgb_enabled() ? 0x7Cu : 0x7Eu),
       shift_clock_{0u},
       shift_counter_{0u}
 {
@@ -66,7 +68,7 @@ uint8_t link::on_sb_read(const address16&) const noexcept
 
 void link::on_sc_write(const address16&, const uint8_t data) noexcept
 {
-    sc_ = data;
+    sc_ = data | (bus_->get_cartridge()->cgb_enabled() ? 0x7Cu : 0x7Eu);
 }
 
 uint8_t link::on_sc_read(const address16&) const noexcept

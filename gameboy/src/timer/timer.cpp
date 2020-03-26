@@ -88,7 +88,7 @@ void timer::on_write(const address16& address, const uint8_t data) noexcept
     if(address == div_addr) { div_ = 0u; }
     else if(address == tima_addr) { tima_ = data; }
     else if(address == tma_addr) { tma_ = data; }
-    else if(address == tac_addr) { tac_ = data; }
+    else if(address == tac_addr) { tac_ = data | 0xF8u; }
 }
 
 } // namespace gameboy
