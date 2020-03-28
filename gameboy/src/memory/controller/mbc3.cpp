@@ -47,12 +47,9 @@ void mbc3::control(const address16& address, const uint8_t data) noexcept
         if(rom_bank_ == 0u) {
             rom_bank_ = 1u;
         }
-
-        rom_bank_ &= cartridge_->rom_bank_count() - 1u;
     } else if(ram_bank_or_rtc_reg_select_range.has(address)) {
         if(data <= 0x03u) {
             ram_bank_ = data;
-            ram_bank_ &= cartridge_->ram_bank_count() - 1u;
             rtc_.enabled = false;
         } else if(0x08u <= data && data <= 0x0Cu) {
             if(cartridge_->has_rtc()) {

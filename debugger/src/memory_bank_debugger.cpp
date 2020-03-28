@@ -23,7 +23,8 @@ void gameboy::memory_bank_debugger::draw() noexcept
             if(ImGui::BeginTabBar("cartridgememorytabs")) {
                 auto cartridge = bus_->get_cartridge();
                 if(ImGui::BeginTabItem("ROM")) {
-                    ImGui::Text("Selected bank: %02X", cartridge->rom_bank());
+                    ImGui::Text("Selected bank(0x0000-0x3FFF): %02X", cartridge->rom_bank(address16(0x3FFFu)));
+                    ImGui::Text("Selected bank(0x4000-0x7FFF): %02X", cartridge->rom_bank(address16(0x4000u)));
                     ImGui::Spacing();
 
                     memory_editor_.DrawContents(cartridge->rom_.data(), cartridge->rom_.size());

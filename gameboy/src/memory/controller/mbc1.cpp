@@ -18,21 +18,11 @@ void mbc1::control(const address16& address, const uint8_t data) noexcept
         }
     } else if(rom_bank_select_range.has(address)) {
         rom_bank_ = data & 0x1Fu;
-        if(rom_banking_active_) {
-            rom_bank_ |= rom_bank_higher_bits_ << 5u;
+        if(rom_bank_ == 0u) {
+            rom_bank_ = 1u;
         }
-
-        adjust_selected_rom_bank();
     } else if(ram_bank_select_range.has(address)) {
-        if(rom_banking_active_) {
-            rom_bank_higher_bits_ = data & 0x03u;
-            rom_bank_ = (rom_bank_ & 0x1Fu) | (rom_bank_higher_bits_ << 5u);
-
-            adjust_selected_rom_bank();
-        } else {
-            ram_bank_ = data & 0x03u;
-            ram_bank_ &= cartridge_->ram_bank_count() - 1u;
-        }
+        ram_bank_ = data & 0x03u;
     } else if(memory_mode_select_range.has(address)) {
         rom_banking_active_ = !bit_test(data, 0u);
     }
@@ -46,15 +36,6 @@ uint8_t mbc1::read_ram(const physical_address& address) const
 void mbc1::write_ram(const physical_address& address, const uint8_t data)
 {
     cartridge_->ram()[address.value()] = data;
-}
-
-void mbc1::adjust_selected_rom_bank() noexcept
-{
-    if(rom_bank_ == 0x00 || rom_bank_ == 0x20 || rom_bank_ == 0x40 || rom_bank_ == 0x60) {
-        ++rom_bank_;
-    }
-
-    rom_bank_ &= cartridge_->rom_bank_count() - 1u;
 }
 
 } // namespace gameboy

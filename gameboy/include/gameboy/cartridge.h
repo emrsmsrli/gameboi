@@ -69,13 +69,13 @@ private:
     std::variant<mbc_regular, mbc1, mbc2, mbc3, mbc5> mbc_;
 
     [[nodiscard]] bool ram_enabled() const noexcept;
-    [[nodiscard]] uint32_t rom_bank() const noexcept;
+    [[nodiscard]] uint32_t rom_bank(const address16& address) const noexcept;
     [[nodiscard]] uint32_t ram_bank() const noexcept;
 
     [[nodiscard]] physical_address physical_ram_addr(const address16& address) const noexcept;
 
     void load_ram();
-    void save_ram();
+    void save_ram() const;
 };
 
 } // namespace gameboy

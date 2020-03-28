@@ -12,6 +12,8 @@
 
 namespace gameboy {
 
+constexpr address_range first_rom_bank_range{0x3FFFu};
+
 enum class cgb_type : uint8_t {
     only_gb = 0x00u,
     supports_cgb = 0x80u,
@@ -27,6 +29,7 @@ enum class rom_type : uint8_t {
     mb_1 = 0x05u,
     mb_2 = 0x06u,
     mb_4 = 0x07u,
+    mb_8 = 0x08u,
     mb_1_1 = 0x52u,
     mb_1_2 = 0x53u,
     mb_1_5 = 0x54u
@@ -174,6 +177,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
             case rom_type::mb_1:    return 64u;
             case rom_type::mb_2:    return 128u;
             case rom_type::mb_4:    return 256u;
+            case rom_type::mb_8:    return 512u;
             case rom_type::mb_1_1:  return 72u;
             case rom_type::mb_1_2:  return 80u;
             case rom_type::mb_1_5:  return 96u;
@@ -244,12 +248,11 @@ cartridge::~cartridge()
 uint8_t cartridge::read_rom(const address16& address) const
 {
     const auto physical_addr = [&]() -> size_t {
-        static constexpr address_range first_rom_bank_range{0x3FFFu};
         if(first_rom_bank_range.has(address)) {
-            return address.value();
+            return address.value() + 16_kb * rom_bank(address);
         }
 
-        return address.value() + 16_kb * (rom_bank() - 1u);
+        return address.value() + 16_kb * (rom_bank(address) - 1u);
     }();
 
     return rom_[physical_addr];
@@ -294,11 +297,28 @@ bool cartridge::ram_enabled() const noexcept
     }, mbc_);
 }
 
-uint32_t cartridge::rom_bank() const noexcept
+uint32_t cartridge::rom_bank(const address16& address) const noexcept
 {
-    return std::visit([](auto&& mbc) {
-        return mbc.rom_bank();
-    }, mbc_);
+   return std::visit(overloaded{
+        [&](const mbc1& mbc) {
+            if(first_rom_bank_range.has(address)) {
+                if(mbc.rom_banking_active()) {
+                    return 0u;
+                }
+
+                return mbc.ram_bank() << 5u;
+            }
+
+            return mbc.rom_bank() | (mbc.ram_bank() << 5u);
+        },
+        [&](auto&& mbc) {
+            if(first_rom_bank_range.has(address)) {
+                return 0u;
+            }
+
+            return mbc.rom_bank();
+        }
+    }, mbc_) & (rom_bank_count() - 1u);
 }
 
 uint32_t cartridge::ram_bank() const noexcept
@@ -314,7 +334,7 @@ uint32_t cartridge::ram_bank() const noexcept
         [](auto&& mbc) {
             return mbc.ram_bank();
         }
-    }, mbc_);
+    }, mbc_) & (ram_bank_count() - 1u);
 }
 
 physical_address cartridge::physical_ram_addr(const address16& address) const noexcept
@@ -330,7 +350,7 @@ void cartridge::load_ram()
     }
 }
 
-void cartridge::save_ram()
+void cartridge::save_ram() const
 {
     if(has_battery()) {
         write_file(get_save_path(rom_path_), ram_);

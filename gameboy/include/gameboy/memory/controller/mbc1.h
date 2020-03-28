@@ -23,9 +23,6 @@ public:
 
 private:
     bool rom_banking_active_ = true;
-    uint8_t rom_bank_higher_bits_ = 0u;
-
-    void adjust_selected_rom_bank() noexcept;
 };
 
 } // namespace gameboy

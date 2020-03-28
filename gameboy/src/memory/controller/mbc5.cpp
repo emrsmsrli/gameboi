@@ -13,17 +13,14 @@ void mbc5::control(const address16& address, const uint8_t data) noexcept
 
     if(external_ram_enable_range.has(address)) {
         if(cartridge_->ram_bank_count() != 0u) {
-            set_ram_enabled(data);
+            ram_enabled_ = data == 0x0Au;
         }
     } else if(rom_bank_select_low_range.has(address)) {
         rom_bank_ = (rom_bank_ & 0x0100u) | data;
-        rom_bank_ &= cartridge_->rom_bank_count() - 1u;
     } else if(rom_bank_select_high_range.has(address)) {
         rom_bank_ = (rom_bank_ & 0x00FFu) | ((data & 0x01u) << 8u);
-        rom_bank_ &= cartridge_->rom_bank_count() - 1u;
     } else if(ram_bank_select_range.has(address)) {
         ram_bank_ = data & 0x0Fu;
-        ram_bank_ &= cartridge_->ram_bank_count() - 1u;
     }
 }
 
