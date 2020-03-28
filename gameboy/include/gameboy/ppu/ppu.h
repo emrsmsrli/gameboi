@@ -118,7 +118,9 @@ private:
     std::array<palette, 8> cgb_bg_palettes_;
     std::array<palette, 8> cgb_obj_palettes_;
     register8 bgpi_;
+    register8 bgpd_;
     register8 obpi_;
+    register8 obpd_;
 
     dma_transfer_data dma_transfer_;
 

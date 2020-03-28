@@ -89,7 +89,9 @@ ppu::ppu(observer<bus> bus)
       gb_palette_{palette_zelda},
       bgp_{0xFCu},
       bgpi_{0x00u},
-      obpi_{0x00u}
+      bgpd_{0x00u},
+      obpi_{0x00u},
+      obpd_{0x00u}
 {
     const auto fill_palettes = [](auto& p, const auto& palette) { std::fill(begin(p), end(p), palette); };
     fill_palettes(obp_, register8{0xFFu});
@@ -463,49 +465,49 @@ uint8_t ppu::palette_read(const address16& address) const
     if(address == bgp_addr) { return bgp_.value(); }
     if(address == obp_0_addr) { return obp_[0].value(); }
     if(address == obp_1_addr) { return obp_[1].value(); }
-
-    if(address == bgpi_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return 0xFFu;
-        }
-
-        return bgpi_.value();
-    }
-
-    if(address == obpi_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return 0xFFu;
-        }
-
-        return obpi_.value();
-    }
+    if(address == bgpi_addr) { return bgpi_.value(); }
+    if(address == bgpd_addr) { return bgpd_.value(); }
+    if(address == obpi_addr) { return obpi_.value(); }
+    if(address == obpd_addr) { return obpd_.value(); }
 
     return 0u;
 }
 
 void ppu::palette_write(const address16& address, const uint8_t data)
 {
-    const auto set_palette = [](auto& index_register, auto& palettes, const uint8_t data) noexcept {
+    const auto update_palette_data_register = [](auto& index_register, auto& data_register, auto& palettes) {
+        const auto is_msb = bit_test(index_register, 0u);
+        const auto color_index = (index_register.value() >> 1u) & 0x03u;
+        const auto palette_index = (index_register.value() >> 3u) & 0x07u;
+
+        auto& color = palettes[palette_index].colors[color_index];
+        if(is_msb) {
+            data_register = (color.blue << 2u) | ((color.green >> 3u) & 0x03u);
+        } else {
+            data_register = ((color.green & 0x07u) << 5u) | color.red;
+        }
+    };
+
+    const auto set_palette = [&](auto& index_register, auto& data_register, auto& palettes, const uint8_t data) noexcept {
         const auto auto_increment = bit_test(index_register, 7u);
         const auto is_msb = bit_test(index_register, 0u);
-        const auto color_index = index_register.value() >> 1u & 0x03u;
-        const auto palette_index = index_register.value() >> 3u & 0x07u;
+        const auto color_index = (index_register.value() >> 1u) & 0x03u;
+        const auto palette_index = (index_register.value() >> 3u) & 0x07u;
 
         // msb | xBBBBBGG |
         // lsb | GGGRRRRR |
         auto& color = palettes[palette_index].colors[color_index];
         if(is_msb) {
-            color.blue = data >> 2u & 0x1Fu;
+            color.blue = (data >> 2u) & 0x1Fu;
             color.green |= (data & 0x03u) << 3u;
-
-            color = correct_color(color);
         } else {
             color.red = data & 0x1Fu;
             color.green = (data >> 5u) & 0x07u;
         }
 
         if(auto_increment) {
-            index_register += 1u;
+            index_register = (index_register & 0x80u) | ((index_register + 1u) & 0x3Fu);
+            update_palette_data_register(index_register, data_register, palettes);
         }
     };
 
@@ -516,29 +518,15 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     } else if(address == obp_1_addr) {
         obp_[1] = data;
     } else if(address == bgpi_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
         bgpi_ = data;
+        update_palette_data_register(bgpi_, bgpd_, cgb_bg_palettes_);
     } else if(address == obpi_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
         obpi_ = data;
+        update_palette_data_register(obpi_, obpd_, cgb_obj_palettes_);
     } else if(address == bgpd_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
-        set_palette(bgpi_, cgb_bg_palettes_, data);
+        set_palette(bgpi_, bgpd_, cgb_bg_palettes_, data);
     } else if(address == obpd_addr) {
-        if(stat_.get_mode() == stat_mode::reading_oam_vram) {
-            return;
-        }
-
-        set_palette(obpi_, cgb_obj_palettes_, data);
+        set_palette(obpi_, obpd_, cgb_obj_palettes_, data);
     }
 }
 
@@ -654,7 +642,8 @@ void ppu::render() noexcept
             },
             [&, color = color_idx](const attributes::bg& bg_attr) {
                 if(cgb_enabled) {
-                    line[pixel_idx] = cgb_bg_palettes_[bg_attr.palette_index()].colors[color];
+                    const auto palette_color = cgb_bg_palettes_[bg_attr.palette_index()].colors[color];
+                    line[pixel_idx] = correct_color(palette_color);
                 } else {
                     const auto background_palette = palette::from(gb_palette_, bgp_.value());
                     line[pixel_idx] = background_palette.colors[color];
@@ -662,7 +651,8 @@ void ppu::render() noexcept
             },
             [&, color = color_idx](const attributes::obj& obj_attr) {
                 if(cgb_enabled) {
-                    line[pixel_idx] = cgb_bg_palettes_[obj_attr.cgb_palette_index()].colors[color];
+                    const auto palette_color = cgb_obj_palettes_[obj_attr.cgb_palette_index()].colors[color];
+                    line[pixel_idx] = correct_color(palette_color);
                 } else {
                     const auto background_palette =
                         palette::from(gb_palette_, obp_[obj_attr.gb_palette_index()].value());
@@ -710,7 +700,7 @@ void ppu::render_background(render_buffer& buffer) const noexcept
             const auto pix_idx = tile_map_x * tile_pixel_count + tile_x;
 
             if(rendered_pix_idx < screen_width && (scx_ <= pix_idx ||
-                (scx_ > scroll_offset && pix_idx < scroll_offset)) // bg window overflow
+                (scx_ > scroll_offset && pix_idx < scroll_offset)) // bg scroll overflow
             ) {
                 buffer[rendered_pix_idx++] = std::make_pair(tile_row[tile_x], tile_attr);
             }
@@ -770,27 +760,46 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
     }
 
     const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
+    const auto obj_size = lcdc_.large_obj() ? 16 : 8;
 
     std::array<attributes::obj, 40> objs{};
     std::memcpy(&objs, oam_.data(), oam_.size());
 
+    auto indices = [&]() {
+        std::vector<size_t> idxs;
+        for(size_t idx = 0; idx < objs.size(); ++idx) {
+            const auto& obj = objs[idx];
+            const auto obj_y = obj.y - 16;
+
+            if(ly_ >= obj_y && ly_ < obj_y + obj_size) {
+                idxs.push_back(idx);
+                if(idxs.size() == 10) {
+                    break;
+                }
+            }
+        }
+
+        return idxs;
+    }();
+
     if(!cgb_enabled) {
-        std::stable_sort(begin(objs), end(objs), [](const attributes::obj& l, const attributes::obj& r) {
-            return l.x > r.x;
+        std::sort(begin(indices), end(indices), [&](const auto l, const auto r) {
+            const auto& obj_l = objs[l];
+            const auto& obj_r = objs[r];
+
+            if(obj_l.x == obj_r.x) {
+                return l > r;
+            }
+
+            return obj_l.x > obj_r.x;
         });
     }
 
-    auto rendered_obj_count = 0u;
-    for(auto it = rbegin(objs); it != rend(objs); ++it) {
-        const auto& obj = *it;
+    for(const auto index : indices) {
+        const auto& obj = objs[index];
 
-        const auto obj_size = lcdc_.large_obj() ? 16 : 8;
         const auto obj_y = obj.y - 16;
         const auto obj_x = obj.x - 8;
-
-        if(ly_ < obj_y || ly_ >= obj_y + obj_size) {
-            continue;
-        }
 
         if(-7 > obj_x || obj_x >= static_cast<int32_t>(screen_width)) {
             continue;
@@ -818,7 +827,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             const auto& [color_idx, attr] = buffer[x];
 
             const auto dot_color = tile_row[tile_x];
-            if(dot_color == 0x0u) { // obj color0 is transparent
+            if(dot_color == 0u) { // obj color0 is transparent
                 continue;
             }
 
@@ -827,19 +836,15 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                     buffer[x] = std::make_pair(dot_color, obj);
                 },
                 [&, existing_bg_color = color_idx](const attributes::bg& bg_attr) {
-                    if(bg_attr.prioritized() && existing_bg_color != 0x0u) {
+                    if(bg_attr.prioritized() && existing_bg_color != 0u) {
                         return;
                     }
 
-                    if(obj.prioritized() || existing_bg_color == 0x0u) {
+                    if(obj.prioritized() || existing_bg_color == 0u) {
                         buffer[x] = std::make_pair(dot_color, obj);
                     }
                 }
             }, attr);
-        }
-
-        if(++rendered_obj_count == 10u) {
-            break;
         }
     }
 }
