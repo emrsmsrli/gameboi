@@ -1,4 +1,4 @@
-project(gameboycore VERSION 0.6.0 LANGUAGES CXX)
+project(gameboycore VERSION 0.6.1 LANGUAGES CXX)
 configure_file(cmake/version.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
