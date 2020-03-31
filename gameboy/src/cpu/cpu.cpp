@@ -78,7 +78,11 @@ uint8_t cpu::on_if_read(const address16&) const noexcept
 
 void cpu::on_key_1_write(const address16&, const uint8_t data) noexcept
 {
-    key_1_ = bus_->get_cartridge()->cgb_enabled() ? (data | 0x7Eu) : 0xFFu;
+    if(!bus_->get_cartridge()->cgb_enabled()) {
+        return;
+    }
+
+    key_1_ = (data & 0x01u) | 0x7Eu;
 }
 
 uint8_t cpu::on_key_1_read(const address16&) const noexcept
