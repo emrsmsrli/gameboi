@@ -1,4 +1,5 @@
 #include <cstring>
+#include <SFML/Graphics/Sprite.hpp>
 
 #include "debugger/ppu_debugger.h"
 #include "gameboy/ppu/ppu.h"
@@ -21,9 +22,9 @@ gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
     tiles_img_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
     tiles_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
 
+    bg_map_.create(256, 256);
     for(size_t i = 0u; i < 32u * 32u; ++i) {
         bg_map_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
-        bg_map_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
     }
 
     for(size_t i = 0u; i < 40u; ++i) {
@@ -321,8 +322,7 @@ void gameboy::ppu_debugger::draw_bg_map()
         for(size_t x = 0u; x < 32u; ++x) {
             const auto idx = y * 32u + x;
             auto& img = bg_map_imgs_[idx];
-            auto& tex = bg_map_[idx];
-            
+
             const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + idx, 0);
             const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
 
@@ -330,7 +330,12 @@ void gameboy::ppu_debugger::draw_bg_map()
                 const auto tile_base_addr = current_tile_address == 1
                     ? ppu_->tile_address<uint8_t>(0x8000u, tile_no)
                     : ppu_->tile_address<int8_t>(0x9000u, tile_no);
-                auto tile_row = ppu_->get_tile_row(tile_y, tile_base_addr, tile_attr.vram_bank());
+
+                auto tile_row = ppu_->get_tile_row(tile_attr.v_flipped() ? 7u - tile_y : tile_y, tile_base_addr, tile_attr.vram_bank());
+
+                if(tile_attr.h_flipped()) {
+                    std::reverse(begin(tile_row), end(tile_row));
+                }
 
                 for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
                     const auto color_idx = tile_row[tile_x];
@@ -353,31 +358,41 @@ void gameboy::ppu_debugger::draw_bg_map()
                 }
             }
 
-            tex.update(img);
-            ImGui::Image(tex, {16, 16});
-
-            if(ImGui::IsItemHovered()) {
-                ImGui::BeginTooltip();
-
-                ImGui::Text("x:   %02X", x); ImGui::SameLine();
-                ImGui::Text("y:   %02X", y);
-                ImGui::Text("attributes:  %02X", tile_attr.attributes);
-                ImGui::Separator();
-                ImGui::Text("tile no:     %02X", tile_no);
-                ImGui::Text("prioritized: %d", tile_attr.prioritized());
-                ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
-                ImGui::Text("h flipped:   %d", tile_attr.h_flipped());
-                ImGui::Text("vram_bank:   %d", tile_attr.vram_bank());
-                ImGui::Text("palette_idx: %d", tile_attr.palette_index());
-
-                ImGui::EndTooltip();
-            }
-
-            ImGui::SameLine(0, 4);
+            bg_map_.update(img, x * ppu::tile_pixel_count, y * ppu::tile_pixel_count);
         }
-
-        ImGui::NewLine();
     }
+
+    ImVec2 img_start = ImGui::GetCursorScreenPos();
+    ImGui::Image(bg_map_, {bg_map_.getSize().x * 2.f, bg_map_.getSize().y * 2.f});
+    if(ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+
+        const auto mouse_pos = ImGui::GetIO().MousePos;
+        const int tile_y = (mouse_pos.y - img_start.y) / (2 * ppu::tile_pixel_count);
+        const int tile_x = (mouse_pos.x - img_start.x) / (2 * ppu::tile_pixel_count);
+
+        sf::Sprite zoomed_tile{bg_map_, {{tile_x * 8, tile_y * 8}, {ppu::tile_pixel_count, ppu::tile_pixel_count}}};
+        ImGui::Image(zoomed_tile, {128, 128});
+
+        const auto tile_idx = tile_y * 32u + tile_x;
+        const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 0);
+        const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 1)};
+
+        ImGui::Text("y:      %02X", tile_y);
+        ImGui::Text("x:      %02X", tile_x);
+        ImGui::Text("no:     %02X", tile_no);
+        ImGui::Text("attr:   %02X", tile_attr.attributes);
+        ImGui::Separator();
+        ImGui::Text("prioritized: %d", tile_attr.prioritized());
+        ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
+        ImGui::Text("h flipped:   %d", tile_attr.h_flipped());
+        ImGui::Text("vram_bank:   %d", tile_attr.vram_bank());
+        ImGui::Text("palette_idx: %d", tile_attr.palette_index());
+
+        ImGui::EndTooltip();
+    }
+
+    ImGui::NewLine();
 }
 
 void gameboy::ppu_debugger::draw_oam()
