@@ -21,8 +21,9 @@ debugger::debugger(const observer<bus> bus)
 {
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
-    window_.setFramerateLimit(144);
     texture_.create(160, 144);
+
+    cartridge_debugger_.on_break({connect_arg<&debugger::on_execution_break>, this});
 }
 
 debugger::~debugger()

@@ -1,4 +1,5 @@
 #include <cstring>
+#include <SFML/Graphics/Sprite.hpp>
 
 #include "debugger/ppu_debugger.h"
 #include "gameboy/ppu/ppu.h"
@@ -21,14 +22,14 @@ gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
     tiles_img_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
     tiles_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
 
+    bg_map_.create(256, 256);
     for(size_t i = 0u; i < 32u * 32u; ++i) {
         bg_map_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
-        bg_map_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
     }
 
     for(size_t i = 0u; i < 40u; ++i) {
-        oam_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
-        oam_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count);
+        oam_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count * 2, sf::Color::White);
+        oam_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count * 2);
     }
 }
 
@@ -168,17 +169,18 @@ void gameboy::ppu_debugger::draw_palettes() const
         ImGui::Text("OBPI: %02X", ppu_->obpi_.value()); ImGui::NextColumn();
         ImGui::Separator();
 
-        const auto draw_cgb_palettes = [](auto name, const auto& palettes) {
+        const auto draw_cgb_palettes = [&](auto name, const auto& palettes) {
             auto index = 0;
             for(const auto& palette : palettes) {
                 ImGui::Text("%s%d", name, index);
                 ImGui::SameLine(0, 5.f);
 
                 for(const auto& color : palette.colors) {
+                    const auto corrected = ppu_->correct_color(color);
                     const ImVec4 c{
-                        color.red / 255.f,
-                        color.green / 255.f,
-                        color.blue / 255.f,
+                        corrected.red / 255.f,
+                        corrected.green / 255.f,
+                        corrected.blue / 255.f,
                         1.f
                     };
 
@@ -246,6 +248,12 @@ void gameboy::ppu_debugger::draw_vram_view()
 
 void gameboy::ppu_debugger::draw_tiles()
 {
+    static int current_tile_area = 0;
+    if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
+        constexpr std::array bank_names{"Bank0", "Bank1"};
+        ImGui::Combo("Tile Area", &current_tile_area, bank_names.data(), bank_names.size());
+    }
+
     const auto ram = ppu_->ram_;
 
     const auto palette = ppu_->bus_->get_cartridge()->cgb_enabled()
@@ -258,7 +266,10 @@ void gameboy::ppu_debugger::draw_tiles()
     auto tile_y = 0;
     for(size_t i = 0; i < tiles_physical_size; i += tile_physical_size) {
         std::array<uint8_t, tile_physical_size> tile_data;
-        std::copy(begin(ram) + i, begin(ram) + i +tile_physical_size, begin(tile_data));
+        std::copy(
+            begin(ram) + i + 8_kb * current_tile_area,
+            begin(ram) + i + 8_kb * current_tile_area + tile_physical_size,
+            begin(tile_data));
 
         for(auto row = 0; row < ppu::tile_pixel_count; ++row) {
             const auto tile_dot_lsb = tile_data[row * 2];
@@ -269,13 +280,17 @@ void gameboy::ppu_debugger::draw_tiles()
                 const auto col_msb = (tile_dot_msb >> (ppu::tile_pixel_count - col - 1)) & 0x1;
                 const auto dot = (col_msb << 1) | col_lsb;
 
+                const auto color = ppu_->bus_->get_cartridge()->cgb_enabled()
+                    ? ppu_->correct_color(palette.colors[dot])
+                    : palette.colors[dot];
+
                 tiles_img_.setPixel(
                     tile_x * ppu::tile_pixel_count + col,
                     tile_y * ppu::tile_pixel_count + row,
                     sf::Color{
-                        palette.colors[dot].red,
-                        palette.colors[dot].green,
-                        palette.colors[dot].blue,
+                        color.red,
+                        color.green,
+                        color.blue,
                         255
                     });
             }
@@ -307,8 +322,7 @@ void gameboy::ppu_debugger::draw_bg_map()
         for(size_t x = 0u; x < 32u; ++x) {
             const auto idx = y * 32u + x;
             auto& img = bg_map_imgs_[idx];
-            auto& tex = bg_map_[idx];
-            
+
             const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + idx, 0);
             const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
 
@@ -316,13 +330,19 @@ void gameboy::ppu_debugger::draw_bg_map()
                 const auto tile_base_addr = current_tile_address == 1
                     ? ppu_->tile_address<uint8_t>(0x8000u, tile_no)
                     : ppu_->tile_address<int8_t>(0x9000u, tile_no);
-                auto tile_row = ppu_->get_tile_row(tile_y, tile_base_addr, tile_attr.vram_bank());
+
+                auto tile_row = ppu_->get_tile_row(tile_attr.v_flipped() ? 7u - tile_y : tile_y, tile_base_addr, tile_attr.vram_bank());
+
+                if(tile_attr.h_flipped()) {
+                    std::reverse(begin(tile_row), end(tile_row));
+                }
 
                 for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
                     const auto color_idx = tile_row[tile_x];
                     const auto color = [&]() {
                         if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
-                            return ppu_->cgb_bg_palettes_[tile_attr.palette_index()].colors[color_idx];
+                            return ppu_->correct_color(
+                                ppu_->cgb_bg_palettes_[tile_attr.palette_index()].colors[color_idx]);
                         } 
 
                         const auto background_palette = palette::from(ppu_->gb_palette_, ppu_->bgp_.value());
@@ -338,31 +358,41 @@ void gameboy::ppu_debugger::draw_bg_map()
                 }
             }
 
-            tex.update(img);
-            ImGui::Image(tex, {16, 16});
-
-            if(ImGui::IsItemHovered()) {
-                ImGui::BeginTooltip();
-
-                ImGui::Text("x:   %02X", x); ImGui::SameLine();
-                ImGui::Text("y:   %02X", y);
-                ImGui::Text("attributes:  %02X", tile_attr.attributes);
-                ImGui::Separator();
-                ImGui::Text("tile no:     %02X", tile_no);
-                ImGui::Text("prioritized: %d", tile_attr.prioritized());
-                ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
-                ImGui::Text("h flipped:   %d", tile_attr.h_flipped());
-                ImGui::Text("vram_bank:   %d", tile_attr.vram_bank());
-                ImGui::Text("palette_idx: %d", tile_attr.palette_index());
-
-                ImGui::EndTooltip();
-            }
-
-            ImGui::SameLine(0, 4);
+            bg_map_.update(img, x * ppu::tile_pixel_count, y * ppu::tile_pixel_count);
         }
-
-        ImGui::NewLine();
     }
+
+    ImVec2 img_start = ImGui::GetCursorScreenPos();
+    ImGui::Image(bg_map_, {bg_map_.getSize().x * 2.f, bg_map_.getSize().y * 2.f});
+    if(ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+
+        const auto mouse_pos = ImGui::GetIO().MousePos;
+        const int tile_y = (mouse_pos.y - img_start.y) / (2 * ppu::tile_pixel_count);
+        const int tile_x = (mouse_pos.x - img_start.x) / (2 * ppu::tile_pixel_count);
+
+        sf::Sprite zoomed_tile{bg_map_, {{tile_x * 8, tile_y * 8}, {ppu::tile_pixel_count, ppu::tile_pixel_count}}};
+        ImGui::Image(zoomed_tile, {128, 128});
+
+        const auto tile_idx = tile_y * 32u + tile_x;
+        const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 0);
+        const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 1)};
+
+        ImGui::Text("y:      %02X", tile_y);
+        ImGui::Text("x:      %02X", tile_x);
+        ImGui::Text("no:     %02X", tile_no);
+        ImGui::Text("attr:   %02X", tile_attr.attributes);
+        ImGui::Separator();
+        ImGui::Text("prioritized: %d", tile_attr.prioritized());
+        ImGui::Text("v flipped:   %d", tile_attr.v_flipped());
+        ImGui::Text("h flipped:   %d", tile_attr.h_flipped());
+        ImGui::Text("vram_bank:   %d", tile_attr.vram_bank());
+        ImGui::Text("palette_idx: %d", tile_attr.palette_index());
+
+        ImGui::EndTooltip();
+    }
+
+    ImGui::NewLine();
 }
 
 void gameboy::ppu_debugger::draw_oam()
@@ -378,7 +408,8 @@ void gameboy::ppu_debugger::draw_oam()
         auto& img = oam_imgs_[obj_idx];
         auto& tex = oam_[obj_idx];
 
-        for(auto tile_y = 0u; tile_y < ppu::tile_pixel_count; ++tile_y) {
+        const auto tile_y_end = ppu_->lcdc_.large_obj() ? ppu::tile_pixel_count * 2 : ppu::tile_pixel_count;
+        for(auto tile_y = 0u; tile_y < tile_y_end; ++tile_y) {
             const auto tile_row = ppu_->get_tile_row(
                 tile_y, 
                 ppu_->tile_address<uint8_t>(0x8000u, obj.tile_number), 
@@ -388,7 +419,7 @@ void gameboy::ppu_debugger::draw_oam()
                 const auto color_idx = tile_row[tile_x];
                 const auto color = [&]() {
                     if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
-                        return ppu_->cgb_bg_palettes_[obj.cgb_palette_index()].colors[color_idx];
+                        return ppu_->correct_color(ppu_->cgb_bg_palettes_[obj.cgb_palette_index()].colors[color_idx]);
                     } 
                     
                     const auto background_palette = palette::from(ppu_->gb_palette_, ppu_->obp_[obj.gb_palette_index()].value());
@@ -407,22 +438,27 @@ void gameboy::ppu_debugger::draw_oam()
         tex.update(img);
         ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
         ImGui::SameLine();
-        ImGui::Image(tex, {64, 64});
+
+        if(ppu_->lcdc_.large_obj()) {
+            ImGui::Image(tex, {32, 64});
+        } else {
+            ImGui::Image(tex, {64, 64}, sf::FloatRect{0.f, 0.f, 8.f, 8.f});
+        }
 
         if(ImGui::IsItemHovered()) {
             ImGui::BeginTooltip();
 
-            ImGui::Text("x:     %02X", obj.x); ImGui::SameLine();
-            ImGui::Text("y:     %02X", obj.y);
-            ImGui::Text("attributes:      %02X", obj.attributes);
+            ImGui::Text("y:          %02X", obj.y);
+            ImGui::Text("x:          %02X", obj.x);
+            ImGui::Text("no:         %02X", obj.tile_number);
+            ImGui::Text("attr:       %02X", obj.attributes);
             ImGui::Separator();
-            ImGui::Text("tile no:         %02X", obj.tile_number);
-            ImGui::Text("prioritized:     %d", obj.prioritized());
-            ImGui::Text("v flipped:       %d", obj.v_flipped());
-            ImGui::Text("h flipped:       %d", obj.h_flipped());
-            ImGui::Text("vram_bank:       %d", obj.vram_bank());
-            ImGui::Text(" gb palette_idx: %d", obj.gb_palette_index());
-            ImGui::Text("cgb palette_idx: %d", obj.cgb_palette_index());
+            ImGui::Text("prioritized:  %d", obj.prioritized());
+            ImGui::Text("v flipped:    %d", obj.v_flipped());
+            ImGui::Text("h flipped:    %d", obj.h_flipped());
+            ImGui::Text("vram_bank:    %d", obj.vram_bank());
+            ImGui::Text(" gb plt_idx:  %d", obj.gb_palette_index());
+            ImGui::Text("cgb plt_idx:  %d", obj.cgb_palette_index());
 
             ImGui::EndTooltip();
         }

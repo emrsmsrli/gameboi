@@ -23,13 +23,28 @@ void gameboy::memory_bank_debugger::draw() noexcept
             if(ImGui::BeginTabBar("cartridgememorytabs")) {
                 auto cartridge = bus_->get_cartridge();
                 if(ImGui::BeginTabItem("ROM")) {
-                    memory_editor_.DrawContents(cartridge->rom_.data(), cartridge->rom_.size());
+                    ImGui::Text("Selected bank(0x0000-0x3FFF): %02X", cartridge->rom_bank(address16(0x3FFFu)));
+                    ImGui::Text("Selected bank(0x4000-0x7FFF): %02X", cartridge->rom_bank(address16(0x4000u)));
+                    ImGui::Spacing();
+
+                    static int selected_bank = 0;
+                    const int banks = cartridge->rom_bank_count();
+                    ImGui::SliderInt("BANK", &selected_bank, 0, banks - 1);
+
+                    memory_editor_.DrawContents(cartridge->rom_.data() + selected_bank * 16_kb, 16_kb, selected_bank == 0 ? 0x0000u : 0x4000u);
                     ImGui::EndTabItem();
                 }
 
                 if(!cartridge->ram_.empty()) {
                     if(ImGui::BeginTabItem("RAM")) {
-                        memory_editor_.DrawContents(cartridge->ram_.data() + cartridge->ram_bank() * 8_kb, 
+                        ImGui::Text("Selected bank: %02X", cartridge->ram_bank());
+                        ImGui::Spacing();
+
+                        static int selected_bank = 0;
+                        const int banks = cartridge->ram_bank_count();
+                        ImGui::SliderInt("BANK", &selected_bank, 0, banks - 1);
+
+                        memory_editor_.DrawContents(cartridge->ram_.data() + selected_bank * 8_kb,
                             8_kb, 0xA000);
                         ImGui::EndTabItem();
                     }
@@ -44,19 +59,16 @@ void gameboy::memory_bank_debugger::draw() noexcept
         if(ImGui::BeginTabItem("Internal")) {
             if(ImGui::BeginTabBar("internalmemorytabs")) {
                 auto mmu = bus_->get_mmu();
-                if(ImGui::BeginTabItem("WRAM0")) {
-                    ImGui::Spacing();
-
-                    memory_editor_.DrawContents(mmu->work_ram_.data(), 
-                        4_kb, 0xC000);
-                    ImGui::EndTabItem();
-                }
-                if(ImGui::BeginTabItem("WRAM-N")) {
+                if(ImGui::BeginTabItem("WRAM")) {
                     ImGui::Text("SVBK: %02X", mmu->wram_bank_);
                     ImGui::Spacing();
 
-                    memory_editor_.DrawContents(mmu->work_ram_.data() + 4_kb + mmu->wram_bank_ * 4_kb, 
-                        4_kb, 0xD000);
+                    static int selected_bank = 0;
+                    const int banks = mmu->bus_->get_cartridge()->cgb_enabled() ? 7 : 1;
+                    ImGui::SliderInt("BANK", &selected_bank, 0, banks);
+
+                    memory_editor_.DrawContents(mmu->work_ram_.data() + selected_bank * 4_kb,
+                        4_kb, 0xC000);
                     ImGui::EndTabItem();
                 }
 
@@ -77,8 +89,12 @@ void gameboy::memory_bank_debugger::draw() noexcept
                 if(ImGui::BeginTabItem("VRAM")) {
                     ImGui::Text("VBK: %02X", ppu->vram_bank_);
                     ImGui::Spacing();
+
+                    static int selected_bank = 0;
+                    const int banks = ppu->bus_->get_cartridge()->cgb_enabled() ? 1 : 0;
+                    ImGui::SliderInt("BANK", &selected_bank, 0, banks);
                     
-                    memory_editor_.DrawContents(ppu->ram_.data() + ppu->vram_bank_ * 8_kb, 
+                    memory_editor_.DrawContents(ppu->ram_.data() + selected_bank * 8_kb,
                         8_kb, 0x8000);
                     ImGui::EndTabItem();
                 }

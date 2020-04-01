@@ -38,9 +38,11 @@ void mmu::write(const address16& address, const uint8_t data)
     } else if(hram_range.has(address)) {
         write_hram(address, data);
     } else if(address == svbk_addr) {
-        wram_bank_ = data & 0x7u;
-        if(wram_bank_ == 0u) {
-            wram_bank_ = 1u;
+        if(bus_->get_cartridge()->cgb_enabled()) {
+            wram_bank_ = data & 0x7u;
+            if(wram_bank_ == 0u) {
+                wram_bank_ = 1u;
+            }
         }
     } else {
         spdlog::warn("out of bounds write: {:#x}", address.value());
@@ -84,7 +86,11 @@ uint8_t mmu::read(const address16& address) const
     } 
 
     if(address == svbk_addr) {
-        return wram_bank_;
+        if(!bus_->get_cartridge()->cgb_enabled()) {
+            return 0xFFu;
+        }
+
+        return wram_bank_ | 0xF8u;
     }
 
     spdlog::warn("out of bounds read: {:#x}", address.value());

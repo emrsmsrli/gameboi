@@ -15,9 +15,7 @@ constexpr address16 tac_addr{0xFF07u};
 
 timer::timer(const observer<bus> bus)
     : bus_{bus},
-      div_clock_{0u},
-      timer_clock_{0u},
-      div_{0x00u},
+      internal_clock_{0u},
       tima_{0x00u},
       tma_{0x00u},
       tac_{0x00u}
@@ -34,22 +32,10 @@ timer::timer(const observer<bus> bus)
 
 void timer::tick(const uint8_t cycles)
 {
-    div_clock_ += cycles;
-
-    constexpr auto div_cycles = 256u;
-    while(div_clock_ >= div_cycles) {
-        div_clock_ -= div_cycles;
-
-        div_ += 1u;
-    }
+    internal_clock_ += cycles;
 
     if(timer_enabled()) {
-        timer_clock_ += cycles;
-
-        const auto timer_cycles = timer_clock_freq_select();
-        while(timer_clock_ >= timer_cycles) {
-            timer_clock_ -= timer_cycles;
-
+        if(const auto timer_cycles = timer_clock_freq_select(); (internal_clock_ & (timer_cycles - 1u)) == 0u) {
             if(tima_ == 0xFFu) {
                 tima_ = tma_;
                 bus_->get_cpu()->request_interrupt(interrupt::timer);
@@ -75,7 +61,7 @@ std::size_t timer::timer_clock_freq_select() const noexcept
 
 uint8_t timer::on_read(const address16& address) const noexcept
 {
-    if(address == div_addr) { return div_.value(); }
+    if(address == div_addr) { return (internal_clock_ >> 8u) & 0xFFu; }
     if(address == tima_addr) { return tima_.value(); }
     if(address == tma_addr) { return tma_.value(); }
     if(address == tac_addr) { return tac_.value(); }
@@ -85,10 +71,10 @@ uint8_t timer::on_read(const address16& address) const noexcept
 
 void timer::on_write(const address16& address, const uint8_t data) noexcept
 {
-    if(address == div_addr) { div_ = 0u; }
+    if(address == div_addr) { internal_clock_ = 0u; }
     else if(address == tima_addr) { tima_ = data; }
     else if(address == tma_addr) { tma_ = data; }
-    else if(address == tac_addr) { tac_ = data; }
+    else if(address == tac_addr) { tac_ = data | 0xF8u; }
 }
 
 } // namespace gameboy

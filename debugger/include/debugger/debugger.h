@@ -39,6 +39,8 @@ private:
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
     sf::Texture texture_{};
+
+    void on_execution_break() { gb_tick_allowed = false; }
 };
 
 } // namespace gameboy

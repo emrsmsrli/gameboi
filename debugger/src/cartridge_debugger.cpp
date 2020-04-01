@@ -168,13 +168,15 @@ void cartridge_debugger::draw_info() const
             
             ImGui::TextUnformatted("type:        "); ImGui::SameLine(0, 0);
             show_string_view(cartridge_->mbc_type_);
-            ImGui::Text("ram enabled: %d", cartridge_->xram_enabled());
-            ImGui::Text("rom bank:    %d", cartridge_->rom_bank());
-            ImGui::Text("ram bank:    %d", cartridge_->ram_bank());
+            ImGui::Text("has battery: %d", cartridge_->has_battery());
+            ImGui::Text("has rtc:     %d", cartridge_->has_rtc());
+            ImGui::Text("ram enabled: %d", cartridge_->ram_enabled());
+            ImGui::Text("rom banks:   %d", cartridge_->rom_bank_count());
+            ImGui::Text("ram banks:   %d", cartridge_->ram_bank_count());
 
             std::visit(overloaded{
                 [](const mbc1& mbc) {
-                    ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active);
+                    ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active());
                 },
                 [&](const mbc3& mbc) {
                     ImGui::Text("rtc enabled:             %d", mbc.rtc_.enabled);

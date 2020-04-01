@@ -11,6 +11,7 @@
 namespace {
 
 struct renderer {
+    std::string title;
     sf::Image window_buffer;
     sf::Texture window_texture;
     sf::Sprite window_sprite;
@@ -21,11 +22,12 @@ struct renderer {
 #endif // WITH_DEBUGGER
 
     explicit renderer(gameboy::gameboy& gb, const uint32_t width, const uint32_t height) noexcept
-        : window{
+        : title{fmt::format("GAMEBOY - {}", gb.rom_name())},
+          window{
             sf::VideoMode(width, height),
-            fmt::format("GAMEBOY - {}", gb.rom_name()),
+            title,
             sf::Style::Default
-        }
+          }
     {
         window.setFramerateLimit(60u);
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
@@ -91,6 +93,11 @@ struct renderer {
 #if WITH_DEBUGGER
     void set_debugger(const gameboy::observer<gameboy::debugger> dbgr) noexcept { debugger = dbgr; }
 #endif // WITH_DEBUGGER
+
+    void set_framerate(sf::Time time)
+    {
+        window.setTitle(fmt::format("{} - FPS: {:.1f}", title, 1.f / time.asSeconds()));
+    }
 };
 
 } // namespace
@@ -110,6 +117,7 @@ int main(const int argc, const char* argv[])
     renderer.set_debugger(gameboy::make_observer(debugger));
 #endif // WITH_DEBUGGER
 
+    sf::Clock dt;
     while(renderer.window.isOpen()) {
         sf::Event event{};
         while(renderer.window.pollEvent(event)) {
@@ -204,6 +212,8 @@ int main(const int argc, const char* argv[])
 #else
         gb.tick_one_frame();
 #endif // WITH_DEBUGGER
+
+        renderer.set_framerate(dt.restart());
     }
 
     return 0;

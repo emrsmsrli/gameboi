@@ -83,7 +83,7 @@ void apu::tick(uint8_t cycles) noexcept
 
 void apu::on_write(const address16& address, uint8_t data) noexcept
 {
-    if(address == nr_10_addr) { nr_10_ = data; }
+    if(address == nr_10_addr) { nr_10_ = data | 0x80u; }
     else if(address == nr_11_addr) { nr_11_ = data; }
     else if(address == nr_12_addr) { nr_12_ = data; }
     else if(address == nr_13_addr) { nr_13_ = data; }
@@ -92,18 +92,18 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     else if(address == nr_22_addr) { nr_22_ = data; }
     else if(address == nr_23_addr) { nr_23_ = data; }
     else if(address == nr_24_addr) { nr_24_ = data; }
-    else if(address == nr_30_addr) { nr_30_ = data; }
+    else if(address == nr_30_addr) { nr_30_ = data | 0x7Fu; }
     else if(address == nr_31_addr) { nr_31_ = data; }
-    else if(address == nr_32_addr) { nr_32_ = data; }
+    else if(address == nr_32_addr) { nr_32_ = data | 0x9Fu; }
     else if(address == nr_33_addr) { nr_33_ = data; }
     else if(address == nr_34_addr) { nr_34_ = data; }
-    else if(address == nr_41_addr) { nr_41_ = data; }
+    else if(address == nr_41_addr) { nr_41_ = data | 0xC0u; }
     else if(address == nr_42_addr) { nr_42_ = data; }
     else if(address == nr_43_addr) { nr_43_ = data; }
-    else if(address == nr_44_addr) { nr_44_ = data; }
+    else if(address == nr_44_addr) { nr_44_ = data | 0x3Fu; }
     else if(address == nr_50_addr) { nr_50_ = data; }
     else if(address == nr_51_addr) { nr_51_ = data; }
-    else if(address == nr_52_addr) { nr_52_ = data; }
+    else if(address == nr_52_addr) { nr_52_ = data | 0x70u; }
 }
 
 uint8_t apu::on_read(const address16& address) const noexcept

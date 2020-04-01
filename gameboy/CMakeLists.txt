@@ -1,4 +1,4 @@
-project(gameboycore VERSION 0.6.0 LANGUAGES CXX)
+project(gameboycore VERSION 0.6.1 LANGUAGES CXX)
 configure_file(cmake/version.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
@@ -15,6 +15,7 @@ add_library(${PROJECT_NAME}
         src/link/link.cpp
         src/joypad/joypad.cpp
         src/memory/mmu.cpp
+        src/memory/controller/mbc_regular.cpp
         src/memory/controller/mbc1.cpp
         src/memory/controller/mbc2.cpp
         src/memory/controller/mbc3.cpp

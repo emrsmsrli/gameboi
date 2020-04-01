@@ -9,11 +9,15 @@
 
 namespace gameboy {
 
-struct mbc5 : mbc {
+class mbc5 : public mbc {
+public:
+    explicit mbc5(const observer<cartridge> cartridge)
+        : mbc(cartridge) {}
+
     void control(const address16& address, uint8_t data) noexcept;
 
-    [[nodiscard]] uint8_t read_ram(const std::vector<uint8_t>& ram, const physical_address& address) const;
-    void write_ram(std::vector<uint8_t>& ram, const physical_address& address, uint8_t data) const;
+    [[nodiscard]] uint8_t read_ram(const physical_address& address) const;
+    void write_ram(const physical_address& address, uint8_t data);
 };
 
 } // namespace gameboy
