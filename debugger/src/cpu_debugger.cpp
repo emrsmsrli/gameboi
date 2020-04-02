@@ -7,6 +7,7 @@
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
+#include "gameboy/util/mathutil.h"
 #include "imgui.h"
 
 using namespace magic_enum::bitwise_operators;
@@ -94,7 +95,7 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 
 void gameboy::cpu_debugger::draw_interrupts() const noexcept
 {
-    ImGui::Text("speed     %d", extract_bit(cpu_->key_1_, 7u));
+    ImGui::Text("speed     %d, preparing: %d", extract_bit(cpu_->key_1_, 7u), extract_bit(cpu_->key_1_, 0u));
     ImGui::Text("stop flag %d", cpu_->is_stopped_);
     ImGui::Text("halt flag %d", cpu_->is_halted_);
     ImGui::Text("ime: %s", 
@@ -105,8 +106,8 @@ void gameboy::cpu_debugger::draw_interrupts() const noexcept
     
     ImGui::Columns(2, "interrupts", true);
     
-    ImGui::Text("interrupt enable"); ImGui::NextColumn();
-    ImGui::Text("interrupt flags");  ImGui::NextColumn();
+    ImGui::Text("interrupt enable %02X", static_cast<uint8_t>(cpu_->interrupt_enable_)); ImGui::NextColumn();
+    ImGui::Text("interrupt flags %02X", static_cast<uint8_t>(cpu_->interrupt_flags_));  ImGui::NextColumn();
     ImGui::Separator();
 
     const auto interrupt_enable = [&](auto interrupt) { return (cpu_->interrupt_enable_ & interrupt) == interrupt; };

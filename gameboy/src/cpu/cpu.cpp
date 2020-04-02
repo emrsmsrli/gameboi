@@ -10,6 +10,7 @@
 #include "gameboy/memory/mmu.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/util/observer.h"
+#include "gameboy/util/mathutil.h"
 
 namespace gameboy {
     
@@ -105,7 +106,7 @@ uint8_t cpu::tick()
         return decode(read_immediate(imm8), extended_instruction_set);
     };
 
-    const auto cycle_count = !is_halted_
+    auto cycle_count = !is_halted_
         ? execute_next_op()
         : static_cast<uint8_t>(4u);
 
@@ -136,8 +137,12 @@ uint8_t cpu::tick()
         }
     }
 
-    total_cycles_ += modified_cycles(cycle_count);
-    return modified_cycles(cycle_count);
+    if(is_in_double_speed()) {
+        cycle_count /= 2;
+    }
+
+    total_cycles_ += cycle_count;
+    return cycle_count;
 }
 
 void cpu::process_interrupts() noexcept
@@ -179,6 +184,11 @@ void cpu::process_interrupts() noexcept
 void cpu::request_interrupt(const interrupt request) noexcept
 {
     interrupt_flags_ |= request;
+}
+
+bool cpu::is_in_double_speed() const noexcept
+{
+    return bit_test(key_1_, 7u) && !bit_test(key_1_, 0u);
 }
 
 void cpu::set_flag(const flag flag) noexcept

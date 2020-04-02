@@ -21,11 +21,11 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Separator();
 
     ImGui::TextUnformatted("Internal clock:");
-    ImGui::Text("%08llX", timer_->internal_clock_);
+    ImGui::Text("%04X", timer_->internal_clock_);
 
     ImGui::NextColumn();
 
-    ImGui::Text("DIV:  %02llX", (timer_->internal_clock_ >> 8u) & 0xFFu);
+    ImGui::Text("DIV:  %02X", timer_->internal_clock_ >> 8u);
     ImGui::Text("TIMA: %02X", timer_->tima_.value());
     ImGui::Text("TMA:  %02X", timer_->tma_.value());
     ImGui::Text("TAC:  %02X", timer_->tac_.value());
@@ -36,11 +36,11 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Text("Enabled: %d", timer_->timer_enabled());
     ImGui::SameLine(0, 20.f);
     ImGui::Text("Frequency: %s", [&]() {
-        switch(timer_->timer_clock_freq_select()) {
-            case 1024u: return "4096 Hz";
-            case 16u:   return "262144 Hz";
-            case 64u:   return "65536 Hz";
-            case 256u:  return "16384 Hz";
+        switch(timer_->timer_clock_overflow_index_select()) {
+            case 9u: return "4 KHz";
+            case 3u: return "256 KHz";
+            case 5u: return "64 KHz";
+            case 7u: return "16 KHz";
             default: return "invalid";
         }
     }());
