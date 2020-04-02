@@ -16,9 +16,11 @@ constexpr address16 tac_addr{0xFF07u};
 timer::timer(const observer<bus> bus)
     : bus_{bus},
       internal_clock_{0u},
+      tima_reload_cycles_{0},
       tima_{0x00u},
       tma_{0x00u},
-      tac_{0x00u}
+      tac_{0x00u},
+      previous_tima_reload_bit_{false}
 {
     auto mmu = bus->get_mmu();
 
@@ -32,36 +34,48 @@ timer::timer(const observer<bus> bus)
 
 void timer::tick(const uint8_t cycles)
 {
-    internal_clock_ += cycles;
-
-    if(timer_enabled()) {
-        if(const auto timer_cycles = timer_clock_freq_select(); (internal_clock_ & (timer_cycles - 1u)) == 0u) {
-            if(tima_ == 0xFFu) {
-                tima_ = tma_;
-                bus_->get_cpu()->request_interrupt(interrupt::timer);
-            } else {
-                tima_ += 1u;
-            }
+    update_internal_clock(internal_clock_ + cycles);
+    if(tima_reload_cycles_ > 0) {
+        tima_reload_cycles_ -= cycles;
+        if(tima_reload_cycles_ <= 0) {
+            tima_reload_cycles_ = 0;
+            tima_ = tma_;
+            bus_->get_cpu()->request_interrupt(interrupt::timer);
         }
     }
 }
 
-std::size_t timer::timer_clock_freq_select() const noexcept
+void timer::update_internal_clock(uint16_t new_internal_clock) noexcept
 {
-    // base clock dividers
-    static constexpr std::array frequency_cycle_counts{
-        1024u, // 4   KHz
-        16u,   // 256 KHz (base)
-        64u,   // 64  KHz
-        256u   // 16  KHz
+    internal_clock_ = new_internal_clock;
+
+    const auto tima_reload_bit = bit_test(internal_clock_, timer_clock_overflow_index_select()) && timer_enabled();
+    if(tima_reload_bit != previous_tima_reload_bit_) {
+        tima_ += 1u;
+        if(tima_ == 0x00u) {
+            tima_reload_cycles_ = 24;
+        }
+    }
+
+    previous_tima_reload_bit_ = tima_reload_bit;
+}
+
+uint8_t timer::timer_clock_overflow_index_select() const noexcept
+{
+    constexpr std::array<uint8_t, 4u> frequency_overflow_bit_indices{
+        9u,  // 4   KHz
+        3u,  // 256 KHz (base)
+        5u,  // 64  KHz
+        7u   // 16  KHz
     };
 
-    return frequency_cycle_counts[tac_.value() & 0x03u];
+    const auto cycle_multiplier = static_cast<uint32_t>(bus_->get_cpu()->is_in_double_speed());
+    return frequency_overflow_bit_indices[tac_.value() & 0x03u] << cycle_multiplier;
 }
 
 uint8_t timer::on_read(const address16& address) const noexcept
 {
-    if(address == div_addr) { return (internal_clock_ >> 8u) & 0xFFu; }
+    if(address == div_addr) { return internal_clock_ >> 8u; }
     if(address == tima_addr) { return tima_.value(); }
     if(address == tma_addr) { return tma_.value(); }
     if(address == tac_addr) { return tac_.value(); }
@@ -71,8 +85,13 @@ uint8_t timer::on_read(const address16& address) const noexcept
 
 void timer::on_write(const address16& address, const uint8_t data) noexcept
 {
-    if(address == div_addr) { internal_clock_ = 0u; }
-    else if(address == tima_addr) { tima_ = data; }
+    if(address == div_addr) { update_internal_clock(0u); }
+    else if(address == tima_addr) {
+        if(tima_reload_cycles_ < 4) {
+            tima_reload_cycles_ = 0;
+            tima_ = data;
+        }
+    }
     else if(address == tma_addr) { tma_ = data; }
     else if(address == tac_addr) { tac_ = data | 0xF8u; }
 }
