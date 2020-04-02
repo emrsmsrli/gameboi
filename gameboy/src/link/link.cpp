@@ -4,6 +4,7 @@
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/mmu.h"
+#include "gameboy/util/mathutil.h"
 
 namespace gameboy {
 
@@ -84,7 +85,8 @@ bool link::is_transferring() const noexcept
 uint8_t link::clock_rate() const noexcept
 {
     constexpr std::array clock_rates{16u, 512u};
-    return bus_->get_cpu()->modified_cycles(clock_rates[extract_bit(sc_, 1u)]);
+    // todo cgb double speed
+    return clock_rates[extract_bit(sc_, 1u)];
 }
 
 link::mode link::clock_mode() const noexcept

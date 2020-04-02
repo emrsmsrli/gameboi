@@ -4,7 +4,6 @@
 #include "gameboy/cpu/register16.h"
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
-#include "gameboy/util/mathutil.h"
 
 #ifdef DEBUG
 #include "gameboy/cpu/instruction_info.h"
@@ -32,9 +31,7 @@ public:
     void request_interrupt(interrupt request) noexcept;
 
     [[nodiscard]] bool is_stopped() const noexcept { return is_stopped_; }
-
-    template<typename T>
-    [[nodiscard]] T modified_cycles(T cycles) const noexcept { return cycles >> extract_bit(key_1_, 7u); }
+    [[nodiscard]] bool is_in_double_speed() const noexcept;
 
 private:
     enum class flag : uint8_t {
