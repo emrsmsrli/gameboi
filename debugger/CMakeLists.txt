@@ -14,7 +14,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         CONAN_PKG::fmt
         CONAN_PKG::magic_enum
         gb::core
-        imgui_sfml
+        imgui::sfml
         project_warnings
         project_options)
 target_include_directories(${PROJECT_NAME}
