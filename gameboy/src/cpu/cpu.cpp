@@ -1473,7 +1473,6 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
             break;
         }
         case 0x26: {
-            // todo maybe read_do_write([](uint8_t& data) { // do sth });
             const auto address = make_address(h_l_);
             auto data = read_data(address);
             alu_.shift_left(data);
