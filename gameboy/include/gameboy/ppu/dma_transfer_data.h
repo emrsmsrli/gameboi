@@ -16,7 +16,7 @@ struct dma_transfer_data {
     register8 length_mode_start{0xFF};
 
     [[nodiscard]] uint16_t length() const noexcept { return ((length_mode_start & 0x7Fu) + 1) * unit_transfer_length; }
-    [[nodiscard]] bool disabled() const noexcept { return bit_test(length_mode_start, 7u); }
+    [[nodiscard]] bool disabled() const noexcept { return bit::test(length_mode_start, 7u); }
 };
 
 } // namespace gameboy

@@ -49,7 +49,7 @@ void timer::update_internal_clock(uint16_t new_internal_clock) noexcept
 {
     internal_clock_ = new_internal_clock;
 
-    const auto tima_reload_bit = bit_test(internal_clock_, timer_clock_overflow_index_select()) && timer_enabled();
+    const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_index_select()) && timer_enabled();
     if(tima_reload_bit != previous_tima_reload_bit_) {
         tima_ += 1u;
         if(tima_ == 0x00u) {
@@ -69,7 +69,7 @@ uint8_t timer::timer_clock_overflow_index_select() const noexcept
         7u   // 16  KHz
     };
 
-    const auto cycle_multiplier = static_cast<uint32_t>(bus_->get_cpu()->is_in_double_speed());
+    const auto cycle_multiplier = bit::from_bool(bus_->get_cpu()->is_in_double_speed());
     return frequency_overflow_bit_indices[tac_.value() & 0x03u] << cycle_multiplier;
 }
 

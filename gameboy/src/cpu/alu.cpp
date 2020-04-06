@@ -38,7 +38,7 @@ void alu::add_c(const uint8_t value) const noexcept
 {
     auto& acc = cpu_->a_f_.high();
 
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    const auto carry = bit::from_bool(cpu_->test_flag(cpu::flag::carry));
     const auto result = acc + value + carry;
 
     cpu_->reset_flag(cpu::flag::all);
@@ -261,11 +261,11 @@ void alu::add_to_stack_pointer(const int8_t immediate) const noexcept
 
     const auto result = sp.value() + immediate;
 
-    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0100)) {
+    if(mask::test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
-    if(mask_test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0010)) {
+    if(mask::test(sp.value() ^ immediate ^ (result & 0xFFFF), 0x0010)) {
         cpu_->set_flag(cpu::flag::half_carry);
     }
 
@@ -312,7 +312,7 @@ void alu::decimal_adjust() const noexcept
 
     cpu_->reset_flag(cpu::flag::half_carry | cpu::flag::zero);
 
-    if(mask_test(acc, 0x100)) {
+    if(mask::test(acc, 0x100)) {
         cpu_->set_flag(cpu::flag::carry);
     }
 
@@ -347,7 +347,7 @@ void alu::test(const uint8_t value, const uint8_t bit) const noexcept
     cpu_->set_flag(cpu::flag::half_carry);
     cpu_->reset_flag(cpu::flag::negative | cpu::flag::zero);
 
-    if(!bit_test(value, bit)) {
+    if(!bit::test(value, bit)) {
         cpu_->set_flag(cpu::flag::zero);
     }
 }
@@ -359,7 +359,7 @@ void alu::test(const register8& reg, const uint8_t bit) const noexcept
 
 void alu::set(uint8_t& value, const uint8_t bit) noexcept
 {
-    value = bit_set(value, bit);
+    value = bit::set(value, bit);
 }
 
 void alu::set(register8& reg, const uint8_t bit) const noexcept
@@ -371,7 +371,7 @@ void alu::set(register8& reg, const uint8_t bit) const noexcept
 
 void alu::reset(uint8_t& value, const uint8_t bit) noexcept
 {
-    value = bit_reset(value, bit);
+    value = bit::reset(value, bit);
 }
 
 void alu::reset(register8& reg, const uint8_t bit) const noexcept
@@ -407,8 +407,8 @@ void alu::rotate_right_c_acc() const noexcept
 
 void alu::rotate_left(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7u);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    const auto bit_7 = bit::extract(value, 7u);
+    const auto carry = bit::from_bool(cpu_->test_flag(cpu::flag::carry));
     value = (value << 1u) | carry;
 
     cpu_->reset_flag(cpu::flag::all);
@@ -430,8 +430,8 @@ void alu::rotate_left(register8& reg) const noexcept
 
 void alu::rotate_right(uint8_t& value) const noexcept
 {
-    const auto bit_0 = extract_bit(value, 0);
-    const auto carry = static_cast<uint8_t>(cpu_->test_flag(cpu::flag::carry));
+    const auto bit_0 = bit::extract(value, 0u);
+    const auto carry = bit::from_bool(cpu_->test_flag(cpu::flag::carry));
     value = (value >> 1u) | (carry << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
@@ -453,7 +453,7 @@ void alu::rotate_right(register8& reg) const noexcept
 
 void alu::rotate_left_c(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7);
+    const auto bit_7 = bit::extract(value, 7u);
     value = (value << 1u) | bit_7;
 
     cpu_->reset_flag(cpu::flag::all);
@@ -475,7 +475,7 @@ void alu::rotate_left_c(register8& reg) const noexcept
 
 void alu::rotate_right_c(uint8_t& value) const noexcept
 {
-    const auto bit_0 = extract_bit(value, 0);
+    const auto bit_0 = bit::extract(value, 0u);
     value = (value >> 1u) | (bit_0 << 7u);
 
     cpu_->reset_flag(cpu::flag::all);
@@ -497,7 +497,7 @@ void alu::rotate_right_c(register8& reg) const noexcept
 
 void alu::shift_left(uint8_t& value) const noexcept
 {
-    const auto bit_7 = extract_bit(value, 7u);
+    const auto bit_7 = bit::extract(value, 7u);
     value <<= 1u;
 
     cpu_->reset_flag(cpu::flag::all);
@@ -520,7 +520,7 @@ void alu::shift_left(register8& reg) const noexcept
 void alu::shift_right(uint8_t& value, preserve_last_bit_t) const noexcept
 {
     const auto bit_7 = value & 0x80u;
-    const auto bit_0 = extract_bit(value, 0u);
+    const auto bit_0 = bit::extract(value, 0u);
 
     value = (value >> 1u) | bit_7;
 
@@ -543,7 +543,7 @@ void alu::shift_right(register8& reg, const preserve_last_bit_t tag) const noexc
 
 void alu::shift_right(uint8_t& value, reset_last_bit_t) const noexcept
 {
-    const auto bit_0 = extract_bit(value, 0u);
+    const auto bit_0 = bit::extract(value, 0u);
 
     value >>= 0x1u;
 

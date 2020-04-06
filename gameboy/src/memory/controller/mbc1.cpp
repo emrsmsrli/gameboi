@@ -24,7 +24,7 @@ void mbc1::control(const address16& address, const uint8_t data) noexcept
     } else if(ram_bank_select_range.has(address)) {
         ram_bank_ = data & 0x03u;
     } else if(memory_mode_select_range.has(address)) {
-        rom_banking_active_ = !bit_test(data, 0u);
+        rom_banking_active_ = !bit::test(data, 0u);
     }
 }
 

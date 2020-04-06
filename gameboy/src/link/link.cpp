@@ -44,7 +44,7 @@ void link::tick(const uint8_t cycles) noexcept
                 shift_counter_ = 0;
 
                 sb_ = on_transfer_ ? on_transfer_(sb_.value()) : 0xFFu;
-                sc_ = bit_reset(sc_, 7u);
+                sc_ = bit::reset(sc_, 7u);
             }
         }
     }
@@ -79,19 +79,19 @@ uint8_t link::on_sc_read(const address16&) const noexcept
 
 bool link::is_transferring() const noexcept
 {
-    return bit_test(sc_, 7u);
+    return bit::test(sc_, 7u);
 }
 
 uint8_t link::clock_rate() const noexcept
 {
     constexpr std::array clock_rates{16u, 512u};
     // todo cgb double speed
-    return clock_rates[extract_bit(sc_, 1u)];
+    return clock_rates[bit::extract(sc_, 1u)];
 }
 
 link::mode link::clock_mode() const noexcept
 {
-    return static_cast<mode>(extract_bit(sc_, 0u));
+    return static_cast<mode>(bit::extract(sc_, 0u));
 }
 
 } // namespace gameboy

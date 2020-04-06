@@ -36,7 +36,7 @@ void joypad::release(const key key) noexcept
 
 uint8_t joypad::read(const address16&) const noexcept
 {
-    if(const auto select = joyp_ & 0xF0u; mask_test(select, 0x10u) || mask_test(select, 0x20u)) {
+    if(const auto select = joyp_ & 0xF0u; mask::test(select, 0x10u) || mask::test(select, 0x20u)) {
         const auto group = (~(select.value() >> 4u) & 0x03u) - 1u;
         const auto selection = (static_cast<uint8_t>(keys_) >> (group * 4u)) & 0x0Fu;
         return ((joyp_ & 0xF0u) | selection).value() | 0xC0u;

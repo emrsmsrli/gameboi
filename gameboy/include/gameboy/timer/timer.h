@@ -31,7 +31,7 @@ private:
     bool previous_tima_reload_bit_;
 
     void update_internal_clock(uint16_t new_internal_clock) noexcept;
-    [[nodiscard]] bool timer_enabled() const noexcept { return bit_test(tac_, 2u); }
+    [[nodiscard]] bool timer_enabled() const noexcept { return bit::test(tac_, 2u); }
     [[nodiscard]] uint8_t timer_clock_overflow_index_select() const noexcept;
 
     [[nodiscard]] uint8_t on_read(const address16& address) const noexcept;

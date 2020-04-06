@@ -188,7 +188,7 @@ void cpu::request_interrupt(const interrupt request) noexcept
 
 bool cpu::is_in_double_speed() const noexcept
 {
-    return bit_test(key_1_, 7u) && !bit_test(key_1_, 0u);
+    return bit::test(key_1_, 7u) && !bit::test(key_1_, 0u);
 }
 
 void cpu::set_flag(const flag flag) noexcept
@@ -209,7 +209,7 @@ void cpu::flip_flag(const flag flag) noexcept
 bool cpu::test_flag(const flag flag) noexcept
 {
     const auto f = static_cast<uint8_t>(flag);
-    return mask_test(a_f_.low(), f);
+    return mask::test(a_f_.low(), f);
 }
 
 uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
@@ -2521,9 +2521,9 @@ void cpu::halt() noexcept
 
 void cpu::stop() noexcept
 {
-    if(bit_test(key_1_, 0u)) {
-        key_1_ = bit_reset(key_1_, 0u);
-        key_1_ = bit_flip(key_1_, 7u);
+    if(bit::test(key_1_, 0u)) {
+        key_1_ = bit::reset(key_1_, 0u);
+        key_1_ = bit::flip(key_1_, 7u);
         return;
     }
 
@@ -2625,11 +2625,11 @@ void cpu::load_hlsp(const int8_t data) noexcept
     const auto value = stack_pointer_.value() + data;
 
     reset_flag(flag::all);
-    if(mask_test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0100)) {
+    if(mask::test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0100)) {
         set_flag(flag::carry);
     }
 
-    if(mask_test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0010)) {
+    if(mask::test(stack_pointer_.value() ^ data ^ (value & 0xFFFF), 0x0010)) {
         set_flag(flag::half_carry);
     }
 

@@ -359,13 +359,13 @@ void ppu::dma_write(const address16& address, const uint8_t data)
         dma_transfer_.destination.low() = data & 0xF0u;
     } else if(address == hdma_5_addr) {
         if(!dma_transfer_.disabled()) {
-            if(bit_test(data, 7u)) {
+            if(bit::test(data, 7u)) {
                 dma_transfer_.length_mode_start = data & 0x7Fu;
             } else {
                 dma_transfer_.length_mode_start = data;
             }
         } else {
-            if(bit_test(data, 7u)) {
+            if(bit::test(data, 7u)) {
                 dma_transfer_.length_mode_start = data & 0x7Fu;
                 if(stat_.get_mode() == stat_mode::h_blank) {
                     hdma();
@@ -476,7 +476,7 @@ uint8_t ppu::palette_read(const address16& address) const
 void ppu::palette_write(const address16& address, const uint8_t data)
 {
     const auto update_palette_data_register = [](auto& index_register, auto& data_register, auto& palettes) {
-        const auto is_msb = bit_test(index_register, 0u);
+        const auto is_msb = bit::test(index_register, 0u);
         const auto color_index = (index_register.value() >> 1u) & 0x03u;
         const auto palette_index = (index_register.value() >> 3u) & 0x07u;
 
@@ -489,8 +489,8 @@ void ppu::palette_write(const address16& address, const uint8_t data)
     };
 
     const auto set_palette = [&](auto& index_register, auto& data_register, auto& palettes, const uint8_t data) noexcept {
-        const auto auto_increment = bit_test(index_register, 7u);
-        const auto is_msb = bit_test(index_register, 0u);
+        const auto auto_increment = bit::test(index_register, 7u);
+        const auto is_msb = bit::test(index_register, 0u);
         const auto color_index = (index_register.value() >> 1u) & 0x03u;
         const auto palette_index = (index_register.value() >> 3u) & 0x07u;
 
