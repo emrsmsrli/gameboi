@@ -7,6 +7,9 @@ add_library(${PROJECT_NAME}
         src/bus.cpp
         src/cartridge.cpp
         src/apu/apu.cpp
+        src/apu/noise_channel.cpp
+        src/apu/pulse_channel.cpp
+        src/apu/wave_channel.cpp
         src/cpu/register8.cpp
         src/cpu/register16.cpp
         src/cpu/cpu.cpp
