@@ -7,6 +7,7 @@
 #include "gameboy/apu/pulse_channel.h"
 #include "gameboy/apu/wave_channel.h"
 #include "gameboy/apu/noise_channel.h"
+#include "gameboy/apu/data/channel_control.h"
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/util/observer.h"
@@ -52,20 +53,7 @@ private:
      * additionally to the gameboys internal four channels.
      * As far as I know this feature isn't used by any existing games.
      */
-    register8 nr_50_;
-
-    /** selection of sound output terminal */
-    /**
-     *   Bit 7 - Output sound 4 to SO2 terminal
-     *   Bit 6 - Output sound 3 to SO2 terminal
-     *   Bit 5 - Output sound 2 to SO2 terminal
-     *   Bit 4 - Output sound 1 to SO2 terminal
-     *   Bit 3 - Output sound 4 to SO1 terminal
-     *   Bit 2 - Output sound 3 to SO1 terminal
-     *   Bit 1 - Output sound 2 to SO1 terminal
-     *   Bit 0 - Output sound 1 to SO1 terminal
-     */
-    register8 nr_51_;
+    channel_control channel_control_;
 
     uint16_t frame_sequencer_counter_;
     uint16_t buffer_fill_amount_;

@@ -74,8 +74,10 @@ apu::apu(observer<bus> bus)
           polynomial_counter{register8{0x00u}},
           register8{0xBFu}
       },
-      nr_50_{0x77u},
-      nr_51_{0xF3u},
+      channel_control_{
+          register8{0x77u},
+          register8{0xF3u}
+      },
       frame_sequencer_counter_{frame_sequence_count},
       buffer_fill_amount_{0u},
       frame_sequencer_{0u},
@@ -200,8 +202,8 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     else if(address == nr_44_addr) { protect_write(channel_4_.counter, data); }
 
     // control
-    else if(address == nr_50_addr) { protect_write(nr_50_, data); }
-    else if(address == nr_51_addr) { protect_write(nr_51_, data); }
+    else if(address == nr_50_addr) { protect_write(channel_control_.nr_50, data); }
+    else if(address == nr_51_addr) { protect_write(channel_control_.nr_51, data); }
     else if(address == nr_52_addr) {
         enabled_ = bit::test(data, 7u);
         if(!enabled_) {
@@ -235,8 +237,8 @@ uint8_t apu::on_read(const address16& address) const noexcept
     if(address == nr_44_addr) { return channel_4_.counter.value() | 0xBFu; }
 
     // control
-    if(address == nr_50_addr) { return nr_50_.value(); }
-    if(address == nr_51_addr) { return nr_51_.value(); }
+    if(address == nr_50_addr) { return channel_control_.nr_50.value(); }
+    if(address == nr_51_addr) { return channel_control_.nr_51.value(); }
     if(address == nr_52_addr) {
         return 0x70u |
             (bit::from_bool(enabled_) << 7u) |
