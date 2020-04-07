@@ -128,7 +128,7 @@ int main(const int argc, const char* argv[])
 
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
-    renderer.set_debugger(gameboy::make_observer(debugger));
+    frontend.set_debugger(gameboy::make_observer(debugger));
 #endif // WITH_DEBUGGER
 
     sf::Clock dt;
