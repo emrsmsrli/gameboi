@@ -2,27 +2,38 @@
 #define GAMEBOY_PULSE_CHANNEL_H
 
 #include "gameboy/apu/data/sweep.h"
-#include "gameboy/apu/data/wave_pattern_duty.h"
+#include "gameboy/apu/data/wave_data.h"
 #include "gameboy/apu/data/envelope.h"
-#include "gameboy/apu/data/frequency.h"
+#include "gameboy/apu/data/frequency_data.h"
 
 namespace gameboy {
 
 struct pulse_channel {
-    bool enabled = false;
-
     sweep sweep;
-    wave_pattern_duty wave_pattern_duty;
+    wave_data wave_data;
     envelope envelope;
-    frequency frequency;
+    frequency_data frequency_data;
+
+    int32_t timer = 0;
+    uint8_t length_counter = 0;
+    uint8_t volume = 0u;
+    uint8_t output = 0u;
+    uint8_t waveform_index = 0u;
+
+    bool enabled = false;
+    bool dac_enabled = false;
 
     void tick() noexcept;
 
     void length_click() noexcept;
     void sweep_click() noexcept;
-    void env_click() noexcept;
+    void envelope_click() noexcept;
 
-    [[nodiscard]] bool sweep_enabled() const noexcept { return sweep.sweep_time() > 0u && sweep.count() > 0u; }
+    void restart() noexcept;
+
+    void reset_timer() noexcept { timer = (2048 - frequency_data.value()) * 4; }
+
+    uint16_t sweep_calculation() noexcept;
 };
 
 } // namespace gameboy

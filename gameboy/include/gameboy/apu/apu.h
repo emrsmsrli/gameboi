@@ -32,37 +32,25 @@ public:
 private:
     observer<bus> bus_;
 
-    bool enabled_;
+    bool power_on_;
 
     pulse_channel channel_1_;
     pulse_channel channel_2_;
     wave_channel channel_3_;
     noise_channel channel_4_;
 
-    /** channel control / ON-OFF / volume */
-    /**
-     * The volume bits specify the "Master Volume" for Left/Right sound output.
-     *
-     *   Bit 7   - Output Vin to SO2 terminal (1=Enable)
-     *   Bit 6-4 - SO2 output level (volume)  (0-7)
-     *   Bit 3   - Output Vin to SO1 terminal (1=Enable)
-     *   Bit 2-0 - SO1 output level (volume)  (0-7)
-     *
-     * The Vin signal is received from the game cartridge bus,
-     * allowing external hardware in the cartridge to supply a fifth sound channel,
-     * additionally to the gameboys internal four channels.
-     * As far as I know this feature isn't used by any existing games.
-     */
     channel_control channel_control_;
 
     uint16_t frame_sequencer_counter_;
     uint16_t buffer_fill_amount_;
     uint8_t frame_sequencer_;
-    uint8_t down_sample_counter_;
+    int8_t down_sample_counter_;
 
     sound_buffer sound_buffer_;
 
     sound_buffer_full_func on_buffer_full_;
+
+    void generate_samples() noexcept;
 
     void on_write(const address16& address, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_read(const address16& address) const noexcept;

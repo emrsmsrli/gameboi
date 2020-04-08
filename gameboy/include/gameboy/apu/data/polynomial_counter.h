@@ -14,8 +14,8 @@ namespace gameboy {
 struct polynomial_counter {
     register8 reg;
 
-    [[nodiscard]] uint8_t shift_clock_frequency() const noexcept { return (reg.value() >> 4u) & 0xFu; }
-    [[nodiscard]] uint8_t counter_width() const noexcept { return (0x10u >> (bit::extract(reg, 3u))) - 1u; }
+    [[nodiscard]] uint8_t shift_clock_frequency() const noexcept { return reg.value() >> 4u; }
+    [[nodiscard]] bool has_7_bit_counter_width() const noexcept { return bit::test(reg, 3u); }
     [[nodiscard]] uint8_t dividing_ratio() const noexcept { return reg.value() & 0x7u; }
 };
 
