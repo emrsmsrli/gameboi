@@ -40,7 +40,7 @@ constexpr std::array apu_register_addresses{
 };
 
 constexpr auto frame_sequence_count = 8192u;
-constexpr auto frame_sequencer_max = 7u;
+constexpr auto frame_sequencer_max = 8u;
 constexpr auto down_sample_count = 4'194'304 / 44100; // cpu clock speed / sample rate
 
 apu::apu(observer<bus> bus)
@@ -139,7 +139,7 @@ void apu::tick(uint8_t cycles) noexcept
             }
 
             ++frame_sequencer_;
-            if(frame_sequencer_ > frame_sequencer_max) {
+            if(frame_sequencer_ == frame_sequencer_max) {
                 frame_sequencer_ = 0u;
             }
         }
@@ -173,7 +173,7 @@ void apu::generate_samples() noexcept
         static_cast<float>(channel_4_.output) / 15.f,
     };
 
-   const auto sample_for_terminal = [&](const channel_control::terminal terminal) {
+    const auto sample_for_terminal = [&](const channel_control::terminal terminal) {
         constexpr auto amplitude = 30000.f;
         float sample = 0.f;
 
@@ -203,7 +203,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     if(address == nr_10_addr) { channel_1_.sweep.reg = data | 0x80u; }
     else if(address == nr_11_addr) { channel_1_.wave_data.reg = data; }
     else if(address == nr_12_addr) {
-        channel_1_.dac_enabled = mask::test(data, 0xF8u);
+        channel_1_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_1_.envelope.reg = data;
         channel_1_.envelope.timer = channel_1_.envelope.sweep_count();
         channel_1_.volume = channel_1_.envelope.initial_volume();
@@ -219,7 +219,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     // ch2
     else if(address == nr_21_addr) { channel_2_.wave_data.reg = data; }
     else if(address == nr_22_addr) {
-        channel_2_.dac_enabled = mask::test(data, 0xF8u);
+        channel_2_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_2_.envelope.reg = data;
         channel_2_.envelope.timer = channel_1_.envelope.sweep_count();
         channel_2_.volume = channel_1_.envelope.initial_volume();
@@ -247,7 +247,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     // ch4
     else if(address == nr_41_addr) { channel_4_.sound_length = data | 0xC0u; }
     else if(address == nr_42_addr) {
-        channel_4_.dac_enabled = mask::test(data, 0xF8u);
+        channel_4_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_4_.envelope.reg = data;
     }
     else if(address == nr_43_addr) { channel_4_.polynomial_counter.reg = data; }
