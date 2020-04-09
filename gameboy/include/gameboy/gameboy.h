@@ -33,6 +33,8 @@ public:
     void on_link_transfer_master(const link::transfer_func on_transfer) noexcept { link_.on_transfer_master(on_transfer); }
     [[nodiscard]] uint8_t on_link_transfer_slave(const uint8_t data) noexcept { return link_.on_transfer_slave(data); }
 
+    void on_audio_buffer_full(const apu::sound_buffer_full_func on_buffer_full) noexcept { apu_.on_sound_buffer_full(on_buffer_full); }
+
     void press_key(const joypad::key key) noexcept { joypad_.press(key); }
     void release_key(const joypad::key key) noexcept { joypad_.release(key); }
 

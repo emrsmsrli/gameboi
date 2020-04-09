@@ -113,11 +113,11 @@ void gameboy::ppu_debugger::draw_lcdc_n_stat() const
 
     ImGui::NextColumn();
 
-    ImGui::Text("<LYC=LY>: %d", bit_test(ppu_->stat_.reg, 6));
-    ImGui::Text("<OAM>:    %d", bit_test(ppu_->stat_.reg, 5));
-    ImGui::Text("<VBlank>: %d", bit_test(ppu_->stat_.reg, 4));
-    ImGui::Text("<HBlank>: %d", bit_test(ppu_->stat_.reg, 3));
-    ImGui::Text("LYC=LY:   %d", bit_test(ppu_->stat_.reg, 2));
+    ImGui::Text("<LYC=LY>: %d", bit::test(ppu_->stat_.reg, 6));
+    ImGui::Text("<OAM>:    %d", bit::test(ppu_->stat_.reg, 5));
+    ImGui::Text("<VBlank>: %d", bit::test(ppu_->stat_.reg, 4));
+    ImGui::Text("<HBlank>: %d", bit::test(ppu_->stat_.reg, 3));
+    ImGui::Text("LYC=LY:   %d", bit::test(ppu_->stat_.reg, 2));
     ImGui::Text("mode:     %d (%s)", static_cast<int8_t>(ppu_->stat_.get_mode()), [&]() {
         switch(ppu_->stat_.get_mode()) {
             case stat_mode::h_blank: return "hblank";

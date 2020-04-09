@@ -95,7 +95,7 @@ void gameboy::cpu_debugger::draw_registers() const noexcept
 
 void gameboy::cpu_debugger::draw_interrupts() const noexcept
 {
-    ImGui::Text("speed     %d, preparing: %d", extract_bit(cpu_->key_1_, 7u), extract_bit(cpu_->key_1_, 0u));
+    ImGui::Text("speed     %d, preparing: %d", bit::extract(cpu_->key_1_, 7u), bit::extract(cpu_->key_1_, 0u));
     ImGui::Text("stop flag %d", cpu_->is_stopped_);
     ImGui::Text("halt flag %d", cpu_->is_halted_);
     ImGui::Text("ime: %s", 

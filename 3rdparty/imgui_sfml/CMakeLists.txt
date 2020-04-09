@@ -8,6 +8,8 @@ add_library(${PROJECT_NAME}
         src/imgui_widgets.cpp
         src/imgui-SFML.cpp)
 
+add_library(imgui::sfml ALIAS ${PROJECT_NAME})
+
 target_link_libraries(${PROJECT_NAME}
         PUBLIC CONAN_PKG::sfml)
 target_include_directories(${PROJECT_NAME}

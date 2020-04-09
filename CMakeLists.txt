@@ -55,7 +55,7 @@ target_compile_definitions(${PROJECT_NAME}
 target_link_libraries(${PROJECT_NAME} PRIVATE
         CONAN_PKG::fmt
         CONAN_PKG::sfml
-        imgui_sfml
+        imgui::sfml
         gb::core
         $<$<BOOL:${ENABLE_DEBUGGER}>:gb::debugger>
         project_warnings

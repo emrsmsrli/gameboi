@@ -15,8 +15,13 @@ class register16 {
 public:
     register16() noexcept = default;
     explicit register16(const uint16_t value) noexcept
-        : high_{static_cast<uint8_t>(value >> 8u)},
-          low_{static_cast<uint8_t>(value & 0xFFu)} {}
+        : register16{
+              static_cast<uint8_t>(value >> 8u),
+              static_cast<uint8_t>(value & 0xFFu)
+          } {}
+    register16(const uint8_t high, const uint8_t low) noexcept
+        : high_{high},
+          low_{low} {}
 
     [[nodiscard]] uint16_t value() const noexcept;
 

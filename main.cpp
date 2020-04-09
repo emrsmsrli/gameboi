@@ -1,4 +1,5 @@
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <fmt/format.h>
 
 #include "gameboy/gameboy.h"
@@ -10,18 +11,22 @@
 
 namespace {
 
-struct renderer {
+struct sfml_frontend {
     std::string title;
     sf::Image window_buffer;
     sf::Texture window_texture;
     sf::Sprite window_sprite;
     sf::RenderWindow window;
 
+    gameboy::apu::sound_buffer current_sound_buffer{};
+    sf::SoundBuffer current_sf_sound_buffer{};
+    sf::Sound current_sf_sound{};
+
 #if WITH_DEBUGGER
     gameboy::observer<gameboy::debugger> debugger;
 #endif // WITH_DEBUGGER
 
-    explicit renderer(gameboy::gameboy& gb, const uint32_t width, const uint32_t height) noexcept
+    explicit sfml_frontend(gameboy::gameboy& gb, const uint32_t width, const uint32_t height) noexcept
         : title{fmt::format("GAMEBOY - {}", gb.rom_name())},
           window{
             sf::VideoMode(width, height),
@@ -41,8 +46,17 @@ struct renderer {
         rescale(width, height);
         render_frame();
 
-        gb.on_render_line({gameboy::connect_arg<&renderer::render_line>, this});
-        gb.on_vblank({gameboy::connect_arg<&renderer::render_frame>, this});
+        gb.on_render_line({gameboy::connect_arg<&sfml_frontend::render_line>, this});
+        gb.on_vblank({gameboy::connect_arg<&sfml_frontend::render_frame>, this});
+        gb.on_audio_buffer_full({gameboy::connect_arg<&sfml_frontend::play_sound>, this});
+    }
+
+    void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept
+    {
+        current_sound_buffer = sound_buffer;
+        current_sf_sound_buffer.loadFromSamples(current_sound_buffer.data(), current_sound_buffer.size(), 2u, 44100u);
+        current_sf_sound.setBuffer(current_sf_sound_buffer);
+        current_sf_sound.play();
     }
 
     void rescale(const uint32_t width, const uint32_t height) noexcept
@@ -110,23 +124,23 @@ int main(const int argc, const char* argv[])
     }
 
     gameboy::gameboy gb{argv[1]};
-    renderer renderer{gb, 600u, 600u};
+    sfml_frontend frontend{gb, 600u, 600u};
 
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
-    renderer.set_debugger(gameboy::make_observer(debugger));
+    frontend.set_debugger(gameboy::make_observer(debugger));
 #endif // WITH_DEBUGGER
 
     sf::Clock dt;
-    while(renderer.window.isOpen()) {
+    while(frontend.window.isOpen()) {
         sf::Event event{};
-        while(renderer.window.pollEvent(event)) {
+        while(frontend.window.pollEvent(event)) {
             if(event.type == sf::Event::Closed) {
-                renderer.window.close();
+                frontend.window.close();
             } else if(event.type == sf::Event::Resized) {
                 const sf::FloatRect visible_area(0, 0, event.size.width, event.size.height);
-                renderer.window.setView(sf::View{visible_area});
-                renderer.rescale(event.size.width, event.size.height);
+                frontend.window.setView(sf::View{visible_area});
+                frontend.rescale(event.size.width, event.size.height);
             } else if(event.type == sf::Event::KeyPressed) {
                 switch(event.key.code) {
                     case sf::Keyboard::Up:
@@ -213,7 +227,7 @@ int main(const int argc, const char* argv[])
         gb.tick_one_frame();
 #endif // WITH_DEBUGGER
 
-        renderer.set_framerate(dt.restart());
+        frontend.set_framerate(dt.restart());
     }
 
     return 0;

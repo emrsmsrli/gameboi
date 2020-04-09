@@ -15,7 +15,7 @@ void mbc2::control(const address16& address, const uint8_t data) noexcept
     constexpr address_range control_range{0x3FFFu};
 
     if(control_range.has(address)) {
-        if(!bit_test(address.value(), 8u)) {
+        if(!bit::test(address.value(), 8u)) {
             set_ram_enabled(data);
         } else {
             rom_bank_ = data & 0x0Fu;

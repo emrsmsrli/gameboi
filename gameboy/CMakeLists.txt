@@ -1,4 +1,4 @@
-project(gameboycore VERSION 0.6.1 LANGUAGES CXX)
+project(gameboycore VERSION 0.7.0 LANGUAGES CXX)
 configure_file(cmake/version.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
@@ -7,6 +7,9 @@ add_library(${PROJECT_NAME}
         src/bus.cpp
         src/cartridge.cpp
         src/apu/apu.cpp
+        src/apu/noise_channel.cpp
+        src/apu/pulse_channel.cpp
+        src/apu/wave_channel.cpp
         src/cpu/register8.cpp
         src/cpu/register16.cpp
         src/cpu/cpu.cpp
