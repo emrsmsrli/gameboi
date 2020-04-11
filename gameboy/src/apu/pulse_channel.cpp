@@ -43,7 +43,7 @@ void pulse_channel::length_click() noexcept
 void pulse_channel::sweep_click() noexcept
 {
     --sweep.timer;
-    if(sweep.timer == 0) {
+    if(sweep.timer <= 0) {
         sweep.timer = sweep.sweep_count();
         if(sweep.enabled && sweep.timer > 0) {
             if(const auto new_freq = sweep_calculation(); new_freq < 2048 && sweep.shift_count() > 0) {
