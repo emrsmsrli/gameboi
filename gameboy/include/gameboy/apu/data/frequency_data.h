@@ -12,7 +12,7 @@ struct frequency_data {
     frequency_control freq_control;
 
     [[nodiscard]] bool should_restart() const noexcept { return freq_control.should_restart(); }
-    [[nodiscard]] bool use_sound_length_counter() const noexcept { return freq_control.use_counter(); }
+    [[nodiscard]] bool use_counter() const noexcept { return freq_control.use_counter(); }
     [[nodiscard]] uint16_t value() const noexcept { return word(freq_control.reg.value() & 0x07u, low.value()); }
 };
 

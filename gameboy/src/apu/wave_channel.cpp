@@ -29,8 +29,8 @@ void wave_channel::tick() noexcept
 
 void wave_channel::length_click() noexcept
 {
-    if(length_counter > 0u && frequency.use_sound_length_counter()) {
-        length_counter -= 1u;
+    if(length_counter > 0u && frequency.use_counter()) {
+        --length_counter;
         if(length_counter == 0u) {
             enabled = false;
         }

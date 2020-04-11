@@ -14,8 +14,8 @@ struct wave_channel {
     register8 output_level;
     frequency_data frequency;
 
-    int32_t length_counter = 0u;
-    int32_t timer = 0u;
+    int16_t length_counter = 0u;
+    int16_t timer = 0u;
     uint8_t sample_index = 0u;
     uint8_t output = 0u;
 

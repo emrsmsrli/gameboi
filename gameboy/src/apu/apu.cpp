@@ -41,7 +41,7 @@ constexpr std::array apu_register_addresses{
 
 constexpr auto frame_sequence_count = 8192u;
 constexpr auto frame_sequencer_max = 8u;
-constexpr auto down_sample_count = 4'194'304 / 44100; // cpu clock speed / sample rate
+constexpr auto down_sample_count = 4'194'304u / 44100u; // cpu clock speed / sample rate
 
 apu::apu(observer<bus> bus)
     : bus_{bus},
@@ -73,7 +73,7 @@ apu::apu(observer<bus> bus)
           },
       },
       channel_4_{
-          register8{0xFFu},
+          0xFFu,
           envelope{register8{0x00u}},
           polynomial_counter{register8{0x00u}},
           frequency_control{register8{0xBFu}}
@@ -150,7 +150,7 @@ void apu::tick(uint8_t cycles) noexcept
         channel_4_.tick();
 
         --down_sample_counter_;
-        if(down_sample_counter_ <= 0) {
+        if(down_sample_counter_ == 0u) {
             down_sample_counter_ = down_sample_count;
 
             generate_samples();
@@ -205,7 +205,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     else if(address == nr_12_addr) {
         channel_1_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_1_.envelope.reg = data;
-        channel_1_.envelope.timer = channel_1_.envelope.sweep_count();
+        channel_1_.envelope.timer = channel_1_.envelope.period();
         channel_1_.volume = channel_1_.envelope.initial_volume();
     }
     else if(address == nr_13_addr) { channel_1_.frequency_data.low = data; }
@@ -221,7 +221,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     else if(address == nr_22_addr) {
         channel_2_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_2_.envelope.reg = data;
-        channel_2_.envelope.timer = channel_1_.envelope.sweep_count();
+        channel_2_.envelope.timer = channel_1_.envelope.period();
         channel_2_.volume = channel_1_.envelope.initial_volume();
     }
     else if(address == nr_23_addr) { channel_2_.frequency_data.low = data; }

@@ -14,9 +14,9 @@ struct envelope {
     register8 reg;
     int32_t timer = 0u;
 
-    [[nodiscard]] uint8_t sweep_count() const noexcept { return reg.value() & 0x07u; }
+    [[nodiscard]] uint8_t period() const noexcept { return reg.value() & 0x07u; }
     [[nodiscard]] mode get_mode() const noexcept { return static_cast<mode>(bit::extract(reg, 3u)); }
-    [[nodiscard]] uint8_t initial_volume() const noexcept { return ((reg.value() >> 4u) & 0xFu); }
+    [[nodiscard]] uint8_t initial_volume() const noexcept { return reg.value() >> 4u; }
 };
 
 } // namespace gameboy

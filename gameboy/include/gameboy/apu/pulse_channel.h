@@ -14,7 +14,7 @@ struct pulse_channel {
     envelope envelope;
     frequency_data frequency_data;
 
-    int32_t timer = 0;
+    int16_t timer = 0;
     uint8_t length_counter = 0;
     uint8_t volume = 0u;
     uint8_t output = 0u;
