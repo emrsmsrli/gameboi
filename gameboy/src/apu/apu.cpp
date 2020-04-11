@@ -245,7 +245,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // ch4
-    else if(address == nr_41_addr) { channel_4_.sound_length = data | 0x3Fu; }
+    else if(address == nr_41_addr) { channel_4_.sound_length = data & 0x3Fu; }
     else if(address == nr_42_addr) {
         channel_4_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_4_.envelope.reg = data;
