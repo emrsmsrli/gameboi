@@ -50,7 +50,7 @@ constexpr T flip(const T n, const uint32_t bit) noexcept
 template<typename T>
 constexpr uint32_t extract(const T value, const uint32_t bit)
 {
-    return bit::from_bool(bit::test(value, bit));
+    return (value >> bit) & 0x1u;
 }
 
 } // namespace bit
