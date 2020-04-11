@@ -276,7 +276,6 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
         } else if(!power_on_) {
             frame_sequencer_ = 0u;
             frame_sequencer_counter_ = frame_sequence_count;
-            std::fill(begin(channel_3_.wave_pattern), end(channel_3_.wave_pattern), 0u);
             power_on_ = true;
         }
     }
