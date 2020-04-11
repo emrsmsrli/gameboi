@@ -235,7 +235,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     // ch3
     else if(address == nr_30_addr) { channel_3_.dac_enabled = bit::test(data, 7u); }
     else if(address == nr_31_addr) { channel_3_.sound_length = data; }
-    else if(address == nr_32_addr) { channel_3_.output_level = data | 0x9Fu; }
+    else if(address == nr_32_addr) { channel_3_.output_level = data; }
     else if(address == nr_33_addr) { channel_3_.frequency.low = data; }
     else if(address == nr_34_addr) {
         channel_3_.frequency.freq_control.reg = data;
@@ -245,7 +245,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // ch4
-    else if(address == nr_41_addr) { channel_4_.sound_length = data | 0xC0u; }
+    else if(address == nr_41_addr) { channel_4_.sound_length = data | 0x3Fu; }
     else if(address == nr_42_addr) {
         channel_4_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_4_.envelope.reg = data;
@@ -285,7 +285,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
 uint8_t apu::on_read(const address16& address) const noexcept
 {
     // ch1
-    if(address == nr_10_addr) { return channel_1_.sweep.reg.value(); }
+    if(address == nr_10_addr) { return channel_1_.sweep.reg.value() | 0x80u; }
     if(address == nr_11_addr) { return channel_1_.wave_data.reg.value() | 0x3Fu; }
     if(address == nr_12_addr) { return channel_1_.envelope.reg.value(); }
     if(address == nr_14_addr) { return channel_1_.frequency_data.freq_control.reg.value() | 0xBFu; }
@@ -297,11 +297,10 @@ uint8_t apu::on_read(const address16& address) const noexcept
 
     // ch3
     if(address == nr_30_addr) { return (bit::from_bool(channel_3_.dac_enabled) << 7u) | 0x7Fu; }
-    if(address == nr_32_addr) { return channel_3_.output_level.value(); }
+    if(address == nr_32_addr) { return channel_3_.output_level.value() | 0x9Fu; }
     if(address == nr_34_addr) { return channel_3_.frequency.freq_control.reg.value() | 0xBFu; }
 
     // ch4
-    if(address == nr_41_addr) { return channel_4_.sound_length.value(); }
     if(address == nr_42_addr) { return channel_4_.envelope.reg.value(); }
     if(address == nr_43_addr) { return channel_4_.polynomial_counter.reg.value(); }
     if(address == nr_44_addr) { return channel_4_.control.reg.value() | 0xBFu; }
