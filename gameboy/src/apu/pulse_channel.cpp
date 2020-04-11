@@ -98,6 +98,12 @@ void pulse_channel::restart() noexcept
     }
 }
 
+void pulse_channel::disable() noexcept
+{
+    length_counter = 0u;
+    enabled = false;
+}
+
 uint16_t pulse_channel::sweep_calculation() noexcept
 {
     auto new_freq = sweep.shadow >> sweep.shift_count();

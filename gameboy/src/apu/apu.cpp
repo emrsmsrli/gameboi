@@ -200,7 +200,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // ch1
-    if(address == nr_10_addr) { channel_1_.sweep.reg = data | 0x80u; }
+    if(address == nr_10_addr) { channel_1_.sweep.reg = data; }
     else if(address == nr_11_addr) { channel_1_.wave_data.reg = data; }
     else if(address == nr_12_addr) {
         channel_1_.dac_enabled = (data & 0xF8u) != 0x00u;
@@ -267,10 +267,10 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
                 on_write(addr, 0x00u);
             });
 
-            channel_1_.length_counter = 0u;
-            channel_2_.length_counter = 0u;
-            channel_3_.length_counter = 0u;
-            channel_4_.length_counter = 0u;
+            channel_1_.disable();
+            channel_2_.disable();
+            channel_3_.disable();
+            channel_4_.disable();
 
             power_on_ = false;
         } else if(!power_on_) {

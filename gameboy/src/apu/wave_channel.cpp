@@ -45,4 +45,10 @@ void wave_channel::restart() noexcept
     reset_timer();
 }
 
+void wave_channel::disable() noexcept
+{
+    length_counter = 0u;
+    enabled = false;
+}
+
 } // namespace gameboy

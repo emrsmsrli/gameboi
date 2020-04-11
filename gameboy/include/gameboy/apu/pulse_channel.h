@@ -30,6 +30,7 @@ struct pulse_channel {
     void envelope_click() noexcept;
 
     void restart() noexcept;
+    void disable() noexcept;
 
     void reset_timer() noexcept { timer = (2048 - frequency_data.value()) * 4; }
 

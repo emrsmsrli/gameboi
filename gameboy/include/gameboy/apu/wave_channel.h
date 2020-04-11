@@ -27,6 +27,7 @@ struct wave_channel {
     void tick() noexcept;
     void length_click() noexcept;
     void restart() noexcept;
+    void disable() noexcept;
 
     void reset_timer() noexcept { timer = (2048 - frequency.value()) * 2; }
 };

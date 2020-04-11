@@ -69,12 +69,18 @@ void noise_channel::shift_register_click() noexcept
 void noise_channel::restart() noexcept
 {
     enabled = true;
-    length_counter = 64u - (sound_length.value() & 0x3Fu);
+    length_counter = 64u - sound_length;
 
     timer = divisor_table[polynomial_counter.dividing_ratio()] << polynomial_counter.shift_clock_frequency();
     envelope.timer = envelope.sweep_count();
     volume = envelope.initial_volume();
     // fixme? shift_register = 0x7FFFu;
+}
+
+void noise_channel::disable() noexcept
+{
+    length_counter = 0u;
+    enabled = false;
 }
 
 } // namespace gameboy

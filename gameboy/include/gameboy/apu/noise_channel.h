@@ -29,6 +29,7 @@ struct noise_channel {
     void shift_register_click() noexcept;
 
     void restart() noexcept;
+    void disable() noexcept;
 };
 
 } // namespace gameboy
