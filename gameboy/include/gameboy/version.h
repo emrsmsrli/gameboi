@@ -7,9 +7,9 @@ namespace gameboy::version {
 
 [[maybe_unused]] constexpr auto major = 0;
 [[maybe_unused]] constexpr auto minor = 7;
-[[maybe_unused]] constexpr auto patch = 0;
+[[maybe_unused]] constexpr auto patch = 1;
 
-[[maybe_unused]] constexpr std::string_view version = "0.7.0";
+[[maybe_unused]] constexpr std::string_view version = "0.7.1";
 
 } // namespace gameboy::version
 
