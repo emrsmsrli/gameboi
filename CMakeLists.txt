@@ -10,6 +10,12 @@ include(cmake/Doxygen.cmake)
 include(cmake/StaticAnalyzers.cmake)
 include(cmake/Conan.cmake)
 
+find_package(GTest CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(magic_enum CONFIG REQUIRED)
+
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
 target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)

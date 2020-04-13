@@ -19,6 +19,7 @@ class bus;
 
 class apu {
 public:
+    static constexpr auto sampling_rate = 44'100u;
     static constexpr auto sample_size = 4096u;
 
     using sound_buffer = std::vector<int16_t>;

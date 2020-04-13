@@ -29,9 +29,9 @@ add_library(${PROJECT_NAME}
 add_library(gb::core ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        CONAN_PKG::fmt
-        CONAN_PKG::spdlog
-        CONAN_PKG::magic_enum
+        fmt::fmt
+        spdlog::spdlog
+        magic_enum::magic_enum
         project_warnings
         project_options)
 target_include_directories(${PROJECT_NAME}
