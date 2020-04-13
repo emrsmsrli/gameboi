@@ -65,12 +65,13 @@ struct sfml_frontend {
 
     void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept
     {
-        while(audio_device.queue_size() > sizeof(int16_t) * sound_buffer.size()) {
+        const auto buffer_size_in_bytes = sizeof(int16_t) * sound_buffer.size();
+        while(audio_device.queue_size() > buffer_size_in_bytes) {
             using namespace std::chrono_literals;
             std::this_thread::sleep_for(1ms);
         }
 
-        audio_device.enqueue(sound_buffer.data(), sound_buffer.size() * sizeof(int16_t));
+        audio_device.enqueue(sound_buffer.data(), buffer_size_in_bytes);
     }
 
     void rescale(const uint32_t width, const uint32_t height) noexcept
