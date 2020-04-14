@@ -5,10 +5,10 @@
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
 
-#ifdef DEBUG
+#if DEBUG
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/util/delegate.h"
-#endif
+#endif //DEBUG
 
 namespace gameboy {
 
@@ -81,10 +81,10 @@ private:
 
     int8_t wait_before_unhalt_cycles_;
 
-#ifdef DEBUG
+#if DEBUG
     register16 prev_program_counter_;
     delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
-#endif
+#endif //DEBUG
 
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;

@@ -1,7 +1,7 @@
 #ifndef GAMEBOY_SDL_MACRO_H
 #define GAMEBOY_SDL_MACRO_H
 
-#if DEBUG == 0
+#if !DEBUG
 #define SDL_CHECK(v)
 #define SDL_CHECK_INIT(v) (v)
 #else
@@ -14,6 +14,6 @@ do { if(!v) { \
 } } while(0)
 
 #define SDL_CHECK_INIT(v) SDL_CHECK((v >= 0))
-#endif //DEBUG == 0
+#endif //DEBUG
 
 #endif //GAMEBOY_SDL_MACRO_H
