@@ -94,4 +94,4 @@ deploy:
   skip_cleanup: true
   on:
     branch: master
-    condition: "$REPORT_COVERAGE" = "0"
+    condition: $REPORT_COVERAGE = 0
