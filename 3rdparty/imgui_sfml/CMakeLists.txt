@@ -7,10 +7,12 @@ add_library(${PROJECT_NAME}
         src/imgui_draw.cpp
         src/imgui_widgets.cpp
         src/imgui-SFML.cpp)
+        # src/imgui_impl_opengl3.cpp
+        # src/imgui_impl_sdl.cpp)
 
 add_library(imgui::sfml ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME}
-        PUBLIC CONAN_PKG::sfml)
+        PUBLIC CONAN_PKG::sfml SDL2::SDL2)
 target_include_directories(${PROJECT_NAME}
         PUBLIC ${PROJECT_SOURCE_DIR}/include)

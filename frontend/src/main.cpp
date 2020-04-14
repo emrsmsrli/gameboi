@@ -1,6 +1,9 @@
+#include <thread>
+#include <chrono>
+
 #include <SFML/Graphics.hpp>
-#include <SFML/Audio.hpp>
 #include <fmt/format.h>
+#include <spdlog/spdlog.h>
 
 #include "gameboy/gameboy.h"
 
@@ -8,6 +11,9 @@
 #include "gameboy/util/observer.h"
 #include "debugger/debugger.h"
 #endif // WITH_DEBUGGER
+
+#include "sdl_core.h"
+#include "sdl_audio.h"
 
 namespace {
 
@@ -18,8 +24,7 @@ struct sfml_frontend {
     sf::Sprite window_sprite;
     sf::RenderWindow window;
 
-    sf::SoundBuffer buffer{};
-    sf::Sound sound{};
+    sdl::audio_device audio_device;
 
 #if WITH_DEBUGGER
     gameboy::observer<gameboy::debugger> debugger;
@@ -31,6 +36,12 @@ struct sfml_frontend {
             sf::VideoMode(width, height),
             title,
             sf::Style::Default
+          },
+          audio_device{
+              sdl::audio_device::device_name(0), 2u,
+              sdl::audio_device::format::s16,
+              gameboy::apu::sampling_rate,
+              gameboy::apu::sample_size
           }
     {
         window.setFramerateLimit(60u);
@@ -49,14 +60,18 @@ struct sfml_frontend {
         gb.on_vblank({gameboy::connect_arg<&sfml_frontend::render_frame>, this});
         gb.on_audio_buffer_full({gameboy::connect_arg<&sfml_frontend::play_sound>, this});
 
-        sound.setBuffer(buffer);
+        audio_device.resume();
     }
 
     void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept
     {
-        // todo sync somehow?
-        buffer.loadFromSamples(sound_buffer.data(), sound_buffer.size(), 2u, 44100u);
-        sound.play();
+        const auto buffer_size_in_bytes = sizeof(gameboy::apu::sound_buffer::value_type) * sound_buffer.size();
+        while(audio_device.queue_size() > buffer_size_in_bytes) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(1ms);
+        }
+
+        audio_device.enqueue(sound_buffer.data(), buffer_size_in_bytes);
     }
 
     void rescale(const uint32_t width, const uint32_t height) noexcept
@@ -118,6 +133,8 @@ struct sfml_frontend {
 
 int main(const int argc, const char* argv[])
 {
+    sdl::init();
+
     if(argc < 2) {
         fmt::print("Usage: {} <rom_path>", argv[0]);
         return 1;
@@ -230,5 +247,6 @@ int main(const int argc, const char* argv[])
         frontend.set_framerate(dt.restart());
     }
 
+    sdl::quit();
     return 0;
 }

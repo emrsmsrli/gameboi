@@ -7,7 +7,7 @@
 #include "gameboy/apu/pulse_channel.h"
 #include "gameboy/apu/wave_channel.h"
 #include "gameboy/apu/noise_channel.h"
-#include "gameboy/apu/data/channel_control.h"
+#include "gameboy/apu/data/control.h"
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/util/observer.h"
@@ -16,9 +16,13 @@
 namespace gameboy {
 
 class bus;
+class apu_debugger;
 
 class apu {
+    friend apu_debugger;
+
 public:
+    static constexpr auto sampling_rate = 44'100u;
     static constexpr auto sample_size = 4096u;
 
     using sound_buffer = std::vector<int16_t>;
@@ -39,12 +43,19 @@ private:
     wave_channel channel_3_;
     noise_channel channel_4_;
 
-    channel_control channel_control_;
+    audio::control control_;
 
     uint16_t frame_sequencer_counter_;
     uint16_t buffer_fill_amount_;
     uint8_t frame_sequencer_;
     uint8_t down_sample_counter_;
+
+#if DEBUG
+    std::vector<float> sound_buffer_1_;
+    std::vector<float> sound_buffer_2_;
+    std::vector<float> sound_buffer_3_;
+    std::vector<float> sound_buffer_4_;
+#endif //DEBUG
 
     sound_buffer sound_buffer_;
 

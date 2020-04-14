@@ -9,10 +9,10 @@
 namespace gameboy {
 
 struct pulse_channel {
-    sweep sweep;
-    wave_data wave_data;
-    envelope envelope;
-    frequency_data frequency_data;
+    audio::sweep sweep;
+    audio::wave_data wave_data;
+    audio::envelope envelope;
+    audio::frequency_data frequency_data;
 
     int16_t timer = 0;
     uint8_t length_counter = 0;

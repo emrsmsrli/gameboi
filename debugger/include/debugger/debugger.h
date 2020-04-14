@@ -6,6 +6,7 @@
 #include "gameboy/bus.h"
 #include "gameboy/util/observer.h"
 #include "gameboy/util/delegate.h"
+#include "apu_debugger.h"
 #include "cpu_debugger.h"
 #include "ppu_debugger.h"
 #include "timer_debugger.h"
@@ -31,6 +32,7 @@ public:
 private:
     observer<bus> bus_;
     cartridge_debugger cartridge_debugger_;
+    apu_debugger apu_debugger_;
     cpu_debugger cpu_debugger_;
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;

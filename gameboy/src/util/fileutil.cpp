@@ -7,7 +7,7 @@
 
 namespace gameboy {
 
-std::vector<uint8_t> load_file(const filesystem::path& path)
+std::vector<uint8_t> read_file(const filesystem::path& path)
 {
     std::ifstream stream{path, std::ios::binary | std::ios::in};
     stream.unsetf(std::ios::skipws);

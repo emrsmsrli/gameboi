@@ -4,7 +4,7 @@
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct envelope {
     enum class mode : uint8_t {
@@ -19,6 +19,6 @@ struct envelope {
     [[nodiscard]] uint8_t initial_volume() const noexcept { return reg.value() >> 4u; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_ENVELOPE_H

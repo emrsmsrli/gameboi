@@ -10,6 +10,7 @@ debugger::debugger(const observer<bus> bus)
     : gb_tick_allowed{false},
       bus_{bus},
       cartridge_debugger_{bus_->get_cartridge(), bus_->get_cpu()},
+      apu_debugger_{bus_->get_apu()},
       cpu_debugger_{bus_->get_cpu(), make_observer(cartridge_debugger_)},
       ppu_debugger_{bus_->get_ppu()},
       timer_debugger_{bus_->get_timer()},
@@ -39,6 +40,7 @@ void debugger::tick()
 
     ImGui::SFML::Update(window_, delta_clock_.restart());
 
+    apu_debugger_.draw();
     cpu_debugger_.draw();
     ppu_debugger_.draw();
     timer_debugger_.draw();

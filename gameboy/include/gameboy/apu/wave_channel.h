@@ -12,7 +12,7 @@ namespace gameboy {
 struct wave_channel {
     register8 sound_length;
     register8 output_level;
-    frequency_data frequency;
+    audio::frequency_data frequency;
 
     int16_t length_counter = 0u;
     int16_t timer = 0u;

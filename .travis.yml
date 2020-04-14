@@ -54,11 +54,16 @@ jobs:
         - REPORT_COVERAGE=0
 
 before_script:
+  - git clone https://github.com/Microsoft/vcpkg.git
+  - export VCPKG_PATH=$(pwd)/vcpkg
+  - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
+  - $VCPKG_PATH/vcpkg integrate install
+  - $VCPKG_PATH/vcpkg install gtest spdlog fmt sdl2 magic-enum
   - pip install --user conan cmake ninja
 
 script:
   - mkdir build
-  - cmake -B build -G Ninja --config Release $CMAKE_ARGS .
+  - cmake -B build -G Ninja --config Release -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS .
   - |
     if [ "$REPORT_COVERAGE" = "1" ]; then
       build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/ -j $(nproc)
@@ -74,7 +79,7 @@ script:
     fi
 
 before_deploy:
-  - mv ./bin/gameboy "./bin/gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER"
+  - tar -czvf "gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER.tar.gz" ./bin/*
   - cd ..
   - git config --local user.name  "emrsmsrli"
   - git config --local user.email "emrsmsrli1@gmail.com"
@@ -85,7 +90,8 @@ deploy:
   provider: releases
   api_key:
     secure: fN18Vwf2TY5blbIx9rNFA1YaP9LW1PnUorSf6jCkFpTpkU7V6J6CF2nSDTjDWJdj0Pf+7nu5laZ6Pd9CwHhkjuGW8iKK0O7ZG7gcM3aicD7msJihR3evzCDtAnW9qxOtZvMJ9XrIQ20DKVaV4s1i7v1ojKlhir+5m8GCoSvc3pt1j2QREypi1hHVJVRtgOXDun5BKwBbyCy2uHSGW6T4NrmA9usejdpaTaJFq2u6VpwsKtmBcoO2+km3OW/MQHFl+KsOsHUNaNAh2ryHjerXD9+Mf13JC11IvKEAGSjGhsrG3tZOXxEWFI+KdktzXh+9ZZLZMUCNeTsbNIlgUpp74vXvoWrbu3a0WsfjUEI7NSUIo86KuSctHLCC0xBQfLGoINdXvVjIdkJIv0eQhxZ4PftOJeJmg8ypYz3U0UFdUMQzE1QXtYBTx8ONpQyTifoRXawNzVzd2vwHURLpZE6jBLNSgJ+xgEhNvRPm8nfBplmldtXGvPQ8UxG4KDcMFzy1IZSbv7ZR06lsz2LlR9XKw7IwSnSiwVImXiG+4SUrKWXcC2qXqbwxc5E+yxBT5i2cqMaHTq6LgacS7SU0xAMzlYoIxdbpSZl8RjTDIIzBFGnICr4cWqCkunTIgNijtoWFr9u5LSasQgolJqoLP+30tDVZW/lJeicQpMYr4FbDgpk=
-  file: "$TRAVIS_BUILD_DIR/build/bin/gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER"
+  file: "gameboy-$TRAVIS_OS_NAME-$TRAVIS_COMPILER.tar.gz"
   skip_cleanup: true
   on:
     branch: master
+    condition: $REPORT_COVERAGE = 0

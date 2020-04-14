@@ -5,7 +5,7 @@
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct frequency_data {
     register8 low;
@@ -16,6 +16,6 @@ struct frequency_data {
     [[nodiscard]] uint16_t value() const noexcept { return word(freq_control.reg.value() & 0x07u, low.value()); }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_FREQUENCY_DATA_H

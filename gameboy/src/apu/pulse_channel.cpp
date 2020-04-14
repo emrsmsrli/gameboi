@@ -52,7 +52,7 @@ void pulse_channel::sweep_click() noexcept
         if(sweep.enabled && sweep.period() > 0) {
             if(const auto new_freq = sweep_calculation(); new_freq < 2048 && sweep.shift_count() > 0) {
                 sweep.shadow = new_freq;
-                frequency_data.low = new_freq | 0x00FFu;
+                frequency_data.low = new_freq & 0x00FFu;
                 frequency_data.freq_control.reg = (frequency_data.freq_control.reg & 0xF8u) | (new_freq >> 8u);
 
                 sweep_calculation();
@@ -74,12 +74,12 @@ void pulse_channel::envelope_click() noexcept
 
         if(envelope.period() > 0) {
             switch(envelope.get_mode()) {
-                case envelope::mode::increase:
+                case audio::envelope::mode::increase:
                     if(volume < 15) {
                         ++volume;
                     }
                     break;
-                case envelope::mode::decrease:
+                case audio::envelope::mode::decrease:
                     if(volume > 0) {
                         --volume;
                     }
@@ -120,10 +120,10 @@ uint16_t pulse_channel::sweep_calculation() noexcept
 {
     auto new_freq = sweep.shadow >> sweep.shift_count();
     switch(sweep.get_mode()) {
-        case sweep::mode::increase:
+        case audio::sweep::mode::increase:
             new_freq = sweep.shadow + new_freq;
             break;
-        case sweep::mode::decrease:
+        case audio::sweep::mode::decrease:
             new_freq = sweep.shadow - new_freq;
             break;
     }

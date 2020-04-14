@@ -1,12 +1,12 @@
-#ifndef GAMEBOY_CHANNEL_CONTROL_H
-#define GAMEBOY_CHANNEL_CONTROL_H
+#ifndef GAMEBOY_CONTROL_H
+#define GAMEBOY_CONTROL_H
 
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
-struct channel_control {
+struct control {
     enum class terminal {
         right, left
     };
@@ -33,6 +33,6 @@ struct channel_control {
     [[nodiscard]] static uint32_t terminal_bit_offset(const terminal t) noexcept { return static_cast<uint32_t>(t) * 4u; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
-#endif //GAMEBOY_CHANNEL_CONTROL_H
+#endif //GAMEBOY_CONTROL_H

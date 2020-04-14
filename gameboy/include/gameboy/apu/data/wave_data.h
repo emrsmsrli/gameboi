@@ -3,7 +3,7 @@
 
 #include "gameboy/cpu/register8.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct wave_data {
     register8 reg;
@@ -12,6 +12,6 @@ struct wave_data {
     [[nodiscard]] uint8_t sound_length() const noexcept { return reg.value() & 0x3Fu; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_WAVE_DATA_H

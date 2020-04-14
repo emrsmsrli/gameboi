@@ -93,9 +93,9 @@ uint8_t cpu::on_key_1_read(const address16&) const noexcept
 
 uint8_t cpu::tick()
 {
-#ifdef DEBUG
+#if DEBUG
     prev_program_counter_ = program_counter_;
-#endif
+#endif //DEBUG
 
     const auto execute_next_op = [&]() -> uint8_t {
         const auto opcode = read_immediate(imm8);
@@ -1296,11 +1296,11 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
         }
     }
 
-#ifdef DEBUG
+#if DEBUG
     if(on_instruction_executed_) {
         on_instruction_executed_(make_address(prev_program_counter_), info, data);
     }
-#endif
+#endif //DEBUG
 
     return info.cycle_count;
 }
@@ -2460,11 +2460,11 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
 
     const auto& info = instruction::extended_instruction_set[inst];
 
-#ifdef DEBUG
+#if DEBUG
     if(on_instruction_executed_) {
         on_instruction_executed_(make_address(prev_program_counter_), info, 0u);
     }
-#endif
+#endif //DEBUG
 
     return info.cycle_count;
 }

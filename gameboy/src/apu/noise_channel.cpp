@@ -44,12 +44,12 @@ void noise_channel::envelope_click() noexcept
 
         if(envelope.period() > 0) {
             switch(envelope.get_mode()) {
-                case envelope::mode::increase:
+                case audio::envelope::mode::increase:
                     if(volume < 15) {
                         ++volume;
                     }
                     break;
-                case envelope::mode::decrease:
+                case audio::envelope::mode::decrease:
                     if(volume > 0) {
                         --volume;
                     }

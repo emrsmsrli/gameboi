@@ -9,7 +9,7 @@ add_executable(gameboycore_test
 
 target_link_libraries(gameboycore_test PRIVATE
         gb::core
-        CONAN_PKG::gtest
+        GTest::gtest
         project_warnings
         project_options)
 

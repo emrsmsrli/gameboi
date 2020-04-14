@@ -1,4 +1,4 @@
-project(gameboycore VERSION 0.7.0 LANGUAGES CXX)
+project(gameboycore VERSION 0.8.1 LANGUAGES CXX)
 configure_file(cmake/version.h.in
         ${CMAKE_CURRENT_SOURCE_DIR}/include/gameboy/version.h)
 
@@ -29,9 +29,9 @@ add_library(${PROJECT_NAME}
 add_library(gb::core ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
-        CONAN_PKG::fmt
-        CONAN_PKG::spdlog
-        CONAN_PKG::magic_enum
+        fmt::fmt
+        spdlog::spdlog
+        magic_enum::magic_enum
         project_warnings
         project_options)
 target_include_directories(${PROJECT_NAME}

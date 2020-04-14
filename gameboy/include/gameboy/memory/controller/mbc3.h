@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <vector>
+#include <utility> // std::pair
 
 #include "gameboy/memory/controller/mbc.h"
 #include "gameboy/memory/addressfwd.h"
@@ -11,46 +12,48 @@ namespace gameboy {
 
 class cartridge_debugger;
 
-class rtc {
-    friend cartridge_debugger;
+struct rtc {
+    uint8_t seconds = 0u;
+    uint8_t minutes = 0u;
+    uint8_t hours = 0u;
+    uint8_t days_lower = 0u;
+    uint8_t days_higher = 0u;
 
-public:
-    bool enabled = false;
-
-    [[nodiscard]] uint8_t read() const noexcept;
-    void write(uint8_t data) noexcept;
-    void latch() noexcept;
-
-private:
-    enum class register_type : uint8_t {
-        seconds = 0x08u,
-        minutes = 0x09u,
-        hours = 0x0Au,
-        days_lower_bits = 0x0Bu,
-        days_higher_bits = 0x0Cu
-    };
-
-    std::time_t latched_time_ = 0;
-    register_type selected_register_{register_type::seconds};
+    [[nodiscard]] uint8_t read(const uint8_t idx) const noexcept
+    {
+        switch(idx) {
+            case 0x08u: return seconds;
+            case 0x09u: return minutes;
+            case 0x0Au: return hours;
+            case 0x0Bu: return days_lower;
+            case 0x0Cu: return days_higher;
+            default:    return 0xFFu;
+        }
+    }
 };
 
 class mbc3 : public mbc {
     friend cartridge_debugger;
 
 public:
-    explicit mbc3(const observer<cartridge> cartridge)
-        : mbc(cartridge) {}
+    mbc3(observer<cartridge> cartridge, const std::pair<std::time_t, rtc>& rtc_data);
 
     void control(const address16& address, uint8_t data) noexcept;
 
     [[nodiscard]] uint8_t read_ram(const physical_address& address) const;
-    void write_ram(const physical_address& address, uint8_t data) const;
+    void write_ram(const physical_address& address, uint8_t data);
+
+    [[nodiscard]] std::pair<std::time_t, rtc> get_rtc_data() const noexcept { return std::make_pair(rtc_last_time_, rtc_); }
 
 private:
     rtc rtc_;
-    bool rtc_latch_on_next_one_write_ = false;
+    rtc rtc_latch_;
+    std::time_t rtc_last_time_ = 0u;
+    bool rtc_enabled_ = false;
+    uint8_t rtc_latch_data_ = 0u;
+    uint8_t rtc_selected_register_idx_ = 0x00u;
 
-    void configure_latch(uint8_t data);
+    void update_rtc_latch() noexcept;
 };
 
 } // namespace gameboy

@@ -10,6 +10,12 @@ include(cmake/Doxygen.cmake)
 include(cmake/StaticAnalyzers.cmake)
 include(cmake/Conan.cmake)
 
+find_package(GTest CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
+find_package(spdlog CONFIG REQUIRED)
+find_package(SDL2 CONFIG REQUIRED)
+find_package(magic_enum CONFIG REQUIRED)
+
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
 target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)
@@ -49,17 +55,8 @@ if(ENABLE_DEBUGGER)
             ${CMAKE_CURRENT_BINARY_DIR}/gb-debugger-build)
 endif()
 
-add_executable(${PROJECT_NAME} main.cpp)
-target_compile_definitions(${PROJECT_NAME}
-        PRIVATE WITH_DEBUGGER=$<BOOL:${ENABLE_DEBUGGER}>)
-target_link_libraries(${PROJECT_NAME} PRIVATE
-        CONAN_PKG::fmt
-        CONAN_PKG::sfml
-        imgui::sfml
-        gb::core
-        $<$<BOOL:${ENABLE_DEBUGGER}>:gb::debugger>
-        project_warnings
-        project_options)
+add_subdirectory(frontend
+        ${CMAKE_CURRENT_BINARY_DIR}/frontend-build)
 
 option(ENABLE_TESTING "Enable Tests" OFF)
 if(ENABLE_TESTING)

@@ -81,16 +81,26 @@ template<typename T = uint8_t, typename AddrType>
     return static_cast<T>(rom_data[addr.value()]);
 }
 
-filesystem::path get_save_path(const filesystem::path& rom_path) noexcept
+filesystem::path get_external_path(const filesystem::path& rom_path, const filesystem::path& ext) noexcept
 {
     auto save_path = rom_path;
-    save_path.replace_extension(".sav");
+    save_path.replace_extension(ext);
     return save_path;
+}
+
+filesystem::path get_save_path(const filesystem::path& rom_path) noexcept
+{
+    return get_external_path(rom_path, ".sav");
+}
+
+filesystem::path get_rtc_path(const filesystem::path& rom_path) noexcept
+{
+    return get_external_path(rom_path, ".rtc");
 }
 
 cartridge::cartridge(const filesystem::path& rom_path)
     : rom_path_{rom_path},
-      rom_{load_file(rom_path)},
+      rom_{read_file(rom_path)},
       mbc_{mbc_regular{make_observer(this)}}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
@@ -148,7 +158,8 @@ cartridge::cartridge(const filesystem::path& rom_path)
         case mbc_type::mbc_3:
         case mbc_type::mbc_3_ram:
         case mbc_type::mbc_3_ram_battery: {
-            mbc_ = mbc3{make_observer(this)};
+            has_rtc_ = mbc == mbc_type::mbc_3_rtc_battery || mbc == mbc_type::mbc_3_rtc_ram_battery;
+            mbc_ = mbc3{make_observer(this), load_rtc()};
             break;
         }
         case mbc_type::mbc_5:
@@ -227,8 +238,6 @@ cartridge::cartridge(const filesystem::path& rom_path)
             break;
     }
 
-    has_rtc_ = mbc == mbc_type::mbc_3_rtc_battery || mbc == mbc_type::mbc_3_rtc_ram_battery;
-
     spdlog::info("----- cartridge -----");
     spdlog::info("name: {}", name_);
     spdlog::info("type: {}", mbc_type_);
@@ -243,6 +252,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
 cartridge::~cartridge()
 {
     save_ram();
+    save_rtc();
 }
 
 uint8_t cartridge::read_rom(const address16& address) const
@@ -346,7 +356,7 @@ void cartridge::load_ram()
 {
     const auto save_path = get_save_path(rom_path_);
     if(filesystem::exists(save_path) && filesystem::file_size(save_path) == ram_.size()) {
-        ram_ = load_file(save_path);
+        ram_ = read_file(save_path);
     }
 }
 
@@ -354,6 +364,40 @@ void cartridge::save_ram() const
 {
     if(has_battery()) {
         write_file(get_save_path(rom_path_), ram_);
+    }
+}
+
+std::pair<std::time_t, rtc> cartridge::load_rtc()
+{
+    if(const auto rtc_path = get_rtc_path(rom_path_); has_rtc() && filesystem::exists(rtc_path)) {
+        // todo use std::bit_cast in c++20
+        const auto rtc_data = read_file(rtc_path);
+
+        std::time_t rtc_last_time;
+        rtc rtc;
+
+        std::memcpy(&rtc_last_time, rtc_data.data(), sizeof(rtc_last_time));
+        std::memcpy(&rtc, rtc_data.data() + sizeof(rtc_last_time), sizeof(rtc));
+
+        return std::make_pair(rtc_last_time, rtc);
+    }
+
+    return std::make_pair(0u, rtc{});
+}
+
+void cartridge::save_rtc() const
+{
+    if(has_rtc()) {
+        const auto mbc = std::get<mbc3>(mbc_);
+        // todo use std::bit_cast in c++20
+        const auto [rtc_last_time, rtc] = mbc.get_rtc_data();
+
+        std::vector<uint8_t> rtc_data(sizeof(rtc_last_time) + sizeof(rtc));
+
+        std::memcpy(rtc_data.data(), &rtc_last_time, sizeof(rtc_last_time));
+        std::memcpy(rtc_data.data() + sizeof(rtc_last_time), &rtc, sizeof(rtc));
+
+        write_file(get_rtc_path(rom_path_), rtc_data);
     }
 }
 
