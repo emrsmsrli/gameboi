@@ -100,7 +100,7 @@ filesystem::path get_rtc_path(const filesystem::path& rom_path) noexcept
 
 cartridge::cartridge(const filesystem::path& rom_path)
     : rom_path_{rom_path},
-      rom_{load_file(rom_path)},
+      rom_{read_file(rom_path)},
       mbc_{mbc_regular{make_observer(this)}}
 {
     constexpr auto cgb_support_addr = make_address(0x0143u);
@@ -356,7 +356,7 @@ void cartridge::load_ram()
 {
     const auto save_path = get_save_path(rom_path_);
     if(filesystem::exists(save_path) && filesystem::file_size(save_path) == ram_.size()) {
-        ram_ = load_file(save_path);
+        ram_ = read_file(save_path);
     }
 }
 
@@ -371,7 +371,7 @@ std::pair<std::time_t, rtc> cartridge::load_rtc()
 {
     if(const auto rtc_path = get_rtc_path(rom_path_); has_rtc() && filesystem::exists(rtc_path)) {
         // todo use std::bit_cast in c++20
-        const auto rtc_data = load_file(rtc_path);
+        const auto rtc_data = read_file(rtc_path);
 
         std::time_t rtc_last_time;
         rtc rtc;
