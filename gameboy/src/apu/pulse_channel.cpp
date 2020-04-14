@@ -52,7 +52,7 @@ void pulse_channel::sweep_click() noexcept
         if(sweep.enabled && sweep.period() > 0) {
             if(const auto new_freq = sweep_calculation(); new_freq < 2048 && sweep.shift_count() > 0) {
                 sweep.shadow = new_freq;
-                frequency_data.low = new_freq | 0x00FFu;
+                frequency_data.low = new_freq & 0x00FFu;
                 frequency_data.freq_control.reg = (frequency_data.freq_control.reg & 0xF8u) | (new_freq >> 8u);
 
                 sweep_calculation();
