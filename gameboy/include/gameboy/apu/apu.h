@@ -16,8 +16,11 @@
 namespace gameboy {
 
 class bus;
+class apu_debugger;
 
 class apu {
+    friend apu_debugger;
+
 public:
     static constexpr auto sampling_rate = 44'100u;
     static constexpr auto sample_size = 4096u;
@@ -46,6 +49,13 @@ private:
     uint16_t buffer_fill_amount_;
     uint8_t frame_sequencer_;
     uint8_t down_sample_counter_;
+
+#if DEBUG
+    std::vector<float> sound_buffer_1_;
+    std::vector<float> sound_buffer_2_;
+    std::vector<float> sound_buffer_3_;
+    std::vector<float> sound_buffer_4_;
+#endif //DEBUG
 
     sound_buffer sound_buffer_;
 

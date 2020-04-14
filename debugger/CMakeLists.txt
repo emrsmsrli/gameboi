@@ -2,6 +2,7 @@ project(gameboydebugger CXX)
 
 add_library(${PROJECT_NAME}
         src/debugger.cpp
+        src/apu_debugger.cpp
         src/cpu_debugger.cpp
         src/ppu_debugger.cpp
         src/timer_debugger.cpp
