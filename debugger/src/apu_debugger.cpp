@@ -30,27 +30,27 @@ void apu_debugger::draw() noexcept
             ImGui::Text("power        %d", apu_->power_on_);
 
             ImGui::Separator();
-            ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "NR50: %02X", apu_->channel_control_.nr_50.value());
+            ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "NR50: %02X", apu_->control_.nr_50.value());
             ImGui::Separator();
             ImGui::Text("vol left     %d",
-                apu_->channel_control_.terminal_volume<uint8_t>(channel_control::terminal::left));
+                apu_->control_.terminal_volume<uint8_t>(audio::control::terminal::left));
             ImGui::NextColumn();
             ImGui::Text("vol right    %d",
-                apu_->channel_control_.terminal_volume<uint8_t>(channel_control::terminal::right));
+                apu_->control_.terminal_volume<uint8_t>(audio::control::terminal::right));
             ImGui::NextColumn();
             ImGui::Separator();
 
-            ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "NR51: %02X", apu_->channel_control_.nr_51.value());
+            ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "NR51: %02X", apu_->control_.nr_51.value());
             ImGui::Separator();
 
             for(int i = 0; i < 4; ++i) {
                 ImGui::Text("ch%d left     %d", i + 1,
-                    apu_->channel_control_.channel_enabled_on_terminal(i, channel_control::terminal::left));
+                    apu_->control_.channel_enabled_on_terminal(i, audio::control::terminal::left));
             }
             ImGui::NextColumn();
             for(int i = 0; i < 4; ++i) {
                 ImGui::Text("ch%d right    %d", i + 1,
-                    apu_->channel_control_.channel_enabled_on_terminal(i, channel_control::terminal::right));
+                    apu_->control_.channel_enabled_on_terminal(i, audio::control::terminal::right));
             }
 
             ImGui::Columns(1);
@@ -184,7 +184,7 @@ void apu_debugger::draw() noexcept
     ImGui::End();
 }
 
-void apu_debugger::draw_freq_data(const frequency_data& freq_data) const noexcept
+void apu_debugger::draw_freq_data(const audio::frequency_data& freq_data) const noexcept
 {
     ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "Freq: %04X", freq_data.value());
     ImGui::Separator();
@@ -193,14 +193,14 @@ void apu_debugger::draw_freq_data(const frequency_data& freq_data) const noexcep
     draw_freq_control(freq_data.freq_control);
 }
 
-void apu_debugger::draw_freq_control(const frequency_control& freq_ctrl) const noexcept
+void apu_debugger::draw_freq_control(const audio::frequency_control& freq_ctrl) const noexcept
 {
     ImGui::Text("freq ctrl    %02X", freq_ctrl.reg.value());
     ImGui::Text("trigger      %d", freq_ctrl.should_restart());
     ImGui::Text("use counter  %d", freq_ctrl.use_counter());
 }
 
-void apu_debugger::draw_envelope(const envelope& env) const noexcept
+void apu_debugger::draw_envelope(const audio::envelope& env) const noexcept
 {
     ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "Envelope: %02X", env.reg.value());
     ImGui::Separator();

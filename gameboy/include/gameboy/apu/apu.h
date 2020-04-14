@@ -7,7 +7,7 @@
 #include "gameboy/apu/pulse_channel.h"
 #include "gameboy/apu/wave_channel.h"
 #include "gameboy/apu/noise_channel.h"
-#include "gameboy/apu/data/channel_control.h"
+#include "gameboy/apu/data/control.h"
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/util/observer.h"
@@ -43,7 +43,7 @@ private:
     wave_channel channel_3_;
     noise_channel channel_4_;
 
-    channel_control channel_control_;
+    audio::control control_;
 
     uint16_t frame_sequencer_counter_;
     uint16_t buffer_fill_amount_;

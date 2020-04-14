@@ -4,7 +4,7 @@
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct frequency_control {
     register8 reg;
@@ -13,6 +13,6 @@ struct frequency_control {
     [[nodiscard]] bool use_counter() const noexcept { return bit::test(reg, 6u); }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_FREQUENCY_CONTROL_H

@@ -9,9 +9,9 @@ namespace gameboy {
 
 struct noise_channel {
     uint8_t sound_length = 0u;
-    envelope envelope;
-    polynomial_counter polynomial_counter;
-    frequency_control control;
+    audio::envelope envelope;
+    audio::polynomial_counter polynomial_counter;
+    audio::frequency_control control;
 
     uint32_t timer = 0u;
     uint16_t lfsr = 0u;

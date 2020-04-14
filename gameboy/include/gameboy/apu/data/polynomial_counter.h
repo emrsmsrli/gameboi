@@ -3,7 +3,7 @@
 
 #include "gameboy/cpu/register8.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct polynomial_counter {
     register8 reg;
@@ -13,6 +13,6 @@ struct polynomial_counter {
     [[nodiscard]] uint8_t dividing_ratio() const noexcept { return reg.value() & 0x7u; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_POLYNOMIAL_COUNTER_H

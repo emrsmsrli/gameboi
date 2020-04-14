@@ -47,38 +47,38 @@ apu::apu(observer<bus> bus)
     : bus_{bus},
       power_on_{true},
       channel_1_{
-          sweep{register8{0x80u}},
-          wave_data{register8{0xBFu}},
-          envelope{register8{0xF3u}},
-          frequency_data{
+          audio::sweep{register8{0x80u}},
+          audio::wave_data{register8{0xBFu}},
+          audio::envelope{register8{0xF3u}},
+          audio::frequency_data{
               register8{0x00u},
-              frequency_control{register8{0xBFu}}
+              audio::frequency_control{register8{0xBFu}}
           },
       },
       channel_2_{
-          sweep{register8{0x00u}}, // no sweep
-          wave_data{register8{0x3Fu}},
-          envelope{register8{0x00u}},
-          frequency_data{
+          audio::sweep{register8{0x00u}}, // no sweep
+          audio::wave_data{register8{0x3Fu}},
+          audio::envelope{register8{0x00u}},
+          audio::frequency_data{
               register8{0x00u},
-              frequency_control{register8{0xBFu}}
+              audio::frequency_control{register8{0xBFu}}
           },
       },
       channel_3_{
           register8{0xFFu},
           register8{0x9Fu},
-          frequency_data{
+          audio::frequency_data{
               register8{0x00u},
-              frequency_control{register8{0xBFu}}
+              audio::frequency_control{register8{0xBFu}}
           },
       },
       channel_4_{
           0xFFu,
-          envelope{register8{0x00u}},
-          polynomial_counter{register8{0x00u}},
-          frequency_control{register8{0xBFu}}
+          audio::envelope{register8{0x00u}},
+          audio::polynomial_counter{register8{0x00u}},
+          audio::frequency_control{register8{0xBFu}}
       },
-      channel_control_{
+      control_{
           register8{0x77u},
           register8{0xF3u}
       },
@@ -187,24 +187,24 @@ void apu::generate_samples() noexcept
     sound_buffer_4_[buffer_fill_amount_ / 2] = channel_outputs[3];
 #endif //DEBUG
 
-    const auto sample_for_terminal = [&](const channel_control::terminal terminal) {
+    const auto sample_for_terminal = [&](const audio::control::terminal terminal) {
         constexpr auto amplitude = 30000.f;
         float sample = 0.f;
 
         for(auto channel_no = 0; channel_no < channel_outputs.size(); ++channel_no) {
-            if(channel_control_.channel_enabled_on_terminal(channel_no, terminal)) {
+            if(control_.channel_enabled_on_terminal(channel_no, terminal)) {
                 sample += channel_outputs[channel_no];
             }
         }
 
         sample /= channel_outputs.size();
 
-        const auto terminal_volume = channel_control_.terminal_volume<float>(terminal) / 7.f;
+        const auto terminal_volume = control_.terminal_volume<float>(terminal) / 7.f;
         sound_buffer_[buffer_fill_amount_++] = sample * terminal_volume * amplitude;
     };
 
-    sample_for_terminal(channel_control::terminal::left);
-    sample_for_terminal(channel_control::terminal::right);
+    sample_for_terminal(audio::control::terminal::left);
+    sample_for_terminal(audio::control::terminal::right);
 }
 
 void apu::on_write(const address16& address, uint8_t data) noexcept
@@ -273,8 +273,8 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // control
-    else if(address == nr_50_addr) { channel_control_.nr_50 = data; }
-    else if(address == nr_51_addr) { channel_control_.nr_51 = data; }
+    else if(address == nr_50_addr) { control_.nr_50 = data; }
+    else if(address == nr_51_addr) { control_.nr_51 = data; }
     else if(address == nr_52_addr) {
         if(!bit::test(data, 7u)) {
             std::for_each(begin(apu_register_addresses), end(apu_register_addresses) - 1, [&](const auto& addr) {
@@ -319,8 +319,8 @@ uint8_t apu::on_read(const address16& address) const noexcept
     if(address == nr_44_addr) { return channel_4_.control.reg.value() | 0xBFu; }
 
     // control
-    if(address == nr_50_addr) { return channel_control_.nr_50.value(); }
-    if(address == nr_51_addr) { return channel_control_.nr_51.value(); }
+    if(address == nr_50_addr) { return control_.nr_50.value(); }
+    if(address == nr_51_addr) { return control_.nr_51.value(); }
     if(address == nr_52_addr) {
         return 0x70u |
             (bit::from_bool(power_on_) << 7u) |

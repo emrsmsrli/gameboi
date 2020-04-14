@@ -8,9 +8,14 @@ namespace gameboy {
 
 class apu;
 struct pulse_channel;
+
+namespace audio {
+
 struct envelope;
 struct frequency_data;
 struct frequency_control;
+
+} // namespace audio
 
 class apu_debugger {
 public:
@@ -21,9 +26,9 @@ private:
     observer<apu> apu_;
     MemoryEditor memory_editor_;
 
-    void draw_freq_data(const frequency_data& freq_data) const noexcept;
-    void draw_freq_control(const frequency_control& freq_ctrl) const noexcept;
-    void draw_envelope(const envelope& env) const noexcept;
+    void draw_freq_data(const audio::frequency_data& freq_data) const noexcept;
+    void draw_freq_control(const audio::frequency_control& freq_ctrl) const noexcept;
+    void draw_envelope(const audio::envelope& env) const noexcept;
     void draw_pulse_channel(const pulse_channel& channel, bool no_sweep) const noexcept;
 };
 

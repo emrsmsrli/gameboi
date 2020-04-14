@@ -8,7 +8,7 @@
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
 
-namespace gameboy {
+namespace gameboy::audio {
 
 struct sweep {
     enum class mode : uint8_t {
@@ -27,6 +27,6 @@ struct sweep {
     [[nodiscard]] uint8_t shift_count() const noexcept { return reg.value() & 0x7u; }
 };
 
-} // namespace gameboy
+} // namespace gameboy::audio
 
 #endif //GAMEBOY_SWEEP_H
