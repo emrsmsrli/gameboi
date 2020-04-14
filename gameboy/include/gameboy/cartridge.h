@@ -76,6 +76,9 @@ private:
 
     void load_ram();
     void save_ram() const;
+
+    [[nodiscard]] std::pair<std::time_t, rtc> load_rtc();
+    void save_rtc() const;
 };
 
 } // namespace gameboy

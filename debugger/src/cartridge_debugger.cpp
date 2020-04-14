@@ -174,22 +174,45 @@ void cartridge_debugger::draw_info() const
             ImGui::Text("rom banks:   %d", cartridge_->rom_bank_count());
             ImGui::Text("ram banks:   %d", cartridge_->ram_bank_count());
 
-            std::visit(overloaded{
-                [](const mbc1& mbc) {
-                    ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active());
-                },
-                [&](const mbc3& mbc) {
-                    ImGui::Text("rtc enabled:             %d", mbc.rtc_.enabled);
-                    ImGui::Text("rtc latched time:        %lld", mbc.rtc_.latched_time_);
-                    ImGui::Text("rtc read:                %d", mbc.rtc_.read());
+            if(cartridge_->has_rtc()) {
+                std::visit(overloaded{
+                    [](mbc1& mbc) {
+                        ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active());
+                    },
+                    [](mbc3& mbc) {
+                        ImGui::Spacing();
 
-                    ImGui::TextUnformatted("rtc selected register:   "); ImGui::SameLine(0, 0);
-                    show_string_view(magic_enum::enum_name(mbc.rtc_.selected_register_));
+                        ImGui::Text("rtc enabled:             %d", mbc.rtc_enabled_);
+                        ImGui::Text("rtc last time:           %lld", mbc.rtc_last_time_);
+                        ImGui::Text("rtc selected register:   %d", mbc.rtc_selected_register_idx_);
+                        ImGui::Text("rtc latch on next write: %d", mbc.rtc_latch_data_);
 
-                    ImGui::Text("rtc latch on next write: %d", mbc.rtc_latch_on_next_one_write_);
-                },
-                [](auto&&) { }
-            }, cartridge_->mbc_);
+                        ImGui::Spacing();
+                        ImGui::Columns(2, "rtcregs", true);
+
+                        ImGui::TextUnformatted("rtc data"); ImGui::NextColumn();
+                        ImGui::TextUnformatted("rtc latch"); ImGui::NextColumn();
+                        ImGui::Separator();
+
+                        ImGui::Text("seconds %d", mbc.rtc_.seconds);
+                        ImGui::Text("minutes %d", mbc.rtc_.minutes);
+                        ImGui::Text("hours   %d", mbc.rtc_.hours);
+                        ImGui::Text("days lo %d", mbc.rtc_.days_lower);
+                        ImGui::Text("days hi %d", mbc.rtc_.days_higher);
+
+                        ImGui::NextColumn();
+
+                        ImGui::Text("seconds %d", mbc.rtc_latch_.seconds);
+                        ImGui::Text("minutes %d", mbc.rtc_latch_.minutes);
+                        ImGui::Text("hours   %d", mbc.rtc_latch_.hours);
+                        ImGui::Text("days lo %d", mbc.rtc_latch_.days_lower);
+                        ImGui::Text("days hi %d", mbc.rtc_latch_.days_higher);
+
+                        ImGui::Columns(1);
+                    },
+                    [](auto&&) {}
+                }, cartridge_->mbc_);
+            }
 
             ImGui::EndTabItem();
         }
