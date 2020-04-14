@@ -1,3 +1,5 @@
+#include <array>
+
 #include "gameboy/link/link.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
