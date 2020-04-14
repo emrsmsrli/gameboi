@@ -5,12 +5,6 @@
 
 namespace gameboy {
 
-/*
- * The amplitude is randomly switched between high and low at the given frequency.
- * A higher frequency will make the noise to appear 'softer'.
- * When Bit 3 is set, the output will become more regular,
- * and some frequencies will sound more like Tone than Noise.
-*/
 struct polynomial_counter {
     register8 reg;
 

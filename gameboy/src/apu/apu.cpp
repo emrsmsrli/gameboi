@@ -40,8 +40,8 @@ constexpr std::array apu_register_addresses{
 };
 
 constexpr auto frame_sequence_count = 8192u;
-constexpr auto frame_sequencer_max = 7u;
-constexpr auto down_sample_count = 4'194'304 / 44100; // cpu clock speed / sample rate
+constexpr auto frame_sequencer_max = 8u;
+constexpr auto down_sample_count = 4'194'304u / 44100u; // cpu clock speed / sample rate
 
 apu::apu(observer<bus> bus)
     : bus_{bus},
@@ -73,7 +73,7 @@ apu::apu(observer<bus> bus)
           },
       },
       channel_4_{
-          register8{0xFFu},
+          0xFFu,
           envelope{register8{0x00u}},
           polynomial_counter{register8{0x00u}},
           frequency_control{register8{0xBFu}}
@@ -139,7 +139,7 @@ void apu::tick(uint8_t cycles) noexcept
             }
 
             ++frame_sequencer_;
-            if(frame_sequencer_ > frame_sequencer_max) {
+            if(frame_sequencer_ == frame_sequencer_max) {
                 frame_sequencer_ = 0u;
             }
         }
@@ -150,7 +150,7 @@ void apu::tick(uint8_t cycles) noexcept
         channel_4_.tick();
 
         --down_sample_counter_;
-        if(down_sample_counter_ <= 0) {
+        if(down_sample_counter_ == 0u) {
             down_sample_counter_ = down_sample_count;
 
             generate_samples();
@@ -173,7 +173,7 @@ void apu::generate_samples() noexcept
         static_cast<float>(channel_4_.output) / 15.f,
     };
 
-   const auto sample_for_terminal = [&](const channel_control::terminal terminal) {
+    const auto sample_for_terminal = [&](const channel_control::terminal terminal) {
         constexpr auto amplitude = 30000.f;
         float sample = 0.f;
 
@@ -200,12 +200,12 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // ch1
-    if(address == nr_10_addr) { channel_1_.sweep.reg = data | 0x80u; }
+    if(address == nr_10_addr) { channel_1_.sweep.reg = data; }
     else if(address == nr_11_addr) { channel_1_.wave_data.reg = data; }
     else if(address == nr_12_addr) {
-        channel_1_.dac_enabled = mask::test(data, 0xF8u);
+        channel_1_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_1_.envelope.reg = data;
-        channel_1_.envelope.timer = channel_1_.envelope.sweep_count();
+        channel_1_.envelope.timer = channel_1_.envelope.period();
         channel_1_.volume = channel_1_.envelope.initial_volume();
     }
     else if(address == nr_13_addr) { channel_1_.frequency_data.low = data; }
@@ -219,9 +219,9 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     // ch2
     else if(address == nr_21_addr) { channel_2_.wave_data.reg = data; }
     else if(address == nr_22_addr) {
-        channel_2_.dac_enabled = mask::test(data, 0xF8u);
+        channel_2_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_2_.envelope.reg = data;
-        channel_2_.envelope.timer = channel_1_.envelope.sweep_count();
+        channel_2_.envelope.timer = channel_1_.envelope.period();
         channel_2_.volume = channel_1_.envelope.initial_volume();
     }
     else if(address == nr_23_addr) { channel_2_.frequency_data.low = data; }
@@ -235,7 +235,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     // ch3
     else if(address == nr_30_addr) { channel_3_.dac_enabled = bit::test(data, 7u); }
     else if(address == nr_31_addr) { channel_3_.sound_length = data; }
-    else if(address == nr_32_addr) { channel_3_.output_level = data | 0x9Fu; }
+    else if(address == nr_32_addr) { channel_3_.output_level = data; }
     else if(address == nr_33_addr) { channel_3_.frequency.low = data; }
     else if(address == nr_34_addr) {
         channel_3_.frequency.freq_control.reg = data;
@@ -245,9 +245,9 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     }
 
     // ch4
-    else if(address == nr_41_addr) { channel_4_.sound_length = data | 0xC0u; }
+    else if(address == nr_41_addr) { channel_4_.sound_length = data & 0x3Fu; }
     else if(address == nr_42_addr) {
-        channel_4_.dac_enabled = mask::test(data, 0xF8u);
+        channel_4_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_4_.envelope.reg = data;
     }
     else if(address == nr_43_addr) { channel_4_.polynomial_counter.reg = data; }
@@ -267,16 +267,15 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
                 on_write(addr, 0x00u);
             });
 
-            channel_1_.length_counter = 0u;
-            channel_2_.length_counter = 0u;
-            channel_3_.length_counter = 0u;
-            channel_4_.length_counter = 0u;
+            channel_1_.disable();
+            channel_2_.disable();
+            channel_3_.disable();
+            channel_4_.disable();
 
             power_on_ = false;
         } else if(!power_on_) {
             frame_sequencer_ = 0u;
             frame_sequencer_counter_ = frame_sequence_count;
-            std::fill(begin(channel_3_.wave_pattern), end(channel_3_.wave_pattern), 0u);
             power_on_ = true;
         }
     }
@@ -285,7 +284,7 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
 uint8_t apu::on_read(const address16& address) const noexcept
 {
     // ch1
-    if(address == nr_10_addr) { return channel_1_.sweep.reg.value(); }
+    if(address == nr_10_addr) { return channel_1_.sweep.reg.value() | 0x80u; }
     if(address == nr_11_addr) { return channel_1_.wave_data.reg.value() | 0x3Fu; }
     if(address == nr_12_addr) { return channel_1_.envelope.reg.value(); }
     if(address == nr_14_addr) { return channel_1_.frequency_data.freq_control.reg.value() | 0xBFu; }
@@ -297,11 +296,10 @@ uint8_t apu::on_read(const address16& address) const noexcept
 
     // ch3
     if(address == nr_30_addr) { return (bit::from_bool(channel_3_.dac_enabled) << 7u) | 0x7Fu; }
-    if(address == nr_32_addr) { return channel_3_.output_level.value(); }
+    if(address == nr_32_addr) { return channel_3_.output_level.value() | 0x9Fu; }
     if(address == nr_34_addr) { return channel_3_.frequency.freq_control.reg.value() | 0xBFu; }
 
     // ch4
-    if(address == nr_41_addr) { return channel_4_.sound_length.value(); }
     if(address == nr_42_addr) { return channel_4_.envelope.reg.value(); }
     if(address == nr_43_addr) { return channel_4_.polynomial_counter.reg.value(); }
     if(address == nr_44_addr) { return channel_4_.control.reg.value() | 0xBFu; }

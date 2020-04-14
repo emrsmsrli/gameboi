@@ -18,9 +18,8 @@ struct sfml_frontend {
     sf::Sprite window_sprite;
     sf::RenderWindow window;
 
-    gameboy::apu::sound_buffer current_sound_buffer{};
-    sf::SoundBuffer current_sf_sound_buffer{};
-    sf::Sound current_sf_sound{};
+    sf::SoundBuffer buffer{};
+    sf::Sound sound{};
 
 #if WITH_DEBUGGER
     gameboy::observer<gameboy::debugger> debugger;
@@ -49,14 +48,15 @@ struct sfml_frontend {
         gb.on_render_line({gameboy::connect_arg<&sfml_frontend::render_line>, this});
         gb.on_vblank({gameboy::connect_arg<&sfml_frontend::render_frame>, this});
         gb.on_audio_buffer_full({gameboy::connect_arg<&sfml_frontend::play_sound>, this});
+
+        sound.setBuffer(buffer);
     }
 
     void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept
     {
-        current_sound_buffer = sound_buffer;
-        current_sf_sound_buffer.loadFromSamples(current_sound_buffer.data(), current_sound_buffer.size(), 2u, 44100u);
-        current_sf_sound.setBuffer(current_sf_sound_buffer);
-        current_sf_sound.play();
+        // todo sync somehow?
+        buffer.loadFromSamples(sound_buffer.data(), sound_buffer.size(), 2u, 44100u);
+        sound.play();
     }
 
     void rescale(const uint32_t width, const uint32_t height) noexcept

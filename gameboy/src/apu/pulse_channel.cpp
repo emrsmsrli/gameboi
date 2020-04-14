@@ -32,7 +32,7 @@ void pulse_channel::tick() noexcept
 
 void pulse_channel::length_click() noexcept
 {
-    if(length_counter > 0 && frequency_data.use_sound_length_counter()) {
+    if(length_counter > 0 && frequency_data.use_counter()) {
         --length_counter;
         if(length_counter == 0) {
             enabled = false;
@@ -43,9 +43,13 @@ void pulse_channel::length_click() noexcept
 void pulse_channel::sweep_click() noexcept
 {
     --sweep.timer;
-    if(sweep.timer == 0) {
-        sweep.timer = sweep.sweep_count();
-        if(sweep.enabled && sweep.timer > 0) {
+    if(sweep.timer <= 0) {
+        sweep.timer = sweep.period();
+        if(sweep.timer == 0) {
+            sweep.timer = 8;
+        }
+
+        if(sweep.enabled && sweep.period() > 0) {
             if(const auto new_freq = sweep_calculation(); new_freq < 2048 && sweep.shift_count() > 0) {
                 sweep.shadow = new_freq;
                 frequency_data.low = new_freq | 0x00FFu;
@@ -63,8 +67,12 @@ void pulse_channel::envelope_click() noexcept
 {
     --envelope.timer;
     if(envelope.timer <= 0) {
-        envelope.timer = envelope.sweep_count();
-        if(envelope.timer > 0) {
+        envelope.timer = envelope.period();
+        if(envelope.timer == 0) {
+            envelope.timer = 8;
+        }
+
+        if(envelope.period() > 0) {
             switch(envelope.get_mode()) {
                 case envelope::mode::increase:
                     if(volume < 15) {
@@ -88,14 +96,24 @@ void pulse_channel::restart() noexcept
     length_counter = 64u - wave_data.sound_length();
 
     volume = envelope.initial_volume();
-    envelope.timer = envelope.sweep_count();
+    envelope.timer = envelope.period();
 
-    sweep.enabled = sweep.sweep_count() > 0 || sweep.shift_count() > 0;
-    sweep.timer = sweep.sweep_count();
+    sweep.enabled = sweep.period() > 0 || sweep.shift_count() > 0;
+    sweep.timer = sweep.period();
+    if(sweep.timer == 0) {
+        sweep.timer = 8;
+    }
+
     sweep.shadow = frequency_data.value();
     if(sweep.shift_count() > 0) {
         sweep_calculation();
     }
+}
+
+void pulse_channel::disable() noexcept
+{
+    length_counter = 0u;
+    enabled = false;
 }
 
 uint16_t pulse_channel::sweep_calculation() noexcept

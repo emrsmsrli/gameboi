@@ -44,7 +44,7 @@ private:
     uint16_t frame_sequencer_counter_;
     uint16_t buffer_fill_amount_;
     uint8_t frame_sequencer_;
-    int8_t down_sample_counter_;
+    uint8_t down_sample_counter_;
 
     sound_buffer sound_buffer_;
 

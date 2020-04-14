@@ -14,7 +14,7 @@ struct pulse_channel {
     envelope envelope;
     frequency_data frequency_data;
 
-    int32_t timer = 0;
+    int16_t timer = 0;
     uint8_t length_counter = 0;
     uint8_t volume = 0u;
     uint8_t output = 0u;
@@ -30,6 +30,7 @@ struct pulse_channel {
     void envelope_click() noexcept;
 
     void restart() noexcept;
+    void disable() noexcept;
 
     void reset_timer() noexcept { timer = (2048 - frequency_data.value()) * 4; }
 

@@ -11,11 +11,11 @@ constexpr std::array<uint8_t, 8u> divisor_table{
 void noise_channel::tick() noexcept
 {
     --timer;
-    if(timer <= 0) {
+    if(timer == 0) {
         timer = divisor_table[polynomial_counter.dividing_ratio()] << polynomial_counter.shift_clock_frequency();
         shift_register_click();
 
-        if(enabled && dac_enabled && !bit::test(shift_register, 0u)) {
+        if(enabled && dac_enabled && !bit::test(lfsr, 0u)) {
             output = volume;
         } else {
             output = 0u;
@@ -37,8 +37,12 @@ void noise_channel::envelope_click() noexcept
 {
     --envelope.timer;
     if(envelope.timer <= 0) {
-        envelope.timer = envelope.sweep_count();
-        if(envelope.timer != 0) {
+        envelope.timer = envelope.period();
+        if(envelope.timer == 0) {
+            envelope.timer = 8;
+        }
+
+        if(envelope.period() > 0) {
             switch(envelope.get_mode()) {
                 case envelope::mode::increase:
                     if(volume < 15) {
@@ -57,24 +61,34 @@ void noise_channel::envelope_click() noexcept
 
 void noise_channel::shift_register_click() noexcept
 {
-    const auto result = (shift_register & 0x01u) ^ ((shift_register >> 1u) & 0x01u);
-    shift_register >>= 1u;
-    shift_register |= result << 14u;
+    const auto result = bit::extract(lfsr, 0u) ^ bit::extract(lfsr, 1u);
+    lfsr >>= 1u;
+    lfsr |= result << 14u;
 
     if(polynomial_counter.has_7_bit_counter_width()) {
-        shift_register = (shift_register & 0x04u) | (result << 6u);
+        lfsr = (lfsr & 0xBFu) | (result << 6u);
     }
 }
 
 void noise_channel::restart() noexcept
 {
     enabled = true;
-    length_counter = 64u - (sound_length.value() & 0x3Fu);
-
+    length_counter = 64u - sound_length;
     timer = divisor_table[polynomial_counter.dividing_ratio()] << polynomial_counter.shift_clock_frequency();
-    envelope.timer = envelope.sweep_count();
+
+    envelope.timer = envelope.period();
+    if(envelope.timer == 0u) {
+        envelope.timer = 8;
+    }
+
     volume = envelope.initial_volume();
-    // fixme? shift_register = 0x7FFFu;
+    lfsr = 0x7FFFu;
+}
+
+void noise_channel::disable() noexcept
+{
+    length_counter = 0u;
+    enabled = false;
 }
 
 } // namespace gameboy
