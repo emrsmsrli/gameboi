@@ -18,7 +18,9 @@ gameboy::cpu_debugger::cpu_debugger(
     : cpu_{cpu},
       cartridge_debugger_{cartridge_debugger}
 {
+#if DEBUG
     cpu_->on_instruction_executed_ = {connect_arg<&cpu_debugger::on_instruction>, this};
+#endif //DEBUG
 }
 
 void gameboy::cpu_debugger::draw() const noexcept
