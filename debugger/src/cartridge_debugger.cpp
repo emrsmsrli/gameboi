@@ -2,6 +2,7 @@
 #include <magic_enum.hpp>
 
 #include "debugger/cartridge_debugger.h"
+#include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/util/overloaded.h"
@@ -135,14 +136,6 @@ bool cartridge_debugger::has_breakpoint(const address16& addr) const noexcept
 
 void cartridge_debugger::draw_info() const
 {
-    const auto show_string_view = [](const auto& view) {
-        if(!view.empty())  {
-            ImGui::TextUnformatted(view.data(), view.data() + view.size());
-        } else {
-            ImGui::TextUnformatted("");
-        }
-    };
-
     if(ImGui::BeginTabBar("cartinfotab")) {
         if(ImGui::BeginTabItem("Info")) {
             ImGui::Columns(2, "cartridgeinfo", false);
