@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <array>
+#include <vector>
 
 #include "gameboy/apu/pulse_channel.h"
 #include "gameboy/apu/wave_channel.h"
