@@ -58,12 +58,12 @@ before_script:
   - export VCPKG_PATH=$(pwd)/vcpkg
   - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
   - $VCPKG_PATH/vcpkg integrate install
-  - $VCPKG_PATH/vcpkg install gtest spdlog fmt sdl2 magic-enum
+  - $VCPKG_PATH/vcpkg install --triplet x64-linux-static gtest spdlog fmt sdl2 magic-enum
   - pip install --user conan cmake ninja
 
 script:
   - mkdir build
-  - cmake -B build -G Ninja --config Release -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS .
+  - cmake -B build -G Ninja --config Release -DVCPKG_TARGET_TRIPLET=x64-linux-static -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS .
   - |
     if [ "$REPORT_COVERAGE" = "1" ]; then
       build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/ -j $(nproc)
