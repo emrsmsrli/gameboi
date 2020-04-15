@@ -10,7 +10,9 @@ target_compile_definitions(${PROJECT_NAME}
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         spdlog::spdlog
-        CONAN_PKG::sfml
+        sfml-graphics
+        sfml-window
+        sfml-system
         SDL2::SDL2
         imgui::sfml
         gb::core

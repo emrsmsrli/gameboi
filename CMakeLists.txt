@@ -13,6 +13,7 @@ include(cmake/Conan.cmake)
 find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
+find_package(SFML COMPONENTS window graphics system CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
 
@@ -38,11 +39,6 @@ if(ENABLE_PCH)
     target_precompile_headers(project_options INTERFACE
             <array> <vector> <string> <unordered_map> <utility>)
 endif()
-
-
-# end cmake configuration
-
-run_conan()
 
 add_subdirectory(3rdparty/imgui_sfml
         ${CMAKE_CURRENT_BINARY_DIR}/imgui-sfml-build)
