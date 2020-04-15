@@ -8,7 +8,7 @@ namespace sdl {
 
 void init() noexcept
 {
-    SDL_CHECK_INIT(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS));
+    SDL_CHECK_INIT(SDL_Init(SDL_INIT_AUDIO));
 }
 
 void quit() noexcept
