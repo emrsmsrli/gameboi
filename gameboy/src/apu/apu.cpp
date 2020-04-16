@@ -51,16 +51,16 @@ apu::apu(observer<bus> bus)
           audio::wave_data{register8{0xBFu}},
           audio::envelope{register8{0xF3u}},
           audio::frequency_data{
-              register8{0x00u},
+              register8{0xFFu},
               audio::frequency_control{register8{0xBFu}}
           },
       },
       channel_2_{
-          audio::sweep{register8{0x00u}}, // no sweep
+          audio::sweep{register8{0xFFu}}, // no sweep
           audio::wave_data{register8{0x3Fu}},
           audio::envelope{register8{0x00u}},
           audio::frequency_data{
-              register8{0x00u},
+              register8{0xFFu},
               audio::frequency_control{register8{0xBFu}}
           },
       },
@@ -68,7 +68,7 @@ apu::apu(observer<bus> bus)
           register8{0xFFu},
           register8{0x9Fu},
           audio::frequency_data{
-              register8{0x00u},
+              register8{0xFFu},
               audio::frequency_control{register8{0xBFu}}
           },
       },
