@@ -14,6 +14,7 @@ debugger::debugger(const observer<bus> bus)
       cpu_debugger_{bus_->get_cpu(), make_observer(cartridge_debugger_)},
       ppu_debugger_{bus_->get_ppu()},
       timer_debugger_{bus_->get_timer()},
+      joypad_debugger_{bus_->get_joypad()},
       memory_bank_debugger_{bus},
       window_{
           sf::VideoMode{1200, 1200},
@@ -45,6 +46,7 @@ void debugger::tick()
     ppu_debugger_.draw();
     timer_debugger_.draw();
     memory_bank_debugger_.draw();
+    joypad_debugger_.draw();
     cartridge_debugger_.draw();
 
     window_.clear(sf::Color::Black);

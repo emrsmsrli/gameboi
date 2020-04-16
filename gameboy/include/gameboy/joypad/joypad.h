@@ -8,8 +8,11 @@
 namespace gameboy {
 
 class bus;
+class joypad_debugger;
 
 class joypad {
+    friend joypad_debugger;
+
 public:
     enum class key : uint8_t {
         none = 0u,

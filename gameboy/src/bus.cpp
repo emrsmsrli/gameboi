@@ -9,5 +9,6 @@ observer<cpu> bus::get_cpu() const noexcept { return make_observer(gb_->cpu_); }
 observer<ppu> bus::get_ppu() const noexcept { return make_observer(gb_->ppu_); }
 observer<apu> bus::get_apu() const noexcept { return make_observer(gb_->apu_); }
 observer<timer> bus::get_timer() const noexcept { return make_observer(gb_->timer_); }
+observer<joypad> bus::get_joypad() const noexcept { return make_observer(gb_->joypad_); }
 
 } // namespace gameboy
