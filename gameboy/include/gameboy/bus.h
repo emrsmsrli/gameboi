@@ -12,6 +12,7 @@ class cpu;
 class ppu;
 class apu;
 class timer;
+class joypad;
 
 class bus {
 public:
@@ -24,6 +25,7 @@ public:
     [[nodiscard]] observer<ppu> get_ppu() const noexcept;
     [[nodiscard]] observer<apu> get_apu() const noexcept;
     [[nodiscard]] observer<timer> get_timer() const noexcept;
+    [[nodiscard]] observer<joypad> get_joypad() const noexcept;
 
 private:
     observer<gameboy> gb_;

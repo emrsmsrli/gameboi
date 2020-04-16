@@ -12,6 +12,7 @@
 #include "timer_debugger.h"
 #include "memory_bank_debugger.h"
 #include "cartridge_debugger.h"
+#include "joypad_debugger.h"
 
 namespace gameboy {
 
@@ -36,6 +37,7 @@ private:
     cpu_debugger cpu_debugger_;
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
+    joypad_debugger joypad_debugger_;
     memory_bank_debugger memory_bank_debugger_;
 
     sf::Clock delta_clock_;
