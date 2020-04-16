@@ -80,6 +80,7 @@ private:
     bool is_halted_;
 
     int8_t wait_before_unhalt_cycles_;
+    int8_t extra_cycles_;
 
 #if DEBUG
     register16 prev_program_counter_;

@@ -37,7 +37,8 @@ cpu::cpu(observer<bus> bus) noexcept
       pending_enable_interrupts_counter_{-1},
       is_stopped_{false},
       is_halted_{false},
-      wait_before_unhalt_cycles_{0}
+      wait_before_unhalt_cycles_{0},
+      extra_cycles_{0u}
 {
     auto mmu = bus->get_mmu();
 
@@ -137,6 +138,9 @@ uint8_t cpu::tick()
         }
     }
 
+    cycle_count += extra_cycles_;
+    extra_cycles_ = 0;
+
     if(is_in_double_speed()) {
         cycle_count /= 2;
     }
@@ -177,6 +181,7 @@ void cpu::process_interrupts() noexcept
             interrupt_master_enable_ = false;
             interrupt_flags_ &= ~interrupt_request;
             rst(make_address(interrupt_request));
+            extra_cycles_ = 20;
         }
     }
 }
