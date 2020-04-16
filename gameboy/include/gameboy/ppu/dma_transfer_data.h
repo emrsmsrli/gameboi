@@ -14,6 +14,7 @@ struct dma_transfer_data {
     register16 source{0xFFFFu};
     register16 destination{0xFFFFu};
     register8 length_mode_start{0xFF};
+    register8 oam_dma{0xFF};
 
     [[nodiscard]] uint16_t length() const noexcept { return ((length_mode_start & 0x7Fu) + 1) * unit_transfer_length; }
     [[nodiscard]] bool disabled() const noexcept { return bit::test(length_mode_start, 7u); }

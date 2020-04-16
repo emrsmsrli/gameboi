@@ -114,6 +114,8 @@ ppu::ppu(observer<bus> bus)
 
         add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
             bgpi_addr, bgpd_addr, obpi_addr, obpd_addr);
+
+        dma_transfer_.oam_dma = 0x00u;
     }
 }
 
@@ -321,6 +323,7 @@ void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const 
 
 uint8_t ppu::dma_read(const address16& address) const
 {
+    if(address == oam_dma_addr) { return dma_transfer_.oam_dma.value(); }
     if(address == hdma_1_addr) { return dma_transfer_.source.high().value(); }
     if(address == hdma_2_addr) { return dma_transfer_.source.low().value(); }
     if(address == hdma_3_addr) { return dma_transfer_.destination.high().value(); }
@@ -333,6 +336,7 @@ uint8_t ppu::dma_read(const address16& address) const
 void ppu::dma_write(const address16& address, const uint8_t data)
 {
     if(address == oam_dma_addr) {
+        dma_transfer_.oam_dma = data;
         bus_->get_mmu()->dma(
             make_address(static_cast<uint16_t>(data << 8u)),
             make_address(*begin(oam_range)),
