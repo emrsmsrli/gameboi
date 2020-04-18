@@ -30,8 +30,8 @@ public:
     void on_vblank(const ppu::vblank_func on_vblank) noexcept { ppu_.on_vblank(on_vblank); }
     void set_gb_palette(const palette& palette) noexcept { ppu_.set_gb_palette(palette); }
 
-    void on_link_transfer_master(const link::transfer_func on_transfer) noexcept { link_.on_transfer_master(on_transfer); }
-    [[nodiscard]] uint8_t on_link_transfer_slave(const uint8_t data) noexcept { return link_.on_transfer_slave(data); }
+    [[maybe_unused]] void on_link_transfer_master(const link::transfer_func on_transfer) noexcept { link_.on_transfer_master(on_transfer); }
+    [[maybe_unused]] [[nodiscard]] uint8_t on_link_transfer_slave(const uint8_t data) noexcept { return link_.on_transfer_slave(data); }
 
     void on_audio_buffer_full(const apu::sound_buffer_full_func on_buffer_full) noexcept { apu_.on_sound_buffer_full(on_buffer_full); }
 
