@@ -164,7 +164,7 @@ void gameboy::cpu_debugger::draw_execution_breakpoints() noexcept
 
 void gameboy::cpu_debugger::draw_access_breakpoints() noexcept
 {
-    static constexpr std::array access_types {"Read", "Write", "Read&Write"};
+    static constexpr std::array access_types{"Read", "Write", "Read&Write"};
     static int access_type = 0;
     static std::array<char, 5> address_lo_buf{};
     static std::array<char, 5> address_hi_buf{};
