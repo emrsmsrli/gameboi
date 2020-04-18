@@ -71,6 +71,11 @@ constexpr bool operator!=(const address_range::iterator& left, const address_ran
     return *left != *right;
 }
 
+constexpr bool operator==(const address_range& left, const address_range& right) noexcept
+{
+    return !(begin(left) != begin(right) || end(left) != end(right));
+}
+
 } // namespace gameboy
 
 #endif //GAMEBOY_ADDRESS_RANGE_H
