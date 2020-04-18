@@ -12,6 +12,7 @@
 namespace gameboy {
 
 class bus;
+class cpu_debugger;
 class memory_bank_debugger;
 
 struct memory_delegate {
@@ -27,6 +28,7 @@ struct memory_delegate {
 };
 
 class mmu {
+    friend cpu_debugger;
     friend memory_bank_debugger;
 
 public:
@@ -39,6 +41,11 @@ public:
 
     void add_memory_delegate(const address16& address, const memory_delegate& callback) { delegates_[address] = callback; }
 
+#if WITH_DEBUGGER
+    void on_read_access(const delegate<void(const address16&)> on_read) noexcept { on_read_access_ = on_read; }
+    void on_write_access(const delegate<void(const address16&, uint8_t)> on_write) noexcept { on_write_access_ = on_write; }
+#endif //WITH_DEBUGGER
+
 private:
     observer<bus> bus_;
 
@@ -48,6 +55,11 @@ private:
     std::vector<uint8_t> high_ram_;
 
     std::unordered_map<address16, memory_delegate> delegates_;
+
+#if WITH_DEBUGGER
+    delegate<void(const address16&)> on_read_access_;
+    delegate<void(const address16&, uint8_t)> on_write_access_;
+#endif //WITH_DEBUGGER
 
     void write_wram(const address16& address, uint8_t data);
     [[nodiscard]] uint8_t read_wram(const address16& address) const;

@@ -5,10 +5,10 @@
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
 
-#if DEBUG
+#if WITH_DEBUGGER
 #include "gameboy/cpu/instruction_info.h"
 #include "gameboy/util/delegate.h"
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
 namespace gameboy {
 
@@ -32,6 +32,14 @@ public:
 
     [[nodiscard]] bool is_stopped() const noexcept { return is_stopped_; }
     [[nodiscard]] bool is_in_double_speed() const noexcept;
+
+#if WITH_DEBUGGER
+    void on_instruction(
+        const delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed) noexcept
+    {
+        on_instruction_executed_ = on_instruction_executed;
+    }
+#endif //WITH_DEBUGGER
 
 private:
     enum class flag : uint8_t {
@@ -82,10 +90,10 @@ private:
     int8_t wait_before_unhalt_cycles_;
     int8_t extra_cycles_;
 
-#if DEBUG
+#if WITH_DEBUGGER
     register16 prev_program_counter_;
     delegate<void(const address16&, const instruction::info&, uint16_t)> on_instruction_executed_;
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     void on_ie_write(const address16&, uint8_t data) noexcept;
     [[nodiscard]] uint8_t on_ie_read(const address16&) const noexcept;

@@ -21,6 +21,7 @@ namespace gameboy {
 
 class bus;
 class ppu_debugger;
+class cpu_debugger;
 class memory_bank_debugger;
 
 static constexpr auto screen_width = 160u;
@@ -30,6 +31,7 @@ using render_line = std::array<color, screen_width>;
 
 class ppu {
     friend ppu_debugger;
+    friend cpu_debugger;
     friend memory_bank_debugger;
 
 public:

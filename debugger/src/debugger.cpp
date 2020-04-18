@@ -7,24 +7,21 @@
 namespace gameboy {
 
 debugger::debugger(const observer<bus> bus)
-    : gb_tick_allowed{false},
-      bus_{bus},
-      cartridge_debugger_{bus_->get_cartridge(), bus_->get_cpu()},
+    : bus_{bus},
       apu_debugger_{bus_->get_apu()},
-      cpu_debugger_{bus_->get_cpu(), make_observer(cartridge_debugger_)},
+      cpu_debugger_{bus_->get_cpu()},
+      cartridge_debugger_{bus_->get_cartridge(), make_observer(cpu_debugger_)},
       ppu_debugger_{bus_->get_ppu()},
       timer_debugger_{bus_->get_timer()},
       joypad_debugger_{bus_->get_joypad()},
       memory_bank_debugger_{bus},
       window_{
-          sf::VideoMode{1200, 1200},
+          sf::VideoMode{1600, 1200},
           "Debugger"
       }
 {
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
-
-    cartridge_debugger_.on_break({connect_arg<&debugger::on_execution_break>, this});
 }
 
 debugger::~debugger()
@@ -53,6 +50,10 @@ void debugger::tick()
     ImGui::SFML::Render(window_);
 
     window_.display();
+}
+
+void debugger::on_instruction(const address16& addr, const instruction::info& info, const uint16_t data) noexcept {
+    cpu_debugger_.on_instruction(addr, info, data);
 }
 
 } // namespace gameboy

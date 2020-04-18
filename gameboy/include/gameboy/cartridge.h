@@ -16,10 +16,12 @@
 
 namespace gameboy {
     
+class cpu_debugger;
 class cartridge_debugger;
 class memory_bank_debugger;
 
 class cartridge {
+    friend cpu_debugger;
     friend cartridge_debugger;
     friend memory_bank_debugger;
 

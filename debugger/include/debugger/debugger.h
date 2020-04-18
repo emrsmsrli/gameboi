@@ -18,8 +18,6 @@ namespace gameboy {
 
 class debugger {
 public:
-    bool gb_tick_allowed;
-
     explicit debugger(observer<bus> bus);
     ~debugger();
     debugger(const debugger&) = delete;
@@ -29,12 +27,28 @@ public:
     debugger& operator=(debugger&&) = delete;
 
     void tick();
+    void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;
+
+    [[nodiscard]] bool has_execution_breakpoint() { return cpu_debugger_.has_execution_breakpoint(); }
+    [[nodiscard]] bool has_read_access_breakpoint(const address16& address)
+    {
+        return cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
+    }
+
+    [[nodiscard]] bool has_write_access_breakpoint(const address16& address, const uint8_t data)
+    {
+        return cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write, data) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write, data) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
+    }
 
 private:
     observer<bus> bus_;
-    cartridge_debugger cartridge_debugger_;
     apu_debugger apu_debugger_;
     cpu_debugger cpu_debugger_;
+    cartridge_debugger cartridge_debugger_;
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
     joypad_debugger joypad_debugger_;
@@ -42,8 +56,6 @@ private:
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
-
-    void on_execution_break() { gb_tick_allowed = false; }
 };
 
 } // namespace gameboy

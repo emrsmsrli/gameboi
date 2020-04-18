@@ -2,6 +2,7 @@
 #include <magic_enum.hpp>
 
 #include "debugger/cartridge_debugger.h"
+#include "debugger/cpu_debugger.h"
 #include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
@@ -10,8 +11,8 @@
 
 namespace gameboy {
 
-cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<cpu> cpu)
-    : cartridge_{cartridge}, cpu_{cpu}
+cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge, observer<cpu_debugger> cpu_debugger)
+    : cartridge_{cartridge}, cpu_debugger_{cpu_debugger}
 {
     disassemblies_.reserve(1024);
     using namespace gameboy;
@@ -81,57 +82,9 @@ void cartridge_debugger::draw() noexcept
     ImGui::Spacing();
     ImGui::Spacing();
 
-    ImGui::TextUnformatted("Breakpoints");
-    ImGui::Separator();
-    ImGui::Spacing();
-
-    if(std::array<char, 5> buf{}; ImGui::InputText("", buf.data(), buf.size(), 
-            ImGuiInputTextFlags_CharsHexadecimal | ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CharsUppercase)) {
-        const auto addr_l = std::strtoul(buf.data(), nullptr, 16);
-        breakpoints_.emplace_back(addr_l);
-    }
-
-    if(!breakpoints_.empty()) {
-        auto to_delete = -1;
-        ImGuiListClipper clipper(breakpoints_.size());
-        while(clipper.Step()) {
-            for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-                if(ImGui::SmallButton("X")) {
-                    to_delete = i;
-                }
-
-                ImGui::SameLine(0, 20);
-                ImGui::Text("%04X", breakpoints_[i].value());
-            }
-        }
-
-        if(to_delete != -1) {
-            breakpoints_.erase(begin(breakpoints_) + to_delete);
-        }
-    } else {
-        ImGui::Spacing();
-        ImGui::Spacing();
-        ImGui::TextUnformatted("No breakpoints");
-    }
-
-    ImGui::Spacing();
-    ImGui::Spacing();
-
     draw_rom_disassembly();
     
     ImGui::End();
-}
-
-void cartridge_debugger::check_breakpoints()
-{
-    if(const auto pc = make_address(cpu_->program_counter_); has_breakpoint(pc)) {
-        on_break_(); // break the execution
-    }
-}
-
-bool cartridge_debugger::has_breakpoint(const address16& addr) const noexcept
-{
-    return std::find(begin(breakpoints_), end(breakpoints_), addr) != end(breakpoints_);
 }
 
 void cartridge_debugger::draw_info() const
@@ -216,7 +169,7 @@ void cartridge_debugger::draw_info() const
 
 void cartridge_debugger::draw_rom_disassembly() const noexcept
 {
-    const auto pc_addr = make_address(cpu_->program_counter_); 
+    const auto pc_addr = make_address(cpu_debugger_->get_pc());
     const auto it = std::find_if(
         std::begin(disassemblies_), 
         std::end(disassemblies_),
@@ -245,7 +198,7 @@ void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction::
 {
     const auto clamped_start = std::max(0u, start);
     const auto clamped_end = std::min(static_cast<size_t>(end), disassemblies.size());
-    const auto pc_addr = make_address(cpu_->program_counter_);
+    const auto pc_addr = make_address(cpu_debugger_->get_pc());
 
     for(auto i = clamped_start; i < clamped_end; ++i) {
         const auto& data = disassemblies[i];
@@ -257,7 +210,11 @@ void cartridge_debugger::do_draw_rom_disassembly(const std::vector<instruction::
                 return ImVec4{1.f, 1.f, 0.f, 1.f};
             }
 
-            if(has_breakpoint(data.address)) {
+            const auto bb = cpu_debugger::execution_breakpoint{data.address, static_cast<int>(data.bank)};
+            auto any_bb = bb;
+            any_bb.bank = cpu_debugger::execution_breakpoint::any_bank;
+
+            if(cpu_debugger_->has_execution_breakpoint(bb) || cpu_debugger_->has_execution_breakpoint(any_bb)) {
                 return ImVec4{1.f, 0.f, 0.f, 1.f};
             }
 

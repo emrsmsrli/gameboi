@@ -94,9 +94,9 @@ uint8_t cpu::on_key_1_read(const address16&) const noexcept
 
 uint8_t cpu::tick()
 {
-#if DEBUG
+#if WITH_DEBUGGER
     prev_program_counter_ = program_counter_;
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     const auto execute_next_op = [&]() -> uint8_t {
         const auto opcode = read_immediate(imm8);
@@ -228,6 +228,16 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             default: return 0u;
         }
     }();
+
+    const auto false_branch = [&]() {
+#if WITH_DEBUGGER
+        if(on_instruction_executed_) {
+            on_instruction_executed_(make_address(prev_program_counter_), info, data);
+        }
+#endif //WITH_DEBUGGER
+
+        return instruction::get_false_branch_cycle_count(inst);
+    };
 
     switch(inst) {
         case 0x00: {
@@ -362,7 +372,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::zero)) {
                 jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -398,7 +408,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::zero)) {
                 jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -434,7 +444,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::carry)) {
                 jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -477,7 +487,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::carry)) {
                 jump_relative(make_address(static_cast<uint8_t>(data)));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1034,7 +1044,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::zero)) {
                 ret();
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1046,7 +1056,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::zero)) {
                 jump(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1058,7 +1068,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::zero)) {
                 call(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1078,7 +1088,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::zero)) {
                 ret();
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1090,7 +1100,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::zero)) {
                 jump(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1098,7 +1108,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::zero)) {
                 call(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1118,7 +1128,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::carry)) {
                 ret();
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1130,7 +1140,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::carry)) {
                 jump(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1138,7 +1148,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(!test_flag(flag::carry)) {
                 call(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1158,7 +1168,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::carry)) {
                 ret();
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1170,7 +1180,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::carry)) {
                 jump(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1178,7 +1188,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
             if(test_flag(flag::carry)) {
                 call(make_address(data));
             } else {
-                return instruction::get_false_branch_cycle_count(inst);
+                return false_branch();
             }
             break;
         }
@@ -1301,11 +1311,11 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
         }
     }
 
-#if DEBUG
+#if WITH_DEBUGGER
     if(on_instruction_executed_) {
         on_instruction_executed_(make_address(prev_program_counter_), info, data);
     }
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     return info.cycle_count;
 }
@@ -2465,11 +2475,11 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
 
     const auto& info = instruction::extended_instruction_set[inst];
 
-#if DEBUG
+#if WITH_DEBUGGER
     if(on_instruction_executed_) {
         on_instruction_executed_(make_address(prev_program_counter_), info, 0u);
     }
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     return info.cycle_count;
 }

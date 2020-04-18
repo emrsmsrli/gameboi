@@ -19,6 +19,10 @@ class gameboy {
     friend bus;
 
 public:
+#if WITH_DEBUGGER
+    bool tick_enabled = false;
+#endif //WITH_DEBUGGER
+
     explicit gameboy(const filesystem::path& rom_path);
 
     void tick();

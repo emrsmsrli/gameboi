@@ -5,7 +5,6 @@
 #define SDL_CHECK(v)
 #define SDL_CHECK_INIT(v) (v)
 #else
-
 #include <spdlog/spdlog.h>
 
 #define SDL_CHECK(v) \

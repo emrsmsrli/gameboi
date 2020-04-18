@@ -12,26 +12,19 @@
 namespace gameboy {
 
 class cartridge;
-class cpu;
+class cpu_debugger;
 
 class cartridge_debugger {
 public:
-    explicit cartridge_debugger(observer<cartridge> cartridge, observer<cpu> cpu);
+    explicit cartridge_debugger(observer<cartridge> cartridge, observer<cpu_debugger> cpu_debugger);
 
     void draw() noexcept;
-    void on_break(const delegate<void()> on_break_delegate) { on_break_ = on_break_delegate; }
-    void check_breakpoints();
 
 private:
     observer<cartridge> cartridge_;
-    observer<cpu> cpu_;
+    observer<cpu_debugger> cpu_debugger_;
 
     std::vector<instruction::disassembly> disassemblies_;
-    std::vector<address16> breakpoints_;
-
-    delegate<void()> on_break_;
-
-    [[nodiscard]] bool has_breakpoint(const address16& addr) const noexcept;
 
     void draw_info() const;
     void draw_rom_disassembly() const noexcept;

@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.12.4)
 project(gameboy CXX)
 
+option(WITH_DEBUGGER "Enable Gameboy Debugger" OFF)
 option(WITH_LIBCXX "Use libc++" OFF)
 
 include(cmake/StandardProjectSettings.cmake)
@@ -21,7 +22,9 @@ find_package(magic_enum CONFIG REQUIRED)
 
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
-target_compile_definitions(project_options INTERFACE DEBUG=$<CONFIG:Debug>)
+target_compile_definitions(project_options INTERFACE
+        DEBUG=$<CONFIG:Debug>
+        WITH_DEBUGGER=$<BOOL:${WITH_DEBUGGER}>)
 
 if(WITH_LIBCXX)
     target_compile_options(project_options INTERFACE -stdlib=libc++)
@@ -47,8 +50,7 @@ add_subdirectory(3rdparty/imgui_sfml
 add_subdirectory(gameboy
         ${CMAKE_CURRENT_BINARY_DIR}/gb-core-build)
 
-option(ENABLE_DEBUGGER "Enable Gameboy Debugger" OFF)
-if(ENABLE_DEBUGGER)
+if(WITH_DEBUGGER)
     add_subdirectory(debugger
             ${CMAKE_CURRENT_BINARY_DIR}/gb-debugger-build)
 endif()

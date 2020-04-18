@@ -8,9 +8,8 @@
 #include "gameboy/gameboy.h"
 
 #if WITH_DEBUGGER
-#include "gameboy/util/observer.h"
 #include "debugger/debugger.h"
-#endif // WITH_DEBUGGER
+#endif //WITH_DEBUGGER
 
 #include "sdl_core.h"
 #include "sdl_audio.h"
@@ -27,8 +26,9 @@ struct sfml_frontend {
     sdl::audio_device audio_device;
 
 #if WITH_DEBUGGER
+    gameboy::observer<gameboy::gameboy> gb;
     gameboy::observer<gameboy::debugger> debugger;
-#endif // WITH_DEBUGGER
+#endif //WITH_DEBUGGER
 
     explicit sfml_frontend(gameboy::gameboy& gb, const uint32_t width, const uint32_t height) noexcept
         : title{fmt::format("GAMEBOY - {}", gb.rom_name())},
@@ -44,6 +44,13 @@ struct sfml_frontend {
               gameboy::apu::sample_size
           }
     {
+#if WITH_DEBUGGER
+        this->gb = gameboy::make_observer(gb);
+        this->gb->get_bus()->get_cpu()->on_instruction({gameboy::connect_arg<&sfml_frontend::on_instruction>, this});
+        this->gb->get_bus()->get_mmu()->on_read_access({gameboy::connect_arg<&sfml_frontend::on_read_access>, this});
+        this->gb->get_bus()->get_mmu()->on_write_access({gameboy::connect_arg<&sfml_frontend::on_write_access>, this});
+#endif //WITH_DEBUGGER
+
         window.setFramerateLimit(60u);
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
         window_texture.create(gameboy::screen_width, gameboy::screen_height);
@@ -111,17 +118,36 @@ struct sfml_frontend {
     {
         window_texture.update(window_buffer);
         draw_sprite();
-
-#if WITH_DEBUGGER
-        if(debugger) {
-            debugger->tick();
-        }
-#endif // WITH_DEBUGGER
     }
 
 #if WITH_DEBUGGER
     void set_debugger(const gameboy::observer<gameboy::debugger> dbgr) noexcept { debugger = dbgr; }
-#endif // WITH_DEBUGGER
+
+    void on_instruction(
+        const gameboy::address16& addr,
+        const gameboy::instruction::info& info,
+        const uint16_t data) noexcept
+    {
+        debugger->on_instruction(addr, info, data);
+        if(debugger->has_execution_breakpoint()) {
+            gb->tick_enabled = false;
+        }
+    }
+
+    void on_read_access(const gameboy::address16& addr) noexcept
+    {
+        if(debugger->has_read_access_breakpoint(addr)) {
+            gb->tick_enabled = false;
+        }
+    }
+
+    void on_write_access(const gameboy::address16& addr, const uint8_t data) noexcept
+    {
+        if(debugger->has_write_access_breakpoint(addr, data)) {
+            gb->tick_enabled = false;
+        }
+    }
+#endif //WITH_DEBUGGER
 
     void set_framerate(sf::Time time)
     {
@@ -146,7 +172,7 @@ int main(const int argc, const char* argv[])
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
     frontend.set_debugger(gameboy::make_observer(debugger));
-#endif // WITH_DEBUGGER
+#endif //WITH_DEBUGGER
 
     sf::Clock dt;
     while(frontend.window.isOpen()) {
@@ -189,7 +215,7 @@ int main(const int argc, const char* argv[])
                     case sf::Keyboard::F7:
                         gb.tick();
                         break;
-#endif // WITH_DEBUGGER
+#endif //WITH_DEBUGGER
                     default:
                         break;
                 }
@@ -225,24 +251,19 @@ int main(const int argc, const char* argv[])
                         break;
                     case sf::Keyboard::T:
                     case sf::Keyboard::F9:
-                        debugger.gb_tick_allowed = !debugger.gb_tick_allowed;
+                        gb.tick_enabled = !gb.tick_enabled;
                         break;
-#endif // WITH_DEBUGGER
+#endif //WITH_DEBUGGER
                     default:
                         break;
                 }
             }
         }
 
-#if WITH_DEBUGGER
-        if(debugger.gb_tick_allowed) {
-            gb.tick_one_frame();
-        } else {
-            debugger.tick();
-        }
-#else
         gb.tick_one_frame();
-#endif // WITH_DEBUGGER
+#if WITH_DEBUGGER
+        debugger.tick();
+#endif //WITH_DEBUGGER
 
         frontend.set_framerate(dt.restart());
     }

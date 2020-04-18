@@ -51,12 +51,12 @@ private:
     uint8_t frame_sequencer_;
     uint8_t down_sample_counter_;
 
-#if DEBUG
+#if WITH_DEBUGGER
     std::vector<float> sound_buffer_1_;
     std::vector<float> sound_buffer_2_;
     std::vector<float> sound_buffer_3_;
     std::vector<float> sound_buffer_4_;
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     sound_buffer sound_buffer_;
 

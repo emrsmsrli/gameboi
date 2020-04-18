@@ -44,6 +44,10 @@ mmu::mmu(observer<bus> bus)
 
 void mmu::write(const address16& address, const uint8_t data)
 {
+#if WITH_DEBUGGER
+    if(on_write_access_) { on_write_access_(address, data); }
+#endif //WITH_DEBUGGER
+
     if(const auto it = delegates_.find(address); it != end(delegates_)) {
         const auto& [delegated_addr, delegate] = *it;
         delegate.on_write(delegated_addr, data);
@@ -76,6 +80,10 @@ void mmu::write(const address16& address, const uint8_t data)
 
 uint8_t mmu::read(const address16& address) const
 {
+#if WITH_DEBUGGER
+    if(on_read_access_) { on_read_access_(address); }
+#endif //WITH_DEBUGGER
+
     if(const auto it = delegates_.find(address); it != end(delegates_)) {
         const auto& [delegated_addr, delegate] = *it;
         return delegate.on_read(delegated_addr);

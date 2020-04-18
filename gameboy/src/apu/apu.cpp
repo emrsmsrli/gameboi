@@ -106,12 +106,12 @@ apu::apu(observer<bus> bus)
 
     channel_1_.enabled = true;
 
-#if DEBUG
+#if WITH_DEBUGGER
     sound_buffer_1_.resize(sample_size / 2, 0.f);
     sound_buffer_2_.resize(sample_size / 2, 0.f);
     sound_buffer_3_.resize(sample_size / 2, 0.f);
     sound_buffer_4_.resize(sample_size / 2, 0.f);
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 }
 
 void apu::tick(uint8_t cycles) noexcept
@@ -180,12 +180,12 @@ void apu::generate_samples() noexcept
         static_cast<float>(channel_4_.output) / 15.f,
     };
 
-#if DEBUG
+#if WITH_DEBUGGER
     sound_buffer_1_[buffer_fill_amount_ / 2] = channel_outputs[0];
     sound_buffer_2_[buffer_fill_amount_ / 2] = channel_outputs[1];
     sound_buffer_3_[buffer_fill_amount_ / 2] = channel_outputs[2];
     sound_buffer_4_[buffer_fill_amount_ / 2] = channel_outputs[3];
-#endif //DEBUG
+#endif //WITH_DEBUGGER
 
     const auto sample_for_terminal = [&](const audio::control::terminal terminal) {
         constexpr auto amplitude = 30000.f;
