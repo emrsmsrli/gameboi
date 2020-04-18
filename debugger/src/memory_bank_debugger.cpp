@@ -68,7 +68,7 @@ void gameboy::memory_bank_debugger::draw() noexcept
                     ImGui::SliderInt("BANK", &selected_bank, 0, banks);
 
                     memory_editor_.DrawContents(mmu->work_ram_.data() + selected_bank * 4_kb,
-                        4_kb, 0xC000);
+                        4_kb, selected_bank == 0 ? 0xC000 : 0xD000);
                     ImGui::EndTabItem();
                 }
 
