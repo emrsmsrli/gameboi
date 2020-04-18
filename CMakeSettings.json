@@ -7,7 +7,7 @@
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "",
+            "cmakeCommandArgs": "-DWITH_DEBUGGER=ON",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
             "variables": [
@@ -25,8 +25,14 @@
                     "name": "ENABLE_IPO",
                     "value": "False",
                     "type": "BOOL"
+                },
+                {
+                    "name": "VCPKG_TARGET_TRIPLET",
+                    "value": "x64-windows-static",
+                    "type": "STRING"
                 }
-            ]
+            ],
+            "cmakeToolchain": "\"C:/Users/Emre/vcpkg/scripts/buildsystems/vcpkg.cmake\""
         },
         {
             "name": "x64-Release",
@@ -34,7 +40,7 @@
             "configurationType": "Release",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "",
+            "cmakeCommandArgs": "-DWITH_DEBUGGER=ON",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
             "inheritEnvironments": [ "msvc_x64_x64" ],
@@ -53,8 +59,14 @@
                     "name": "ENABLE_DOXYGEN",
                     "value": "False",
                     "type": "BOOL"
+                },
+                {
+                    "name": "VCPKG_TARGET_TRIPLET",
+                    "value": "x64-windows-static",
+                    "type": "STRING"
                 }
-            ]
+            ],
+            "cmakeToolchain": "\"C:/Users/Emre/vcpkg/scripts/buildsystems/vcpkg.cmake\""
         },
         {
             "name": "x64-DoxyNAnayzers",
@@ -91,8 +103,14 @@
                     "name": "ENABLE_CLANG_TIDY",
                     "value": "True",
                     "type": "BOOL"
+                },
+                {
+                  "name": "VCPKG_TARGET_TRIPLET",
+                  "value": "x64-windows-static",
+                  "type": "STRING"
                 }
-            ]
+            ],
+            "cmakeToolchain": "\"C:/Users/Emre/vcpkg/scripts/buildsystems/vcpkg.cmake\""
         }
     ]
 }
