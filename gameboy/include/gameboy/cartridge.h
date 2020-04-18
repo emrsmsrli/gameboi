@@ -27,6 +27,12 @@ public:
     explicit cartridge(const filesystem::path& rom_path);
     ~cartridge();
 
+    cartridge(const cartridge&) = delete;
+    cartridge(cartridge&&) = delete;
+
+    cartridge& operator=(const cartridge&) = delete;
+    cartridge& operator=(cartridge&&) = delete;
+
     [[nodiscard]] uint8_t read_rom(const address16& address) const;
     void write_rom(const address16& address, uint8_t data);
 
