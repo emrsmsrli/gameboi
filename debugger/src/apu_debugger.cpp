@@ -65,11 +65,10 @@ void apu_debugger::draw() noexcept
             ImGui::Spacing();
             ImGui::Spacing();
             ImGui::Spacing();
-            ImGui::Spacing();
 
-#if DEBUG
             const auto draw_debug_channel = [&](const char* name, const auto& buffer) {
                 ImGui::BeginGroup();
+                ImGui::AlignTextToFramePadding();
                 ImGui::TextUnformatted(name);
                 ImGui::PlotLines("",
                     buffer.data(), buffer.size(), apu_->buffer_fill_amount_,
@@ -83,7 +82,6 @@ void apu_debugger::draw() noexcept
             draw_debug_channel("Channel3", apu_->sound_buffer_3_);
             draw_debug_channel("Channel4", apu_->sound_buffer_4_);
             ImGui::NewLine();
-#endif //DEBUG
 
             ImGui::TextUnformatted("Sound buffer visualizer");
             ImGui::PlotLines("",
