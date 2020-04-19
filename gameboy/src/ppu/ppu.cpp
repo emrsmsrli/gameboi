@@ -5,9 +5,7 @@
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/mmu.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/memory_constants.h"
-#include "gameboy/util/mathutil.h"
 #include "gameboy/util/overloaded.h"
 
 namespace gameboy {
@@ -766,7 +764,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
     const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
     const auto obj_size = lcdc_.large_obj() ? 16 : 8;
 
-    std::array<attributes::obj, 40> objs{};
+    std::array<attributes::obj, 40> objs;
     std::memcpy(&objs, oam_.data(), oam_.size());
 
     auto indices = [&]() {
@@ -798,6 +796,8 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             return obj_l.x > obj_r.x;
         });
     }
+
+    std::reverse(begin(indices), end(indices));
 
     for(const auto index : indices) {
         const auto& obj = objs[index];
