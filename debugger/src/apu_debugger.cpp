@@ -32,10 +32,10 @@ void apu_debugger::draw() noexcept
             ImGui::Separator();
             ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "NR50: %02X", apu_->control_.nr_50.value());
             ImGui::Separator();
-            ImGui::Text("vol left     %d",
+            ImGui::Text("vol left     %02X",
                 apu_->control_.terminal_volume<uint8_t>(audio::control::terminal::left));
             ImGui::NextColumn();
-            ImGui::Text("vol right    %d",
+            ImGui::Text("vol right    %02X",
                 apu_->control_.terminal_volume<uint8_t>(audio::control::terminal::right));
             ImGui::NextColumn();
             ImGui::Separator();
@@ -72,7 +72,7 @@ void apu_debugger::draw() noexcept
                 ImGui::TextUnformatted(name);
                 ImGui::PlotLines("",
                     buffer.data(), buffer.size(), apu_->buffer_fill_amount_,
-                    nullptr, -1.0f, 1.0f, ImVec2(95.f, 160.f));
+                    nullptr, -0.1f, 1.0f, ImVec2(95.f, 160.f));
                 ImGui::EndGroup();
                 ImGui::SameLine();
             };
@@ -86,7 +86,7 @@ void apu_debugger::draw() noexcept
             ImGui::TextUnformatted("Sound buffer visualizer");
             ImGui::PlotLines("",
                 samples_f.data(), samples_f.size(), apu_->buffer_fill_amount_,
-                nullptr, -1.0f, 1.0f, ImVec2(400.f,160.f));
+                nullptr, -0.1f, 1.0f, ImVec2(400.f,160.f));
 
             ImGui::EndTabItem();
         }
@@ -103,11 +103,11 @@ void apu_debugger::draw() noexcept
 
         if(ImGui::BeginTabItem("Channel3")) {
             ImGui::Columns(2);
-            ImGui::Text("timer        %d", apu_->channel_3_.timer);
-            ImGui::Text("output       %d", apu_->channel_3_.output);
+            ImGui::Text("timer        %04X", apu_->channel_3_.timer);
+            ImGui::Text("output       %02X", apu_->channel_3_.output);
             ImGui::NextColumn();
-            ImGui::Text("length       %d", apu_->channel_3_.length_counter);
-            ImGui::Text("sample idx   %d", apu_->channel_3_.sample_index);
+            ImGui::Text("length       %04X", apu_->channel_3_.length_counter);
+            ImGui::Text("sample idx   %02X", apu_->channel_3_.sample_index);
             ImGui::NextColumn();
             ImGui::Separator();
             ImGui::Text("enable       %d", apu_->channel_3_.enabled);
@@ -140,12 +140,12 @@ void apu_debugger::draw() noexcept
 
         if(ImGui::BeginTabItem("Channel4")) {
             ImGui::Columns(2);
-            ImGui::Text("timer        %d", apu_->channel_4_.timer);
-            ImGui::Text("output       %d", apu_->channel_4_.output);
+            ImGui::Text("timer        %08X", apu_->channel_4_.timer);
+            ImGui::Text("output       %02X", apu_->channel_4_.output);
             ImGui::Text("lfsr         %04X", apu_->channel_4_.lfsr);
             ImGui::NextColumn();
-            ImGui::Text("length       %d", apu_->channel_4_.length_counter);
-            ImGui::Text("volume       %d", apu_->channel_4_.volume);
+            ImGui::Text("length       %02X", apu_->channel_4_.length_counter);
+            ImGui::Text("volume       %02X", apu_->channel_4_.volume);
             ImGui::NextColumn();
             ImGui::Separator();
             ImGui::Text("enable       %d", apu_->channel_4_.enabled);
@@ -163,11 +163,11 @@ void apu_debugger::draw() noexcept
 
             ImGui::TextColored(ImVec4{.5f, .5f, .5f, 1.f}, "PolyCounter: %02X",
                 apu_->channel_4_.polynomial_counter.reg.value());
-            ImGui::Text("shift clock freq    %d",
+            ImGui::Text("shift clock freq    %02X",
                 apu_->channel_4_.polynomial_counter.shift_clock_frequency());
             ImGui::Text("counter width       %d",
                 apu_->channel_4_.polynomial_counter.has_7_bit_counter_width() ? 7 : 15);
-            ImGui::Text("dividing ratio      %d",
+            ImGui::Text("dividing ratio      %02X",
                 apu_->channel_4_.polynomial_counter.dividing_ratio());
             ImGui::Separator();
 
@@ -204,24 +204,24 @@ void apu_debugger::draw_envelope(const audio::envelope& env) const noexcept
     ImGui::Separator();
 
     ImGui::Columns(2);
-    ImGui::Text("timer        %04X", env.timer);
+    ImGui::Text("timer        %08X", env.timer);
     ImGui::NextColumn();
-    ImGui::Text("period       %d", env.period());
+    ImGui::Text("period       %02X", env.period());
     ImGui::TextUnformatted("mode         "); ImGui::SameLine(0, 0);
     show_string_view(magic_enum::enum_name(env.get_mode()));
-    ImGui::Text("init vol     %d", env.initial_volume());
+    ImGui::Text("init vol     %02X", env.initial_volume());
     ImGui::Columns(1);
 }
 
 void apu_debugger::draw_pulse_channel(const pulse_channel& channel, const bool no_sweep) const noexcept
 {
     ImGui::Columns(2);
-    ImGui::Text("timer        %d", channel.timer);
-    ImGui::Text("volume       %d", channel.volume);
-    ImGui::Text("wave idx     %d", channel.waveform_index);
+    ImGui::Text("timer        %04X", channel.timer);
+    ImGui::Text("volume       %02X", channel.volume);
+    ImGui::Text("wave idx     %02X", channel.waveform_index);
     ImGui::NextColumn();
-    ImGui::Text("length       %d", channel.length_counter);
-    ImGui::Text("output       %d", channel.output);
+    ImGui::Text("length       %02X", channel.length_counter);
+    ImGui::Text("output       %02X", channel.output);
     ImGui::NextColumn();
     ImGui::Separator();
     ImGui::Text("enable       %d", channel.enabled);
@@ -239,10 +239,10 @@ void apu_debugger::draw_pulse_channel(const pulse_channel& channel, const bool n
         ImGui::Text("timer        %04X", channel.sweep.timer);
         ImGui::Text("shadow       %04X", channel.sweep.shadow);
         ImGui::NextColumn();
-        ImGui::Text("period       %d", channel.sweep.period());
+        ImGui::Text("period       %02X", channel.sweep.period());
         ImGui::TextUnformatted("mode         "); ImGui::SameLine(0, 0);
         show_string_view(magic_enum::enum_name(channel.sweep.get_mode()));
-        ImGui::Text("shift count  %d", channel.sweep.shift_count());
+        ImGui::Text("shift count  %02X", channel.sweep.shift_count());
         ImGui::Columns(1);
         ImGui::Separator();
     }
@@ -251,9 +251,9 @@ void apu_debugger::draw_pulse_channel(const pulse_channel& channel, const bool n
     ImGui::Separator();
 
     ImGui::Columns(2);
-    ImGui::Text("duty         %d", channel.wave_data.duty()); ImGui::SameLine();
+    ImGui::Text("duty         %02X", channel.wave_data.duty()); ImGui::SameLine();
     ImGui::NextColumn();
-    ImGui::Text("length       %d", channel.wave_data.sound_length());
+    ImGui::Text("length       %02X", channel.wave_data.sound_length());
     ImGui::Columns(1);
     ImGui::Separator();
 
