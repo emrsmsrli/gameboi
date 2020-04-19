@@ -36,18 +36,18 @@ void joypad::release(const key key) noexcept
 
 uint8_t joypad::read(const address16&) const noexcept
 {
-    if(const auto select = joyp_ & 0xF0u; mask::test(select, 0x10u) || mask::test(select, 0x20u)) {
-        const auto group = (~(select.value() >> 4u) & 0x03u) - 1u;
-        const auto selection = (static_cast<uint8_t>(keys_) >> (group * 4u)) & 0x0Fu;
-        return ((joyp_ & 0xF0u) | selection).value() | 0xC0u;
-    } else {
-        return (joyp_ | 0x0Fu).value() | 0xC0u;
+    if(const auto select = joyp_ & 0x30u; !mask::test(select, 0x10u)) {
+        return ((joyp_ & 0xF0u) | (static_cast<uint8_t>(keys_) & 0x0Fu)).value();
+    } else if(!mask::test(select, 0x20u)) {
+        return ((joyp_ & 0xF0u) | (static_cast<uint8_t>(keys_) >> 4u)).value();
     }
+
+    return joyp_.value();
 }
 
 void joypad::write(const address16&, const uint8_t data) noexcept
 {
-    joyp_ = data;
+    joyp_ = data | 0xCFu;
 }
 
 } // namespace gameboy

@@ -15,7 +15,6 @@ class joypad {
 
 public:
     enum class key : uint8_t {
-        none = 0u,
         right = 1u << 0u,
         left = 1u << 1u,
         up = 1u << 2u,
