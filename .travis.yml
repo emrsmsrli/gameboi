@@ -59,23 +59,21 @@ before_script:
   - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
   - $VCPKG_PATH/vcpkg integrate install
   - $VCPKG_PATH/vcpkg install --triplet x64-linux-static gtest spdlog fmt sdl2 magic-enum
+  - echo "vcpkg installed at $VCPKG_PATH"
   - pip install --user conan cmake ninja
 
 script:
   - mkdir build
-  - cmake -B build -G Ninja --config Release -DVCPKG_TARGET_TRIPLET=x64-linux-static -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS .
-  - |
-    if [ "$REPORT_COVERAGE" = "1" ]; then
-      build-wrapper-linux-x86-64 --out-dir bw-output cmake --build build/ -j $(nproc)
-      sonar-scanner
-    else
-      cmake --build build/ -j $(nproc)
-    fi
   - cd build
-  - ctest -V --output-on-failure
+  - cmake -G Ninja --config Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS ..
   - |
     if [ "$REPORT_COVERAGE" = "1" ]; then
+      build-wrapper-linux-x86-64 --out-dir bw-output cmake --build . -- -j $(nproc)
+      ctest -V --output-on-failure
+      sonar-scanner
       bash ../scripts/report_coverage.sh
+    else
+      cmake --build . -- -j $(nproc)
     fi
 
 before_deploy:
