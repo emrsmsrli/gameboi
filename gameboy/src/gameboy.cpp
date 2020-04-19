@@ -24,10 +24,10 @@ void gameboy::tick()
     const auto cycles = cpu_.tick();
 
     if(!cpu_.is_stopped()) {
-        ppu_.tick(cycles);
-        apu_.tick(cycles);
-        link_.tick(cycles);
         timer_.tick(cycles);
+        apu_.tick(cycles);
+        ppu_.tick(cycles);
+        link_.tick(cycles);
     }
 
     cpu_.process_interrupts();
