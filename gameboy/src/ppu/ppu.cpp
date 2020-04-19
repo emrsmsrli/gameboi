@@ -840,7 +840,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                     buffer[x] = std::make_pair(dot_color, obj);
                 },
                 [&, existing_bg_color = color_idx](const attributes::bg& bg_attr) {
-                    if(bg_attr.prioritized() && existing_bg_color != 0u) {
+                    if(bg_attr.prioritized()) {
                         return;
                     }
 
