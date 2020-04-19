@@ -340,20 +340,12 @@ void ppu::dma_write(const address16& address, const uint8_t data)
             make_address(*begin(oam_range)),
             oam_range.size());
     } else if(address == hdma_1_addr) {
-        if(!dma_transfer_.disabled()) {
-            return;
-        }
-
         if((data > 0x7Fu && data < 0xA0u) || data > 0xDFu) {
             dma_transfer_.source.high() = 0x00u;
         } else {
             dma_transfer_.source.high() = data;
         }
     } else if(address == hdma_2_addr) {
-        if(!dma_transfer_.disabled()) {
-            return;
-        }
-
         dma_transfer_.source.low() = data & 0xF0u;
     } else if(address == hdma_3_addr) {
         dma_transfer_.destination.high() = (data & 0x1Fu) | 0x80u;
