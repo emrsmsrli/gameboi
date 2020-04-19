@@ -4,6 +4,7 @@
 #include <SFML/Graphics.hpp>
 #include <fmt/format.h>
 #include <spdlog/spdlog.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 #include "gameboy/gameboy.h"
 
@@ -159,6 +160,8 @@ struct sfml_frontend {
 
 int main(const int argc, const char* argv[])
 {
+    spdlog::set_default_logger(spdlog::stdout_color_st("  core  "));
+
     sdl::init();
 
     if(argc < 2) {
