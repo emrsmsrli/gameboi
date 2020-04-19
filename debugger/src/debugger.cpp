@@ -1,5 +1,6 @@
-#include "debugger/debugger.h"
+#include <spdlog/sinks/stdout_color_sinks.h>
 
+#include "debugger/debugger.h"
 #include "gameboy/util/observer.h"
 
 #include "imgui-SFML.h"
@@ -15,6 +16,7 @@ debugger::debugger(const observer<bus> bus)
       timer_debugger_{bus_->get_timer()},
       joypad_debugger_{bus_->get_joypad()},
       memory_bank_debugger_{bus},
+      logger_{spdlog::stdout_color_st("debugger")},
       window_{
           sf::VideoMode{1600, 1200},
           "Debugger"
@@ -22,6 +24,7 @@ debugger::debugger(const observer<bus> bus)
 {
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
+    logger_->info("debugger initialized");
 }
 
 debugger::~debugger()

@@ -14,6 +14,7 @@ add_library(gb::debugger ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
+        spdlog::spdlog
         magic_enum::magic_enum
         gb::core
         imgui::sfml
