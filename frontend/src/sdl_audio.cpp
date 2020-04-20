@@ -6,7 +6,12 @@
 
 namespace sdl {
 
-std::string_view audio_device::device_name(const int32_t index)
+size_t audio_device::num_devices() noexcept
+{
+    return SDL_GetNumAudioDevices(SDL_FALSE);
+}
+
+std::string_view audio_device::device_name(const int32_t index) noexcept
 {
     return SDL_GetAudioDeviceName(index, SDL_FALSE);
 }
@@ -23,6 +28,11 @@ audio_device::audio_device(const std::string_view device_name,
 
     device_id_ = SDL_OpenAudioDevice(device_name.data(), SDL_FALSE, &spec, nullptr, 0);
     SDL_CHECK(device_id_);
+}
+
+audio_device::~audio_device() noexcept
+{
+    SDL_CloseAudioDevice(device_id_);
 }
 
 void audio_device::resume() noexcept

@@ -17,10 +17,19 @@ public:
         f32 = 0x8120
     };
 
-    static std::string_view device_name(int32_t index);
+    static size_t num_devices() noexcept;
+    static std::string_view device_name(int32_t index) noexcept;
 
     audio_device(std::string_view device_name,
         uint8_t channels, format format, uint32_t sampling_rate, uint16_t sample_count) noexcept;
+    ~audio_device() noexcept;
+
+    audio_device(const audio_device&) = delete;
+    audio_device(audio_device&&) = delete;
+
+    audio_device& operator=(const audio_device&) = delete;
+    audio_device& operator=(audio_device&&) = delete;
+
     void resume() noexcept;
     void pause() noexcept;
 
