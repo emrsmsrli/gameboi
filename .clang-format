@@ -1,4 +1,4 @@
-﻿---
+---
 Language: Cpp
 AccessModifierOffset: -4
 AlignAfterOpenBracket: DontAlign
@@ -56,11 +56,11 @@ DisableFormat: false
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^<[^\/]*>' # system headers
+  - Regex:           '^<[^\/^(\.(h|hpp))]*>' # system headers
     Priority:        0
-  - Regex:           '^<.*'    # external dependencies
+  - Regex:           '^<.*'                  # external dependencies
     Priority:        2
-  - Regex:           '.*'      # internal dependencies
+  - Regex:           '.*'                    # internal dependencies
     Priority:        3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IncludeIsMainSourceRegex: ''

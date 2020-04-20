@@ -1,7 +1,8 @@
 #define SDL_MAIN_HANDLED
+#include "sdl_core.h"
+
 #include <SDL.h>
 
-#include "sdl_core.h"
 #include "sdl_macro.h"
 
 namespace sdl {
