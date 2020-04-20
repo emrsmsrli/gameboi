@@ -58,7 +58,7 @@ before_script:
   - export VCPKG_PATH=$(pwd)/vcpkg
   - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
   - $VCPKG_PATH/vcpkg integrate install
-  - $VCPKG_PATH/vcpkg install --triplet x64-linux-static gtest spdlog fmt sdl2 magic-enum
+  - $VCPKG_PATH/vcpkg install --triplet x64-linux gtest spdlog fmt sfml sdl2 magic-enum
   - echo "vcpkg installed at $VCPKG_PATH"
   - pip install --user conan cmake ninja
 
