@@ -1,1 +1,1 @@
-Checks: '*'
+Checks: 'clang-analyzer-*,cppcoreguidelines-*,-cppcoreguidelines-pro-bounds-constant-array-index,-cppcoreguidelines-avoid-magic-numbers,abseil-*,bugprone-*,modernize-*,-modernize-use-trailing-return-type,performance-*,readability-*,-readability-magic-numbers,-readability-named-parameter,-readability-uppercase-literal-suffix'
