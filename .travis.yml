@@ -16,6 +16,15 @@ addons: &addons_base
     organization: "emrsmsrli"
     token:
       secure: "LzDe005exShyNA/5zNs6pDmSajVBMYv9eN6fWLebqrCJOHlr5e+uVsYcUbfPcF4UKevQP5YZWZXSMuwUeY/HlNU9Gij6Y5aQZAojel/vSb4F5BQVtuJ9Xj3lbXn4AZ87trrFt6XCBcNYf/jmtEFeWARsfhWwrqrIg7FYZPCcSJB0AIuBpRqrONF3jiuR7F1Clnx/OVWCzZYkkVr+qTC6359P1xoMqco8kYkxLkvHg1iOUlD42tkZJz+aH2H3Pc1lvIiFbDfzcWDUY9Gcb4wlaJGbKVytwHP5i5+ExP2x2EnilaTKPOzKLlbu2Yr/OOM9sxvSl2TcVnWr2ZkYQuKsfhH7/aBkXPUMVMF8NkqcreoTKQKocK9Z13eEWlIYfWbPGGCio+RZubxhitCQAnRmHhQbJIImenL9GZPAqrNqmw4OCTK7vlILib4Zgl9reCC3yLzzw+mcVRb7ZbkT7YgKBYQYAgiU074PGx3q/iK7QHkgXsiNxjM4mAhWZEpXeqtLxdVjnKDUoV0YWVbgHJR1EbcgHKtpfZzuxoeXo5PzxBTzOqUZ26YryRi24FbZn3x2xuUF69QPUZvpu0aPX6Y3xzEp4FsUc+0k8XEpZTcHFwlUQtVSdj2G3E+Gaw8GOAt8+zzycS7AW+fISuBZhzucStJwhnmkgvXa7LkzIpEVWbI="
+  apt:
+    sources:
+      - ubuntu-toolchain-r-test
+    packages:
+      # sfml dependencies
+      - libudev
+      - libx11
+      - libxrandr
+      - opengl
 
 jobs:
   include:
@@ -24,8 +33,6 @@ jobs:
       addons:
         <<: *addons_base
         apt:
-          sources:
-            - ubuntu-toolchain-r-test
           packages:
             - g++-9
             - lcov
@@ -34,13 +41,14 @@ jobs:
         - CXX=/usr/bin/g++-9
         - CMAKE_ARGS="-DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=OFF"
         - REPORT_COVERAGE=1
+        - VCPKG_FORCE_SYSTEM_BINARIES=1
 
     - name: "linux-clang"
       compiler: clang
       addons:
+        <<: *addons_base
         apt:
           sources:
-            - ubuntu-toolchain-r-test
             - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
@@ -52,6 +60,7 @@ jobs:
         - CXX=/usr/bin/clang++-9
         - CMAKE_ARGS="-DWITH_LIBCXX=ON"
         - REPORT_COVERAGE=0
+        - VCPKG_FORCE_SYSTEM_BINARIES=1
 
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
