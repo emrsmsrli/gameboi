@@ -2,11 +2,11 @@
 #define GAMEBOY_MBC3_H
 
 #include <ctime>
-#include <vector>
 #include <utility> // std::pair
+#include <vector>
 
-#include "gameboy/memory/controller/mbc.h"
 #include "gameboy/memory/addressfwd.h"
+#include "gameboy/memory/controller/mbc.h"
 
 namespace gameboy {
 

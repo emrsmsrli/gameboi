@@ -1,8 +1,8 @@
 #ifndef GAMEBOY_INSTRUCTION_INFO_H
 #define GAMEBOY_INSTRUCTION_INFO_H
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <string_view>
 
 namespace gameboy::instruction {

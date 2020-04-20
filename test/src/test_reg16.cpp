@@ -1,4 +1,5 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "gameboy/cpu/register16.h"
 
 TEST(Register16, HighLow) {

@@ -1,5 +1,5 @@
+#include <gtest/gtest.h>
 
-#include "gtest/gtest.h"
 #include "rom_tester_env.h"
 
 int main(int argc, char** argv)

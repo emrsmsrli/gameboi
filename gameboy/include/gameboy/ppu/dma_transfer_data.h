@@ -2,6 +2,7 @@
 #define GAMEBOY_DMA_TRANSFER_DATA_H
 
 #include <cstdint>
+
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/util/mathutil.h"

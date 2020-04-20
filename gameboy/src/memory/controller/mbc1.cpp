@@ -1,5 +1,6 @@
-#include "gameboy/cartridge.h"
 #include "gameboy/memory/controller/mbc1.h"
+
+#include "gameboy/cartridge.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/util/mathutil.h"
 

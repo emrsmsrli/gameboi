@@ -1,15 +1,15 @@
 #ifndef GAMEBOY_GAMEBOY_H
 #define GAMEBOY_GAMEBOY_H
 
+#include "gameboy/apu/apu.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
-#include "gameboy/ppu/ppu.h"
-#include "gameboy/memory/mmu.h"
-#include "gameboy/apu/apu.h"
 #include "gameboy/joypad/joypad.h"
-#include "gameboy/timer/timer.h"
 #include "gameboy/link/link.h"
+#include "gameboy/memory/mmu.h"
+#include "gameboy/ppu/ppu.h"
+#include "gameboy/timer/timer.h"
 #include "gameboy/util/delegate.h"
 #include "gameboy/util/fileutil.h"
 

@@ -1,8 +1,8 @@
 #ifndef GAMEBOY_MBC_REGULAR_H
 #define GAMEBOY_MBC_REGULAR_H
 
-#include "gameboy/memory/controller/mbc.h"
 #include "gameboy/memory/address.h"
+#include "gameboy/memory/controller/mbc.h"
 
 /**
  * Rom, ram only

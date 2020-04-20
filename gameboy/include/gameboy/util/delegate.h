@@ -1,11 +1,11 @@
 #ifndef GAMEBOY_DELEGATE_H
 #define GAMEBOY_DELEGATE_H
 
-#include <tuple>
-#include <utility>
 #include <algorithm>
 #include <functional>
+#include <tuple>
 #include <type_traits>
+#include <utility>
 
 namespace gameboy {
 

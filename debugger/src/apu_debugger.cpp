@@ -1,6 +1,5 @@
-#include <array>
 #include <algorithm>
-
+#include <array>
 #include <magic_enum.hpp>
 
 #include "debugger/apu_debugger.h"

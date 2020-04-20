@@ -1,16 +1,16 @@
+#include <magic_enum.hpp>
 #include <sstream>
 
-#include <magic_enum.hpp>
 #include <fmt/format.h>
 
-#include "debugger/cpu_debugger.h"
 #include "debugger/cartridge_debugger.h"
+#include "debugger/cpu_debugger.h"
+#include "gameboy/bus.h"
+#include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/memory_constants.h"
-#include "gameboy/bus.h"
-#include "gameboy/ppu/ppu.h"
 #include "gameboy/memory/mmu.h"
-#include "gameboy/cartridge.h"
+#include "gameboy/ppu/ppu.h"
 #include "imgui.h"
 
 using namespace magic_enum::bitwise_operators;

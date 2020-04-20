@@ -2,6 +2,7 @@
 #define GAMEBOY_SDL_CORE_H
 
 #include <string>
+
 #include <SDL2/SDL_render.h>
 
 namespace sdl {

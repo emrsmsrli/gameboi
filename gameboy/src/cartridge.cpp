@@ -1,7 +1,7 @@
 #include <algorithm>
+#include <magic_enum.hpp>
 #include <numeric>
 
-#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
 #include "gameboy/cartridge.h"

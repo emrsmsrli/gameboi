@@ -1,6 +1,7 @@
 #include "gameboy/memory/controller/mbc5.h"
-#include "gameboy/memory/address_range.h"
+
 #include "gameboy/cartridge.h"
+#include "gameboy/memory/address_range.h"
 
 namespace gameboy {
 

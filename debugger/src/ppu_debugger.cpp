@@ -1,14 +1,15 @@
 #include <cstring>
+
 #include <SFML/Graphics/Sprite.hpp>
 
 #include "debugger/ppu_debugger.h"
-#include "gameboy/ppu/ppu.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/memory_constants.h"
-#include "imgui.h"
+#include "gameboy/ppu/ppu.h"
 #include "imgui-SFML.h"
+#include "imgui.h"
 
 namespace {
 constexpr auto tiles_per_row = 16;

@@ -1,10 +1,10 @@
 #ifndef GAMEBOY_PULSE_CHANNEL_H
 #define GAMEBOY_PULSE_CHANNEL_H
 
-#include "gameboy/apu/data/sweep.h"
-#include "gameboy/apu/data/wave_data.h"
 #include "gameboy/apu/data/envelope.h"
 #include "gameboy/apu/data/frequency_data.h"
+#include "gameboy/apu/data/sweep.h"
+#include "gameboy/apu/data/wave_data.h"
 
 namespace gameboy {
 

@@ -2,18 +2,18 @@
 #define GAMEBOY_PPU_H
 
 #include <array>
-#include <vector>
-#include <variant>
 #include <initializer_list>
+#include <variant>
+#include <vector>
 
-#include "gameboy/ppu/dma_transfer_data.h"
-#include "gameboy/ppu/color.h"
-#include "gameboy/ppu/register_stat.h"
-#include "gameboy/ppu/register_lcdc.h"
-#include "gameboy/ppu/data/interrupt_request.h"
-#include "gameboy/ppu/data/attributes.h"
-#include "gameboy/ppu/data/palette.h"
 #include "gameboy/memory/addressfwd.h"
+#include "gameboy/ppu/color.h"
+#include "gameboy/ppu/data/attributes.h"
+#include "gameboy/ppu/data/interrupt_request.h"
+#include "gameboy/ppu/data/palette.h"
+#include "gameboy/ppu/dma_transfer_data.h"
+#include "gameboy/ppu/register_lcdc.h"
+#include "gameboy/ppu/register_stat.h"
 #include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
 

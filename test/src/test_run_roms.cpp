@@ -1,8 +1,9 @@
+#include <chrono>
 #include <filesystem>
 #include <iostream>
-#include <chrono>
 
 #include <gtest/gtest.h>
+
 #include "gameboy/gameboy.h"
 #include "rom_tester_env.h"
 

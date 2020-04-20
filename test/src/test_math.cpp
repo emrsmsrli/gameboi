@@ -1,4 +1,5 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "gameboy/util/mathutil.h"
 
 TEST(math, mask_test) {

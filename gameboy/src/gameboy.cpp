@@ -1,6 +1,7 @@
+#include "gameboy/gameboy.h"
+
 #include <spdlog/spdlog.h>
 
-#include "gameboy/gameboy.h"
 #include "gameboy/version.h"
 
 namespace gameboy {

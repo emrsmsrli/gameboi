@@ -2,6 +2,7 @@
 #define GAMEBOY_ROM_TESTER_ENV_H
 
 #include <filesystem>
+
 #include <gtest/gtest.h>
 
 class rom_tester_env : public testing::Environment {

@@ -1,10 +1,11 @@
+#include "gameboy/memory/mmu.h"
+
 #include <spdlog/spdlog.h>
 
-#include "gameboy/memory/mmu.h"
-#include "gameboy/memory/address_range.h"
-#include "gameboy/memory/memory_constants.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
+#include "gameboy/memory/address_range.h"
+#include "gameboy/memory/memory_constants.h"
 #include "gameboy/ppu/ppu.h"
 
 namespace gameboy {

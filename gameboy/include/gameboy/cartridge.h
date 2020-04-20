@@ -1,10 +1,10 @@
 #ifndef GAMEBOY_CARTRIDGE_H
 #define GAMEBOY_CARTRIDGE_H
 
-#include <variant>
-#include <vector>
 #include <string>
 #include <string_view>
+#include <variant>
+#include <vector>
 
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/memory/controller/mbc1.h"

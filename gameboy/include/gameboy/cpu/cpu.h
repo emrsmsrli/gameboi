@@ -1,9 +1,9 @@
 #ifndef GAMEBOY_CPU_H
 #define GAMEBOY_CPU_H
 
-#include "gameboy/cpu/register16.h"
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
+#include "gameboy/cpu/register16.h"
 
 #if WITH_DEBUGGER
 #include "gameboy/cpu/instruction_info.h"

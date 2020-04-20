@@ -1,4 +1,5 @@
 #include "gameboy/memory/controller/mbc_regular.h"
+
 #include "gameboy/cartridge.h"
 
 uint8_t gameboy::mbc_regular::read_ram(const gameboy::physical_address& address) const

@@ -2,6 +2,7 @@
 #define GAMEBOY_DEBUGGER_UTIL_H
 
 #include <string_view>
+
 #include "imgui.h"
 
 namespace gameboy {

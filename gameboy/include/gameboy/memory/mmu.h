@@ -2,12 +2,12 @@
 #define GAMEBOY_MMU_H
 
 #include <cstdint>
-#include <vector>
 #include <unordered_map>
+#include <vector>
 
 #include "gameboy/memory/address.h"
-#include "gameboy/util/observer.h"
 #include "gameboy/util/delegate.h"
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 

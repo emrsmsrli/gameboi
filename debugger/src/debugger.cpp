@@ -1,8 +1,8 @@
+#include "debugger/debugger.h"
+
 #include <spdlog/sinks/stdout_color_sinks.h>
 
-#include "debugger/debugger.h"
 #include "gameboy/util/observer.h"
-
 #include "imgui-SFML.h"
 
 namespace gameboy {

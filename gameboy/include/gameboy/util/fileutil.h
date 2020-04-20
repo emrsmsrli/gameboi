@@ -1,9 +1,9 @@
 #ifndef GAMEBOY_FILEUTIL_H
 #define GAMEBOY_FILEUTIL_H
 
-#include <vector>
 #include <cstdint>
 #include <filesystem>
+#include <vector>
 
 namespace filesystem = std::filesystem;
 

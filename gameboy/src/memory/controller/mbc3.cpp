@@ -1,8 +1,8 @@
 #include <chrono>
 
-#include "gameboy/memory/controller/mbc3.h"
-#include "gameboy/memory/address_range.h"
 #include "gameboy/cartridge.h"
+#include "gameboy/memory/address_range.h"
+#include "gameboy/memory/controller/mbc3.h"
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {

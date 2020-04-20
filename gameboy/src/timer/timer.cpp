@@ -1,9 +1,9 @@
 #include <array>
 
-#include "gameboy/timer/timer.h"
 #include "gameboy/bus.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/mmu.h"
+#include "gameboy/timer/timer.h"
 #include "gameboy/util/delegate.h"
 
 namespace gameboy {

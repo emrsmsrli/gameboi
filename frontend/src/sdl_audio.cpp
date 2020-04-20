@@ -1,6 +1,7 @@
+#include "sdl_audio.h"
+
 #include <SDL2/SDL_audio.h>
 
-#include "sdl_audio.h"
 #include "sdl_macro.h"
 
 namespace sdl {

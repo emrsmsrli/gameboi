@@ -1,4 +1,5 @@
-#include "gtest/gtest.h"
+#include <gtest/gtest.h>
+
 #include "gameboy/cpu/register8.h"
 
 TEST(Register8, Assignment) {

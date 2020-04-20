@@ -1,18 +1,18 @@
 #ifndef GAMEBOY_APU_H
 #define GAMEBOY_APU_H
 
-#include <cstdint>
 #include <array>
+#include <cstdint>
 #include <vector>
 
+#include "gameboy/apu/data/control.h"
+#include "gameboy/apu/noise_channel.h"
 #include "gameboy/apu/pulse_channel.h"
 #include "gameboy/apu/wave_channel.h"
-#include "gameboy/apu/noise_channel.h"
-#include "gameboy/apu/data/control.h"
 #include "gameboy/cpu/register8.h"
 #include "gameboy/memory/address_range.h"
-#include "gameboy/util/observer.h"
 #include "gameboy/util/delegate.h"
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 

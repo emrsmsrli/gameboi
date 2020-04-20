@@ -2,6 +2,7 @@
 #define GAMEBOY_PPU_DEBUGGER_H
 
 #include <array>
+
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/Texture.hpp>
 

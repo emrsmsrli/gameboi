@@ -4,8 +4,8 @@
 #include <cstdint>
 
 #include "gameboy/cpu/register8.h"
-#include "gameboy/util/observer.h"
 #include "gameboy/util/delegate.h"
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 

@@ -1,9 +1,9 @@
 #ifndef GAMEBOY_TIMER_H
 #define GAMEBOY_TIMER_H
 
-#include "gameboy/util/observer.h"
 #include "gameboy/cpu/register8.h"
 #include "gameboy/util/mathutil.h"
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 

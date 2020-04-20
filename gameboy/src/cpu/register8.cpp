@@ -1,4 +1,5 @@
 #include "gameboy/cpu/register8.h"
+
 #include "gameboy/memory/address.h"
 
 namespace gameboy {

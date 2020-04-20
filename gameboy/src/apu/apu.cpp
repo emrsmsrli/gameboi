@@ -1,7 +1,8 @@
 #include "gameboy/apu/apu.h"
+
 #include "gameboy/bus.h"
-#include "gameboy/memory/mmu.h"
 #include "gameboy/memory/memory_constants.h"
+#include "gameboy/memory/mmu.h"
 
 namespace gameboy {
 

@@ -1,8 +1,8 @@
 #ifndef GAMEBOY_ADDRESSFWD_H
 #define GAMEBOY_ADDRESSFWD_H
 
-#include <cstdint>
 #include <cstddef>
+#include <cstdint>
 
 namespace gameboy {
 

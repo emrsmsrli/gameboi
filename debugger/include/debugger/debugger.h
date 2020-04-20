@@ -6,16 +6,16 @@
 #include <SFML/Graphics.hpp>
 #include <spdlog/logger.h>
 
-#include "gameboy/bus.h"
-#include "gameboy/util/observer.h"
-#include "gameboy/util/delegate.h"
 #include "apu_debugger.h"
+#include "cartridge_debugger.h"
 #include "cpu_debugger.h"
+#include "gameboy/bus.h"
+#include "gameboy/util/delegate.h"
+#include "gameboy/util/observer.h"
+#include "joypad_debugger.h"
+#include "memory_bank_debugger.h"
 #include "ppu_debugger.h"
 #include "timer_debugger.h"
-#include "memory_bank_debugger.h"
-#include "cartridge_debugger.h"
-#include "joypad_debugger.h"
 
 namespace gameboy {
 

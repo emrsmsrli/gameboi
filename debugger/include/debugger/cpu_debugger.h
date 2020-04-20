@@ -2,8 +2,8 @@
 #define GAMEBOY_CPU_DEBUGGER_H
 
 #include <optional>
-#include <vector>
 #include <string>
+#include <vector>
 
 #include "gameboy/memory/address.h"
 #include "gameboy/memory/address_range.h"

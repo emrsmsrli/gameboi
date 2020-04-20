@@ -1,10 +1,10 @@
-#include <thread>
 #include <chrono>
+#include <thread>
 
 #include <SFML/Graphics.hpp>
 #include <fmt/format.h>
-#include <spdlog/spdlog.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
+#include <spdlog/spdlog.h>
 
 #include "gameboy/gameboy.h"
 
@@ -12,8 +12,8 @@
 #include "debugger/debugger.h"
 #endif //WITH_DEBUGGER
 
-#include "sdl_core.h"
 #include "sdl_audio.h"
+#include "sdl_core.h"
 
 namespace {
 
