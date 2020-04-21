@@ -68,7 +68,7 @@ jobs:
 
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
-  - export $VCPKG_ROOT=$(pwd)/vcpkg
+  - export VCPKG_ROOT=$(pwd)/vcpkg
   - echo "vcpkg installed at $VCPKG_ROOT"
   - cd $VCPKG_ROOT
   - $VCPKG_ROOT/bootstrap-vcpkg.sh -disableMetrics
