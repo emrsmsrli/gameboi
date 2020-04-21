@@ -71,9 +71,9 @@ before_script:
   - export VCPKG_ROOT=$(pwd)/vcpkg
   - echo "vcpkg installed at $VCPKG_ROOT"
   - cd $VCPKG_ROOT
-  - $VCPKG_ROOT/bootstrap-vcpkg.sh -disableMetrics
-  - $VCPKG_ROOT/vcpkg integrate install
-  - $VCPKG_ROOT/vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
+  - ./bootstrap-vcpkg.sh -disableMetrics
+  - ./vcpkg integrate install
+  - ./vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
   - pip install --user cmake ninja
   - cd ..
 
