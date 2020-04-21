@@ -68,12 +68,13 @@ jobs:
 
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
-  - export VCPKG_PATH=$(pwd)/vcpkg
-  - echo "vcpkg installed at $VCPKG_PATH"
-  - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
-  - $VCPKG_PATH/vcpkg integrate install
-  - $VCPKG_PATH/vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
-  - pip install --user conan cmake ninja
+  - export $VCPKG_ROOT=$(pwd)/vcpkg
+  - echo "vcpkg installed at $VCPKG_ROOT"
+  - cd $VCPKG_ROOT
+  - $VCPKG_ROOT/bootstrap-vcpkg.sh -disableMetrics
+  - $VCPKG_ROOT/vcpkg integrate install
+  - $VCPKG_ROOT/vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
+  - pip install --user cmake ninja
 
 script:
   - mkdir build
