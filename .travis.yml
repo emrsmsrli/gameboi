@@ -75,6 +75,7 @@ before_script:
   - $VCPKG_ROOT/vcpkg integrate install
   - $VCPKG_ROOT/vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
   - pip install --user cmake ninja
+  - cd ..
 
 script:
   - mkdir build
