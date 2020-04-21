@@ -1,5 +1,5 @@
 os: linux
-dist: xenial
+dist: bionic
 sudo: false
 language: cpp
 cache:
@@ -48,7 +48,7 @@ jobs:
         apt:
           sources:
             - ubuntu-toolchain-r-test
-            - sourceline: 'deb https://apt.llvm.org/xenial/ llvm-toolchain-xenial-9 main'
+            - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
               key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - clang-9
@@ -69,16 +69,16 @@ jobs:
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
   - export VCPKG_PATH=$(pwd)/vcpkg
-  - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics -useSystemBinaries
-  - $VCPKG_PATH/vcpkg integrate install
-  - $VCPKG_PATH/vcpkg install --triplet x64-linux gtest spdlog fmt sfml sdl2 magic-enum
   - echo "vcpkg installed at $VCPKG_PATH"
+  - $VCPKG_PATH/bootstrap-vcpkg.sh -disableMetrics
+  - $VCPKG_PATH/vcpkg integrate install
+  - $VCPKG_PATH/vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
   - pip install --user conan cmake ninja
 
 script:
   - mkdir build
   - cd build
-  - cmake -G Ninja --config Release -DVCPKG_TARGET_TRIPLET=x64-linux -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS ..
+  - cmake -G Ninja --config Release -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS ..
   - |
     if [ "$REPORT_COVERAGE" = "1" ]; then
       build-wrapper-linux-x86-64 --out-dir bw-output cmake --build . -- -j $(nproc)
