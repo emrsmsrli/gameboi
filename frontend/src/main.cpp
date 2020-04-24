@@ -1,21 +1,45 @@
+#include <cxxopts.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
+#include "gameboy/version.h"
 #include "frontend.h"
 
-int main(const int argc, const char* argv[])
+int main(int argc, char* argv[])
 {
+    cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
+    options.allow_unrecognised_options().add_options()
+        ("v,version", "Print version and exit")
+        ("h,help", "Show this help text")
+        ("file", "Rom file to run, all files are shown if not set", cxxopts::value<std::string>()) // todo implement this
+        ("V,verbosity", "Logging verbosity", cxxopts::value<std::string>()->default_value("off"))
+        ("fullscreen", "Enable fullscreen")
+        ("W,width", "Width of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"))
+        ("H,height", "Height of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"));
+
+    const auto parsed = options.parse(argc, argv);
+
+    if(parsed["version"].as<bool>()) {
+        fmt::print(stdout, "gameboi v{}", gameboy::version::version);
+        return 0;
+    }
+
+    if(parsed["help"].as<bool>()) {
+        fmt::print(stdout, "{}", options.help());
+        return 0;
+    }
+
     spdlog::set_default_logger(spdlog::stdout_color_st("  core  "));
+    spdlog::set_level(spdlog::level::from_str(parsed["verbosity"].as<std::string>()));
 
     sdl::init();
 
-    if(argc < 2) {
-        fmt::print("Usage: {} <rom_path>", argv[0]);
-        return 1;
-    }
-
-    gameboy::gameboy gb{argv[1]};
-    frontend gb_frontend{gb, 600u, 600u};
+    gameboy::gameboy gb{parsed["file"].as<std::string>()};
+    frontend gb_frontend{gb,
+      parsed["width"].as<uint32_t>(),
+      parsed["height"].as<uint32_t>(),
+      parsed["fullscreen"].as<bool>()
+    };
 
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gb.get_bus()};
@@ -31,7 +55,7 @@ int main(const int argc, const char* argv[])
             } else if(event.type == sf::Event::Resized) {
                 const sf::FloatRect visible_area(0, 0, event.size.width, event.size.height);
                 gb_frontend.window.setView(sf::View{visible_area});
-                gb_frontend.rescale(event.size.width, event.size.height);
+                gb_frontend.rescale_view();
             } else if(event.type == sf::Event::KeyPressed) {
                 switch(event.key.code) {
                     case sf::Keyboard::Up:

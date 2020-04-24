@@ -6,6 +6,7 @@ add_executable(${PROJECT_NAME}
         src/sdl_audio.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        cxxopts::cxxopts
         spdlog::spdlog
         sfml-graphics
         sfml-window

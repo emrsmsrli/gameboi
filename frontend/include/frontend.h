@@ -30,13 +30,13 @@ struct frontend {
     gameboy::observer<gameboy::debugger> debugger;
 #endif //WITH_DEBUGGER
 
-    frontend(gameboy::gameboy& gameboy, const uint32_t width, const uint32_t height) noexcept
+    frontend(gameboy::gameboy& gameboy, const uint32_t width, const uint32_t height, const bool fullscreen) noexcept
       : title{fmt::format("GAMEBOY - {}", gameboy.rom_name())},
-        window{
+        window(
           sf::VideoMode(width, height),
           title,
-          sf::Style::Default
-        },
+          fullscreen ? sf::Style::Fullscreen : sf::Style::Default
+        ),
         audio_device{
           sdl::audio_device::device_name(0), 2u,
           sdl::audio_device::format::s16,
@@ -60,7 +60,7 @@ struct frontend {
         const auto sprite_local_bounds = window_sprite.getLocalBounds();
         window_sprite.setOrigin(sprite_local_bounds.width * .5f, sprite_local_bounds.height * .5f);
 
-        rescale(width, height);
+        rescale_view();
         render_frame();
 
         gameboy.on_render_line({gameboy::connect_arg<&frontend::render_line>, this});
@@ -81,8 +81,9 @@ struct frontend {
         audio_device.enqueue(sound_buffer.data(), buffer_size_in_bytes);
     }
 
-    void rescale(const uint32_t width, const uint32_t height) noexcept
+    void rescale_view() noexcept
     {
+        const auto [width, height] = window.getSize();
         const auto sprite_local_bounds = window_sprite.getLocalBounds();
 
         const auto screen_aspect_ratio = static_cast<float>(width) / height;

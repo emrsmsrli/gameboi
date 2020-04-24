@@ -19,6 +19,7 @@ find_package(spdlog CONFIG REQUIRED)
 find_package(SFML COMPONENTS window graphics system CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
 find_package(magic_enum CONFIG REQUIRED)
+find_package(cxxopts CONFIG REQUIRED)
 
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)

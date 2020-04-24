@@ -73,7 +73,7 @@ before_script:
   - cd $VCPKG_ROOT
   - ./bootstrap-vcpkg.sh -disableMetrics
   - ./vcpkg integrate install
-  - ./vcpkg install gtest spdlog fmt sfml sdl2 magic-enum
+  - ./vcpkg install gtest spdlog fmt sfml sdl2 magic-enum cxxopts
   - pip install --user cmake ninja
   - cd ..
 
