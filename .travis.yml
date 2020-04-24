@@ -68,9 +68,8 @@ jobs:
 
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
-  - export VCPKG_ROOT=$(pwd)/vcpkg
-  - echo "vcpkg installed at $VCPKG_ROOT"
-  - cd $VCPKG_ROOT
+  - echo "vcpkg installed at $TRAVIS_BUILD_DIR/vcpkg"
+  - cd vcpkg
   - ./bootstrap-vcpkg.sh -disableMetrics
   - ./vcpkg integrate install
   - ./vcpkg install gtest spdlog fmt sfml sdl2 magic-enum cxxopts
@@ -80,7 +79,7 @@ before_script:
 script:
   - mkdir build
   - cd build
-  - cmake -G Ninja --config Release -DCMAKE_TOOLCHAIN_FILE=$VCPKG_PATH/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS ..
+  - cmake -G Ninja --config Release -DCMAKE_TOOLCHAIN_FILE=$TRAVIS_BUILD_DIR/vcpkg/scripts/buildsystems/vcpkg.cmake $CMAKE_ARGS ..
   - |
     if [ "$REPORT_COVERAGE" = "1" ]; then
       build-wrapper-linux-x86-64 --out-dir bw-output cmake --build . -- -j $(nproc)
