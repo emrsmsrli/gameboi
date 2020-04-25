@@ -1,9 +1,9 @@
+#include "gameboy/util/fileutil.h"
+
 #include <fstream>
 #include <iterator>
 
 #include <spdlog/spdlog.h>
-
-#include "gameboy/util/fileutil.h"
 
 namespace gameboy {
 

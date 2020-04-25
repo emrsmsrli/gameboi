@@ -1,7 +1,7 @@
+#include "debugger/joypad_debugger.h"
+
 #include <magic_enum.hpp>
 
-#include "debugger/joypad_debugger.h"
-#include "gameboy/joypad/joypad.h"
 #include "imgui.h"
 
 namespace gameboy {

@@ -1,8 +1,9 @@
+#include "gameboy/joypad/joypad.h"
+
 #include <magic_enum.hpp>
 
 #include "gameboy/bus.h"
 #include "gameboy/cpu/cpu.h"
-#include "gameboy/joypad/joypad.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/util/mathutil.h"
 

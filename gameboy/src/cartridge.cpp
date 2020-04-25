@@ -1,11 +1,11 @@
+#include "gameboy/cartridge.h"
+
 #include <algorithm>
-#include <magic_enum.hpp>
 #include <numeric>
 
+#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
-#include "gameboy/cartridge.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/util/overloaded.h"

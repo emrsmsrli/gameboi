@@ -2,8 +2,8 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
-#include "gameboy/version.h"
 #include "frontend.h"
+#include "gameboy/version.h"
 
 int main(int argc, char* argv[])
 {

@@ -1,8 +1,9 @@
+#include "debugger/ppu_debugger.h"
+
 #include <cstring>
 
 #include <SFML/Graphics/Sprite.hpp>
 
-#include "debugger/ppu_debugger.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/memory/address.h"

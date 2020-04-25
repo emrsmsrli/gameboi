@@ -1,6 +1,6 @@
-#include <array>
-
 #include "gameboy/apu/pulse_channel.h"
+
+#include <array>
 
 namespace gameboy {
 

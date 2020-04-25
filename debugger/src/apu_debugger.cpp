@@ -1,8 +1,10 @@
+#include "debugger/apu_debugger.h"
+
 #include <algorithm>
 #include <array>
+
 #include <magic_enum.hpp>
 
-#include "debugger/apu_debugger.h"
 #include "debugger/debugger_util.h"
 #include "gameboy/apu/apu.h"
 #include "imgui.h"

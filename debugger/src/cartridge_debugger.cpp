@@ -1,8 +1,8 @@
-#include <magic_enum.hpp>
+#include "debugger/cartridge_debugger.h"
 
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 
-#include "debugger/cartridge_debugger.h"
 #include "debugger/cpu_debugger.h"
 #include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"

@@ -1,3 +1,5 @@
+#include "gameboy/ppu/ppu.h"
+
 #include <cstring>
 
 #include "gameboy/bus.h"
@@ -5,7 +7,6 @@
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/memory/mmu.h"
-#include "gameboy/ppu/ppu.h"
 #include "gameboy/util/overloaded.h"
 
 namespace gameboy {

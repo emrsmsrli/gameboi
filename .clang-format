@@ -52,15 +52,15 @@ ConstructorInitializerIndentWidth: 4
 ContinuationIndentWidth: 2
 Cpp11BracedListStyle: true
 DerivePointerAlignment: false
-DisableFormat: false
+DisableFormat: true
 FixNamespaceComments: true
 IncludeBlocks: Regroup
 IncludeCategories:
-  - Regex:           '^<[^\/^(\.(h|hpp))]*>' # system headers
-    Priority:        0
-  - Regex:           '^<.*'                  # external dependencies
+  - Regex:           '.*\.(h|hpp)>$'  # external headers
     Priority:        2
-  - Regex:           '.*'                    # internal dependencies
+  - Regex:           '^<.*'           # system dependencies
+    Priority:        1
+  - Regex:           '.*'             # internal dependencies
     Priority:        3
 IncludeIsMainRegex: '([-_](test|unittest))?$'
 IncludeIsMainSourceRegex: ''

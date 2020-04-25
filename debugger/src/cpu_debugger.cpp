@@ -1,10 +1,11 @@
-#include <magic_enum.hpp>
+#include "debugger/cpu_debugger.h"
+
 #include <sstream>
 
 #include <fmt/format.h>
+#include <magic_enum.hpp>
 
 #include "debugger/cartridge_debugger.h"
-#include "debugger/cpu_debugger.h"
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
