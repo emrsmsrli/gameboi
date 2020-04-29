@@ -46,7 +46,7 @@ void timer::tick(const uint8_t cycles)
     }
 }
 
-void timer::update_internal_clock(uint16_t new_internal_clock) noexcept
+void timer::update_internal_clock(const uint16_t new_internal_clock) noexcept
 {
     internal_clock_ = new_internal_clock;
 
