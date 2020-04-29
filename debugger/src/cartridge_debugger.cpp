@@ -8,7 +8,7 @@
 
 namespace gameboy {
 
-cartridge_debugger::cartridge_debugger(observer<cartridge> cartridge)
+cartridge_debugger::cartridge_debugger(const observer<cartridge> cartridge)
     : cartridge_{cartridge} {}
 
 void cartridge_debugger::draw() noexcept

@@ -44,7 +44,7 @@ constexpr auto frame_sequence_count = 8192u;
 constexpr auto frame_sequencer_max = 8u;
 constexpr auto down_sample_count = 4'194'304u / 44100u; // cpu clock speed / sample rate
 
-apu::apu(observer<bus> bus)
+apu::apu(const observer<bus> bus)
     : bus_{bus},
       power_on_{true},
       channel_1_{

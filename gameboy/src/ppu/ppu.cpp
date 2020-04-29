@@ -63,7 +63,7 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
     }
 }
 
-ppu::ppu(observer<bus> bus)
+ppu::ppu(const observer<bus> bus)
     : bus_{bus},
       lcd_enabled_{true},
       line_rendered_{false},

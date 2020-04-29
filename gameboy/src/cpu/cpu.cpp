@@ -17,7 +17,7 @@ constexpr address16 ie_addr{0xFFFFu};
 constexpr address16 if_addr{0xFF0Fu};
 constexpr address16 key_1_addr{0xFF4Du};
 
-cpu::cpu(observer<bus> bus) noexcept
+cpu::cpu(const observer<bus> bus) noexcept
     : bus_{bus},
       alu_{make_observer(this)},
       a_f_(bus_->get_cartridge()->cgb_enabled() ? 0x1180u : 0x01B0u),

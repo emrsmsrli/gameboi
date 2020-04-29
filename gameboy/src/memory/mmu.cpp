@@ -34,7 +34,7 @@ constexpr std::array<uint8_t, hram_range.size()> hram_cgb{
     0x98, 0xD1, 0x71, 0x02, 0x4D, 0x01, 0xC1, 0xFF, 0x0D, 0x00, 0xD3, 0x05, 0xF9, 0x00, 0x0B,
 };
 
-mmu::mmu(observer<bus> bus)
+mmu::mmu(const observer<bus> bus)
     : bus_{bus},
       wram_bank_{1u},
       work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
