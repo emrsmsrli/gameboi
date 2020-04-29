@@ -87,9 +87,11 @@ bool link::is_transferring() const noexcept
 
 uint8_t link::clock_rate() const noexcept
 {
-    constexpr std::array clock_rates{16u, 512u};
-    // todo cgb double speed
-    return clock_rates[bit::extract(sc_, 1u)];
+    constexpr auto base_clock_rate = 512u;
+    return base_clock_rate >> (
+        bit::extract(sc_, 1u) * 5u +
+        bit::from_bool(bus_->get_cpu()->is_in_double_speed())
+    );
 }
 
 link::mode link::clock_mode() const noexcept
