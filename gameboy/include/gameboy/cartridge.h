@@ -20,10 +20,15 @@ class cpu_debugger;
 class cartridge_debugger;
 class memory_bank_debugger;
 
+namespace instruction {
+class disassembly_db;
+} // namespace instruction
+
 class cartridge {
     friend cpu_debugger;
     friend cartridge_debugger;
     friend memory_bank_debugger;
+    friend instruction::disassembly_db;
 
 public:
     explicit cartridge(const filesystem::path& rom_path);

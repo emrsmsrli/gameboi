@@ -9,6 +9,8 @@
 #include "apu_debugger.h"
 #include "cartridge_debugger.h"
 #include "cpu_debugger.h"
+#include "disassembly_db.h"
+#include "disassembly_view.h"
 #include "gameboy/bus.h"
 #include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
@@ -31,6 +33,7 @@ public:
 
     void tick();
     void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;
+    void on_write_access(const address16& addr, const uint8_t data) noexcept;
 
     [[nodiscard]] bool has_execution_breakpoint()
     {
@@ -72,6 +75,7 @@ private:
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
     joypad_debugger joypad_debugger_;
+    disassembly_view disassembly_view_;
     memory_bank_debugger memory_bank_debugger_;
 
     std::shared_ptr<spdlog::logger> logger_;

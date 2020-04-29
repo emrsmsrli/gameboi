@@ -14,6 +14,11 @@ namespace gameboy {
 class bus;
 class cpu_debugger;
 class memory_bank_debugger;
+class disassembly_view;
+
+namespace instruction {
+class disassembly_db;
+} // namespace instruction
 
 struct memory_delegate {
     delegate<uint8_t(const address16&)> on_read;
@@ -30,6 +35,8 @@ struct memory_delegate {
 class mmu {
     friend cpu_debugger;
     friend memory_bank_debugger;
+    friend disassembly_view;
+    friend instruction::disassembly_db;
 
 public:
     explicit mmu(observer<bus> bus);

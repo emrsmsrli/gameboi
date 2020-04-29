@@ -414,7 +414,6 @@ bool gameboy::cpu_debugger::has_execution_breakpoint() const
 
     if(echo_range.has(pc_addr)) {
         const auto addr = pc_addr - (*begin(echo_range) - *begin(wram_range));
-        static constexpr address_range first_wram{0xC000u, 0xCFFFu};
         return contains(first_wram.has(addr) ? 0 : cpu_->bus_->get_mmu()->wram_bank_)
             || contains(execution_breakpoint::any_bank);
     }

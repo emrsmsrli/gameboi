@@ -14,10 +14,9 @@ namespace gameboy {
 class cpu;
 class cartridge_debugger;
 
-namespace instruction
-{
+namespace instruction {
 struct info;
-}
+} // namespace instruction
 
 class cpu_debugger {
 public:

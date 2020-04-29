@@ -8,7 +8,9 @@ add_library(${PROJECT_NAME}
         src/timer_debugger.cpp
         src/joypad_debugger.cpp
         src/memory_bank_debugger.cpp
-        src/cartridge_debugger.cpp)
+        src/cartridge_debugger.cpp
+        src/disassembly_db.cpp
+        src/disassembly_view.cpp)
 
 add_library(gb::debugger ALIAS ${PROJECT_NAME})
 

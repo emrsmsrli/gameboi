@@ -144,6 +144,7 @@ struct frontend {
 
     void on_write_access(const gameboy::address16& addr, const uint8_t data) noexcept
     {
+        debugger->on_write_access(addr, data);
         if(debugger->has_write_access_breakpoint(addr, data)) {
             gb->tick_enabled = false;
         }
