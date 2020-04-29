@@ -39,9 +39,13 @@ void gameboy::timer_debugger::draw() const noexcept
     ImGui::Text("Frequency: %s", [&]() {
         switch(timer_->timer_clock_overflow_index_select()) {
             case 9u: return "4 KHz";
+            case 9u << 1: return "4 KHz(double speed)";
             case 3u: return "256 KHz";
+            case 3u << 1: return "256 KHz(double speed)";
             case 5u: return "64 KHz";
+            case 5u << 1: return "64 KHz(double speed)";
             case 7u: return "16 KHz";
+            case 7u << 1: return "16 KHz(double speed)";
             default: return "invalid";
         }
     }());
