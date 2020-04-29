@@ -12,7 +12,6 @@
 namespace gameboy {
 
 class cartridge;
-class cpu_debugger;
 
 class cartridge_debugger {
 public:

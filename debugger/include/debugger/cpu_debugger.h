@@ -12,7 +12,6 @@
 namespace gameboy {
 
 class cpu;
-class cartridge_debugger;
 
 namespace instruction {
 struct info;
