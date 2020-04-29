@@ -1,17 +1,13 @@
 #include "gameboy/cpu/cpu.h"
 
-#include <array>
-
 #include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/instruction_info.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/util/mathutil.h"
-#include "gameboy/util/observer.h"
 
 namespace gameboy {
     

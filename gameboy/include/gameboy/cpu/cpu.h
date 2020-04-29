@@ -6,11 +6,14 @@
 #include "gameboy/cpu/register16.h"
 
 #if WITH_DEBUGGER
-#include "gameboy/cpu/instruction_info.h"
 #include "gameboy/util/delegate.h"
 #endif //WITH_DEBUGGER
 
 namespace gameboy {
+
+namespace instruction {
+struct info;
+} // namespace instruction
 
 class bus;
 class cpu_debugger;

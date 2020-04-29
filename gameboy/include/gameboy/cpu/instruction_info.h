@@ -587,6 +587,6 @@ constexpr uint8_t get_false_branch_cycle_count(const uint8_t inst)
     }
 }
 
-} // namespace gameboy
+} // namespace gameboy::instruction
 
 #endif //GAMEBOY_INSTRUCTION_INFO_H
