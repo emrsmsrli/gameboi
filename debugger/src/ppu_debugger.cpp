@@ -414,14 +414,16 @@ void gameboy::ppu_debugger::draw_oam()
         for(auto tile_y = 0u; tile_y < tile_y_end; ++tile_y) {
             const auto tile_row = ppu_->get_tile_row(
                 tile_y, 
-                ppu_->tile_address<uint8_t>(0x8000u, obj.tile_number), 
+                ppu_->tile_address<uint8_t>(0x8000u, ppu_->lcdc_.large_obj()
+                     ? obj.tile_number & 0xFEu
+                     : obj.tile_number),
                 obj.vram_bank());
 
             for(auto tile_x = 0u; tile_x < ppu::tile_pixel_count; ++tile_x) {
                 const auto color_idx = tile_row[tile_x];
                 const auto color = [&]() {
                     if(ppu_->bus_->get_cartridge()->cgb_enabled()) {
-                        return ppu_->correct_color(ppu_->cgb_bg_palettes_[obj.cgb_palette_index()].colors[color_idx]);
+                        return ppu_->correct_color(ppu_->cgb_obj_palettes_[obj.cgb_palette_index()].colors[color_idx]);
                     } 
                     
                     const auto background_palette = palette::from(ppu_->gb_palette_, ppu_->obp_[obj.gb_palette_index()].value());
