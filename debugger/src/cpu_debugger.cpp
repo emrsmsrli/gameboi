@@ -79,7 +79,6 @@ void gameboy::cpu_debugger::draw() noexcept
     }
     
     ImGui::End();
-    ImGui::ShowDemoWindow();
 }
 
 void gameboy::cpu_debugger::draw_execution_breakpoints() noexcept
