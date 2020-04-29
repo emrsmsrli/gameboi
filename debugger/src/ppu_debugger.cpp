@@ -6,13 +6,13 @@
 
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/ppu/ppu.h"
 #include "imgui-SFML.h"
 #include "imgui.h"
 
 namespace {
+constexpr auto bg_map_tile_count = 32;
 constexpr auto tiles_per_row = 16;
 constexpr auto tile_row_count = 8;
 }
@@ -24,10 +24,8 @@ gameboy::ppu_debugger::ppu_debugger(const observer<ppu> ppu) noexcept
     tiles_img_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
     tiles_.create(tiles_per_row * ppu::tile_pixel_count, tile_row_count * ppu::tile_pixel_count * tile_area_count);
 
-    bg_map_.create(256, 256);
-    for(size_t i = 0u; i < 32u * 32u; ++i) {
-        bg_map_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count, sf::Color::White);
-    }
+    bg_map_.create(bg_map_tile_count * ppu::tile_pixel_count, bg_map_tile_count * ppu::tile_pixel_count);
+    bg_map_img_.create(bg_map_tile_count * ppu::tile_pixel_count, bg_map_tile_count * ppu::tile_pixel_count);
 
     for(size_t i = 0u; i < 40u; ++i) {
         oam_imgs_[i].create(ppu::tile_pixel_count, ppu::tile_pixel_count * 2, sf::Color::White);
@@ -320,11 +318,9 @@ void gameboy::ppu_debugger::draw_bg_map()
     ImGui::Combo("Tile Address", &current_tile_address, tile_addresses.data(), tile_addresses.size());
 
     const auto tile_start_addr = address16(current_bg_map_area == 1 ? 0x9C00u : 0x9800u);
-    for(size_t y = 0u; y < 32u; ++y) {
-        for(size_t x = 0u; x < 32u; ++x) {
-            const auto idx = y * 32u + x;
-            auto& img = bg_map_imgs_[idx];
-
+    for(size_t y = 0u; y < bg_map_tile_count; ++y) {
+        for(size_t x = 0u; x < bg_map_tile_count; ++x) {
+            const auto idx = y * bg_map_tile_count + x;
             const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + idx, 0);
             const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + idx, 1)};
 
@@ -351,18 +347,20 @@ void gameboy::ppu_debugger::draw_bg_map()
                         return background_palette.colors[color_idx];
                     }();
 
-                    img.setPixel(tile_x, tile_y, sf::Color{
-                        color.red,
-                        color.green,
-                        color.blue,
-                        255
-                    });
+                    bg_map_img_.setPixel(
+                        x * ppu::tile_pixel_count + tile_x,
+                        y * ppu::tile_pixel_count + tile_y, sf::Color{
+                            color.red,
+                            color.green,
+                            color.blue,
+                            255
+                        });
                 }
             }
-
-            bg_map_.update(img, x * ppu::tile_pixel_count, y * ppu::tile_pixel_count);
         }
     }
+
+    bg_map_.update(bg_map_img_);
 
     ImVec2 img_start = ImGui::GetCursorScreenPos();
     ImGui::Image(bg_map_, {bg_map_.getSize().x * 2.f, bg_map_.getSize().y * 2.f});
@@ -376,7 +374,7 @@ void gameboy::ppu_debugger::draw_bg_map()
         sf::Sprite zoomed_tile{bg_map_, {{tile_x * 8, tile_y * 8}, {ppu::tile_pixel_count, ppu::tile_pixel_count}}};
         ImGui::Image(zoomed_tile, {128, 128});
 
-        const auto tile_idx = tile_y * 32u + tile_x;
+        const auto tile_idx = tile_y * bg_map_tile_count + tile_x;
         const auto tile_no = ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 0);
         const attributes::bg tile_attr{ppu_->read_ram_by_bank(tile_start_addr + tile_idx, 1)};
 

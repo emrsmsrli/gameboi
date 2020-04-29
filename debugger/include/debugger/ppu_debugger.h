@@ -23,7 +23,7 @@ private:
     sf::Image tiles_img_;
     sf::Texture tiles_;
 
-    std::array<sf::Image, 32u * 32u> bg_map_imgs_;
+    sf::Image bg_map_img_;
     sf::Texture bg_map_;
 
     std::array<sf::Image, 40u> oam_imgs_;
