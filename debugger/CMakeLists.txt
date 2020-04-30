@@ -19,9 +19,9 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         spdlog::spdlog
         magic_enum::magic_enum
         gb::core
-        imgui::sfml
-        sfml-graphics
         sfml-window
+        sfml-graphics
+        imgui::sfml
         project_warnings
         project_options)
 target_include_directories(${PROJECT_NAME}
