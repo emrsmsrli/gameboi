@@ -88,6 +88,7 @@ private:
 
     observer<bus> bus_;
 
+    bool cgb_enabled_;
     bool lcd_enabled_;
     bool line_rendered_;
     int8_t vblank_line_;

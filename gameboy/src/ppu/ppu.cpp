@@ -65,6 +65,7 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 
 ppu::ppu(const observer<bus> bus)
     : bus_{bus},
+      cgb_enabled_{bus_->get_cartridge()->cgb_enabled()},
       lcd_enabled_{true},
       line_rendered_{false},
       vblank_line_{0},
@@ -74,12 +75,12 @@ ppu::ppu(const observer<bus> bus)
       cycle_count_{0u},
       secondary_cycle_count_{0u},
       vram_bank_{0u},
-      ram_((bus->get_cartridge()->cgb_enabled() ? 2 : 1) * 8_kb, 0u),
+      ram_((cgb_enabled_ ? 2 : 1) * 8_kb, 0u),
       oam_(oam_range.size(), 0u),
       interrupt_request_{0u},
       lcdc_{0x91u},
-      stat_(bus_->get_cartridge()->cgb_enabled() ? 0x01u : 0x06u),
-      ly_(bus_->get_cartridge()->cgb_enabled() ? 0x90u : 0x00u),
+      stat_(cgb_enabled_ ? 0x01u : 0x06u),
+      ly_(cgb_enabled_ ? 0x90u : 0x00u),
       lyc_{0x00u},
       scx_{0x00u},
       scy_{0x00u},
@@ -104,7 +105,7 @@ ppu::ppu(const observer<bus> bus)
     add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
         bgp_addr, obp_0_addr, obp_1_addr);
 
-    if(bus->get_cartridge()->cgb_enabled()) {
+    if(cgb_enabled_) {
         add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
             hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr);
 
@@ -168,7 +169,7 @@ void ppu::tick(const uint8_t cycles)
                 set_ly(register8(ly_ + 1));
                 stat_.set_mode(stat_mode::reading_oam);
 
-                if(bus_->get_cartridge()->cgb_enabled() && !dma_transfer_.disabled()) {
+                if(cgb_enabled_ && !dma_transfer_.disabled()) {
                     hdma();
                 }
 
@@ -304,7 +305,7 @@ void ppu::write_oam(const address16& address, const uint8_t data)
 
 uint8_t ppu::read_ram_by_bank(const address16& address, const uint8_t bank) const
 {
-    if(!bus_->get_cartridge()->cgb_enabled() && bank != 0u) {
+    if(!cgb_enabled_ && bank != 0u) {
         return 0x00u;
     }
 
@@ -313,7 +314,7 @@ uint8_t ppu::read_ram_by_bank(const address16& address, const uint8_t bank) cons
 
 void ppu::write_ram_by_bank(const address16& address, const uint8_t data, const uint8_t bank)
 {
-    if(!bus_->get_cartridge()->cgb_enabled() && bank != 0u) {
+    if(!cgb_enabled_ && bank != 0u) {
         return;
     }
 
@@ -618,8 +619,6 @@ void ppu::gdma()
 
 void ppu::render() noexcept
 {
-    const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
-
     render_line line{};
     render_buffer buffer{};
     std::fill(begin(buffer), end(buffer), std::make_pair(0u, attributes::uninitialized{}));
@@ -636,7 +635,7 @@ void ppu::render() noexcept
                 line[pixel_idx] = color{0xFFu};
             },
             [&, color = color_idx](const attributes::bg& bg_attr) {
-                if(cgb_enabled) {
+                if(cgb_enabled_) {
                     const auto palette_color = cgb_bg_palettes_[bg_attr.palette_index()].colors[color];
                     line[pixel_idx] = correct_color(palette_color);
                 } else {
@@ -645,7 +644,7 @@ void ppu::render() noexcept
                 }
             },
             [&, color = color_idx](const attributes::obj& obj_attr) {
-                if(cgb_enabled) {
+                if(cgb_enabled_) {
                     const auto palette_color = cgb_obj_palettes_[obj_attr.cgb_palette_index()].colors[color];
                     line[pixel_idx] = correct_color(palette_color);
                 } else {
@@ -662,7 +661,7 @@ void ppu::render() noexcept
 
 void ppu::render_background(render_buffer& buffer) const noexcept
 {
-    if(!bus_->get_cartridge()->cgb_enabled() && !lcdc_.bg_enabled()) {
+    if(!cgb_enabled_ && !lcdc_.bg_enabled()) {
         return;
     }
 
@@ -754,7 +753,6 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
         return;
     }
 
-    const auto cgb_enabled = bus_->get_cartridge()->cgb_enabled();
     const auto obj_size = lcdc_.large_obj() ? 16 : 8;
 
     std::array<attributes::obj, 40> objs;
@@ -777,7 +775,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
         return idxs;
     }();
 
-    if(!cgb_enabled) {
+    if(!cgb_enabled_) {
         std::sort(begin(indices), end(indices), [&](const auto l, const auto r) {
             const auto& obj_l = objs[l];
             const auto& obj_r = objs[r];
