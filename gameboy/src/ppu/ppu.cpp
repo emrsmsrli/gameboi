@@ -863,13 +863,21 @@ std::array<uint8_t, ppu::tile_pixel_count> ppu::get_tile_row(
     const auto lsb = read_ram_by_bank(tile_base_addr + tile_y_offset, bank);
     const auto msb = read_ram_by_bank(tile_base_addr + tile_y_offset + 1, bank);
 
+    struct pixel_generator {
+        uint8_t lsb;
+        uint8_t msb;
+        uint8_t bit = tile_pixel_count - 1;
+
+        [[nodiscard]] uint8_t operator()() {
+            const auto mask = static_cast<uint32_t>(1u << bit);
+            const auto pix_color = static_cast<uint8_t>((msb & mask) >> bit << 1u | (lsb & mask) >> bit);
+            --bit;
+            return pix_color;
+        }
+    };
+
     std::array<uint8_t, tile_pixel_count> tile_row{};
-    std::generate(begin(tile_row), end(tile_row), [&, bit = tile_pixel_count - 1]() mutable {
-        const uint8_t mask = (1u << bit);
-        const auto pix_color = static_cast<uint8_t>((msb & mask) >> bit << 1u | (lsb & mask) >> bit);
-        --bit;
-        return pix_color;
-    });
+    std::generate(begin(tile_row), end(tile_row), pixel_generator{lsb, msb});
 
     return tile_row;
 }
