@@ -8,7 +8,7 @@
 
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
-#include "gameboy/util/overloaded.h"
+#include "gameboy/util/variantutil.h"
 
 namespace gameboy {
 
@@ -270,12 +270,12 @@ uint8_t cartridge::read_rom(const address16& address) const
 
 void cartridge::write_rom(const address16& address, uint8_t data)
 {
-    std::visit(overloaded{
+    visit_nt(mbc_,
         [](mbc_regular&) {},
         [&](auto&& mbc) {
             mbc.control(address, data);
         }
-    }, mbc_);
+    );
 }
 
 uint8_t cartridge::read_ram(const address16& address) const
@@ -284,9 +284,9 @@ uint8_t cartridge::read_ram(const address16& address) const
         return 0xFFu;
     }
 
-    return std::visit([&](auto&& mbc) {
+    return visit_nt(mbc_, [&](auto&& mbc) {
         return mbc.read_ram(physical_ram_addr(address));
-    }, mbc_);
+    });
 }
 
 void cartridge::write_ram(const address16& address, uint8_t data)
@@ -295,21 +295,21 @@ void cartridge::write_ram(const address16& address, uint8_t data)
         return;
     }
 
-    std::visit([&](auto&& mbc) {
+    visit_nt(mbc_, [&](auto&& mbc) {
         mbc.write_ram(physical_ram_addr(address), data);
-    }, mbc_);
+    });
 }
 
 bool cartridge::ram_enabled() const noexcept
 {
-    return std::visit([](auto&& mbc) {
+    return visit_nt(mbc_, [](auto&& mbc) {
         return mbc.is_ram_enabled();
-    }, mbc_);
+    });
 }
 
 uint32_t cartridge::rom_bank(const address16& address) const noexcept
 {
-   return std::visit(overloaded{
+   return visit_nt(mbc_,
         [&](const mbc1& mbc) {
             if(first_rom_bank_range.has(address)) {
                 if(mbc.rom_banking_active()) {
@@ -328,12 +328,12 @@ uint32_t cartridge::rom_bank(const address16& address) const noexcept
 
             return mbc.rom_bank();
         }
-    }, mbc_) & (rom_bank_count() - 1u);
+    ) & (rom_bank_count() - 1u);
 }
 
 uint32_t cartridge::ram_bank() const noexcept
 {
-    return std::visit(overloaded{
+    return visit_nt(mbc_,
         [](const mbc1& mbc) {
             if(mbc.rom_banking_active()) {
                 return 0u;
@@ -344,7 +344,7 @@ uint32_t cartridge::ram_bank() const noexcept
         [](auto&& mbc) {
             return mbc.ram_bank();
         }
-    }, mbc_) & (ram_bank_count() - 1u);
+    ) & (ram_bank_count() - 1u);
 }
 
 physical_address cartridge::physical_ram_addr(const address16& address) const noexcept

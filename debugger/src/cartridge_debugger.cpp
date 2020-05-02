@@ -3,7 +3,7 @@
 #include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
-#include "gameboy/util/overloaded.h"
+#include "gameboy/util/variantutil.h"
 #include "imgui.h"
 
 namespace gameboy {
@@ -49,7 +49,7 @@ void cartridge_debugger::draw() noexcept
     ImGui::Text("ram banks:   %d", cartridge_->ram_bank_count());
 
     if(cartridge_->has_rtc()) {
-        std::visit(overloaded{
+        visit_nt(mbc_,
           [](mbc1& mbc) {
             ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active());
           },
@@ -85,7 +85,7 @@ void cartridge_debugger::draw() noexcept
             ImGui::Columns(1);
           },
           [](auto&&) {}
-        }, cartridge_->mbc_);
+        );
     }
 
     ImGui::End();

@@ -7,7 +7,7 @@
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/memory/mmu.h"
-#include "gameboy/util/overloaded.h"
+#include "gameboy/util/variantutil.h"
 
 namespace gameboy {
 
@@ -631,7 +631,7 @@ void ppu::render() noexcept
     for(auto pixel_idx = 0u; pixel_idx < line.size(); ++pixel_idx) {
         const auto& [color_idx, attr] = buffer[pixel_idx];
 
-        std::visit(overloaded{
+        visit_nt(attr,
             [&](attributes::uninitialized) {
                 line[pixel_idx] = color{0xFFu};
             },
@@ -654,7 +654,7 @@ void ppu::render() noexcept
                     line[pixel_idx] = background_palette.colors[color];
                 }
             }
-        }, attr);
+        );
     }
 
     on_render_line_(ly_.value(), line);
@@ -828,7 +828,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                 continue;
             }
 
-            std::visit(overloaded{
+            visit_nt(attr,
                 [&](auto&&) {
                     buffer[x] = std::make_pair(dot_color, obj);
                 },
@@ -841,7 +841,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                         buffer[x] = std::make_pair(dot_color, obj);
                     }
                 }
-            }, attr);
+            );
         }
     }
 }
