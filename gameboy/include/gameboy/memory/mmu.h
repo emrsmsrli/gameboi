@@ -2,7 +2,7 @@
 #define GAMEBOY_MMU_H
 
 #include <cstdint>
-#include <unordered_map>
+#include <map>
 #include <vector>
 
 #include "gameboy/memory/address.h"
@@ -61,7 +61,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    std::unordered_map<address16, memory_delegate> delegates_;
+    std::map<address16, memory_delegate> delegates_;
 
 #if WITH_DEBUGGER
     delegate<void(const address16&)> on_read_access_;

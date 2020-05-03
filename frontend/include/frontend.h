@@ -52,6 +52,7 @@ struct frontend {
 #endif //WITH_DEBUGGER
 
         window.setFramerateLimit(60u);
+        window.setVerticalSyncEnabled(false);
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
         window_texture.create(gameboy::screen_width, gameboy::screen_height);
 

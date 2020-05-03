@@ -7,7 +7,7 @@
 
 int main(int argc, char* argv[])
 {
-    cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
+    /*cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
     options.allow_unrecognised_options().add_options()
         ("v,version", "Print version and exit")
         ("h,help", "Show this help text")
@@ -27,18 +27,18 @@ int main(int argc, char* argv[])
     if(parsed["help"].as<bool>()) {
         fmt::print(stdout, "{}", options.help());
         return 0;
-    }
+    }*/
 
     spdlog::set_default_logger(spdlog::stdout_color_st("  core  "));
-    spdlog::set_level(spdlog::level::from_str(parsed["verbosity"].as<std::string>()));
+    //spdlog::set_level(spdlog::level::from_str(parsed["verbosity"].as<std::string>()));
 
     sdl::init();
 
-    gameboy::gameboy gb{parsed["file"].as<std::string>()};
+    gameboy::gameboy gb{argv[1]};
     frontend gb_frontend{gb,
-      parsed["width"].as<uint32_t>(),
-      parsed["height"].as<uint32_t>(),
-      parsed["fullscreen"].as<bool>()
+      320, //parsed["width"].as<uint32_t>(),
+      288, //parsed["height"].as<uint32_t>(),
+      false
     };
 
 #if WITH_DEBUGGER

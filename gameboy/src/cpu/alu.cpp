@@ -1,13 +1,9 @@
 #include "gameboy/cpu/alu.h"
 
-#include <magic_enum.hpp>
-
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
-
-using namespace magic_enum::bitwise_operators;
 
 void alu::add(const uint8_t value) const noexcept
 {

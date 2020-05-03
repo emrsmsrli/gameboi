@@ -1,6 +1,5 @@
 #include "gameboy/cpu/cpu.h"
 
-#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
 #include "gameboy/bus.h"
@@ -10,8 +9,8 @@
 #include "gameboy/util/mathutil.h"
 
 namespace gameboy {
-    
-using namespace magic_enum::bitwise_operators;
+
+BITMASK(interrupt)
 
 constexpr address16 ie_addr{0xFFFFu};
 constexpr address16 if_addr{0xFF0Fu};

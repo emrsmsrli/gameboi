@@ -42,6 +42,12 @@ constexpr bool operator==(const address<T>& a_l, const address<T>& a_r) noexcept
 }
 
 template<typename T>
+constexpr bool operator<(const address<T>& a_l, const address<T>& a_r) noexcept
+{
+    return a_l.value() < a_r.value();
+}
+
+template<typename T>
 constexpr bool operator!=(const address<T>& a_l, const address<T>& a_r) noexcept
 {
     return !(a_l.value() == a_r.value());

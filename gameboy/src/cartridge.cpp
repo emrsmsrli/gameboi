@@ -3,11 +3,11 @@
 #include <algorithm>
 #include <numeric>
 
-#include <magic_enum.hpp>
 #include <spdlog/spdlog.h>
 
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
+#include "gameboy/util/enum.h"
 #include "gameboy/util/variantutil.h"
 
 namespace gameboy {
@@ -131,10 +131,8 @@ cartridge::cartridge(const filesystem::path& rom_path)
 
     const auto cgb = read<cgb_type>(rom_, cgb_support_addr);
     cgb_enabled_ = cgb != cgb_type::only_gb;
-    cgb_type_ = magic_enum::enum_name(cgb);
 
     const auto mbc = read<mbc_type>(rom_, mbc_type_addr);
-    mbc_type_ = magic_enum::enum_name(mbc);
     switch(mbc) {
         case mbc_type::rom_only:
         case mbc_type::rom_ram:
@@ -172,12 +170,11 @@ cartridge::cartridge(const filesystem::path& rom_path)
             break;
         }
         default: {
-            spdlog::critical("unimplemented cartridge type {:#04x}", magic_enum::enum_integer(mbc));
+            spdlog::critical("unimplemented cartridge type {:#04x}", static_cast<int>(mbc));
         }
     }
 
     const auto rom_size_type = read<rom_type>(rom_, rom_size_addr);
-    rom_type_ = magic_enum::enum_name(rom_size_type);
     rom_bank_count_ = [](rom_type type) {
         switch(type) {
             case rom_type::kb_32:   return 2u;
@@ -196,7 +193,6 @@ cartridge::cartridge(const filesystem::path& rom_path)
     }(rom_size_type);
 
     const auto ram_size_type = read<ram_type>(rom_, ram_size_addr);
-    ram_type_ = magic_enum::enum_name(ram_size_type);
     ram_bank_count_ = [](ram_type type) {
         switch(type) {
             case ram_type::none:    return 0u;

@@ -4,6 +4,7 @@
 #include "gameboy/cpu/alu.h"
 #include "gameboy/cpu/interrupt.h"
 #include "gameboy/cpu/register16.h"
+#include "gameboy/util/enum.h"
 
 #if WITH_DEBUGGER
 #include "gameboy/util/delegate.h"
@@ -153,6 +154,9 @@ private:
     static void load(register16& r_left, const register16& r_right) noexcept;
 
     void load_hlsp(int8_t data) noexcept;
+
+public:
+    BITMASKF(flag)
 };
 
 } // namespace gameboy

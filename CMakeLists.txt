@@ -13,13 +13,10 @@ if(MSVC)
     include(cmake/StaticLink.cmake)
 endif()
 
-find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(SFML COMPONENTS window graphics system CONFIG REQUIRED)
 find_package(SDL2 CONFIG REQUIRED)
-find_package(magic_enum CONFIG REQUIRED)
-find_package(cxxopts CONFIG REQUIRED)
 
 add_library(project_options INTERFACE)
 target_compile_features(project_options INTERFACE cxx_std_17)
@@ -30,7 +27,12 @@ target_compile_definitions(project_options INTERFACE
 if(WITH_LIBCXX)
     target_compile_options(project_options INTERFACE -stdlib=libc++)
     target_link_options(project_options INTERFACE -lc++)
+else()
+    target_link_libraries(project_options INTERFACE stdc++fs)
 endif()
+
+target_compile_options(project_options INTERFACE -march=native -g)
+target_link_libraries(project_options INTERFACE profiler)
 
 add_library(project_warnings INTERFACE)
 set_project_warnings(project_warnings)
@@ -61,6 +63,7 @@ add_subdirectory(frontend
 
 option(ENABLE_TESTING "Enable Tests" OFF)
 if(ENABLE_TESTING)
+    find_package(GTest CONFIG REQUIRED)
     message("building tests")
     enable_testing()
     add_subdirectory(test)

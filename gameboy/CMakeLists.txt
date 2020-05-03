@@ -31,7 +31,6 @@ add_library(gb::core ALIAS ${PROJECT_NAME})
 target_link_libraries(${PROJECT_NAME} PRIVATE
         fmt::fmt
         spdlog::spdlog
-        magic_enum::magic_enum
         project_warnings
         project_options)
 target_include_directories(${PROJECT_NAME}
