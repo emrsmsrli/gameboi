@@ -5,6 +5,7 @@
 #include <vector>
 
 #include <absl/container/flat_hash_map.h>
+#include <sparsepp/spp.h>
 
 #include "gameboy/memory/address.h"
 #include "gameboy/util/delegate.h"
@@ -62,7 +63,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    absl::flat_hash_map<uint16_t, memory_delegate> delegates_;
+    spp::sparse_hash_map<uint16_t, memory_delegate> delegates_;
 
 #if WITH_DEBUGGER
     delegate<void(const address16&)> on_read_access_;
