@@ -29,6 +29,7 @@ add_library(${PROJECT_NAME}
 add_library(gb::core ALIAS ${PROJECT_NAME})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        absl::flat_hash_map
         fmt::fmt
         spdlog::spdlog
         project_warnings

@@ -49,9 +49,9 @@ void mmu::write(const address16& address, const uint8_t data)
     if(on_write_access_) { on_write_access_(address, data); }
 #endif //WITH_DEBUGGER
 
-    if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [delegated_addr, delegate] = *it;
-        delegate.on_write(delegated_addr, data);
+    if(const auto it = delegates_.find(address.value()); it != end(delegates_)) {
+        const auto& [_, delegate] = *it;
+        delegate.on_write(address, data);
     } else if(rom_range.has(address)) {
         bus_->get_cartridge()->write_rom(address, data);
     } else if(vram_range.has(address)) {
@@ -85,9 +85,9 @@ uint8_t mmu::read(const address16& address) const
     if(on_read_access_) { on_read_access_(address); }
 #endif //WITH_DEBUGGER
 
-    if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [delegated_addr, delegate] = *it;
-        return delegate.on_read(delegated_addr);
+    if(const auto it = delegates_.find(address.value()); it != end(delegates_)) {
+        const auto& [_, delegate] = *it;
+        return delegate.on_read(address);
     } 
 
     if(rom_range.has(address)) {
