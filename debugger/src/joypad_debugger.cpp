@@ -10,6 +10,7 @@ void joypad_debugger::draw() noexcept
 {
     if(!ImGui::Begin("Joypad")) {
         ImGui::End();
+        return;
     }
 
     ImGui::Columns(2);
