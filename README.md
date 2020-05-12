@@ -33,7 +33,7 @@ so features are limited compared to other emulators.
     <img src="screenshots/tetris.png" height=240 />
 </p>
 <p align="center">
-    <img src="screenshots/debugger.png" width=600 />
+    <img src="screenshots/debugger.png" width=750 />
 </p>
 
 ## Code example
