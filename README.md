@@ -53,7 +53,7 @@ void on_audio(const gameboy::apu::sound_buffer& sound_buffer) noexcept;
 
 int main(int argc, char** argv) 
 {
-    // gameboy writes save files automatically 
+    // gameboy writes cartridge save files to disk 
     // when it goes out of scope
     gameboy::gameboy gb{"file/path/to/rom.gbc"};
 
@@ -61,9 +61,9 @@ int main(int argc, char** argv)
     gameboy::debugger debugger{gb};
 #endif //WITH_DEBUGGER
 
-    gameboy.on_render_line(gameboy::connect_arg<&on_render_line>);
-    gameboy.on_vblank(gameboy::connect_arg<&on_vblank>);
-    gameboy.on_audio_buffer_full(gameboy::connect_arg<&on_audio>);
+    gb.on_render_line(gameboy::connect_arg<&on_render_line>);
+    gb.on_vblank(gameboy::connect_arg<&on_vblank>);
+    gb.on_audio_buffer_full(gameboy::connect_arg<&on_audio>);
 
     while(true) {
         // gb.press_key(gameboy::key::a);
@@ -85,8 +85,8 @@ int main(int argc, char** argv)
 
 ### Dependencies
 
-Install dependencies from however you like. Though, vcpkg or conan might come in handy.
-This is an example script for Ubuntu:
+Install dependencies however you like. Though, `vcpkg` or `conan` might come in handy.
+This is an example script for Ubuntu, using vcpkg:
 
 - CMake (required version is 3.12.4)
 - GTest (required if building tests)
