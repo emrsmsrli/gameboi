@@ -59,8 +59,8 @@ void disassembly_view::draw() noexcept
             constexpr auto half_size = 10;
             const auto distance = std::distance(cbegin(disassemblies), it);
 
-            const auto clamped_start = std::max<size_t>(0u, distance - half_size);
-            const auto clamped_end = std::min<size_t>(distance + half_size, disassemblies.size());
+            const auto clamped_start = std::max<std::ptrdiff_t>(0u, distance - half_size);
+            const auto clamped_end = std::min<std::ptrdiff_t>(distance + half_size, disassemblies.size());
 
             for(auto i = clamped_start; i < clamped_end; ++i) {
                 const auto& data = disassemblies[i];
