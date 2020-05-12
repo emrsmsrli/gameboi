@@ -102,7 +102,6 @@ $ git clone https://github.com/Microsoft/vcpkg.git
 $ cd vcpkg
 $ ./bootstrap-vcpkg.sh -disableMetrics
 $ ./vcpkg integrate install
-$ ./vcpkg install
 $ ./vcpkg install gtest spdlog fmt sfml sdl2 magic-enum cxxopts
 $ sudo apt install cmake ninja-build
 ```
