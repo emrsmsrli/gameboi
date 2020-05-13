@@ -2,6 +2,7 @@
 
 #include <magic_enum.hpp>
 
+#include "gameboy/joypad/joypad.h"
 #include "imgui.h"
 
 namespace gameboy {

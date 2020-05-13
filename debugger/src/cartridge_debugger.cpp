@@ -2,7 +2,6 @@
 
 #include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"
-#include "gameboy/cpu/cpu.h"
 #include "gameboy/util/variantutil.h"
 #include "imgui.h"
 
