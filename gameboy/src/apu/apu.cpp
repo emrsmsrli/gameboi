@@ -236,8 +236,8 @@ void apu::on_write(const address16& address, uint8_t data) noexcept
     else if(address == nr_22_addr) {
         channel_2_.dac_enabled = (data & 0xF8u) != 0x00u;
         channel_2_.envelope.reg = data;
-        channel_2_.envelope.timer = channel_1_.envelope.period();
-        channel_2_.volume = channel_1_.envelope.initial_volume();
+        channel_2_.envelope.timer = channel_2_.envelope.period();
+        channel_2_.volume = channel_2_.envelope.initial_volume();
     }
     else if(address == nr_23_addr) { channel_2_.frequency_data.low = data; }
     else if(address == nr_24_addr) {
