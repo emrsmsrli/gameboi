@@ -14,7 +14,8 @@ constexpr std::array<uint8_t, 32u> waveform{
 void pulse_channel::tick() noexcept
 {
     --timer;
-    if(timer <= 0) {
+
+    if(timer == 0) {
         reset_timer();
         waveform_index = (waveform_index + 1u) & 0x07u;
     }
@@ -27,6 +28,33 @@ void pulse_channel::tick() noexcept
 
     if(waveform[wave_data.duty() * 8 + waveform_index] == 0u) {
         output = 0u;
+    }
+}
+
+void pulse_channel::on_write(const register_index index, const uint8_t data)
+{
+    switch(index) {
+        case register_index::sweep:
+            sweep.reg = data;
+            break;
+        case register_index::wave_data:
+            wave_data.reg = data;
+            break;
+        case register_index::envelope:
+            dac_enabled = (data & 0xF8u) != 0x00u;
+            envelope.reg = data;
+            envelope.timer = envelope.period();
+            volume = envelope.initial_volume();
+            break;
+        case register_index::freq_data:
+            frequency_data.low = data;
+            break;
+        case register_index::freq_control:
+            frequency_data.freq_control.reg = data;
+            if(frequency_data.should_restart()) {
+                restart();
+            }
+            break;
     }
 }
 

@@ -9,12 +9,20 @@
 namespace gameboy {
 
 struct pulse_channel {
+    enum class register_index {
+        sweep = 0,
+        wave_data = 1,
+        envelope = 2,
+        freq_data = 3,
+        freq_control = 4
+    };
+
     audio::sweep sweep;
     audio::wave_data wave_data;
     audio::envelope envelope;
     audio::frequency_data frequency_data;
 
-    int16_t timer = 0;
+    uint32_t timer = 0;
     uint8_t length_counter = 0;
     uint8_t volume = 0u;
     uint8_t output = 0u;
@@ -24,6 +32,8 @@ struct pulse_channel {
     bool dac_enabled = false;
 
     void tick() noexcept;
+
+    void on_write(register_index index, uint8_t data);
 
     void length_click() noexcept;
     void sweep_click() noexcept;

@@ -8,6 +8,13 @@
 namespace gameboy {
 
 struct noise_channel {
+    enum class register_index {
+        sound_length = 1,
+        envelope = 2,
+        polynomial_counter = 3,
+        freq_control = 4
+    };
+
     uint8_t sound_length = 0u;
     audio::envelope envelope;
     audio::polynomial_counter polynomial_counter;
@@ -21,6 +28,8 @@ struct noise_channel {
 
     bool enabled = false;
     bool dac_enabled = false;
+
+    void on_write(register_index index, uint8_t data) noexcept;
 
     void tick() noexcept;
 
