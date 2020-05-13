@@ -11,8 +11,6 @@
 #include "cpu_debugger.h"
 #include "disassembly_db.h"
 #include "disassembly_view.h"
-#include "gameboy/bus.h"
-#include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
 #include "joypad_debugger.h"
 #include "memory_bank_debugger.h"
@@ -21,9 +19,12 @@
 
 namespace gameboy {
 
+class bus;
+class gameboy;
+
 class debugger {
 public:
-    explicit debugger(observer<bus> bus);
+    explicit debugger(observer<gameboy> gb);
     ~debugger();
     debugger(const debugger&) = delete;
     debugger(debugger&&) = delete;
@@ -34,40 +35,10 @@ public:
     void tick();
     void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;
     void on_write_access(const address16& addr, const uint8_t data) noexcept;
-
-    [[nodiscard]] bool has_execution_breakpoint()
-    {
-        const auto has_bp = cpu_debugger_.has_execution_breakpoint();
-        if(has_bp) {
-            logger_->info("breakpoint hit: program counter at {:04X}", cpu_debugger_.get_pc().value());
-        }
-        return has_bp;
-    }
-    [[nodiscard]] bool has_read_access_breakpoint(const address16& address)
-    {
-        const auto has_bp =
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read) ||
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
-        if(has_bp) {
-            logger_->info("breakpoint hit: read access at {:04X}", address.value());
-        }
-        return has_bp;
-    }
-
-    [[nodiscard]] bool has_write_access_breakpoint(const address16& address, const uint8_t data)
-    {
-        const auto has_bp =
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write, data) ||
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write, data) ||
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write) ||
-            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
-        if(has_bp) {
-            logger_->info("breakpoint hit: write access at {:04X} with {:02X}", address.value(), data);
-        }
-        return has_bp;
-    }
+    void on_read_access(const address16& addr) noexcept;
 
 private:
+    observer<gameboy> gb_;
     observer<bus> bus_;
     apu_debugger apu_debugger_;
     cpu_debugger cpu_debugger_;
@@ -82,6 +53,38 @@ private:
 
     sf::Clock delta_clock_;
     sf::RenderWindow window_;
+
+    [[nodiscard]] bool has_execution_breakpoint()
+    {
+        const auto has_bp = cpu_debugger_.has_execution_breakpoint();
+        if(has_bp) {
+            logger_->info("breakpoint hit: program counter at {:04X}", cpu_debugger_.get_pc().value());
+        }
+        return has_bp;
+    }
+    [[nodiscard]] bool has_read_access_breakpoint(const address16& address)
+    {
+        const auto has_bp =
+          cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
+        if(has_bp) {
+            logger_->info("breakpoint hit: read access at {:04X}", address.value());
+        }
+        return has_bp;
+    }
+
+    [[nodiscard]] bool has_write_access_breakpoint(const address16& address, const uint8_t data)
+    {
+        const auto has_bp =
+          cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write, data) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write, data) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::write) ||
+            cpu_debugger_.has_access_breakpoint(address, cpu_debugger::access_breakpoint::type::read_write);
+        if(has_bp) {
+            logger_->info("breakpoint hit: write access at {:04X} with {:02X}", address.value(), data);
+        }
+        return has_bp;
+    }
 };
 
 } // namespace gameboy
