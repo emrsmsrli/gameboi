@@ -139,8 +139,6 @@ int main(int argc, char* argv[])
 #if WITH_DEBUGGER
         debugger.tick();
 #endif //WITH_DEBUGGER
-
-        gb_frontend.set_framerate(dt.restart());
     }
 
     sdl::quit();

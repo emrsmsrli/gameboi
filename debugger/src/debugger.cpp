@@ -45,7 +45,28 @@ void debugger::tick()
         ImGui::SFML::ProcessEvent(event);
     }
 
-    ImGui::SFML::Update(window_, delta_clock_.restart());
+    const auto delta = delta_clock_.restart();
+    const auto delta_secs = delta.asSeconds();
+    ImGui::SFML::Update(window_, delta);
+
+    last_frame_times_[last_frame_time_idx_] = delta_secs;
+    if(++last_frame_time_idx_ == 100u) {
+        last_frame_time_idx_ = 0u;
+    }
+
+    if(ImGui::Begin("Performance")) {
+        ImGui::Text("FPS          %.3f", 1.f / delta_secs);
+        ImGui::Text("Frame time   %.3f", delta_secs);
+
+        ImGui::PlotLines("",
+            last_frame_times_.data(),
+            last_frame_times_.size(),
+            last_frame_time_idx_, "",
+            0.f, .1f,
+            ImVec2(250.f, 100.f));
+
+        ImGui::End();
+    }
 
     apu_debugger_.draw();
     cpu_debugger_.draw();
