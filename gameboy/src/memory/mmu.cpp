@@ -49,10 +49,7 @@ void mmu::write(const address16& address, const uint8_t data)
     if(on_write_access_) { on_write_access_(address, data); }
 #endif //WITH_DEBUGGER
 
-    if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [delegated_addr, delegate] = *it;
-        delegate.on_write(delegated_addr, data);
-    } else if(rom_range.has(address)) {
+    if(rom_range.has(address)) {
         bus_->get_cartridge()->write_rom(address, data);
     } else if(vram_range.has(address)) {
         bus_->get_ppu()->write_ram(address, data);
@@ -60,13 +57,16 @@ void mmu::write(const address16& address, const uint8_t data)
         bus_->get_ppu()->write_oam(address, data);
     } else if(xram_range.has(address)) {
         bus_->get_cartridge()->write_ram(address, data);
-    } else if(echo_range.has(address)) {
-        constexpr auto echo_diff = *begin(echo_range) - *begin(wram_range);
-        write_wram(address - echo_diff, data);
     } else if(wram_range.has(address)) {
         write_wram(address, data);
     } else if(hram_range.has(address)) {
         write_hram(address, data);
+    } else if(const auto it = delegates_.find(address); it != end(delegates_)) {
+        const auto& [delegated_addr, delegate] = *it;
+        delegate.on_write(delegated_addr, data);
+    } else if(echo_range.has(address)) {
+        constexpr auto echo_diff = *begin(echo_range) - *begin(wram_range);
+        write_wram(address - echo_diff, data);
     } else if(address == svbk_addr) {
         if(bus_->get_cartridge()->cgb_enabled()) {
             wram_bank_ = data & 0x7u;
@@ -85,39 +85,39 @@ uint8_t mmu::read(const address16& address) const
     if(on_read_access_) { on_read_access_(address); }
 #endif //WITH_DEBUGGER
 
-    if(const auto it = delegates_.find(address); it != end(delegates_)) {
-        const auto& [delegated_addr, delegate] = *it;
-        return delegate.on_read(delegated_addr);
-    } 
-
     if(rom_range.has(address)) {
         return bus_->get_cartridge()->read_rom(address);
-    } 
+    }
 
     if(vram_range.has(address)) {
         return bus_->get_ppu()->read_ram(address);
-    } 
+    }
 
     if(oam_range.has(address)) {
         return bus_->get_ppu()->read_oam(address);
-    } 
+    }
 
     if(xram_range.has(address)) {
         return bus_->get_cartridge()->read_ram(address);
-    } 
+    }
+
+    if(wram_range.has(address)) {
+        return read_wram(address);
+    }
+
+    if(hram_range.has(address)) {
+        return read_hram(address);
+    }
+
+    if(const auto it = delegates_.find(address); it != end(delegates_)) {
+        const auto& [delegated_addr, delegate] = *it;
+        return delegate.on_read(delegated_addr);
+    }
 
     if(echo_range.has(address)) {
         constexpr auto echo_diff = *begin(echo_range) - *begin(wram_range);
         return read_wram(address - echo_diff);
-    } 
-
-    if(wram_range.has(address)) {
-        return read_wram(address);
-    } 
-
-    if(hram_range.has(address)) {
-        return read_hram(address);
-    } 
+    }
 
     if(address == svbk_addr) {
         if(!bus_->get_cartridge()->cgb_enabled()) {
