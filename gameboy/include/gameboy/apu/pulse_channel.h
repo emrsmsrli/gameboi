@@ -22,7 +22,8 @@ struct pulse_channel {
     audio::envelope envelope;
     audio::frequency_data frequency_data;
 
-    uint32_t timer = 0;
+    size_t waveform_duty_index = 0u;
+    int16_t timer = 0;
     uint8_t length_counter = 0;
     uint8_t volume = 0u;
     uint8_t output = 0u;
@@ -43,8 +44,10 @@ struct pulse_channel {
     void disable() noexcept;
 
     void reset_timer() noexcept { timer = (2048 - frequency_data.value()) * 4; }
+    void adjust_waveform_duty_index() noexcept { waveform_duty_index = wave_data.duty() * 8 + waveform_index; }
 
     uint16_t sweep_calculation() noexcept;
+    void adjust_output_volume() noexcept;
 };
 
 } // namespace gameboy
