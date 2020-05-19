@@ -51,4 +51,28 @@ void wave_channel::disable() noexcept
     enabled = false;
 }
 
+void wave_channel::on_write(const register_index index, const uint8_t data) noexcept
+{
+    switch(index) {
+        case register_index::enable:
+            dac_enabled = bit::test(data, 7u);
+            break;
+        case register_index::sound_length:
+            sound_length = data;
+            break;
+        case register_index::output_level:
+            output_level = data;
+            break;
+        case register_index::freq_data:
+            frequency.low = data;
+            break;
+        case register_index::freq_control:
+            frequency.freq_control.reg = data;
+            if(frequency.should_restart()) {
+                restart();
+            }
+            break;
+    }
+}
+
 } // namespace gameboy

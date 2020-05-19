@@ -49,18 +49,15 @@ if(ENABLE_PCH)
             <array> <vector> <string> <unordered_map> <utility>)
 endif()
 
-add_subdirectory(3rdparty/imgui_sfml
-        ${CMAKE_CURRENT_BINARY_DIR}/imgui-sfml-build)
-add_subdirectory(gameboy
-        ${CMAKE_CURRENT_BINARY_DIR}/gb-core-build)
+add_subdirectory(3rdparty/imgui_sfml)
+add_subdirectory(3rdparty/parallel-hashmap)
+add_subdirectory(gameboy)
 
 if(WITH_DEBUGGER)
-    add_subdirectory(debugger
-            ${CMAKE_CURRENT_BINARY_DIR}/gb-debugger-build)
+    add_subdirectory(debugger)
 endif()
 
-add_subdirectory(frontend
-        ${CMAKE_CURRENT_BINARY_DIR}/frontend-build)
+add_subdirectory(frontend)
 
 option(ENABLE_TESTING "Enable Tests" OFF)
 if(ENABLE_TESTING)

@@ -4,9 +4,7 @@
 #include <cstdint>
 #include <vector>
 
-#include <absl/container/flat_hash_map.h>
-#include <sparsepp/spp.h>
-
+#include "../../3rdparty/parallel-hashmap/parallel_hashmap/phmap.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
@@ -48,7 +46,7 @@ public:
 
     void dma(const address16& source, const address16& destination, uint16_t length);
 
-    void add_memory_delegate(const address16& address, const memory_delegate& callback) { delegates_[address.value()] = callback; }
+    void add_memory_delegate(const address16& address, const memory_delegate& callback) { delegates_[address] = callback; }
 
 #if WITH_DEBUGGER
     void on_read_access(const delegate<void(const address16&)> on_read) noexcept { on_read_access_ = on_read; }
@@ -63,7 +61,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    spp::sparse_hash_map<uint16_t, memory_delegate> delegates_;
+    phmap::flat_hash_map<address16, memory_delegate> delegates_;
 
 #if WITH_DEBUGGER
     delegate<void(const address16&)> on_read_access_;

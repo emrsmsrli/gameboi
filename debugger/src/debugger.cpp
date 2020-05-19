@@ -2,12 +2,14 @@
 
 #include <spdlog/sinks/stdout_color_sinks.h>
 
+#include "gameboy/gameboy.h"
 #include "imgui-SFML.h"
 
 namespace gameboy {
 
-debugger::debugger(const observer<bus> bus)
-    : bus_{bus},
+debugger::debugger(const observer<gameboy> gb)
+    : gb_{gb},
+      bus_{gb_->get_bus()},
       apu_debugger_{bus_->get_apu()},
       cpu_debugger_{bus_->get_cpu()},
       cartridge_debugger_{bus_->get_cartridge()},
@@ -22,6 +24,10 @@ debugger::debugger(const observer<bus> bus)
           "Debugger"
       }
 {
+    bus_->get_cpu()->on_instruction({connect_arg<&debugger::on_instruction>, this});
+    bus_->get_mmu()->on_read_access({connect_arg<&debugger::on_read_access>, this});
+    bus_->get_mmu()->on_write_access({connect_arg<&debugger::on_write_access>, this});
+
     ImGui::SFML::Init(window_);
     window_.resetGLStates();
     logger_->info("debugger initialized");
@@ -59,11 +65,24 @@ void debugger::tick()
 void debugger::on_instruction(const address16& addr, const instruction::info& info, const uint16_t data) noexcept
 {
     cpu_debugger_.on_instruction(addr, info, data);
+    if(has_execution_breakpoint()) {
+        gb_->tick_enabled = false;
+    }
 }
 
 void debugger::on_write_access(const address16& addr, uint8_t data) noexcept
 {
     disassembly_view_.on_write_access(addr, data);
+    if(has_write_access_breakpoint(addr, data)) {
+        gb_->tick_enabled = false;
+    }
+}
+
+void debugger::on_read_access(const address16& addr) noexcept
+{
+    if(has_read_access_breakpoint(addr)) {
+        gb_->tick_enabled = false;
+    }
 }
 
 } // namespace gameboy

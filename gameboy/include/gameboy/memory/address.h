@@ -4,6 +4,7 @@
 #include <functional>
 #include <type_traits>
 
+#include "../../3rdparty/parallel-hashmap/parallel_hashmap/phmap_utils.h"
 #include "gameboy/cpu/register16.h"
 #include "gameboy/memory/addressfwd.h"
 
@@ -85,7 +86,7 @@ template<>
 struct std::hash<gameboy::address16> {
     std::size_t operator()(const gameboy::address16& addr) const noexcept
     {
-        return std::hash<uint16_t>{}(addr.value());
+        return phmap::HashState::combine(0, addr.value());
     }
 };
 

@@ -2,6 +2,7 @@
 
 #include <magic_enum.hpp>
 
+#include "gameboy/joypad/joypad.h"
 #include "imgui.h"
 
 namespace gameboy {
@@ -10,6 +11,7 @@ void joypad_debugger::draw() noexcept
 {
     if(!ImGui::Begin("Joypad")) {
         ImGui::End();
+        return;
     }
 
     ImGui::Columns(2);

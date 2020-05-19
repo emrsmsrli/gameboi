@@ -147,8 +147,9 @@ uint8_t cpu::tick()
 
 void cpu::process_interrupts() noexcept
 {
+    const auto pending = interrupt_enable_ & interrupt_flags_;
     const auto int_requested = [&](const interrupt i) {
-        return is_interrupt_requested(i);
+        return (pending & i) != interrupt::none;
     };
 
     static constexpr std::array interrupts{
@@ -159,21 +160,19 @@ void cpu::process_interrupts() noexcept
         interrupt::lcd_vblank
     };
 
-    if(is_stopped_ && int_requested(interrupt::joypad)) {
-        is_stopped_ = false;
-        is_halted_ = false;
-    }
+    if(const auto it = std::find_if(begin(interrupts), end(interrupts), int_requested); it != end(interrupts)) {
+        const auto interrupt_request = *it;
 
-    if(std::any_of(begin(interrupts), end(interrupts), int_requested)) {
+        if(is_stopped_ && interrupt_request == interrupt::joypad) {
+            is_stopped_ = false;
+            is_halted_ = false;
+        }
+
         if(is_halted_ && wait_before_unhalt_cycles_ == 0) {
             wait_before_unhalt_cycles_ = 12;
         }
-    }
 
-    if(interrupt_master_enable_) {
-        if(const auto it = std::find_if(begin(interrupts), end(interrupts), int_requested); it != end(interrupts)) {
-            const auto interrupt_request = *it;
-
+        if(interrupt_master_enable_) {
             interrupt_master_enable_ = false;
             interrupt_flags_ &= ~interrupt_request;
             rst(make_address(interrupt_request));
@@ -2501,16 +2500,6 @@ uint16_t cpu::read_immediate(imm16_t)
     const auto msb = read_immediate(imm8);
 
     return word(msb, lsb);
-}
-
-interrupt cpu::pending_interrupts() const noexcept
-{
-    return interrupt_enable_ & interrupt_flags_;
-}
-
-bool cpu::is_interrupt_requested(const interrupt i) const noexcept
-{
-    return (pending_interrupts() & i) != interrupt::none;
 }
 
 void cpu::nop() noexcept {}

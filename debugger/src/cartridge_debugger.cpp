@@ -2,7 +2,6 @@
 
 #include "debugger/debugger_util.h"
 #include "gameboy/cartridge.h"
-#include "gameboy/cpu/cpu.h"
 #include "gameboy/util/variantutil.h"
 #include "imgui.h"
 
@@ -49,7 +48,7 @@ void cartridge_debugger::draw() noexcept
     ImGui::Text("ram banks:   %d", cartridge_->ram_bank_count());
 
     if(cartridge_->has_rtc()) {
-        visit_nt(mbc_,
+        visit_nt(cartridge_->mbc_,
           [](mbc1& mbc) {
             ImGui::Text("rom banking enabled: %d", mbc.rom_banking_active());
           },

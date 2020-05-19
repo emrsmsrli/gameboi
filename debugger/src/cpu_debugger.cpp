@@ -9,6 +9,7 @@
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
+#include "gameboy/cpu/instruction_info.h"
 #include "gameboy/memory/memory_constants.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/ppu/ppu.h"

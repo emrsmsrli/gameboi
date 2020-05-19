@@ -5,6 +5,10 @@
 #include "frontend.h"
 #include "gameboy/version.h"
 
+#if WITH_DEBUGGER
+#include "debugger/debugger.h"
+#endif //WITH_DEBUGGER
+
 int main(int argc, char* argv[])
 {
     /*cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
@@ -42,8 +46,7 @@ int main(int argc, char* argv[])
     };
 
 #if WITH_DEBUGGER
-    gameboy::debugger debugger{gb.get_bus()};
-    gb_frontend.set_debugger(gameboy::make_observer(debugger));
+    gameboy::debugger debugger{gameboy::make_observer(gb)};
 #endif //WITH_DEBUGGER
 
     sf::Clock dt;

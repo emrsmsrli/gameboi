@@ -10,6 +10,14 @@
 namespace gameboy {
 
 struct wave_channel {
+    enum class register_index {
+        enable = 0,
+        sound_length = 1,
+        output_level = 2,
+        freq_data = 3,
+        freq_control = 4
+    };
+
     register8 sound_length;
     register8 output_level;
     audio::frequency_data frequency;
@@ -23,6 +31,8 @@ struct wave_channel {
     bool dac_enabled = false;
 
     std::array<uint8_t, wave_pattern_range.size()> wave_pattern{};
+
+    void on_write(register_index index, uint8_t data) noexcept;
 
     void tick() noexcept;
     void length_click() noexcept;

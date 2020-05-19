@@ -12,10 +12,6 @@
 #include "sdl_audio.h"
 #include "sdl_core.h"
 
-#if WITH_DEBUGGER
-#include "debugger/debugger.h"
-#endif //WITH_DEBUGGER
-
 struct frontend {
     std::string title;
     sf::Image window_buffer;
@@ -24,11 +20,6 @@ struct frontend {
     sf::RenderWindow window;
 
     sdl::audio_device audio_device;
-
-#if WITH_DEBUGGER
-    gameboy::observer<gameboy::gameboy> gb;
-    gameboy::observer<gameboy::debugger> debugger;
-#endif //WITH_DEBUGGER
 
     frontend(gameboy::gameboy& gameboy, const uint32_t width, const uint32_t height, const bool fullscreen) noexcept
       : title{fmt::format("GAMEBOY - {}", gameboy.rom_name())},
@@ -44,13 +35,6 @@ struct frontend {
           gameboy::apu::sample_size
         }
     {
-#if WITH_DEBUGGER
-        gameboy.get_bus()->get_cpu()->on_instruction({gameboy::connect_arg<&frontend::on_instruction>, this});
-        gameboy.get_bus()->get_mmu()->on_read_access({gameboy::connect_arg<&frontend::on_read_access>, this});
-        gameboy.get_bus()->get_mmu()->on_write_access({gameboy::connect_arg<&frontend::on_write_access>, this});
-        gb = gameboy::make_observer(gameboy);
-#endif //WITH_DEBUGGER
-
         window.setFramerateLimit(60u);
         window.setVerticalSyncEnabled(false);
         window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
@@ -121,36 +105,6 @@ struct frontend {
         window_texture.update(window_buffer);
         draw_sprite();
     }
-
-#if WITH_DEBUGGER
-    void set_debugger(const gameboy::observer<gameboy::debugger> dbgr) noexcept { debugger = dbgr; }
-
-    void on_instruction(
-      const gameboy::address16& addr,
-      const gameboy::instruction::info& info,
-      const uint16_t data) noexcept
-    {
-        debugger->on_instruction(addr, info, data);
-        if(debugger->has_execution_breakpoint()) {
-            gb->tick_enabled = false;
-        }
-    }
-
-    void on_read_access(const gameboy::address16& addr) noexcept
-    {
-        if(debugger->has_read_access_breakpoint(addr)) {
-            gb->tick_enabled = false;
-        }
-    }
-
-    void on_write_access(const gameboy::address16& addr, const uint8_t data) noexcept
-    {
-        debugger->on_write_access(addr, data);
-        if(debugger->has_write_access_breakpoint(addr, data)) {
-            gb->tick_enabled = false;
-        }
-    }
-#endif //WITH_DEBUGGER
 
     void set_framerate(const sf::Time& time) noexcept
     {

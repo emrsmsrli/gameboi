@@ -91,4 +91,26 @@ void noise_channel::disable() noexcept
     enabled = false;
 }
 
+void noise_channel::on_write(const register_index index, const uint8_t data) noexcept
+{
+    switch(index) {
+        case register_index::sound_length:
+            sound_length = data & 0x3Fu;
+            break;
+        case register_index::envelope:
+            dac_enabled = (data & 0xF8u) != 0x00u;
+            envelope.reg = data;
+            break;
+        case register_index::polynomial_counter:
+            polynomial_counter.reg = data;
+            break;
+        case register_index::freq_control:
+            control.reg = data;
+            if(control.should_restart()) {
+                restart();
+            }
+            break;
+    }
+}
+
 } // namespace gameboy

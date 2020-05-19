@@ -1,7 +1,6 @@
 #include "gameboy/apu/apu.h"
 
 #include "gameboy/bus.h"
-#include "gameboy/memory/memory_constants.h"
 #include "gameboy/memory/mmu.h"
 
 namespace gameboy {
@@ -208,72 +207,27 @@ void apu::generate_samples() noexcept
     sample_for_terminal(audio::control::terminal::right);
 }
 
-void apu::on_write(const address16& address, uint8_t data) noexcept
+void apu::on_write(const address16& address, const uint8_t data) noexcept
 {
     if(!power_on_ && address != nr_52_addr) {
         return;
     }
 
-    // ch1
-    if(address == nr_10_addr) { channel_1_.sweep.reg = data; }
-    else if(address == nr_11_addr) { channel_1_.wave_data.reg = data; }
-    else if(address == nr_12_addr) {
-        channel_1_.dac_enabled = (data & 0xF8u) != 0x00u;
-        channel_1_.envelope.reg = data;
-        channel_1_.envelope.timer = channel_1_.envelope.period();
-        channel_1_.volume = channel_1_.envelope.initial_volume();
-    }
-    else if(address == nr_13_addr) { channel_1_.frequency_data.low = data; }
-    else if(address == nr_14_addr) {
-        channel_1_.frequency_data.freq_control.reg = data;
-        if(channel_1_.frequency_data.should_restart()) {
-            channel_1_.restart();
-        }
+    static constexpr address_range channel_1_range{nr_10_addr, nr_14_addr};
+    static constexpr address_range channel_2_range{nr_21_addr, nr_24_addr};
+    static constexpr address_range channel_3_range{nr_30_addr, nr_34_addr};
+    static constexpr address_range channel_4_range{nr_41_addr, nr_44_addr};
+
+    if(const auto idx = (address.value() - 1) % 5; channel_1_range.has(address)) {
+        channel_1_.on_write(static_cast<pulse_channel::register_index>(idx), data);
+    } else if(channel_2_range.has(address)) {
+        channel_2_.on_write(static_cast<pulse_channel::register_index>(idx), data);
+    } else if(channel_3_range.has(address)) {
+        channel_3_.on_write(static_cast<wave_channel::register_index>(idx), data);
+    } else if(channel_4_range.has(address)) {
+        channel_4_.on_write(static_cast<noise_channel::register_index>(idx), data);
     }
 
-    // ch2
-    else if(address == nr_21_addr) { channel_2_.wave_data.reg = data; }
-    else if(address == nr_22_addr) {
-        channel_2_.dac_enabled = (data & 0xF8u) != 0x00u;
-        channel_2_.envelope.reg = data;
-        channel_2_.envelope.timer = channel_1_.envelope.period();
-        channel_2_.volume = channel_1_.envelope.initial_volume();
-    }
-    else if(address == nr_23_addr) { channel_2_.frequency_data.low = data; }
-    else if(address == nr_24_addr) {
-        channel_2_.frequency_data.freq_control.reg = data;
-        if(channel_2_.frequency_data.should_restart()) {
-            channel_2_.restart();
-        }
-    }
-
-    // ch3
-    else if(address == nr_30_addr) { channel_3_.dac_enabled = bit::test(data, 7u); }
-    else if(address == nr_31_addr) { channel_3_.sound_length = data; }
-    else if(address == nr_32_addr) { channel_3_.output_level = data; }
-    else if(address == nr_33_addr) { channel_3_.frequency.low = data; }
-    else if(address == nr_34_addr) {
-        channel_3_.frequency.freq_control.reg = data;
-        if(channel_3_.frequency.should_restart()) {
-            channel_3_.restart();
-        }
-    }
-
-    // ch4
-    else if(address == nr_41_addr) { channel_4_.sound_length = data & 0x3Fu; }
-    else if(address == nr_42_addr) {
-        channel_4_.dac_enabled = (data & 0xF8u) != 0x00u;
-        channel_4_.envelope.reg = data;
-    }
-    else if(address == nr_43_addr) { channel_4_.polynomial_counter.reg = data; }
-    else if(address == nr_44_addr) {
-        channel_4_.control.reg = data;
-        if(channel_4_.control.should_restart()) {
-            channel_4_.restart();
-        }
-    }
-
-    // control
     else if(address == nr_50_addr) { control_.nr_50 = data; }
     else if(address == nr_51_addr) { control_.nr_51 = data; }
     else if(address == nr_52_addr) {
@@ -334,7 +288,7 @@ uint8_t apu::on_read(const address16& address) const noexcept
     return 0xFFu;
 }
 
-void apu::on_wave_pattern_write(const address16& address, uint8_t data) noexcept
+void apu::on_wave_pattern_write(const address16& address, const uint8_t data) noexcept
 {
     channel_3_.wave_pattern[(address - *begin(wave_pattern_range)).value()] = data;
 }

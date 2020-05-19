@@ -1,7 +1,7 @@
 #ifndef GAMEBOY_JOYPAD_DEBUGGER_H
 #define GAMEBOY_JOYPAD_DEBUGGER_H
 
-#include "gameboy/joypad/joypad.h"
+#include "gameboy/util/observer.h"
 
 namespace gameboy {
 

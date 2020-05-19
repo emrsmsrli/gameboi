@@ -781,10 +781,10 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             const auto& obj_r = objs[r];
 
             if(obj_l.x == obj_r.x) {
-                return l > r;
+                return l < r;
             }
 
-            return obj_l.x > obj_r.x;
+            return obj_l.x < obj_r.x;
         });
     }
 
@@ -831,11 +831,10 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
                     buffer[x] = std::make_pair(dot_color, obj);
                 },
                 [&, existing_bg_color = color_idx](const attributes::bg& bg_attr) {
-                    if(bg_attr.prioritized() && existing_bg_color != 0u) {
-                        return;
-                    }
+                    const auto master_priority_enabled = cgb_enabled_ && !lcdc_.bg_enabled();
+                    const auto obj_priority_enabled = obj.prioritized() && !bg_attr.prioritized();
 
-                    if(obj.prioritized() || existing_bg_color == 0u) {
+                    if(existing_bg_color == 0u || master_priority_enabled || obj_priority_enabled) {
                         buffer[x] = std::make_pair(dot_color, obj);
                     }
                 }

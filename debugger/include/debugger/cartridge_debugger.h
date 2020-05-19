@@ -3,10 +3,6 @@
 
 #include <vector>
 
-#include "debugger/disassembly.h"
-#include "gameboy/cpu/instruction_info.h"
-#include "gameboy/memory/address.h"
-#include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
 
 namespace gameboy {

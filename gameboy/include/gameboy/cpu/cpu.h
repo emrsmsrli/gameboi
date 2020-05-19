@@ -122,9 +122,6 @@ private:
     [[nodiscard]] uint8_t read_immediate(imm8_t);
     [[nodiscard]] uint16_t read_immediate(imm16_t);
 
-    [[nodiscard]] interrupt pending_interrupts() const noexcept;
-    [[nodiscard]] bool is_interrupt_requested(interrupt i) const noexcept;
-
     /* instructions */
     static void nop() noexcept;
     void halt() noexcept;
