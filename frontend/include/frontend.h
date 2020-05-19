@@ -13,7 +13,6 @@
 #include "sdl_core.h"
 
 struct frontend {
-    std::string title;
     sf::Image window_buffer;
     sf::Texture window_texture;
     sf::Sprite window_sprite;
@@ -22,10 +21,9 @@ struct frontend {
     sdl::audio_device audio_device;
 
     frontend(gameboy::gameboy& gameboy, const uint32_t width, const uint32_t height, const bool fullscreen) noexcept
-      : title{fmt::format("GAMEBOY - {}", gameboy.rom_name())},
-        window(
+      : window(
           sf::VideoMode(width, height),
-          title,
+          fmt::format("GAMEBOY - {}", gameboy.rom_name()),
           fullscreen ? sf::Style::Fullscreen : sf::Style::Default
         ),
         audio_device{
@@ -104,11 +102,6 @@ struct frontend {
     {
         window_texture.update(window_buffer);
         draw_sprite();
-    }
-
-    void set_framerate(const sf::Time& time) noexcept
-    {
-        window.setTitle(fmt::format("{} - FPS: {:.1f}", title, 1.f / time.asSeconds()));
     }
 };
 

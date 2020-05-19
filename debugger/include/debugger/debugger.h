@@ -2,6 +2,7 @@
 #define GAMEBOY_DEBUGGER_H
 
 #include <memory>
+#include <array>
 
 #include <SFML/Graphics.hpp>
 #include <spdlog/logger.h>
@@ -34,7 +35,7 @@ public:
 
     void tick();
     void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;
-    void on_write_access(const address16& addr, const uint8_t data) noexcept;
+    void on_write_access(const address16& addr, uint8_t data) noexcept;
     void on_read_access(const address16& addr) noexcept;
 
 private:
@@ -48,6 +49,9 @@ private:
     joypad_debugger joypad_debugger_;
     disassembly_view disassembly_view_;
     memory_bank_debugger memory_bank_debugger_;
+
+    size_t last_frame_time_idx_ = 0u;
+    std::array<float, 100> last_frame_times_{};
 
     std::shared_ptr<spdlog::logger> logger_;
 
