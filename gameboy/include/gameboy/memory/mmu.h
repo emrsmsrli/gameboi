@@ -2,7 +2,6 @@
 #define GAMEBOY_MMU_H
 
 #include <cstdint>
-#include <unordered_map>
 #include <vector>
 
 #include "../../3rdparty/parallel-hashmap/parallel_hashmap/phmap.h"
