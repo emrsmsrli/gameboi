@@ -207,7 +207,7 @@ void apu::generate_samples() noexcept
     sample_for_terminal(audio::control::terminal::right);
 }
 
-void apu::on_write(const address16& address, uint8_t data) noexcept
+void apu::on_write(const address16& address, const uint8_t data) noexcept
 {
     if(!power_on_ && address != nr_52_addr) {
         return;
@@ -288,7 +288,7 @@ uint8_t apu::on_read(const address16& address) const noexcept
     return 0xFFu;
 }
 
-void apu::on_wave_pattern_write(const address16& address, uint8_t data) noexcept
+void apu::on_wave_pattern_write(const address16& address, const uint8_t data) noexcept
 {
     channel_3_.wave_pattern[(address - *begin(wave_pattern_range)).value()] = data;
 }
