@@ -13,7 +13,6 @@ if(MSVC)
     include(cmake/StaticLink.cmake)
 endif()
 
-find_package(absl CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(SFML COMPONENTS window graphics system CONFIG REQUIRED)
@@ -32,8 +31,12 @@ else()
     target_link_libraries(project_options INTERFACE stdc++fs)
 endif()
 
-target_compile_options(project_options INTERFACE -march=native -g)
-target_link_libraries(project_options INTERFACE profiler)
+target_compile_options(project_options INTERFACE -march=native)
+
+option(PROFILE "Enable profiler output" OFF)
+if(PROFILE)
+    target_compile_options(project_options INTERFACE -pg)
+endif()
 
 add_library(project_warnings INTERFACE)
 set_project_warnings(project_warnings)
