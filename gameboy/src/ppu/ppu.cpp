@@ -781,10 +781,10 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             const auto& obj_r = objs[r];
 
             if(obj_l.x == obj_r.x) {
-                return l > r;
+                return l < r;
             }
 
-            return obj_l.x > obj_r.x;
+            return obj_l.x < obj_r.x;
         });
     }
 
