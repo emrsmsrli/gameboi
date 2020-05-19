@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <vector>
 
+#include "../../3rdparty/parallel-hashmap/parallel_hashmap/phmap.h"
 #include "gameboy/memory/address.h"
 #include "gameboy/util/delegate.h"
 #include "gameboy/util/observer.h"
@@ -61,7 +62,7 @@ private:
     std::vector<uint8_t> work_ram_;
     std::vector<uint8_t> high_ram_;
 
-    std::unordered_map<address16, memory_delegate> delegates_;
+    phmap::flat_hash_map<address16, memory_delegate> delegates_;
 
 #if WITH_DEBUGGER
     delegate<void(const address16&)> on_read_access_;
