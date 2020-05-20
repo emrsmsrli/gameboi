@@ -33,9 +33,10 @@ endif()
 
 target_compile_options(project_options INTERFACE
         -march=armv8-a+crc+simd
-        -mfpu=vfp
         -mcpu=cortex-a53
-        -mtune=cortex-a53)
+        -mtune=cortex-a53
+        -mfloat-abi=hard 
+        -mfpu=neon-fp-armv8)
 
 option(PROFILE "Enable profiler output" OFF)
 if(PROFILE)
