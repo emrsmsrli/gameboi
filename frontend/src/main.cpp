@@ -49,7 +49,6 @@ int main(int argc, char* argv[])
     gameboy::debugger debugger{gameboy::make_observer(gb)};
 #endif //WITH_DEBUGGER
 
-    sf::Clock dt;
     while(gb_frontend.window.isOpen()) {
         sf::Event event{};
         while(gb_frontend.window.pollEvent(event)) {
