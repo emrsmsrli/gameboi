@@ -39,7 +39,7 @@ target_compile_options(project_options INTERFACE
 
 option(PROFILE "Enable profiler output" OFF)
 if(PROFILE)
-    target_compile_options(project_options INTERFACE -pg)
+    target_compile_options(project_options INTERFACE -pg -ggdb)
 endif()
 
 add_library(project_warnings INTERFACE)
