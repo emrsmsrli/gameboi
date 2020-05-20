@@ -15,11 +15,13 @@ int main(int argc, char* argv[])
     options.allow_unrecognised_options().add_options()
         ("v,version", "Print version and exit")
         ("h,help", "Show this help text")
-        ("file", "Rom file to run, all files are shown if not set", cxxopts::value<std::string>()) // todo implement this
         ("V,verbosity", "Logging verbosity", cxxopts::value<std::string>()->default_value("off"))
         ("fullscreen", "Enable fullscreen")
         ("W,width", "Width of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"))
-        ("H,height", "Height of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"));
+        ("H,height", "Height of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"))
+        ("rom_path", "Rom path", cxxopts::value<std::vector<std::string>>());
+
+    options.parse_positional("rom_path");
 
     const auto parsed = options.parse(argc, argv);
 
@@ -38,7 +40,9 @@ int main(int argc, char* argv[])
 
     sdl::init();
 
-    gameboy::gameboy gb{parsed["file"].as<std::string>()};
+    const auto rom_path = parsed["rom_path"].as<std::vector<std::string>>();
+
+    gameboy::gameboy gb{rom_path.front()};
     frontend gb_frontend{gb,
       parsed["width"].as<uint32_t>(),
       parsed["height"].as<uint32_t>(),
