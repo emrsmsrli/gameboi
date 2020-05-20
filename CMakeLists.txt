@@ -31,7 +31,11 @@ else()
     target_link_libraries(project_options INTERFACE stdc++fs)
 endif()
 
-target_compile_options(project_options INTERFACE -march=native)
+target_compile_options(project_options INTERFACE
+        -march=armv8-a+crc+simd
+        -mfpu=vfp
+        -mcpu=cortex-a53
+        -mtune=cortex-a53)
 
 option(PROFILE "Enable profiler output" OFF)
 if(PROFILE)
