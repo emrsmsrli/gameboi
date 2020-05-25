@@ -138,6 +138,15 @@ int main(int argc, char* argv[])
             }
         }
 
+        if(!gb_frontend.window.hasFocus()
+#if WITH_DEBUGGER
+            && !gb.tick_enabled && !debugger.has_focus()
+#endif //WITH_DEBUGGER
+        ) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(50ms);
+        }
+
         gb.tick_one_frame();
 #if WITH_DEBUGGER
         debugger.tick();

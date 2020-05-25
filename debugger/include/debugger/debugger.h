@@ -38,6 +38,8 @@ public:
     void on_write_access(const address16& addr, uint8_t data) noexcept;
     void on_read_access(const address16& addr) noexcept;
 
+    [[nodiscard]] bool has_focus() const noexcept { return window_.hasFocus(); }
+
 private:
     observer<gameboy> gb_;
     observer<bus> bus_;
