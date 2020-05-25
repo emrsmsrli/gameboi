@@ -392,10 +392,6 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
 void ppu::general_purpose_register_write(const address16& address, const uint8_t data)
 {
     if(address == vbk_addr) {
-        if(!dma_transfer_.disabled()) {
-            return;
-        }
-
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
         register_lcdc new_lcdc{data};
