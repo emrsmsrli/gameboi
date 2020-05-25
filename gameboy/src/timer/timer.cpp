@@ -5,7 +5,6 @@
 #include "gameboy/bus.h"
 #include "gameboy/cpu/cpu.h"
 #include "gameboy/memory/mmu.h"
-#include "gameboy/util/delegate.h"
 
 namespace gameboy {
 
@@ -18,9 +17,11 @@ timer::timer(const observer<bus> bus)
     : bus_{bus},
       internal_clock_{0u},
       tima_reload_cycles_{0},
+      timer_clock_overflow_bit_{9u},
       tima_{0x00u},
       tma_{0x00u},
       tac_{0x00u},
+      enabled_{false},
       previous_tima_reload_bit_{false}
 {
     auto mmu = bus->get_mmu();
@@ -50,15 +51,18 @@ void timer::update_internal_clock(const uint16_t new_internal_clock) noexcept
 {
     internal_clock_ = new_internal_clock;
 
-    const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_index_select()) && timer_enabled();
-    if(tima_reload_bit != previous_tima_reload_bit_) {
-        tima_ += 1u;
-        if(tima_ == 0x00u) {
-            tima_reload_cycles_ = 24;
+    if(enabled_) {
+        const auto cycle_multiplier = bit::from_bool(bus_->get_cpu()->is_in_double_speed());
+        const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_bit_ + cycle_multiplier);
+        if(!tima_reload_bit && previous_tima_reload_bit_) {
+            tima_ += 1u;
+            if(tima_ == 0x00u) {
+                tima_reload_cycles_ = 6;
+            }
         }
-    }
 
-    previous_tima_reload_bit_ = tima_reload_bit;
+        previous_tima_reload_bit_ = tima_reload_bit;
+    }
 }
 
 uint8_t timer::timer_clock_overflow_index_select() const noexcept
@@ -70,8 +74,7 @@ uint8_t timer::timer_clock_overflow_index_select() const noexcept
         7u   // 16  KHz
     };
 
-    const auto cycle_multiplier = bit::from_bool(bus_->get_cpu()->is_in_double_speed());
-    return frequency_overflow_bit_indices[tac_.value() & 0x03u] << cycle_multiplier;
+    return frequency_overflow_bit_indices[tac_.value() & 0x03u];
 }
 
 uint8_t timer::on_read(const address16& address) const noexcept
@@ -94,7 +97,11 @@ void timer::on_write(const address16& address, const uint8_t data) noexcept
         }
     }
     else if(address == tma_addr) { tma_ = data; }
-    else if(address == tac_addr) { tac_ = data | 0xF8u; }
+    else if(address == tac_addr) {
+        tac_ = data | 0xF8u;
+        enabled_ = bit::test(tac_, 2u);
+        timer_clock_overflow_bit_ = timer_clock_overflow_index_select();
+    }
 }
 
 } // namespace gameboy
