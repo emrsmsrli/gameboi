@@ -760,7 +760,7 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
             const auto& obj = objs[idx];
             const auto obj_y = obj.y - 16;
 
-            if(ly_ >= obj_y && ly_ < obj_y + obj_size) {
+            if(ly_.value() >= obj_y && ly_.value() < obj_y + obj_size) {
                 idxs.push_back(idx);
                 if(idxs.size() == 10) {
                     break;
