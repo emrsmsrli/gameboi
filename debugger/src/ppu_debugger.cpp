@@ -360,6 +360,8 @@ void gameboy::ppu_debugger::draw_bg_map()
         }
     }
 
+    draw_bg_map_overlay();
+
     bg_map_.update(bg_map_img_);
 
     ImVec2 img_start = ImGui::GetCursorScreenPos();
@@ -393,6 +395,27 @@ void gameboy::ppu_debugger::draw_bg_map()
     }
 
     ImGui::NewLine();
+}
+
+void gameboy::ppu_debugger::draw_bg_map_overlay()
+{
+    constexpr auto bg_map_pixel_count = bg_map_tile_count * ppu::tile_pixel_count;
+    const auto scy = ppu_->scy_.value();
+    const auto scx = ppu_->scx_.value();
+
+    const auto edge_y = (scy + screen_height) % bg_map_pixel_count;
+    const auto edge_x = (scx + screen_width) % bg_map_pixel_count;
+    for(uint8_t x = 0; x <= screen_width; ++x) {
+        const auto real_x = (scx + x) % bg_map_pixel_count;
+        bg_map_img_.setPixel(real_x, scy, sf::Color::White);
+        bg_map_img_.setPixel(real_x, edge_y, sf::Color::White);
+    }
+
+    for(uint8_t y = 0; y < screen_height; ++y) {
+        const auto real_y = (scy + y) % bg_map_pixel_count;
+        bg_map_img_.setPixel(scx, real_y, sf::Color::White);
+        bg_map_img_.setPixel(edge_x, real_y, sf::Color::White);
+    }
 }
 
 void gameboy::ppu_debugger::draw_oam()
