@@ -755,12 +755,14 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
     std::memcpy(&objs, oam_.data(), oam_.size());
 
     auto indices = [&]() {
+        const int32_t ly = ly_.value();
         std::vector<size_t> idxs;
+
         for(size_t idx = 0; idx < objs.size(); ++idx) {
             const auto& obj = objs[idx];
             const auto obj_y = obj.y - 16;
 
-            if(ly_.value() >= obj_y && ly_.value() < obj_y + obj_size) {
+            if(ly >= obj_y && ly < obj_y + obj_size) {
                 idxs.push_back(idx);
                 if(idxs.size() == 10) {
                     break;
