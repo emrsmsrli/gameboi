@@ -25,7 +25,7 @@ void gameboy::tick()
     const auto cycles = cpu_.tick();
 
     if(!cpu_.is_stopped()) {
-        timer_.tick(cycles);
+        timer_.tick(cpu_.is_in_double_speed() ? (cycles << 1u) : cycles);
         apu_.tick(cycles);
         ppu_.tick(cycles);
         link_.tick(cycles);

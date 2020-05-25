@@ -52,8 +52,7 @@ void timer::update_internal_clock(const uint16_t new_internal_clock) noexcept
     internal_clock_ = new_internal_clock;
 
     if(enabled_) {
-        const auto cycle_multiplier = bit::from_bool(bus_->get_cpu()->is_in_double_speed());
-        const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_bit_ + cycle_multiplier);
+        const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_bit_);
         if(!tima_reload_bit && previous_tima_reload_bit_) {
             tima_ += 1u;
             if(tima_ == 0x00u) {
