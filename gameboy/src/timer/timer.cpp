@@ -51,17 +51,17 @@ void timer::update_internal_clock(const uint16_t new_internal_clock) noexcept
 {
     internal_clock_ = new_internal_clock;
 
-    if(enabled_) {
-        const auto tima_reload_bit = bit::test(internal_clock_, timer_clock_overflow_bit_);
-        if(!tima_reload_bit && previous_tima_reload_bit_) {
-            tima_ += 1u;
-            if(tima_ == 0x00u) {
-                tima_reload_cycles_ = 6;
-            }
+    const auto tima_reload_bit = enabled_ && bit::test(internal_clock_, timer_clock_overflow_bit_);
+    if(!tima_reload_bit && previous_tima_reload_bit_) {
+        tima_ += 1u;
+        if(tima_ == 0x00u) {
+            // actually 4 cycles but the way timer is implemented
+            // requires a number in range (4, 8]
+            tima_reload_cycles_ = 6;
         }
-
-        previous_tima_reload_bit_ = tima_reload_bit;
     }
+
+    previous_tima_reload_bit_ = tima_reload_bit;
 }
 
 uint8_t timer::timer_clock_overflow_index_select() const noexcept
