@@ -37,6 +37,7 @@ private:
     void draw_vram_view();
     void draw_tiles();
     void draw_bg_map();
+    void draw_bg_map_overlay();
     void draw_oam();
 };
 

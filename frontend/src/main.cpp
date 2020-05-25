@@ -11,15 +11,17 @@
 
 int main(int argc, char* argv[])
 {
-    /*cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
+    cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
     options.allow_unrecognised_options().add_options()
         ("v,version", "Print version and exit")
         ("h,help", "Show this help text")
-        ("file", "Rom file to run, all files are shown if not set", cxxopts::value<std::string>()) // todo implement this
         ("V,verbosity", "Logging verbosity", cxxopts::value<std::string>()->default_value("off"))
         ("fullscreen", "Enable fullscreen")
         ("W,width", "Width of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"))
-        ("H,height", "Height of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"));
+        ("H,height", "Height of the screen (not used if fullscreen is set)", cxxopts::value<uint32_t>()->default_value("600"))
+        ("rom_path", "Rom path", cxxopts::value<std::vector<std::string>>());
+
+    options.parse_positional("rom_path");
 
     const auto parsed = options.parse(argc, argv);
 
@@ -31,25 +33,26 @@ int main(int argc, char* argv[])
     if(parsed["help"].as<bool>()) {
         fmt::print(stdout, "{}", options.help());
         return 0;
-    }*/
+    }
 
     spdlog::set_default_logger(spdlog::stdout_color_st("  core  "));
-    //spdlog::set_level(spdlog::level::from_str(parsed["verbosity"].as<std::string>()));
+    spdlog::set_level(spdlog::level::from_str(parsed["verbosity"].as<std::string>()));
 
     sdl::init();
 
-    gameboy::gameboy gb{argv[1]};
+    const auto rom_path = parsed["rom_path"].as<std::vector<std::string>>();
+
+    gameboy::gameboy gb{rom_path.front()};
     frontend gb_frontend{gb,
-      320, //parsed["width"].as<uint32_t>(),
-      288, //parsed["height"].as<uint32_t>(),
-      false
+      parsed["width"].as<uint32_t>(),
+      parsed["height"].as<uint32_t>(),
+      parsed["fullscreen"].as<bool>()
     };
 
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gameboy::make_observer(gb)};
 #endif //WITH_DEBUGGER
 
-    sf::Clock dt;
     while(gb_frontend.window.isOpen()) {
         sf::Event event{};
         while(gb_frontend.window.pollEvent(event)) {
@@ -133,6 +136,16 @@ int main(int argc, char* argv[])
                         break;
                 }
             }
+        }
+
+        if(!gb_frontend.window.hasFocus()
+#if WITH_DEBUGGER
+            && !gb.tick_enabled && !debugger.has_focus()
+#endif //WITH_DEBUGGER
+        ) {
+            using namespace std::chrono_literals;
+            std::this_thread::sleep_for(50ms);
+            continue;
         }
 
         gb.tick_one_frame();

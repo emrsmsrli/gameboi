@@ -23,15 +23,16 @@ private:
 
     uint16_t internal_clock_;
     int8_t tima_reload_cycles_;
+    uint8_t timer_clock_overflow_bit_;
 
     register8 tima_;
     register8 tma_;
     register8 tac_;
 
+    bool enabled_;
     bool previous_tima_reload_bit_;
 
     void update_internal_clock(uint16_t new_internal_clock) noexcept;
-    [[nodiscard]] bool timer_enabled() const noexcept { return bit::test(tac_, 2u); }
     [[nodiscard]] uint8_t timer_clock_overflow_index_select() const noexcept;
 
     [[nodiscard]] uint8_t on_read(const address16& address) const noexcept;

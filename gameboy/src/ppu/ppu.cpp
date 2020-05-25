@@ -392,10 +392,6 @@ uint8_t ppu::general_purpose_register_read(const address16& address) const
 void ppu::general_purpose_register_write(const address16& address, const uint8_t data)
 {
     if(address == vbk_addr) {
-        if(!dma_transfer_.disabled()) {
-            return;
-        }
-
         vram_bank_ = data & 0x01u;
     } else if(address == lcdc_addr) {
         register_lcdc new_lcdc{data};
@@ -759,12 +755,14 @@ void ppu::render_obj(render_buffer& buffer) const noexcept
     std::memcpy(&objs, oam_.data(), oam_.size());
 
     auto indices = [&]() {
+        const int32_t ly = ly_.value();
         std::vector<size_t> idxs;
+
         for(size_t idx = 0; idx < objs.size(); ++idx) {
             const auto& obj = objs[idx];
             const auto obj_y = obj.y - 16;
 
-            if(ly_ >= obj_y && ly_ < obj_y + obj_size) {
+            if(ly >= obj_y && ly < obj_y + obj_size) {
                 idxs.push_back(idx);
                 if(idxs.size() == 10) {
                     break;
