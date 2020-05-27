@@ -483,13 +483,30 @@ void gameboy::ppu_debugger::draw_oam()
         }
 
         tex.update(img);
-        ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
+
+        const auto obj_disabled = obj.y == 0 || obj.y > screen_width;
+        if(obj_disabled) {
+            ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled),
+              "%04X", *oam_range.begin() + obj_idx * 4u);
+        } else {
+            ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
+        }
         ImGui::SameLine();
 
+        const auto entry_color = [](const bool disabled) {
+            if(disabled) {
+                return sf::Color{255, 255, 255, 128};
+            }
+
+            return sf::Color::White;
+        }(obj_disabled);
+
         if(ppu_->lcdc_.large_obj()) {
-            ImGui::Image(tex, {32, 64});
+            ImGui::Image(tex, {32, 64}, entry_color);
         } else {
-            ImGui::Image(tex, {64, 64}, sf::FloatRect{0.f, 0.f, 8.f, 8.f});
+            ImGui::Image(tex, {64, 64},
+              sf::FloatRect{0.f, 0.f, 8.f, 8.f},
+              entry_color);
         }
 
         if(ImGui::IsItemHovered()) {
