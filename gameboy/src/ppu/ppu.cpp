@@ -606,10 +606,15 @@ void ppu::hdma()
 
 void ppu::gdma()
 {
+    const auto transfer_length = dma_transfer_.length();
+
     bus_->get_mmu()->dma(
         make_address(dma_transfer_.source),
         make_address(dma_transfer_.destination),
-        dma_transfer_.length());
+      transfer_length);
+
+    dma_transfer_.source += transfer_length;
+    dma_transfer_.destination += transfer_length;
     dma_transfer_.length_mode_start = 0xFFu;
 }
 
