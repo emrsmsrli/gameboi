@@ -262,7 +262,7 @@ uint8_t cartridge::read_rom(const address16& address) const
             return address.value() + 16_kb * rom_bank(address);
         }
 
-        return address.value() + 16_kb * (rom_bank(address) - 1u);
+        return address.value() + 16_kb * (static_cast<int32_t>(rom_bank(address)) - 1);
     }();
 
     return rom_[physical_addr];

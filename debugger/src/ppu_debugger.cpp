@@ -303,8 +303,28 @@ void gameboy::ppu_debugger::draw_tiles()
         }
     }
 
+    constexpr auto tiles_scale = 3.f;
+
     tiles_.update(tiles_img_);
-    ImGui::Image(tiles_, {tiles_.getSize().x * 3.f, tiles_.getSize().y * 3.f});
+    ImVec2 img_start = ImGui::GetCursorScreenPos();
+    ImGui::Image(tiles_, {tiles_.getSize().x * tiles_scale, tiles_.getSize().y * tiles_scale});
+
+    if(ImGui::IsItemHovered()) {
+        ImGui::BeginTooltip();
+
+        const auto mouse_pos = ImGui::GetIO().MousePos;
+        const int tile_y = (mouse_pos.y - img_start.y) / (tiles_scale * ppu::tile_pixel_count);
+        const int tile_x = (mouse_pos.x - img_start.x) / (tiles_scale * ppu::tile_pixel_count);
+
+        sf::Sprite zoomed_tile{tiles_, {{tile_x * 8, tile_y * 8}, {ppu::tile_pixel_count, ppu::tile_pixel_count}}};
+        ImGui::Image(zoomed_tile, {128, 128});
+
+        const auto no = tile_y * tiles_per_row + tile_x;
+        ImGui::Text("no:      %02X", no & 0xFFu);
+        ImGui::Text("addr:    0x%04X", 0x8000u + no * 0x10u);
+
+        ImGui::EndTooltip();
+    }
 }
 
 void gameboy::ppu_debugger::draw_bg_map()
@@ -364,14 +384,16 @@ void gameboy::ppu_debugger::draw_bg_map()
 
     bg_map_.update(bg_map_img_);
 
+    constexpr auto bg_map_scale = 2.f;
+
     ImVec2 img_start = ImGui::GetCursorScreenPos();
-    ImGui::Image(bg_map_, {bg_map_.getSize().x * 2.f, bg_map_.getSize().y * 2.f});
+    ImGui::Image(bg_map_, {bg_map_.getSize().x * bg_map_scale, bg_map_.getSize().y * bg_map_scale});
     if(ImGui::IsItemHovered()) {
         ImGui::BeginTooltip();
 
         const auto mouse_pos = ImGui::GetIO().MousePos;
-        const int tile_y = (mouse_pos.y - img_start.y) / (2 * ppu::tile_pixel_count);
-        const int tile_x = (mouse_pos.x - img_start.x) / (2 * ppu::tile_pixel_count);
+        const int tile_y = static_cast<int>((mouse_pos.y - img_start.y) / (bg_map_scale * ppu::tile_pixel_count));
+        const int tile_x = static_cast<int>((mouse_pos.x - img_start.x) / (bg_map_scale * ppu::tile_pixel_count));
 
         sf::Sprite zoomed_tile{bg_map_, {{tile_x * 8, tile_y * 8}, {ppu::tile_pixel_count, ppu::tile_pixel_count}}};
         ImGui::Image(zoomed_tile, {128, 128});
@@ -461,13 +483,30 @@ void gameboy::ppu_debugger::draw_oam()
         }
 
         tex.update(img);
-        ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
+
+        const auto obj_disabled = obj.y == 0 || obj.y > screen_width;
+        if(obj_disabled) {
+            ImGui::TextColored(ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled),
+              "%04X", *oam_range.begin() + obj_idx * 4u);
+        } else {
+            ImGui::Text("%04X", *oam_range.begin() + obj_idx * 4u);
+        }
         ImGui::SameLine();
 
+        const auto entry_color = [](const bool disabled) {
+            if(disabled) {
+                return sf::Color{255, 255, 255, 128};
+            }
+
+            return sf::Color::White;
+        }(obj_disabled);
+
         if(ppu_->lcdc_.large_obj()) {
-            ImGui::Image(tex, {32, 64});
+            ImGui::Image(tex, {32, 64}, entry_color);
         } else {
-            ImGui::Image(tex, {64, 64}, sf::FloatRect{0.f, 0.f, 8.f, 8.f});
+            ImGui::Image(tex, {64, 64},
+              sf::FloatRect{0.f, 0.f, 8.f, 8.f},
+              entry_color);
         }
 
         if(ImGui::IsItemHovered()) {
