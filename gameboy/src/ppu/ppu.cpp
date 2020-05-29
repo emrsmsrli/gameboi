@@ -337,10 +337,12 @@ void ppu::dma_write(const address16& address, const uint8_t data)
 {
     if(address == oam_dma_addr) {
         dma_transfer_.oam_dma = data;
-        bus_->get_mmu()->dma(
-            make_address(static_cast<uint16_t>(data << 8u)),
-            make_address(*begin(oam_range)),
-            oam_range.size());
+
+        auto mmu = bus_->get_mmu();
+        auto ptr = static_cast<uint16_t>(data) << 8u;
+        for(auto& data : oam_) {
+            data = mmu->read(ptr++);
+        }
     } else if(address == hdma_1_addr) {
         if((data > 0x7Fu && data < 0xA0u) || data > 0xDFu) {
             dma_transfer_.source.high() = 0x00u;
