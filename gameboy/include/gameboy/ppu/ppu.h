@@ -78,6 +78,8 @@ public:
     [[nodiscard]] uint8_t read_oam(const address16& address) const;
     void write_oam(const address16& address, uint8_t data);
 
+    [[nodiscard]] const register8& get_ly() const noexcept { return ly_; }
+
 private:
     using tile_attribute = std::variant<attributes::uninitialized, attributes::bg, attributes::obj>;
     using render_buffer = std::array<std::pair<uint8_t, tile_attribute>, screen_width>;

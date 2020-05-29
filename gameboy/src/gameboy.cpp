@@ -36,7 +36,8 @@ void gameboy::tick()
 
 void gameboy::tick_one_frame()
 {
-    while(mmu_.read(ppu::ly_addr) != 0x00u) {
+    const auto& ly = ppu_.get_ly();
+    while(ly != 0x00u) {
 #if WITH_DEBUGGER
         if(!tick_enabled) {
             return;
@@ -46,7 +47,7 @@ void gameboy::tick_one_frame()
         tick();
     }
 
-    while(mmu_.read(ppu::ly_addr) < 144) {
+    while(ly < 144) {
 #if WITH_DEBUGGER
         if(!tick_enabled) {
             return;
