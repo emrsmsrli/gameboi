@@ -339,9 +339,10 @@ void ppu::dma_write(const address16& address, const uint8_t data)
         dma_transfer_.oam_dma = data;
 
         auto mmu = bus_->get_mmu();
-        auto ptr = static_cast<uint16_t>(data) << 8u;
+        auto ptr = make_address(static_cast<uint16_t>(data) << 8u);
         for(auto& data : oam_) {
             data = mmu->read(ptr++);
+            ptr = ptr + 1;
         }
     } else if(address == hdma_1_addr) {
         if((data > 0x7Fu && data < 0xA0u) || data > 0xDFu) {
