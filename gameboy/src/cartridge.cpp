@@ -1,6 +1,5 @@
 #include "gameboy/cartridge.h"
 
-#include <algorithm>
 #include <numeric>
 
 #include <magic_enum.hpp>
@@ -8,17 +7,12 @@
 
 #include "gameboy/memory/address_range.h"
 #include "gameboy/memory/memory_constants.h"
+#include "gameboy/util/mathutil.h"
 #include "gameboy/util/variantutil.h"
 
 namespace gameboy {
 
 constexpr address_range first_rom_bank_range{0x3FFFu};
-
-enum class cgb_type : uint8_t {
-    only_gb = 0x00u,
-    supports_cgb = 0x80u,
-    only_cgb = 0xC0u
-};
 
 enum class rom_type : uint8_t {
     kb_32 = 0x00u,
@@ -129,9 +123,17 @@ cartridge::cartridge(const filesystem::path& rom_path)
         begin(rom_) + *end(rom_title_range),
         std::back_inserter(name_));
 
-    const auto cgb = read<cgb_type>(rom_, cgb_support_addr);
-    cgb_enabled_ = cgb != cgb_type::only_gb;
-    cgb_type_ = magic_enum::enum_name(cgb);
+    const auto cgb_flag = read<uint8_t>(rom_, cgb_support_addr);
+    cgb_enabled_ = bit::test(cgb_flag, 7u) && !(bit::test(cgb_flag, 2u) || bit::test(cgb_flag, 3u));
+    if(cgb_enabled_) {
+        if(bit::test(cgb_flag, 6u)) {
+            cgb_type_ = "only_cgb";
+        } else {
+            cgb_type_ = "gb_cgb";
+        }
+    } else {
+        cgb_type_ = "only_gb";
+    }
 
     const auto mbc = read<mbc_type>(rom_, mbc_type_addr);
     mbc_type_ = magic_enum::enum_name(mbc);

@@ -15,7 +15,7 @@
 #include "gameboy/util/fileutil.h"
 
 namespace gameboy {
-    
+
 class cpu_debugger;
 class cartridge_debugger;
 class memory_bank_debugger;
