@@ -36,6 +36,12 @@ void link_debugger::draw() noexcept
         }
     }(link_->clock_rate()));
 
+    ImGui::Separator();
+    ImGui::Spacing();
+
+    ImGui::Text("shift counter: %04X", link_->shift_counter_);
+    ImGui::Text("shift clock:   %02X", link_->shift_clock_);
+
     ImGui::End();
 }
 

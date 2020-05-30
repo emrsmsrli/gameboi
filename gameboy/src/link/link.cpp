@@ -5,7 +5,6 @@
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/util/mathutil.h"
 
