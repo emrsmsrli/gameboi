@@ -47,6 +47,7 @@ void link::tick(const uint8_t cycles) noexcept
 
                 sb_ = on_transfer_ ? on_transfer_(sb_.value()) : 0xFFu;
                 sc_ = bit::reset(sc_, 7u);
+                bus_->get_cpu()->request_interrupt(interrupt::serial);
             }
         }
     }
