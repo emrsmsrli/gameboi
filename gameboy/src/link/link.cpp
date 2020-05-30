@@ -85,7 +85,7 @@ bool link::is_transferring() const noexcept
     return bit::test(sc_, 7u);
 }
 
-uint8_t link::clock_rate() const noexcept
+uint16_t link::clock_rate() const noexcept
 {
     constexpr auto base_clock_rate = 512u;
     return base_clock_rate >> (

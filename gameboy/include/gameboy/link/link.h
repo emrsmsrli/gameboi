@@ -45,7 +45,7 @@ private:
     [[nodiscard]] uint8_t on_sc_read(const address16&) const noexcept;
 
     [[nodiscard]] bool is_transferring() const noexcept;
-    [[nodiscard]] uint8_t clock_rate() const noexcept;
+    [[nodiscard]] uint16_t clock_rate() const noexcept;
     [[nodiscard]] mode clock_mode() const noexcept;
 };
 
