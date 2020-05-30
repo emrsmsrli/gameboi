@@ -10,8 +10,11 @@
 namespace gameboy {
 
 class bus;
+class link_debugger;
 
 class link {
+    friend link_debugger;
+
 public:
     enum class mode {
         external,

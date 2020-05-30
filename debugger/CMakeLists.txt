@@ -7,6 +7,7 @@ add_library(${PROJECT_NAME}
         src/ppu_debugger.cpp
         src/timer_debugger.cpp
         src/joypad_debugger.cpp
+        src/link_debugger.cpp
         src/memory_bank_debugger.cpp
         src/cartridge_debugger.cpp
         src/disassembly_db.cpp

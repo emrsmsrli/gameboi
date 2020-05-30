@@ -16,6 +16,7 @@ debugger::debugger(const observer<gameboy> gb)
       ppu_debugger_{bus_->get_ppu()},
       timer_debugger_{bus_->get_timer()},
       joypad_debugger_{bus_->get_joypad()},
+      link_debugger_{bus_->get_link()},
       disassembly_view_{bus_, make_observer(cpu_debugger_)},
       memory_bank_debugger_{bus_},
       logger_{spdlog::stdout_color_st("debugger")},
@@ -74,6 +75,7 @@ void debugger::tick()
     timer_debugger_.draw();
     memory_bank_debugger_.draw();
     joypad_debugger_.draw();
+    link_debugger_.draw();
     cartridge_debugger_.draw();
     disassembly_view_.draw();
 

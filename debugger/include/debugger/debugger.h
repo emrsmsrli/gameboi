@@ -1,8 +1,8 @@
 #ifndef GAMEBOY_DEBUGGER_H
 #define GAMEBOY_DEBUGGER_H
 
-#include <memory>
 #include <array>
+#include <memory>
 
 #include <SFML/Graphics.hpp>
 #include <spdlog/logger.h>
@@ -13,6 +13,7 @@
 #include "debugger/disassembly_db.h"
 #include "debugger/disassembly_view.h"
 #include "debugger/joypad_debugger.h"
+#include "debugger/link_debugger.h"
 #include "debugger/memory_bank_debugger.h"
 #include "debugger/ppu_debugger.h"
 #include "debugger/timer_debugger.h"
@@ -49,6 +50,7 @@ private:
     ppu_debugger ppu_debugger_;
     timer_debugger timer_debugger_;
     joypad_debugger joypad_debugger_;
+    link_debugger link_debugger_;
     disassembly_view disassembly_view_;
     memory_bank_debugger memory_bank_debugger_;
 
