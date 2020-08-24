@@ -258,7 +258,7 @@ void gameboy::ppu_debugger::draw_tiles()
 
     const auto palette = ppu_->bus_->get_cartridge()->cgb_enabled()
         ? ppu_->cgb_bg_palettes_[0]
-        : palette::from(ppu_->gb_palette_, ppu_->bgp_.value());
+        : palette::from(ppu_->palette_grayscale, ppu_->bgp_.value());
 
     constexpr auto tiles_physical_size = 6144u;
     constexpr auto tile_physical_size = 16u;

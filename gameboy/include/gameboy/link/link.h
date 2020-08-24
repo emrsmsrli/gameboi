@@ -10,8 +10,11 @@
 namespace gameboy {
 
 class bus;
+class link_debugger;
 
 class link {
+    friend link_debugger;
+
 public:
     enum class mode {
         external,
@@ -45,7 +48,7 @@ private:
     [[nodiscard]] uint8_t on_sc_read(const address16&) const noexcept;
 
     [[nodiscard]] bool is_transferring() const noexcept;
-    [[nodiscard]] uint8_t clock_rate() const noexcept;
+    [[nodiscard]] uint16_t clock_rate() const noexcept;
     [[nodiscard]] mode clock_mode() const noexcept;
 };
 

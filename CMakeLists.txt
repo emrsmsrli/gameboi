@@ -35,7 +35,7 @@ target_compile_options(project_options INTERFACE
         -march=armv8-a+crc+simd
         -mcpu=cortex-a53
         -mtune=cortex-a53
-        -mfloat-abi=hard 
+        -mfloat-abi=hard
         -mfpu=neon-fp-armv8)
 
 option(PROFILE "Enable profiler output" OFF)
@@ -70,7 +70,7 @@ add_subdirectory(frontend)
 option(ENABLE_TESTING "Enable Tests" OFF)
 if(ENABLE_TESTING)
     find_package(GTest CONFIG REQUIRED)
-    message("building tests")
+
     enable_testing()
     add_subdirectory(test)
 endif()

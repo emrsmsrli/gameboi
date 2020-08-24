@@ -5,9 +5,9 @@
 #include <filesystem>
 #include <vector>
 
-namespace filesystem = std::filesystem;
-
 namespace gameboy {
+
+namespace filesystem = std::filesystem;
 
 std::vector<uint8_t> read_file(const filesystem::path& path);
 void write_file(const filesystem::path&  path, const std::vector<uint8_t>& data);

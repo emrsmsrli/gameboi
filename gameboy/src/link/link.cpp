@@ -5,7 +5,6 @@
 #include "gameboy/bus.h"
 #include "gameboy/cartridge.h"
 #include "gameboy/cpu/cpu.h"
-#include "gameboy/memory/address.h"
 #include "gameboy/memory/mmu.h"
 #include "gameboy/util/mathutil.h"
 
@@ -48,6 +47,7 @@ void link::tick(const uint8_t cycles) noexcept
 
                 sb_ = on_transfer_ ? on_transfer_(sb_.value()) : 0xFFu;
                 sc_ = bit::reset(sc_, 7u);
+                bus_->get_cpu()->request_interrupt(interrupt::serial);
             }
         }
     }
@@ -85,7 +85,7 @@ bool link::is_transferring() const noexcept
     return bit::test(sc_, 7u);
 }
 
-uint8_t link::clock_rate() const noexcept
+uint16_t link::clock_rate() const noexcept
 {
     constexpr auto base_clock_rate = 512u;
     return base_clock_rate >> (
