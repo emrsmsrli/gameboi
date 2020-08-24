@@ -13,7 +13,6 @@ if(MSVC)
     include(cmake/StaticLink.cmake)
 endif()
 
-find_package(GTest CONFIG REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(spdlog CONFIG REQUIRED)
 find_package(SFML COMPONENTS window graphics system CONFIG REQUIRED)
@@ -58,7 +57,8 @@ add_subdirectory(frontend)
 
 option(ENABLE_TESTING "Enable Tests" OFF)
 if(ENABLE_TESTING)
-    message("building tests")
+    find_package(GTest CONFIG REQUIRED)
+
     enable_testing()
     add_subdirectory(test)
 endif()
