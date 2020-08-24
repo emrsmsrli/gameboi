@@ -3,11 +3,14 @@
 
 #include <cstdint>
 #include <string_view>
+#include <utility>
 
 namespace sdl {
 
 class audio_device {
 public:
+    static constexpr auto invalid_id = 0;
+
     enum class format {
         u8 = 0x0008,
         s8 = 0x8008,
@@ -25,10 +28,11 @@ public:
     ~audio_device() noexcept;
 
     audio_device(const audio_device&) = delete;
-    audio_device(audio_device&&) = delete;
-
     audio_device& operator=(const audio_device&) = delete;
-    audio_device& operator=(audio_device&&) = delete;
+
+    audio_device(audio_device&& other) noexcept
+        : device_id_{std::exchange(other.device_id_, invalid_id)} {}
+    audio_device& operator=(audio_device&& other) noexcept;
 
     void resume() noexcept;
     void pause() noexcept;
@@ -37,7 +41,7 @@ public:
     size_t queue_size() noexcept;
 
 private:
-    uint32_t device_id_ = 0;
+    uint32_t device_id_ = invalid_id;
 };
 
 } // namespace sdl
