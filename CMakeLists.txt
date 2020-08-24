@@ -32,15 +32,13 @@ else()
 endif()
 
 target_compile_options(project_options INTERFACE
-        -march=armv8-a+crc+simd
         -mcpu=cortex-a53
-        -mtune=cortex-a53
         -mfloat-abi=hard
         -mfpu=neon-fp-armv8)
 
 option(PROFILE "Enable profiler output" OFF)
 if(PROFILE)
-    target_compile_options(project_options INTERFACE -pg -ggdb)
+    target_compile_options(project_options INTERFACE -O2 -pg -ggdb)
 endif()
 
 add_library(project_warnings INTERFACE)
