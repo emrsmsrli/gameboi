@@ -6,6 +6,8 @@
 #include <variant>
 #include <vector>
 
+#include <spdlog/spdlog.h>
+
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/memory/controller/mbc1.h"
 #include "gameboy/memory/controller/mbc2.h"
@@ -31,14 +33,8 @@ class cartridge {
     friend instruction::disassembly_db;
 
 public:
+    cartridge() : mbc_{mbc_regular(make_observer(this))} {}
     explicit cartridge(const filesystem::path& rom_path);
-    ~cartridge();
-
-    cartridge(const cartridge&) = delete;
-    cartridge(cartridge&&) = delete;
-
-    cartridge& operator=(const cartridge&) = delete;
-    cartridge& operator=(cartridge&&) = delete;
 
     [[nodiscard]] uint8_t read_rom(const address16& address) const;
     void write_rom(const address16& address, uint8_t data);
@@ -59,6 +55,15 @@ public:
 
     [[nodiscard]] bool has_battery() const noexcept { return has_battery_; }
     [[nodiscard]] bool has_rtc() const noexcept { return has_rtc_; }
+
+    void load_rom(const filesystem::path& rom_path);
+    void save_ram_rtc() const
+    {
+        spdlog::trace("saving ram and rtc data");
+
+        save_ram();
+        save_rtc();
+    }
 
 private:
     filesystem::path rom_path_;
@@ -86,6 +91,8 @@ private:
     [[nodiscard]] uint32_t ram_bank() const noexcept;
 
     [[nodiscard]] physical_address physical_ram_addr(const address16& address) const noexcept;
+
+    void parse_rom();
 
     void load_ram();
     void save_ram() const;

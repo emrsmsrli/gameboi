@@ -65,6 +65,7 @@ public:
     };
 
     explicit ppu(observer<bus> bus);
+    void reset() noexcept;
 
     void tick(uint8_t cycles);
     void on_render_line(const render_line_func on_render_line) noexcept { on_render_line_ = on_render_line; }
@@ -103,8 +104,8 @@ private:
     std::vector<uint8_t> oam_;
 
     interrupt_request interrupt_request_;
-    register_lcdc lcdc_;
-    register_stat stat_;
+    register_lcdc lcdc_{0u};
+    register_stat stat_{0u};
 
     register8 ly_;
     register8 lyc_;

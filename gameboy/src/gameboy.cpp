@@ -6,8 +6,13 @@
 
 namespace gameboy {
 
+gameboy::gameboy()
+    : gameboy(cartridge{}) {}
 gameboy::gameboy(const filesystem::path& rom_path)
-    : cartridge_{rom_path},
+    : gameboy(cartridge{rom_path}) {}
+
+gameboy::gameboy(cartridge cart)
+    : cartridge_{std::move(cart)},
       bus_{make_observer(this)},
       mmu_{make_observer(bus_)},
       cpu_{make_observer(bus_)},
@@ -55,6 +60,18 @@ void gameboy::tick_one_frame()
 
         tick();
     }
+}
+
+void gameboy::load_rom(const filesystem::path& rom_path)
+{
+    cartridge_.load_rom(rom_path);
+    mmu_.reset();
+    cpu_.reset();
+    ppu_.reset();
+    apu_.reset();
+    link_.reset();
+    joypad_.reset();
+    timer_.reset();
 }
 
 } // namespace gameboy

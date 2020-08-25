@@ -44,67 +44,80 @@ constexpr auto frame_sequencer_max = 8u;
 constexpr auto down_sample_count = 4'194'304u / 44100u; // cpu clock speed / sample rate
 
 apu::apu(const observer<bus> bus)
-    : bus_{bus},
-      power_on_{true},
-      channel_1_{
-          audio::sweep{register8{0x80u}},
-          audio::wave_data{register8{0xBFu}},
-          audio::envelope{register8{0xF3u}},
-          audio::frequency_data{
-              register8{0xFFu},
-              audio::frequency_control{register8{0xBFu}}
-          },
-      },
-      channel_2_{
-          audio::sweep{register8{0xFFu}}, // no sweep
-          audio::wave_data{register8{0x3Fu}},
-          audio::envelope{register8{0x00u}},
-          audio::frequency_data{
-              register8{0xFFu},
-              audio::frequency_control{register8{0xBFu}}
-          },
-      },
-      channel_3_{
-          register8{0xFFu},
-          register8{0x9Fu},
-          audio::frequency_data{
-              register8{0xFFu},
-              audio::frequency_control{register8{0xBFu}}
-          },
-      },
-      channel_4_{
-          0xFFu,
-          audio::envelope{register8{0x00u}},
-          audio::polynomial_counter{register8{0x00u}},
-          audio::frequency_control{register8{0xBFu}}
-      },
-      control_{
-          register8{0x77u},
-          register8{0xF3u}
-      },
-      frame_sequencer_counter_{frame_sequence_count},
-      buffer_fill_amount_{0u},
-      frame_sequencer_{0u},
-      down_sample_counter_{down_sample_count},
-      sound_buffer_(sample_size)
+    : bus_{bus}
 {
-    auto mmu = bus->get_mmu();
+    reset();
+}
+
+void apu::reset() noexcept
+{
+    power_on_ = true;
+
+    channel_1_ = {
+        audio::sweep{register8{0x80u}},
+        audio::wave_data{register8{0xBFu}},
+        audio::envelope{register8{0xF3u}},
+        audio::frequency_data{
+            register8{0xFFu},
+            audio::frequency_control{register8{0xBFu}}
+        },
+    };
+    channel_2_ = {
+        audio::sweep{register8{0xFFu}}, // no sweep
+        audio::wave_data{register8{0x3Fu}},
+        audio::envelope{register8{0x00u}},
+        audio::frequency_data{
+            register8{0xFFu},
+            audio::frequency_control{register8{0xBFu}}
+        }
+    };
+
+    channel_3_ = {
+        register8{0xFFu},
+        register8{0x9Fu},
+        audio::frequency_data{
+            register8{0xFFu},
+            audio::frequency_control{register8{0xBFu}}
+        }
+    };
+
+    channel_4_ = {
+        0xFFu,
+        audio::envelope{register8{0x00u}},
+        audio::polynomial_counter{register8{0x00u}},
+        audio::frequency_control{register8{0xBFu}}
+    };
+
+    control_ = {
+        register8{0x77u},
+        register8{0xF3u}
+    };
+
+    frame_sequencer_counter_ = frame_sequence_count;
+    buffer_fill_amount_ = 0u;
+    frame_sequencer_ = 0u;
+    down_sample_counter_ = down_sample_count;
+
+    sound_buffer_.resize(sample_size);
+    std::fill(begin(sound_buffer_), end(sound_buffer_), 0u);
+
+    channel_1_.enabled = true;
+
+    auto mmu = bus_->get_mmu();
 
     for(const auto& addr : apu_register_addresses) {
         mmu->add_memory_delegate(addr, {
-            {connect_arg<&apu::on_read>, this},
-            {connect_arg<&apu::on_write>, this},
+          {connect_arg<&apu::on_read>, this},
+          {connect_arg<&apu::on_write>, this},
         });
     }
 
     for(const auto& addr : wave_pattern_range) {
         mmu->add_memory_delegate(make_address(addr), {
-            {connect_arg<&apu::on_wave_pattern_read>, this},
-            {connect_arg<&apu::on_wave_pattern_write>, this},
+          {connect_arg<&apu::on_wave_pattern_read>, this},
+          {connect_arg<&apu::on_wave_pattern_write>, this},
         });
     }
-
-    channel_1_.enabled = true;
 
 #if WITH_DEBUGGER
     sound_buffer_1_.resize(sample_size / 2, 0.f);

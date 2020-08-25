@@ -19,39 +19,54 @@ constexpr address16 key_1_addr{0xFF4Du};
 
 cpu::cpu(const observer<bus> bus) noexcept
     : bus_{bus},
-      alu_{make_observer(this)},
-      a_f_(bus_->get_cartridge()->cgb_enabled() ? 0x1180u : 0x01B0u),
-      b_c_(bus_->get_cartridge()->cgb_enabled() ? 0x0000u : 0x0013u),
-      d_e_(bus_->get_cartridge()->cgb_enabled() ? 0xFF56u : 0x00D8u),
-      h_l_(bus_->get_cartridge()->cgb_enabled() ? 0x000Du : 0x014Du),
-      stack_pointer_{0xFFFEu},
-      program_counter_{0x0100u},
-      total_cycles_{0u},
-      interrupt_flags_{bus_->get_cartridge()->cgb_enabled() ? interrupt::lcd_vblank : interrupt::none},
-      interrupt_enable_{interrupt::none},
-      interrupt_master_enable_{false},
-      pending_disable_interrupts_counter_{-1},
-      pending_enable_interrupts_counter_{-1},
-      is_stopped_{false},
-      is_halted_{false},
-      wait_before_unhalt_cycles_{0},
-      extra_cycles_{0u}
+      alu_{make_observer(this)}
 {
-    auto mmu = bus->get_mmu();
+    reset();
+}
+
+void cpu::reset() noexcept
+{
+    if(bus_->get_cartridge()->cgb_enabled()) {
+        a_f_ = 0x1180u;
+        b_c_ = 0x0000u;
+        d_e_ = 0xFF56u;
+        h_l_ = 0x000Du;
+        interrupt_flags_ = interrupt::lcd_vblank;
+    } else {
+        a_f_ = 0x01B0u;
+        b_c_ = 0x0013u;
+        d_e_ = 0x00D8u;
+        h_l_ = 0x014Du;
+        interrupt_flags_ = interrupt::none;
+    }
+
+    stack_pointer_ = 0xFFFEu;
+    program_counter_ = 0x0100u;
+    total_cycles_ = 0u;
+    interrupt_enable_ = interrupt::none;
+    interrupt_master_enable_ = false;
+    pending_disable_interrupts_counter_ = -1;
+    pending_enable_interrupts_counter_ = -1;
+    is_stopped_ = false;
+    is_halted_ = false;
+    wait_before_unhalt_cycles_ = 0;
+    extra_cycles_ = 0u;
+
+    auto mmu = bus_->get_mmu();
 
     mmu->add_memory_delegate(ie_addr, {
-        {connect_arg<&cpu::on_ie_read>, this},
-        {connect_arg<&cpu::on_ie_write>, this},
+      {connect_arg<&cpu::on_ie_read>, this},
+      {connect_arg<&cpu::on_ie_write>, this},
     });
 
     mmu->add_memory_delegate(if_addr, {
-        {connect_arg<&cpu::on_if_read>, this},
-        {connect_arg<&cpu::on_if_write>, this},
+      {connect_arg<&cpu::on_if_read>, this},
+      {connect_arg<&cpu::on_if_write>, this},
     });
 
     mmu->add_memory_delegate(key_1_addr, {
-        {connect_arg<&cpu::on_key_1_read>, this},
-        {connect_arg<&cpu::on_key_1_write>, this},
+      {connect_arg<&cpu::on_key_1_read>, this},
+      {connect_arg<&cpu::on_key_1_write>, this},
     });
 }
 

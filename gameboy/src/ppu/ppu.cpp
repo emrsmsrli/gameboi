@@ -65,55 +65,65 @@ void add_delegate(observer<bus> bus, ppu* p, Registers... registers)
 
 ppu::ppu(const observer<bus> bus)
     : bus_{bus},
-      cgb_enabled_{bus_->get_cartridge()->cgb_enabled()},
-      lcd_enabled_{true},
-      line_rendered_{false},
-      vblank_line_{0},
-      window_line_{0u},
-      lcd_enable_delay_frame_count_{0},
-      lcd_enable_delay_cycle_count_{0},
-      cycle_count_{0u},
-      secondary_cycle_count_{0u},
-      vram_bank_{0u},
-      ram_((cgb_enabled_ ? 2 : 1) * 8_kb, 0u),
-      oam_(oam_range.size(), 0u),
-      interrupt_request_{0u},
-      lcdc_{0x91u},
-      stat_(cgb_enabled_ ? 0x01u : 0x06u),
-      ly_(cgb_enabled_ ? 0x90u : 0x00u),
-      lyc_{0x00u},
-      scx_{0x00u},
-      scy_{0x00u},
-      wx_{0x00u},
-      wy_{0x00u},
-      gb_palette_{palette_zelda},
-      bgp_{0xFCu},
-      bgpi_{0x00u},
-      bgpd_{0x00u},
-      obpi_{0x00u},
-      obpd_{0x00u}
+      oam_(oam_range.size(), 0u)
 {
+    reset();
+}
+
+void ppu::reset() noexcept
+{
+    cgb_enabled_ = bus_->get_cartridge()->cgb_enabled();
+    lcd_enabled_ = true;
+    line_rendered_ = false;
+    vblank_line_ = 0;
+    window_line_ = 0u;
+    lcd_enable_delay_frame_count_ = 0;
+    lcd_enable_delay_cycle_count_ = 0;
+    cycle_count_ = 0u;
+    secondary_cycle_count_ = 0u;
+    vram_bank_ = 0u;
+    lcdc_.reg = 0x91u;
+    stat_.reg = cgb_enabled_ ? 0x01u : 0x06u;
+    ly_ = cgb_enabled_ ? 0x90u : 0x00u;
+    lyc_ = 0x00u;
+    scx_ = 0x00u;
+    scy_ = 0x00u;
+    wx_ = 0x00u;
+    wy_ = 0x00u;
+    gb_palette_ = palette_zelda;
+    bgp_ = 0xFCu;
+    bgpi_ = 0x00u;
+    bgpd_ = 0x00u;
+    obpi_ = 0x00u;
+    obpd_ = 0x00u;
+
+    interrupt_request_.reset_all();
+
+    ram_.resize((cgb_enabled_ ? 2 : 1) * 8_kb);
+    std::fill(begin(ram_), end(ram_), 0u);
+    std::fill(begin(oam_), end(oam_), 0u);
+
     const auto fill_palettes = [](auto& p, const auto& palette) { std::fill(begin(p), end(p), palette); };
     fill_palettes(obp_, register8{0xFFu});
     fill_palettes(cgb_bg_palettes_, palette{color{0xFFu}});
     fill_palettes(cgb_obj_palettes_, palette{color{0xFFu}});
 
-    add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
-        oam_dma_addr);
-    add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,
-        lcdc_addr, stat_addr, scy_addr, scx_addr, ly_addr, lyc_addr, wy_addr, wx_addr);
-    add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
-        bgp_addr, obp_0_addr, obp_1_addr);
+    add_delegate<&ppu::dma_read, &ppu::dma_write>(bus_, this,
+      oam_dma_addr);
+    add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus_, this,
+      lcdc_addr, stat_addr, scy_addr, scx_addr, ly_addr, lyc_addr, wy_addr, wx_addr);
+    add_delegate<&ppu::palette_read, &ppu::palette_write>(bus_, this,
+      bgp_addr, obp_0_addr, obp_1_addr);
 
     if(cgb_enabled_) {
-        add_delegate<&ppu::dma_read, &ppu::dma_write>(bus, this,
-            hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr);
+        add_delegate<&ppu::dma_read, &ppu::dma_write>(bus_, this,
+          hdma_1_addr, hdma_2_addr, hdma_3_addr, hdma_4_addr, hdma_5_addr);
 
-        add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus, this,
-            vbk_addr);
+        add_delegate<&ppu::general_purpose_register_read, &ppu::general_purpose_register_write>(bus_, this,
+          vbk_addr);
 
-        add_delegate<&ppu::palette_read, &ppu::palette_write>(bus, this,
-            bgpi_addr, bgpd_addr, obpi_addr, obpd_addr);
+        add_delegate<&ppu::palette_read, &ppu::palette_write>(bus_, this,
+          bgpi_addr, bgpd_addr, obpi_addr, obpd_addr);
 
         dma_transfer_.oam_dma = 0x00u;
     }

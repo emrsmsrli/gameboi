@@ -14,17 +14,23 @@ constexpr address16 tma_addr{0xFF06u};
 constexpr address16 tac_addr{0xFF07u};
 
 timer::timer(const observer<bus> bus)
-    : bus_{bus},
-      internal_clock_{0u},
-      tima_reload_cycles_{0},
-      timer_clock_overflow_bit_{9u},
-      tima_{0x00u},
-      tma_{0x00u},
-      tac_{0x00u},
-      enabled_{false},
-      previous_tima_reload_bit_{false}
+    : bus_{bus}
 {
-    auto mmu = bus->get_mmu();
+    reset();
+}
+
+void timer::reset() noexcept
+{
+    internal_clock_ = 0u;
+    tima_reload_cycles_ = 0;
+    timer_clock_overflow_bit_ = 9u;
+    tima_ = 0x00u;
+    tma_ = 0x00u;
+    tac_ = 0x00u;
+    enabled_ = false;
+    previous_tima_reload_bit_ = false;
+
+    auto mmu = bus_->get_mmu();
 
     for(const auto& addr : std::array{div_addr, tima_addr, tma_addr, tac_addr}) {
         mmu->add_memory_delegate(addr, {

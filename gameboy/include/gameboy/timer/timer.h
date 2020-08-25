@@ -15,6 +15,7 @@ class timer {
 
 public:
     explicit timer(observer<bus> bus);
+    void reset() noexcept;
 
     void tick(uint8_t cycles);
 

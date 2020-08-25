@@ -14,11 +14,17 @@ using namespace magic_enum::bitwise_operators;
 constexpr address16 joypad_addr{0xFF00u};
 
 joypad::joypad(const observer<bus> bus)
-    : bus_{bus},
-      joyp_{0x0Fu},
-      keys_{0xFFu}
+    : bus_{bus}
 {
-    bus->get_mmu()->add_memory_delegate(joypad_addr, {
+    reset();
+}
+
+void joypad::reset() noexcept
+{
+    joyp_ = 0x0Fu;
+    keys_= static_cast<key>(0xFFu);
+
+    bus_->get_mmu()->add_memory_delegate(joypad_addr, {
         {connect_arg<&joypad::read>, this},
         {connect_arg<&joypad::write>, this}
     });
