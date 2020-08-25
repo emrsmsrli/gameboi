@@ -23,10 +23,14 @@ public:
     bool tick_enabled = false;
 #endif //WITH_DEBUGGER
 
+    gameboy();
     explicit gameboy(const filesystem::path& rom_path);
 
     void tick();
     void tick_one_frame();
+
+    void load_rom(const filesystem::path& rom_path);
+    void save_ram_rtc() const { cartridge_.save_ram_rtc(); }
 
     [[nodiscard]] const std::string& rom_name() const noexcept { return cartridge_.name(); }
 
@@ -55,6 +59,8 @@ private:
     link link_;
     joypad joypad_;
     timer timer_;
+
+    explicit gameboy(cartridge cart);
 };
 
 } // namespace gameboy

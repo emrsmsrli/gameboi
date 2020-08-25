@@ -27,6 +27,7 @@ class cpu {
 
 public:
     explicit cpu(observer<bus> bus) noexcept;
+    void reset() noexcept;
 
     [[nodiscard]] uint8_t tick();
 

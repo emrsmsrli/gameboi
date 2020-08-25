@@ -35,13 +35,27 @@ constexpr std::array<uint8_t, hram_range.size()> hram_cgb{
 };
 
 mmu::mmu(const observer<bus> bus)
-    : bus_{bus},
-      wram_bank_{1u},
-      work_ram_((bus->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb, 0u),
-      high_ram_(
-          (bus->get_cartridge()->cgb_enabled() ? hram_cgb : hram_gb).begin(),
-          (bus->get_cartridge()->cgb_enabled() ? hram_cgb : hram_gb).end()
-      ) {}
+    : bus_{bus}
+{
+    reset();
+}
+
+void mmu::reset() noexcept
+{
+    delegates_.clear();
+
+    wram_bank_ = 1u;
+
+    work_ram_.resize((bus_->get_cartridge()->cgb_enabled() ? 8u : 2u) * 4_kb);
+    std::fill(begin(work_ram_), end(work_ram_), 0u);
+
+    high_ram_.clear();
+    if(bus_->get_cartridge()->cgb_enabled()) {
+        std::copy(begin(hram_cgb), end(hram_cgb), std::back_inserter(high_ram_));
+    } else {
+        std::copy(begin(hram_gb), end(hram_gb), std::back_inserter(high_ram_));
+    }
+}
 
 void mmu::write(const address16& address, const uint8_t data)
 {

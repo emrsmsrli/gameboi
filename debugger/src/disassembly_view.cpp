@@ -20,7 +20,7 @@ disassembly_view::disassembly_view(const observer<bus> bus, const observer<cpu_d
 
 void disassembly_view::draw() noexcept
 {
-    if(!ImGui::Begin("Disassembly view")) {
+    if(rom_db_.get().empty() || !ImGui::Begin("Disassembly view")) {
         ImGui::End();
         return;
     }
@@ -123,6 +123,13 @@ void disassembly_view::on_write_access(const address16& addr, const uint8_t data
     } else if(hram_range.has(addr)) {
         hram_db_.on_write(addr, data);
     }
+}
+
+void disassembly_view::on_new_rom() noexcept
+{
+    rom_db_ = instruction::disassembly_db{bus_, instruction::disassembly_db::name_rom, bus_->get_cartridge()->rom()};
+    wram_db_ = instruction::disassembly_db{bus_, instruction::disassembly_db::name_wram, bus_->get_mmu()->work_ram_};
+    hram_db_ = instruction::disassembly_db{bus_, instruction::disassembly_db::name_hram, bus_->get_mmu()->high_ram_};
 }
 
 } // namespace gameboy

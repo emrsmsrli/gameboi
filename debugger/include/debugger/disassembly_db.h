@@ -29,7 +29,7 @@ public:
 
 private:
     observer<bus> bus_;
-    const std::vector<uint8_t>& data_;
+    const std::vector<uint8_t>* data_;
     std::vector<disassembly> disassemblies_;
     std::string_view name_;
     size_t bank_size_ = 0u;
@@ -38,7 +38,7 @@ private:
     uint32_t earliest_dirty_bank_ = 0u;
 
     [[nodiscard]] std::pair<size_t, disassembly> disassemble(size_t physical_addr) noexcept;
-    void generate_disassembly(size_t start) noexcept { generate_disassembly(start, data_.size()); }
+    void generate_disassembly(size_t start) noexcept { generate_disassembly(start, data_->size()); }
     void generate_disassembly(size_t start, size_t end) noexcept;
 
     [[nodiscard]] uint16_t base_address() const noexcept

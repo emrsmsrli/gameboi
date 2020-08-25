@@ -1,6 +1,7 @@
 #include "sdl_audio.h"
 
 #include <SDL2/SDL_audio.h>
+#include <spdlog/spdlog.h>
 
 #include "sdl_macro.h"
 
@@ -28,11 +29,22 @@ audio_device::audio_device(const std::string_view device_name,
 
     device_id_ = SDL_OpenAudioDevice(device_name.data(), SDL_FALSE, &spec, nullptr, 0);
     SDL_CHECK(device_id_);
+
+    spdlog::trace("opened audio device: {}, id: {}", device_name, device_id_);
 }
 
 audio_device::~audio_device() noexcept
 {
-    SDL_CloseAudioDevice(device_id_);
+    if(device_id_ != invalid_id) {
+        spdlog::trace("closing audio device with id {}", device_id_);
+        SDL_CloseAudioDevice(device_id_);
+    }
+}
+
+audio_device& audio_device::operator=(audio_device&& other) noexcept
+{
+    std::swap(device_id_, other.device_id_);
+    return *this;
 }
 
 void audio_device::resume() noexcept

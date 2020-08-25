@@ -96,6 +96,11 @@ cartridge::cartridge(const filesystem::path& rom_path)
       rom_{read_file(rom_path)},
       mbc_{mbc_regular{make_observer(this)}}
 {
+    parse_rom();
+}
+
+void cartridge::parse_rom()
+{
     constexpr auto cgb_support_addr = make_address(0x0143u);
     constexpr auto mbc_type_addr = make_address(0x0147u);
     constexpr auto rom_size_addr = make_address(0x0148u);
@@ -124,6 +129,8 @@ cartridge::cartridge(const filesystem::path& rom_path)
 
     const auto cgb_flag = read<uint8_t>(rom_, cgb_support_addr);
     cgb_enabled_ = bit::test(cgb_flag, 7u) && !(bit::test(cgb_flag, 2u) || bit::test(cgb_flag, 3u));
+
+    has_rtc_ = false;
 
     const auto mbc = read<mbc_type>(rom_, mbc_type_addr);
     switch(mbc) {
@@ -224,6 +231,7 @@ cartridge::cartridge(const filesystem::path& rom_path)
             load_ram();
             break;
         default:
+            has_battery_ = false;
             break;
     }
 
@@ -238,10 +246,11 @@ cartridge::cartridge(const filesystem::path& rom_path)
     spdlog::info("---------------------\n");
 }
 
-cartridge::~cartridge()
+void cartridge::load_rom(const filesystem::path& rom_path)
 {
-    save_ram();
-    save_rtc();
+    rom_path_ = rom_path;
+    rom_ = read_file(rom_path);
+    parse_rom();
 }
 
 uint8_t cartridge::read_rom(const address16& address) const

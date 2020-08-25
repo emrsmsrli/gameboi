@@ -24,6 +24,7 @@ public:
     using transfer_func = delegate<uint8_t(uint8_t)>;
 
     explicit link(observer<bus> bus) noexcept;
+    void reset() noexcept;
 
     void tick(uint8_t cycles) noexcept;
 

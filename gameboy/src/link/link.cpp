@@ -14,19 +14,25 @@ constexpr address16 sb_addr{0xFF01u};
 constexpr address16 sc_addr{0xFF02u};
 
 link::link(const observer<bus> bus) noexcept
-    : bus_{bus},
-      sc_(bus_->get_cartridge()->cgb_enabled() ? 0x7Cu : 0x7Eu),
-      shift_clock_{0u},
-      shift_counter_{0u}
+    : bus_{bus}
 {
+    reset();
+}
+
+void link::reset() noexcept
+{
+    sc_ = bus_->get_cartridge()->cgb_enabled() ? 0x7Cu : 0x7Eu;
+    shift_clock_ = 0u;
+    shift_counter_ = 0u;
+
     auto mmu = bus_->get_mmu();
     mmu->add_memory_delegate(sb_addr, {
-        {connect_arg<&link::on_sb_read>, this},
-        {connect_arg<&link::on_sb_write>, this}
+      {connect_arg<&link::on_sb_read>, this},
+      {connect_arg<&link::on_sb_write>, this}
     });
     mmu->add_memory_delegate(sc_addr, {
-        {connect_arg<&link::on_sc_read>, this},
-        {connect_arg<&link::on_sc_write>, this}
+      {connect_arg<&link::on_sc_read>, this},
+      {connect_arg<&link::on_sc_write>, this}
     });
 }
 

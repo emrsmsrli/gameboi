@@ -26,6 +26,7 @@ public:
     };
 
     explicit joypad(observer<bus> bus);
+    void reset() noexcept;
 
     void press(key key) noexcept;
     void release(key key) noexcept;

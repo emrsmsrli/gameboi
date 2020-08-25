@@ -30,6 +30,7 @@ public:
     using sound_buffer_full_func = delegate<void(const sound_buffer&)>;
 
     explicit apu(observer<bus> bus);
+    void reset() noexcept;
 
     void tick(uint8_t cycles) noexcept;
     void on_sound_buffer_full(const sound_buffer_full_func on_buffer_full) noexcept { on_buffer_full_ = on_buffer_full; }
