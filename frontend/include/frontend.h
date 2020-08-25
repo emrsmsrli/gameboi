@@ -64,7 +64,7 @@ private:
 
     sdl::audio_device audio_device_;
 
-    state state_{state::main_menu};
+    state state_{state::select_rom_file};
     int32_t menu_selected_index_ = -1;
     int32_t menu_max_index_ = -1;
 
