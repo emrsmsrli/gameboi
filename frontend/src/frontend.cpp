@@ -108,7 +108,7 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
       gameboy::apu::sample_size
     }
 {
-    window_.setFramerateLimit(60u);
+    //window_.setFramerateLimit(60u);
     window_.setVerticalSyncEnabled(false);
     window_buffer_.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
     window_texture_.create(gameboy::screen_width, gameboy::screen_height);
@@ -246,15 +246,13 @@ frontend::tick_result frontend::tick()
                 }
             } else if(event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Enter) {
                 const auto prev_state = state_;
-                const auto prev_selected_item = menu_selected_index_;
+                const auto prev_selected_idx = menu_selected_index_;
 
-                state_ = state::main_menu;
-                menu_selected_index_ = main_menu_item::resume;
-                menu_max_index_ = main_menu_item::count;
+                state_ = state::game;
 
                 switch(prev_state) {
                     case state::main_menu: {
-                        switch(prev_selected_item) {
+                        switch(prev_selected_idx) {
                             case main_menu_item::resume:
                                 state_ = state::game;
                                 break;
@@ -279,19 +277,21 @@ frontend::tick_result frontend::tick()
                     }
                     case state::select_audio_device: {
                         audio_device_ = sdl::audio_device{
-                            sdl::audio_device::device_name(menu_selected_index_),
+                            sdl::audio_device::device_name(prev_selected_idx),
                             2u, sdl::audio_device::format::s16,
                             gameboy::apu::sampling_rate,
                             gameboy::apu::sample_size
                         };
+                        audio_device_.resume();
                         break;
                     }
                     case state::select_gb_color_palette: {
-                        gb_->set_gb_palette(*gb_palettes[menu_selected_index_].second);
+                        gb_->set_gb_palette(*gb_palettes[prev_selected_idx].second);
                         break;
                     }
                     case state::select_rom_file: {
-                        gb_->load_rom(rom_files_[menu_selected_index_]);  // fixme
+                        state_ = state::game;
+                        gb_->load_rom(rom_files_[prev_selected_idx]);
                         window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
 
                         if(on_new_rom_) {
