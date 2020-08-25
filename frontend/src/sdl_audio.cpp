@@ -27,7 +27,7 @@ audio_device::audio_device(const std::string_view device_name,
     spec.freq = sampling_rate;
     spec.samples = sample_count;
 
-    device_id_ = SDL_OpenAudioDevice(nullptr, SDL_FALSE, &spec, nullptr, 0);
+    device_id_ = SDL_OpenAudioDevice(device_name.data(), SDL_FALSE, &spec, nullptr, 0);
     SDL_CHECK(device_id_);
 
     spdlog::trace("opened audio device: {}, id: {}", device_name, device_id_);
