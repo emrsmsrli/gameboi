@@ -88,7 +88,7 @@ frontend::frontend(
     } else if(gameboy::filesystem::is_regular_file(rom_base_path) &&
       (rom_base_path.extension() == ".gb" || rom_base_path.extension() == ".gbc")) {
         state_ = state::game;
-        saved_rom_files_.push_back(rom_base_path);
+        rom_files_.push_back(rom_base_path);
     } else {
         spdlog::critical("incorrect folder or invalid rom file: {}", rom_base_path.string());
         std::terminate();
