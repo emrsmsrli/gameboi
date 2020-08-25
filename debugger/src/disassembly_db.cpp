@@ -14,7 +14,7 @@ disassembly_db::disassembly_db(
     std::string_view name,
     const std::vector<uint8_t>& data) noexcept
     : bus_{bus},
-      data_{data},
+      data_{&data},
       name_{name},
       bank_size_{
         [&]() -> size_t {
@@ -30,6 +30,8 @@ disassembly_db::disassembly_db(
         }()
       }
 {
+    if(data.empty()) { return; }
+
     if(name == name_rom) {
         generate_disassembly(0u, 0x0104u);
         generate_disassembly(0x0150);
@@ -120,9 +122,9 @@ std::pair<size_t, disassembly> disassembly_db::disassemble(size_t physical_addr)
         return (bank == 0 ? physical_addr : (physical_addr % bank_size_) + bank_size_) + base_address();
     }();
 
-    auto [instruction_info, is_cgb] = data_[physical_addr] == 0xCBu
-        ? std::make_pair(instruction::extended_instruction_set[data_[physical_addr + 1]], true)
-        : std::make_pair(instruction::standard_instruction_set[data_[physical_addr]], false);
+    auto [instruction_info, is_cgb] = (*data_)[physical_addr] == 0xCBu
+        ? std::make_pair(instruction::extended_instruction_set[(*data_)[physical_addr + 1]], true)
+        : std::make_pair(instruction::standard_instruction_set[(*data_)[physical_addr]], false);
 
     if(instruction_info.length == 0) {
         instruction_info.length = 1;
@@ -135,7 +137,7 @@ std::pair<size_t, disassembly> disassembly_db::disassemble(size_t physical_addr)
     } else {
         uint16_t data = 0;
         for(auto d_i = 0; d_i < instruction_info.length - 1; ++d_i) {
-            data |= data_[physical_addr + d_i + 1] << (d_i * 8u);
+            data |= (*data_)[physical_addr + d_i + 1] << (d_i * 8u);
         }
 
         representation = fmt::format("{}{}:{:04X} | {}", name_, bank, virtual_address,

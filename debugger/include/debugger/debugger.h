@@ -27,17 +27,13 @@ class gameboy;
 class debugger {
 public:
     explicit debugger(observer<gameboy> gb);
-    ~debugger();
-    debugger(const debugger&) = delete;
-    debugger(debugger&&) = delete;
-
-    debugger& operator=(const debugger&) = delete;
-    debugger& operator=(debugger&&) = delete;
 
     void tick();
     void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;
     void on_write_access(const address16& addr, uint8_t data) noexcept;
     void on_read_access(const address16& addr) noexcept;
+
+    void on_new_rom() noexcept { disassembly_view_.on_new_rom(); }
 
     [[nodiscard]] bool has_focus() const noexcept { return window_.hasFocus(); }
 

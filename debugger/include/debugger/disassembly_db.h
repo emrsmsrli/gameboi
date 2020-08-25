@@ -29,7 +29,7 @@ public:
 
 private:
     observer<bus> bus_;
-    const std::vector<uint8_t>& data_;
+    const std::vector<uint8_t>* data_;
     std::vector<disassembly> disassemblies_;
     std::string_view name_;
     size_t bank_size_ = 0u;

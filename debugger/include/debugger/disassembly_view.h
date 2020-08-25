@@ -16,6 +16,7 @@ public:
 
     void draw() noexcept;
     void on_write_access(const address16& addr, uint8_t data) noexcept;
+    void on_new_rom() noexcept;
 
 private:
     observer<bus> bus_;

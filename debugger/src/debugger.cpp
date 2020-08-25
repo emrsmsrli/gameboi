@@ -29,14 +29,8 @@ debugger::debugger(const observer<gameboy> gb)
     bus_->get_mmu()->on_read_access({connect_arg<&debugger::on_read_access>, this});
     bus_->get_mmu()->on_write_access({connect_arg<&debugger::on_write_access>, this});
 
-    ImGui::SFML::Init(window_);
     window_.resetGLStates();
     logger_->info("debugger initialized");
-}
-
-debugger::~debugger()
-{
-    ImGui::SFML::Shutdown();
 }
 
 void debugger::tick()
@@ -81,7 +75,6 @@ void debugger::tick()
 
     window_.clear(sf::Color::Black);
     ImGui::SFML::Render(window_);
-
     window_.display();
 }
 
