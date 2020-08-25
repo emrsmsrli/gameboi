@@ -1,107 +1,90 @@
 #ifndef GAMEBOY_FRONTEND_H
 #define GAMEBOY_FRONTEND_H
 
-#include <chrono>
-#include <string>
-#include <thread>
+#include <cstdint>
 
-#include <SFML/Graphics.hpp>
-#include <fmt/format.h>
+#include <SFML/Window/Event.hpp>
+#include <SFML/Graphics/Image.hpp>
+#include <SFML/Graphics/RenderWindow.hpp>
+#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Texture.hpp>
 
 #include "gameboy/gameboy.h"
 #include "sdl_audio.h"
-#include "sdl_core.h"
 
-struct frontend {
-    sf::Image window_buffer;
-    sf::Texture window_texture;
-    sf::Sprite window_sprite;
-    sf::RenderWindow window;
+class frontend {
+public:
+    enum class tick_result { ticking, paused, should_exit };
 
-    sdl::audio_device audio_device;
+    using on_new_rom_func = gameboy::delegate<void()>;
 
-    frontend(gameboy::gameboy& gameboy, const uint32_t width, const uint32_t height, const bool fullscreen) noexcept
-      : window(
-          sf::VideoMode(width, height),
-          fmt::format("GAMEBOY - {}", gameboy.rom_name()),
-          fullscreen ? sf::Style::Fullscreen : sf::Style::Default
-        ),
-        audio_device{
-          sdl::audio_device::device_name(0), 2u,
-          sdl::audio_device::format::s16,
-          gameboy::apu::sampling_rate,
-          gameboy::apu::sample_size
-        }
+    frontend(uint32_t width, uint32_t height, bool fullscreen, const gameboy::filesystem::path& rom_base_path) noexcept;
+    frontend(uint32_t width, uint32_t height, bool fullscreen) noexcept;
+    ~frontend();
+
+    frontend(const frontend&) = delete;
+    frontend(frontend&&) = delete;
+
+    frontend& operator=(const frontend&) = delete;
+    frontend& operator=(frontend&&) = delete;
+
+    sf::RenderWindow& window() noexcept { return window_; }
+    const sf::RenderWindow& window() const noexcept { return window_; }
+
+    void on_new_rom(const on_new_rom_func on_new_rom) noexcept { on_new_rom_ = on_new_rom; }
+
+    /** @return true if should continue ticking, false otherwise */
+    [[nodiscard]] tick_result tick();
+
+    void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept;
+    void rescale_view() noexcept;
+    void render_line(uint8_t line_number, const gameboy::render_line& line) noexcept;
+    void draw_sprite() noexcept;
+    void render_frame() noexcept;
+
+    void register_gameboy(gameboy::observer<gameboy::gameboy> gb) noexcept;
+
+private:
+    enum class state {
+        game,
+        main_menu,
+        select_audio_device,
+        select_gb_color_palette,
+        select_rom_file
+    };
+
+    gameboy::observer<gameboy::gameboy> gb_;
+    sf::Image window_buffer_;
+    sf::Texture window_texture_;
+    sf::Sprite window_sprite_;
+    sf::RenderWindow window_;
+
+    sf::Event event_{};
+    sf::Clock dt_;
+
+    sdl::audio_device audio_device_;
+
+    state state_{state::main_menu};
+    int32_t menu_selected_index_ = -1;
+    int32_t menu_max_index_ = -1;
+
+    std::vector<gameboy::filesystem::path> rom_files_;
+    std::vector<gameboy::filesystem::path> saved_rom_files_;
+
+    on_new_rom_func on_new_rom_;
+
+    void handle_game_keys(const sf::Event& key_event) noexcept;
+
+    void draw_menu() noexcept;
+    void draw_audio_device_select() noexcept;
+    void draw_gb_palette_select() noexcept;
+    void draw_rom_select() noexcept;
+
+    [[nodiscard]] bool can_pick_gb_color_palette() noexcept
     {
-        window.setFramerateLimit(60u);
-        window.setVerticalSyncEnabled(false);
-        window_buffer.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
-        window_texture.create(gameboy::screen_width, gameboy::screen_height);
-
-        window_sprite.setTexture(window_texture);
-
-        const auto sprite_local_bounds = window_sprite.getLocalBounds();
-        window_sprite.setOrigin(sprite_local_bounds.width * .5f, sprite_local_bounds.height * .5f);
-
-        rescale_view();
-        render_frame();
-
-        gameboy.on_render_line({gameboy::connect_arg<&frontend::render_line>, this});
-        gameboy.on_vblank({gameboy::connect_arg<&frontend::render_frame>, this});
-        gameboy.on_audio_buffer_full({gameboy::connect_arg<&frontend::play_sound>, this});
-
-        audio_device.resume();
-    }
-
-    void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept
-    {
-        const auto buffer_size_in_bytes = sizeof(gameboy::apu::sound_buffer::value_type) * sound_buffer.size();
-        while(audio_device.queue_size() > buffer_size_in_bytes) {
-            using namespace std::chrono_literals;
-            std::this_thread::sleep_for(1ms);
-        }
-
-        audio_device.enqueue(sound_buffer.data(), buffer_size_in_bytes);
-    }
-
-    void rescale_view() noexcept
-    {
-        const auto [width, height] = window.getSize();
-        const auto sprite_local_bounds = window_sprite.getLocalBounds();
-
-        const auto screen_aspect_ratio = static_cast<float>(width) / height;
-        const auto sprite_aspect_ratio = sprite_local_bounds.width / sprite_local_bounds.height;
-        const auto scale = screen_aspect_ratio > sprite_aspect_ratio
-            ? height / sprite_local_bounds.height
-            : width / sprite_local_bounds.width;
-
-        window_sprite.setScale(scale, scale);
-        window_sprite.setPosition(width * .5f, height * .5f);
-
-        draw_sprite();
-    }
-
-    void render_line(const uint8_t line_number, const gameboy::render_line& line) noexcept
-    {
-        for(size_t i = 0; i < line.size(); ++i) {
-            const auto& color = line[i];
-            window_buffer.setPixel(i, line_number, {
-                color.red, color.green, color.blue, 255
-            });
-        }
-    }
-
-    void draw_sprite() noexcept
-    {
-        window.clear();
-        window.draw(window_sprite);
-        window.display();
-    }
-
-    void render_frame() noexcept
-    {
-        window_texture.update(window_buffer);
-        draw_sprite();
+        return gb_ &&
+          !gb_->get_bus()->get_cartridge()->rom().empty() &&
+          !gb_->get_bus()->get_cartridge()->cgb_enabled();
     }
 };
 

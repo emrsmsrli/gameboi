@@ -1,9 +1,11 @@
+#include <SFML/Window/Event.hpp>
 #include <cxxopts.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 
 #include "frontend.h"
 #include "gameboy/version.h"
+#include "sdl_core.h"
 
 #if WITH_DEBUGGER
 #include "debugger/debugger.h"
@@ -12,7 +14,10 @@
 int main(int argc, char* argv[])
 {
     cxxopts::Options options("gameboi", "An excellent gameboy color emulator");
-    options.allow_unrecognised_options().add_options()
+    options
+      .show_positional_help()
+      .allow_unrecognised_options()
+      .add_options()
         ("v,version", "Print version and exit")
         ("h,help", "Show this help text")
         ("V,verbosity", "Logging verbosity", cxxopts::value<std::string>()->default_value("off"))
@@ -30,7 +35,7 @@ int main(int argc, char* argv[])
         return 0;
     }
 
-    if(parsed["help"].as<bool>()) {
+    if(parsed["help"].as<bool>() || parsed["rom_path"].count() == 0) {
         fmt::print(stdout, "{}", options.help());
         return 0;
     }
@@ -40,105 +45,25 @@ int main(int argc, char* argv[])
 
     sdl::init();
 
-    const auto rom_path = parsed["rom_path"].as<std::vector<std::string>>();
+    const gameboy::filesystem::path rom_path = parsed["rom_path"].as<std::vector<std::string>>().front();
 
-    gameboy::gameboy gb{rom_path.front()};
-    frontend gb_frontend{gb,
+    frontend gb_frontend{
       parsed["width"].as<uint32_t>(),
       parsed["height"].as<uint32_t>(),
-      parsed["fullscreen"].as<bool>()
+      parsed["fullscreen"].as<bool>(),
+      rom_path
     };
+
+    gameboy::gameboy gb;
+    gb_frontend.register_gameboy(gameboy::make_observer(gb));
 
 #if WITH_DEBUGGER
     gameboy::debugger debugger{gameboy::make_observer(gb)};
+    gb_frontend.on_new_rom({gameboy::connect_arg<&gameboy::debugger::on_new_rom>, debugger});
 #endif //WITH_DEBUGGER
 
-    while(gb_frontend.window.isOpen()) {
-        sf::Event event{};
-        while(gb_frontend.window.pollEvent(event)) {
-            if(event.type == sf::Event::Closed) {
-                gb_frontend.window.close();
-            } else if(event.type == sf::Event::Resized) {
-                const sf::FloatRect visible_area(0, 0, event.size.width, event.size.height);
-                gb_frontend.window.setView(sf::View{visible_area});
-                gb_frontend.rescale_view();
-            } else if(event.type == sf::Event::KeyPressed) {
-                switch(event.key.code) {
-                    case sf::Keyboard::Up:
-                        gb.press_key(gameboy::joypad::key::up);
-                        break;
-                    case sf::Keyboard::Down:
-                        gb.press_key(gameboy::joypad::key::down);
-                        break;
-                    case sf::Keyboard::Left:
-                        gb.press_key(gameboy::joypad::key::left);
-                        break;
-                    case sf::Keyboard::Right:
-                        gb.press_key(gameboy::joypad::key::right);
-                        break;
-                    case sf::Keyboard::Z:
-                        gb.press_key(gameboy::joypad::key::a);
-                        break;
-                    case sf::Keyboard::X:
-                        gb.press_key(gameboy::joypad::key::b);
-                        break;
-                    case sf::Keyboard::Enter:
-                        gb.press_key(gameboy::joypad::key::start);
-                        break;
-                    case sf::Keyboard::Space:
-                        gb.press_key(gameboy::joypad::key::select);
-                        break;
-#if WITH_DEBUGGER
-                    case sf::Keyboard::F:
-                    case sf::Keyboard::F7:
-                        gb.tick();
-                        break;
-#endif //WITH_DEBUGGER
-                    default:
-                        break;
-                }
-            } else if(event.type == sf::Event::KeyReleased) {
-                switch(event.key.code) {
-                    case sf::Keyboard::Up:
-                        gb.release_key(gameboy::joypad::key::up);
-                        break;
-                    case sf::Keyboard::Down:
-                        gb.release_key(gameboy::joypad::key::down);
-                        break;
-                    case sf::Keyboard::Left:
-                        gb.release_key(gameboy::joypad::key::left);
-                        break;
-                    case sf::Keyboard::Right:
-                        gb.release_key(gameboy::joypad::key::right);
-                        break;
-                    case sf::Keyboard::Z:
-                        gb.release_key(gameboy::joypad::key::a);
-                        break;
-                    case sf::Keyboard::X:
-                        gb.release_key(gameboy::joypad::key::b);
-                        break;
-                    case sf::Keyboard::Enter:
-                        gb.release_key(gameboy::joypad::key::start);
-                        break;
-                    case sf::Keyboard::Space:
-                        gb.release_key(gameboy::joypad::key::select);
-                        break;
-#if WITH_DEBUGGER
-                    case sf::Keyboard::G:
-                        gb.tick_one_frame();
-                        break;
-                    case sf::Keyboard::T:
-                    case sf::Keyboard::F9:
-                        gb.tick_enabled = !gb.tick_enabled;
-                        break;
-#endif //WITH_DEBUGGER
-                    default:
-                        break;
-                }
-            }
-        }
-
-        if(!gb_frontend.window.hasFocus()
+    while(true) {
+        if(!gb_frontend.window().hasFocus()
 #if WITH_DEBUGGER
             && !gb.tick_enabled && !debugger.has_focus()
 #endif //WITH_DEBUGGER
@@ -148,12 +73,18 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        gb.tick_one_frame();
+        if(const auto tick_result = gb_frontend.tick();
+           tick_result == frontend::tick_result::should_exit) {
+            break;
+        } else if(tick_result == frontend::tick_result::ticking) {
+            gb.tick_one_frame();
 #if WITH_DEBUGGER
-        debugger.tick();
+            debugger.tick();
 #endif //WITH_DEBUGGER
+        }
     }
 
+    gb.save_ram_rtc();
     sdl::quit();
     return 0;
 }
