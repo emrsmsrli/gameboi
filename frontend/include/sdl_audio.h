@@ -40,11 +40,6 @@ public:
     void enqueue(const void* data, size_t size_in_bytes) noexcept;
     size_t queue_size() noexcept;
 
-    friend bool operator==(const audio_device& l, const audio_device& r) noexcept
-    {
-        return l.device_id_ == r.device_id_;
-    }
-
 private:
     uint32_t device_id_ = invalid_id;
 };
