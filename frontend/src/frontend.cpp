@@ -331,11 +331,18 @@ frontend::tick_result frontend::tick()
                         }
                         case state::select_rom_file: {
                             state_ = state::game;
-                            gb_->load_rom(roms_[prev_selected_idx].path);
+
+                            const auto cartridge = gb_->get_bus()->get_cartridge();
+                            const auto& rom_path = roms_[prev_selected_idx].path;
+                            if(cartridge->get_rom_path() == rom_path) {
+                                break;
+                            }
+
+                            gb_->load_rom(rom_path);
                             window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
 
-                            if(!gb_->get_bus()->get_cartridge()->cgb_enabled()) {
-                                auto& rom_entry = config_[roms_[prev_selected_idx].path.filename().string()];
+                            if(!cartridge->cgb_enabled()) {
+                                auto& rom_entry = config_[rom_path.filename().string()];
                                 if(auto palette_it = rom_entry.find(config_key_gb_palette_idx); palette_it != rom_entry.end()) {
                                     gb_->set_gb_palette(*gb_palettes[palette_it->get<int32_t>()].second);
                                 }
