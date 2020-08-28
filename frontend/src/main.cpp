@@ -78,10 +78,13 @@ int main(int argc, char* argv[])
             break;
         } else if(tick_result == frontend::tick_result::ticking) {
             gb.tick_one_frame();
-#if WITH_DEBUGGER
-            debugger.tick();
-#endif //WITH_DEBUGGER
         }
+
+#if WITH_DEBUGGER
+        if(!gb.get_bus()->get_cartridge()->get_rom_path().empty()) {
+            debugger.tick();
+        }
+#endif //WITH_DEBUGGER
     }
 
     gb.save_ram_rtc();
