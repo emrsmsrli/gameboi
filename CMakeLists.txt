@@ -45,6 +45,9 @@ if(ENABLE_PCH)
             <array> <vector> <string> <unordered_map> <utility>)
 endif()
 
+set(JSON_BuildTests OFF CACHE INTERNAL "")
+add_subdirectory(3rdparty/json)
+
 add_subdirectory(3rdparty/imgui_sfml)
 add_subdirectory(3rdparty/parallel-hashmap)
 add_subdirectory(gameboy)
