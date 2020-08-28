@@ -56,6 +56,8 @@ public:
     [[nodiscard]] bool has_battery() const noexcept { return has_battery_; }
     [[nodiscard]] bool has_rtc() const noexcept { return has_rtc_; }
 
+    [[nodiscard]] const filesystem::path& get_rom_path() const noexcept { return rom_path_; };
+
     void load_rom(const filesystem::path& rom_path);
     void save_ram_rtc() const
     {
