@@ -20,7 +20,7 @@ disassembly_view::disassembly_view(const observer<bus> bus, const observer<cpu_d
 
 void disassembly_view::draw() noexcept
 {
-    if(rom_db_.get().empty() || !ImGui::Begin("Disassembly view")) {
+    if(!ImGui::Begin("Disassembly view") || rom_db_.get().empty()) {
         ImGui::End();
         return;
     }

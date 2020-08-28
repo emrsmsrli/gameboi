@@ -1,6 +1,7 @@
 #ifndef GAMEBOY_FRONTEND_H
 #define GAMEBOY_FRONTEND_H
 
+#include <optional>
 #include <cstdint>
 
 #include <SFML/Window/Event.hpp>
@@ -8,6 +9,7 @@
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <nlohmann/json.hpp>
 
 #include "gameboy/gameboy.h"
 #include "sdl_audio.h"
@@ -45,6 +47,12 @@ public:
     void register_gameboy(gameboy::observer<gameboy::gameboy> gb) noexcept;
 
 private:
+    struct rom {
+        gameboy::filesystem::path path;
+        std::optional<uint32_t> gb_palette_idx;
+        bool is_favorite;
+    };
+
     enum class state {
         game,
         main_menu,
@@ -52,6 +60,9 @@ private:
         select_gb_color_palette,
         select_rom_file
     };
+
+    nlohmann::json config_;
+    std::vector<rom> roms_;
 
     gameboy::observer<gameboy::gameboy> gb_;
     sf::Image window_buffer_;
@@ -68,9 +79,6 @@ private:
     int32_t menu_selected_index_ = -1;
     int32_t menu_max_index_ = -1;
 
-    std::vector<gameboy::filesystem::path> rom_files_;
-    std::vector<gameboy::filesystem::path> saved_rom_files_;
-
     on_new_rom_func on_new_rom_;
 
     void handle_game_keys(const sf::Event& key_event) noexcept;
@@ -85,6 +93,11 @@ private:
         return gb_ &&
           !gb_->get_bus()->get_cartridge()->rom().empty() &&
           !gb_->get_bus()->get_cartridge()->cgb_enabled();
+    }
+
+    [[nodiscard]] static bool is_rom_favorite(const rom& entry) noexcept
+    {
+        return entry.is_favorite;
     }
 };
 

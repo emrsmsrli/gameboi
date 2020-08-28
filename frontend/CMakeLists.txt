@@ -7,6 +7,7 @@ add_executable(${PROJECT_NAME}
         src/sdl_audio.cpp)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE
+        nlohmann_json::nlohmann_json
         fmt::fmt
         spdlog::spdlog
         SDL2

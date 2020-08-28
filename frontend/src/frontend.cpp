@@ -2,6 +2,7 @@
 
 #include <chrono>
 #include <thread>
+#include <fstream>
 
 #include "imgui-SFML.h"
 #include "imgui.h"
@@ -26,6 +27,11 @@ constexpr std::array gb_palettes{
   std::make_pair("Green"sv, &gameboy::ppu::palette_green),
   std::make_pair("Zelda"sv, &gameboy::ppu::palette_zelda)
 };
+
+constexpr auto* config_file_name = "config.json";
+constexpr auto* config_key_favorite = "favorite";
+constexpr auto* config_key_gb_palette_idx = "gb_palette_idx";
+constexpr auto* config_key_audio_device = "last_audio_device_id";
 
 template<typename T>
 void draw_fullscreen_imgui_window(const char* tag, const char* title, const sf::Window& window, T&& draw_func)
@@ -58,37 +64,46 @@ void draw_fullscreen_imgui_window(const char* tag, const char* title, const sf::
 
 } // namespace
 
+using json = nlohmann::json;
+
 frontend::frontend(
   const uint32_t width, const uint32_t height, const bool fullscreen,
   const gameboy::filesystem::path& rom_base_path) noexcept
     : frontend(width, height, fullscreen)
 {
-    // todo check ini file for favorites
-
     if(gameboy::filesystem::is_directory(rom_base_path)) {
         for(const auto& entry : gameboy::filesystem::directory_iterator{rom_base_path}) {
             if(const auto& path = entry.path();
               entry.is_regular_file() &&
                 (path.extension() == ".gb" || path.extension() == ".gbc"))
             {
-                spdlog::trace("rom file found {}", path.string());
-                rom_files_.push_back(path);
+                const auto file_name = path.filename().string();
+                std::optional<int32_t> gb_palette_idx;
+                bool is_favorite = false;
 
-                auto save = path;
-                save.replace_extension(".sav");
-                if(gameboy::filesystem::exists(save)) {
-                    saved_rom_files_.push_back(path);
-                    spdlog::trace("\tsave file found");
+                if(auto entry_it = config_.find(file_name); entry_it != config_.end()) {
+                    if(auto fav_it = entry_it->find(config_key_favorite); fav_it != entry_it->end()) {
+                        is_favorite = fav_it->get<bool>();
+                    }
+
+                    if(auto palette_it = entry_it->find(config_key_gb_palette_idx); palette_it != entry_it->end()) {
+                        gb_palette_idx = palette_it->get<int32_t>();
+                    }
                 }
+
+                spdlog::trace("rom: {}", file_name);
+                roms_.push_back(rom{path, gb_palette_idx, is_favorite});
             }
         }
 
+        std::stable_partition(begin(roms_), end(roms_), is_rom_favorite);
+
         menu_selected_index_ = 0;
-        menu_max_index_ = rom_files_.size();
+        menu_max_index_ = roms_.size();
     } else if(gameboy::filesystem::is_regular_file(rom_base_path) &&
       (rom_base_path.extension() == ".gb" || rom_base_path.extension() == ".gbc")) {
         state_ = state::game;
-        rom_files_.push_back(rom_base_path);
+        roms_.push_back(rom{rom_base_path, std::nullopt, false});
     } else {
         spdlog::critical("incorrect folder or invalid rom file: {}", rom_base_path.string());
         std::terminate();
@@ -96,13 +111,19 @@ frontend::frontend(
 }
 
 frontend::frontend(const uint32_t width, const uint32_t height, const bool fullscreen) noexcept
-    : window_(
-      sf::VideoMode(width, height),
-      "GAMEBOY",
-      fullscreen ? sf::Style::Fullscreen : sf::Style::Default
-    ),
+    : config_(
+        gameboy::filesystem::exists(config_file_name)
+          ? json::parse(gameboy::read_file(config_file_name))
+          : json::object()
+      ),
+      window_(
+        sf::VideoMode(width, height),
+        "GAMEBOY",
+        fullscreen ? sf::Style::Fullscreen : sf::Style::Default
+      ),
       audio_device_{
-      sdl::audio_device::device_name(0), 2u,
+      sdl::audio_device::device_name(config_.contains(config_key_audio_device)
+            ? config_[config_key_audio_device].get<int32_t>() : 0), 2u,
       sdl::audio_device::format::s16,
       gameboy::apu::sampling_rate,
       gameboy::apu::sample_size
@@ -131,6 +152,9 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
 
 frontend::~frontend()
 {
+    std::ofstream config_file{config_file_name};
+    config_file << std::setw(4) /*pretty print*/ << config_;
+
     ImGui::SFML::Shutdown();
 }
 
@@ -139,7 +163,7 @@ void frontend::register_gameboy(const gameboy::observer<gameboy::gameboy> gb) no
     gb_ = gb;
 
     if(state_ == state::game) {
-        gb_->load_rom(rom_files_.front());
+        gb_->load_rom(roms_.front().path);
     }
 
     gb_->on_render_line({gameboy::connect_arg<&frontend::render_line>, this});
@@ -244,64 +268,95 @@ frontend::tick_result frontend::tick()
                         --menu_selected_index_;
                     }
                 }
-            } else if(event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Enter) {
-                const auto prev_state = state_;
-                const auto prev_selected_idx = menu_selected_index_;
+            } else if(event_.type == sf::Event::KeyReleased) {
+                if(state_ == state::select_rom_file &&
+                  (event_.key.code == sf::Keyboard::Left || event_.key.code == sf::Keyboard::Right)) {
+                    auto& rom = roms_[menu_selected_index_];
+                    auto& is_favorite = rom.is_favorite;
 
-                state_ = state::game;
+                    rom.is_favorite = !rom.is_favorite;
+                    config_[rom.path.filename().string()][config_key_favorite] = rom.is_favorite;
+                } else if(event_.key.code == sf::Keyboard::Enter) {
+                    const auto prev_state = state_;
+                    const auto prev_selected_idx = menu_selected_index_;
 
-                switch(prev_state) {
-                    case state::main_menu: {
-                        switch(prev_selected_idx) {
-                            case main_menu_item::resume:
-                                state_ = state::game;
-                                break;
-                            case main_menu_item::select_audio_device:
-                                menu_max_index_ = sdl::audio_device::num_devices();
-                                state_ = state::select_audio_device;
-                                break;
-                            case main_menu_item::select_gb_color_palette:
-                                menu_max_index_ = gb_palettes.size();
-                                state_ = state::select_gb_color_palette;
-                                break;
-                            case main_menu_item::select_rom_file:
-                                menu_max_index_ = rom_files_.size();
-                                state_ = state::select_rom_file;
-                                break;
-                            case main_menu_item::quit:
-                            default:
-                                window_.close();
-                                return tick_result::should_exit;
+                    menu_selected_index_ = 0;
+                    state_ = state::game;
+
+                    switch(prev_state) {
+                        case state::main_menu: {
+                            switch(prev_selected_idx) {
+                                case main_menu_item::resume:
+                                    state_ = state::game;
+                                    break;
+                                case main_menu_item::select_audio_device:
+                                    menu_max_index_ = sdl::audio_device::num_devices();
+                                    state_ = state::select_audio_device;
+                                    break;
+                                case main_menu_item::select_gb_color_palette:
+                                    menu_max_index_ = gb_palettes.size();
+                                    state_ = state::select_gb_color_palette;
+                                    break;
+                                case main_menu_item::select_rom_file:
+                                    std::stable_partition(begin(roms_), end(roms_), is_rom_favorite);
+
+                                    menu_max_index_ = roms_.size();
+                                    state_ = state::select_rom_file;
+                                    break;
+                                case main_menu_item::quit:
+                                default:
+                                    window_.close();
+                                    return tick_result::should_exit;
+                            }
+                            break;
                         }
-                        break;
-                    }
-                    case state::select_audio_device: {
-                        audio_device_ = sdl::audio_device{
-                            sdl::audio_device::device_name(prev_selected_idx),
-                            2u, sdl::audio_device::format::s16,
-                            gameboy::apu::sampling_rate,
-                            gameboy::apu::sample_size
-                        };
-                        audio_device_.resume();
-                        break;
-                    }
-                    case state::select_gb_color_palette: {
-                        gb_->set_gb_palette(*gb_palettes[prev_selected_idx].second);
-                        break;
-                    }
-                    case state::select_rom_file: {
-                        state_ = state::game;
-                        gb_->load_rom(rom_files_[prev_selected_idx]);
-                        window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
+                        case state::select_audio_device: {
+                            config_[config_key_audio_device] = prev_selected_idx;
 
-                        if(on_new_rom_) {
-                            on_new_rom_();
+                            audio_device_ = sdl::audio_device{
+                              sdl::audio_device::device_name(prev_selected_idx),
+                              2u, sdl::audio_device::format::s16,
+                              gameboy::apu::sampling_rate,
+                              gameboy::apu::sample_size
+                            };
+                            audio_device_.resume();
+                            break;
                         }
-                        break;
+                        case state::select_gb_color_palette: {
+                            gb_->set_gb_palette(*gb_palettes[prev_selected_idx].second);
+                            config_
+                              [gb_->get_bus()->get_cartridge()->get_rom_path().filename().string()]
+                              [config_key_gb_palette_idx] = prev_selected_idx;
+                            break;
+                        }
+                        case state::select_rom_file: {
+                            state_ = state::game;
+
+                            const auto cartridge = gb_->get_bus()->get_cartridge();
+                            const auto& rom_path = roms_[prev_selected_idx].path;
+                            if(cartridge->get_rom_path() == rom_path) {
+                                break;
+                            }
+
+                            gb_->load_rom(rom_path);
+                            window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
+
+                            if(!cartridge->cgb_enabled()) {
+                                auto& rom_entry = config_[rom_path.filename().string()];
+                                if(auto palette_it = rom_entry.find(config_key_gb_palette_idx); palette_it != rom_entry.end()) {
+                                    gb_->set_gb_palette(*gb_palettes[palette_it->get<int32_t>()].second);
+                                }
+                            }
+
+                            if(on_new_rom_) {
+                                on_new_rom_();
+                            }
+                            break;
+                        }
+                        case state::game:
+                        default:
+                            break;
                     }
-                    case state::game:
-                    default:
-                        break;
                 }
             }
         }
@@ -486,16 +541,25 @@ void frontend::draw_gb_palette_select() noexcept
 
 void frontend::draw_rom_select() noexcept
 {
-    // todo make 2 tabs: with save files and all roms
     draw_fullscreen_imgui_window("##select_rom", "Select a rom:", window_, [&]() {
-        ImGuiListClipper clipper(rom_files_.size());
+        ImGuiListClipper clipper(roms_.size());
         while(clipper.Step()) {
             for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
                 const auto selected = menu_selected_index_ == i;
-                auto name = rom_files_[i].filename();
+                auto name = roms_[i].path.filename();
                 name.replace_extension();
 
+                const auto is_favorite = roms_[i].is_favorite;
+                if(is_favorite) {
+                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.f, 1.f, 0.f, 1.f});
+                }
+
                 ImGui::Selectable(name.string().c_str(), selected);
+
+                if(is_favorite) {
+                    ImGui::PopStyleColor();
+                }
+
                 if(selected) {
                     ImGui::SetScrollHereY();
                 }

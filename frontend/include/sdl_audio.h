@@ -38,7 +38,9 @@ public:
     void pause() noexcept;
 
     void enqueue(const void* data, size_t size_in_bytes) noexcept;
-    size_t queue_size() noexcept;
+    [[nodiscard]] size_t queue_size() noexcept;
+
+    [[nodiscard]] uint32_t get_id() const noexcept { return device_id_; }
 
 private:
     uint32_t device_id_ = invalid_id;
