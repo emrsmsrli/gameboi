@@ -62,6 +62,7 @@ int main(int argc, char* argv[])
     gb_frontend.on_new_rom({gameboy::connect_arg<&gameboy::debugger::on_new_rom>, debugger});
 #endif //WITH_DEBUGGER
 
+    gb_frontend.window().requestFocus();
     while(true) {
         if(!gb_frontend.window().hasFocus()
 #if WITH_DEBUGGER
