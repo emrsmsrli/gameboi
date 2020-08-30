@@ -224,7 +224,7 @@ void frontend::render_frame() noexcept
 
 frontend::tick_result frontend::tick()
 {
-    ImGui::SFML::SetCurrentWindow(window_);
+    // not needed, pi won't have debugger ImGui::SFML::SetCurrentWindow(window_);
 
     while(window_.pollEvent(event_)) {
         ImGui::SFML::ProcessEvent(event_);
