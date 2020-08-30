@@ -1,3 +1,6 @@
+#include <thread>
+#include <chrono>
+
 #include <SFML/Window/Event.hpp>
 #include <cxxopts.hpp>
 #include <spdlog/sinks/stdout_color_sinks.h>
