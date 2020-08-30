@@ -129,10 +129,12 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
       gameboy::apu::sample_size
     }
 {
-    //window_.setFramerateLimit(60u);
+    window_.setFramerateLimit(60u);
     window_.setVerticalSyncEnabled(false);
     window_buffer_.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
     window_texture_.create(gameboy::screen_width, gameboy::screen_height);
+
+    ImGui::SFML::Init(window_);
 
     window_sprite_.setTexture(window_texture_);
 
@@ -143,8 +145,6 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
     render_frame();
 
     audio_device_.resume();
-
-    ImGui::SFML::Init(window_);
 
     ImGui::GetIO().Fonts->AddFontFromFileTTF("res/arcade.ttf", 18.f);
     ImGui::SFML::UpdateFontTexture();
