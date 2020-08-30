@@ -27,6 +27,13 @@ class gameboy;
 class debugger {
 public:
     explicit debugger(observer<gameboy> gb);
+    ~debugger();
+
+    debugger(const debugger&) = delete;
+    debugger(debugger&&) = delete;
+
+    debugger& operator=(const debugger&) = delete;
+    debugger& operator=(debugger&&) = delete;
 
     void tick();
     void on_instruction(const address16& addr, const instruction::info& info, uint16_t data) noexcept;

@@ -1,19 +1,17 @@
 #include "imgui-SFML.h"
 #include <imgui.h>
 
-#include <SFML/Config.hpp>
-#include <SFML/Graphics/Color.hpp>
 #include <SFML/Graphics/RenderTarget.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window/Clipboard.hpp>
-#include <SFML/Window/Cursor.hpp>
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Touch.hpp>
-#include <SFML/Window/Window.hpp>
 
+#include <array>
+#include <algorithm>
 #include <cassert>
 #include <cmath>    // abs
 #include <cstddef>  // offsetof, NULL
@@ -25,8 +23,6 @@
 #include <android/native_activity.h>
 #include <jni.h>
 #include <SFML/System/NativeActivity.hpp>
-
-static bool s_wantTextInput = false;
 
 int openKeyboardIME() {
     ANativeActivity* activity = sf::getNativeActivity();
@@ -116,20 +112,8 @@ static_assert(sizeof(GLuint) <= sizeof(ImTextureID),
 
 namespace {
 // data
-static bool s_windowHasFocus = false;
-static bool s_mousePressed[3] = {false, false, false};
-static bool s_touchDown[3] = {false, false, false};
-static bool s_mouseMoved = false;
-static sf::Vector2i s_touchPos;
-static sf::Texture* s_fontTexture =
-    NULL;  // owning pointer to internal font atlas which is used if user
-           // doesn't set custom sf::Texture.
-
-static const unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
-static unsigned int s_joystickId = NULL_JOYSTICK_ID;
-
-static const unsigned int NULL_JOYSTICK_BUTTON = sf::Joystick::ButtonCount;
-static unsigned int s_joystickMapping[ImGuiNavInput_COUNT];
+constexpr unsigned int NULL_JOYSTICK_ID = sf::Joystick::Count;
+constexpr unsigned int NULL_JOYSTICK_BUTTON = sf::Joystick::ButtonCount;
 
 struct StickInfo {
     sf::Joystick::Axis xAxis;
@@ -141,8 +125,41 @@ struct StickInfo {
     float threshold;
 };
 
-StickInfo s_dPadInfo;
-StickInfo s_lStickInfo;
+struct WindowContext {
+    sf::Window* window;
+    ImGuiContext* im_ctx;
+
+    bool windowHasFocus = false;
+    std::array<bool, 3> mousePressed{false, false, false};
+    std::array<bool, 3> touchDown{false, false, false};
+    bool mouseMoved = false;
+    sf::Vector2i touchPos;
+    sf::Texture* fontTexture = nullptr; // owning pointer to internal font atlas which is used if user
+                                        // doesn't set custom sf::Texture.
+    unsigned int joystickId = NULL_JOYSTICK_ID;
+    std::array<unsigned int, ImGuiNavInput_COUNT> joystickMapping;
+    StickInfo dPadInfo;
+    StickInfo lStickInfo;
+
+    std::array<sf::Cursor*, ImGuiMouseCursor_COUNT> mouseCursors;
+    std::array<bool, ImGuiMouseCursor_COUNT> mouseCursorLoaded;
+
+#ifdef ANDROID
+#ifdef USE_JNI
+    bool wantTextInput = false;
+#endif
+#endif
+};
+
+std::vector<WindowContext> windowContexts;
+WindowContext* s_currentWindowContext = nullptr;
+
+WindowContext* findContext(const sf::Window& w) {
+    auto it = std::find_if(begin(windowContexts), end(windowContexts), [&](const WindowContext& ctx) {
+        return ctx.window->getSystemHandle() == w.getSystemHandle();
+    });
+    return it == end(windowContexts) ? nullptr : &(*it);
+}
 
 // various helper functions
 ImVec2 getTopLeftAbsolute(const sf::FloatRect& rect);
@@ -180,9 +197,6 @@ void loadMouseCursor(ImGuiMouseCursor imguiCursorType,
                      sf::Cursor::Type sfmlCursorType);
 void updateMouseCursor(sf::Window& window);
 
-sf::Cursor* s_mouseCursors[ImGuiMouseCursor_COUNT];
-bool s_mouseCursorLoaded[ImGuiMouseCursor_COUNT];
-
 }  // namespace
 
 namespace ImGui {
@@ -204,7 +218,10 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
         sizeof(ImTextureID));  // ImTextureID is not large enough to fit GLuint.
 #endif
 
-    ImGui::CreateContext();
+    windowContexts.push_back(WindowContext{&window, ImGui::CreateContext()});
+    s_currentWindowContext = &windowContexts.back();
+
+    ImGui::SetCurrentContext(s_currentWindowContext->im_ctx);
     ImGuiIO& io = ImGui::GetIO();
 
     // tell ImGui which features we support
@@ -240,10 +257,10 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
     io.KeyMap[ImGuiKey_Y] = sf::Keyboard::Y;
     io.KeyMap[ImGuiKey_Z] = sf::Keyboard::Z;
 
-    s_joystickId = getConnectedJoystickId();
+    s_currentWindowContext->joystickId = getConnectedJoystickId();
 
     for (unsigned int i = 0; i < ImGuiNavInput_COUNT; i++) {
-        s_joystickMapping[i] = NULL_JOYSTICK_BUTTON;
+        s_currentWindowContext->joystickMapping[i] = NULL_JOYSTICK_BUTTON;
     }
 
     initDefaultJoystickMapping();
@@ -257,7 +274,7 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
 
     // load mouse cursors
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-        s_mouseCursorLoaded[i] = false;
+        s_currentWindowContext->mouseCursorLoaded[i] = false;
     }
 
     loadMouseCursor(ImGuiMouseCursor_Arrow, sf::Cursor::Arrow);
@@ -271,10 +288,11 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
                     sf::Cursor::SizeTopLeftBottomRight);
     loadMouseCursor(ImGuiMouseCursor_Hand, sf::Cursor::Hand);
 
-    if (s_fontTexture) {  // delete previously created texture
-        delete s_fontTexture;
+    if (s_currentWindowContext->fontTexture) {  // delete previously created texture
+        delete s_currentWindowContext->fontTexture;
     }
-    s_fontTexture = new sf::Texture;
+
+    s_currentWindowContext->fontTexture = new sf::Texture;
 
     if (loadDefaultFont) {
         // this will load default font automatically
@@ -282,32 +300,36 @@ void Init(sf::Window& window, const sf::Vector2f& displaySize, bool loadDefaultF
         UpdateFontTexture();
     }
 
-    s_windowHasFocus = window.hasFocus();
+    s_currentWindowContext->windowHasFocus = window.hasFocus();
+}
+
+void SetCurrentWindow(const sf::Window& window) {
+    s_currentWindowContext = findContext(window);
+    ImGui::SetCurrentContext(s_currentWindowContext->im_ctx);
 }
 
 void ProcessEvent(const sf::Event& event) {
-    if (s_windowHasFocus) {
+    if (s_currentWindowContext->windowHasFocus) {
         ImGuiIO& io = ImGui::GetIO();
 
         switch (event.type) {
-            case sf::Event::MouseMoved:
-                s_mouseMoved = true;
+            case sf::Event::MouseMoved: s_currentWindowContext->mouseMoved = true;
                 break;
             case sf::Event::MouseButtonPressed:  // fall-through
             case sf::Event::MouseButtonReleased: {
                 int button = event.mouseButton.button;
                 if (event.type == sf::Event::MouseButtonPressed &&
                     button >= 0 && button < 3) {
-                    s_mousePressed[event.mouseButton.button] = true;
+                    s_currentWindowContext->mousePressed[event.mouseButton.button] = true;
                 }
             } break;
             case sf::Event::TouchBegan:  // fall-through
             case sf::Event::TouchEnded: {
-                s_mouseMoved = false;
+                s_currentWindowContext->mouseMoved = false;
                 int button = event.touch.finger;
                 if (event.type == sf::Event::TouchBegan && button >= 0 &&
                     button < 3) {
-                    s_touchDown[event.touch.finger] = true;
+                    s_currentWindowContext->touchDown[event.touch.finger] = true;
                 }
             } break;
             case sf::Event::MouseWheelScrolled:
@@ -332,15 +354,13 @@ void ProcessEvent(const sf::Event& event) {
                 io.AddInputCharacter(event.text.unicode);
                 break;
             case sf::Event::JoystickConnected:
-                if (s_joystickId == NULL_JOYSTICK_ID) {
-                    s_joystickId = event.joystickConnect.joystickId;
+                if (s_currentWindowContext->joystickId == NULL_JOYSTICK_ID) {
+                    s_currentWindowContext->joystickId = event.joystickConnect.joystickId;
                 }
                 break;
             case sf::Event::JoystickDisconnected:
-                if (s_joystickId ==
-                    event.joystickConnect
-                        .joystickId) {  // used gamepad was disconnected
-                    s_joystickId = getConnectedJoystickId();
+                if (s_currentWindowContext->joystickId == event.joystickConnect.joystickId) {  // used gamepad was disconnected
+                    s_currentWindowContext->joystickId = getConnectedJoystickId();
                 }
                 break;
             default:
@@ -349,11 +369,9 @@ void ProcessEvent(const sf::Event& event) {
     }
 
     switch (event.type) {
-        case sf::Event::LostFocus:
-            s_windowHasFocus = false;
+        case sf::Event::LostFocus: s_currentWindowContext->windowHasFocus = false;
             break;
-        case sf::Event::GainedFocus:
-            s_windowHasFocus = true;
+        case sf::Event::GainedFocus: s_currentWindowContext->windowHasFocus = true;
             break;
         default:
             break;
@@ -368,11 +386,11 @@ void Update(sf::Window& window, sf::RenderTarget& target, sf::Time dt) {
     // Update OS/hardware mouse cursor if imgui isn't drawing a software cursor
     updateMouseCursor(window);
 
-    if (!s_mouseMoved) {
+    if (!s_currentWindowContext->mouseMoved) {
         if (sf::Touch::isDown(0))
-            s_touchPos = sf::Touch::getPosition(0, window);
+            s_currentWindowContext->touchPos = sf::Touch::getPosition(0, window);
 
-        Update(s_touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
+        Update(s_currentWindowContext->touchPos, static_cast<sf::Vector2f>(target.getSize()), dt);
     } else {
         Update(sf::Mouse::getPosition(window),
                static_cast<sf::Vector2f>(target.getSize()), dt);
@@ -390,7 +408,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
     io.DisplaySize = displaySize;
     io.DeltaTime = dt.asSeconds();
 
-    if (s_windowHasFocus) {
+    if (s_currentWindowContext->windowHasFocus) {
         if (io.WantSetMousePos) {
             sf::Vector2i mousePos(static_cast<int>(io.MousePos.x),
                                   static_cast<int>(io.MousePos.y));
@@ -399,11 +417,13 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
             io.MousePos = mousePos;
         }
         for (unsigned int i = 0; i < 3; i++) {
-            io.MouseDown[i] = s_touchDown[i] || sf::Touch::isDown(i) ||
-                              s_mousePressed[i] ||
-                              sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
-            s_mousePressed[i] = false;
-            s_touchDown[i] = false;
+            io.MouseDown[i] =
+                s_currentWindowContext->touchDown[i] ||
+                sf::Touch::isDown(i) ||
+                s_currentWindowContext->mousePressed[i] ||
+                sf::Mouse::isButtonPressed((sf::Mouse::Button)i);
+            s_currentWindowContext->mousePressed[i] = false;
+            s_currentWindowContext->touchDown[i] = false;
         }
     }
 
@@ -419,14 +439,14 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
 
 #ifdef ANDROID
 #ifdef USE_JNI
-    if (io.WantTextInput && !s_wantTextInput) {
+    if (io.WantTextInput && !anyWantTextInput) {
         openKeyboardIME();
-        s_wantTextInput = true;
+        s_currentWindowContext->wantTextInput = true;
     }
 
-    if (!io.WantTextInput && s_wantTextInput) {
+    if (!io.WantTextInput && s_currentWindowContext->wantTextInput) {
         closeKeyboardIME();
-        s_wantTextInput = false;
+        s_currentWindowContext->wantTextInput = false;
     }
 #endif
 #endif
@@ -435,8 +455,7 @@ void Update(const sf::Vector2i& mousePos, const sf::Vector2f& displaySize,
                                        // atlas (see createFontTexture)
 
     // gamepad navigation
-    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) &&
-        s_joystickId != NULL_JOYSTICK_ID) {
+    if ((io.ConfigFlags & ImGuiConfigFlags_NavEnableGamepad) && s_currentWindowContext->joystickId != NULL_JOYSTICK_ID) {
         updateJoystickActionState(io, ImGuiNavInput_Activate);
         updateJoystickActionState(io, ImGuiNavInput_Cancel);
         updateJoystickActionState(io, ImGuiNavInput_Input);
@@ -466,24 +485,35 @@ void Render() {
     RenderDrawLists(ImGui::GetDrawData());
 }
 
+void Shutdown(const sf::Window& window) {
+    SetCurrentWindow(window);
+    Shutdown();
+}
+
 void Shutdown() {
     ImGui::GetIO().Fonts->TexID = (ImTextureID)NULL;
 
-    if (s_fontTexture) {  // if internal texture was created, we delete it
-        delete s_fontTexture;
-        s_fontTexture = NULL;
+    if (s_currentWindowContext->fontTexture) {  // if internal texture was created, we delete it
+        delete s_currentWindowContext->fontTexture;
+        s_currentWindowContext->fontTexture = NULL;
     }
 
     for (int i = 0; i < ImGuiMouseCursor_COUNT; ++i) {
-        if (s_mouseCursorLoaded[i]) {
-            delete s_mouseCursors[i];
-            s_mouseCursors[i] = NULL;
+        if (s_currentWindowContext->mouseCursorLoaded[i]) {
+            delete s_currentWindowContext->mouseCursors[i];
+            s_currentWindowContext->mouseCursors[i] = NULL;
 
-            s_mouseCursorLoaded[i] = false;
+            s_currentWindowContext->mouseCursorLoaded[i] = false;
         }
     }
 
-    ImGui::DestroyContext();
+    ImGui::DestroyContext(s_currentWindowContext->im_ctx);
+
+    windowContexts.erase(std::remove_if(begin(windowContexts), end(windowContexts), [](const WindowContext& ctx) {
+        return s_currentWindowContext->window->getSystemHandle() == ctx.window->getSystemHandle();
+    }), end(windowContexts));
+
+    s_currentWindowContext = windowContexts.empty() ? nullptr : &windowContexts.back();
 }
 
 void UpdateFontTexture() {
@@ -493,7 +523,7 @@ void UpdateFontTexture() {
 
     io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-    sf::Texture& texture = *s_fontTexture;
+    sf::Texture& texture = *s_currentWindowContext->fontTexture;
     texture.create(width, height);
     texture.update(pixels);
 
@@ -501,47 +531,47 @@ void UpdateFontTexture() {
         convertGLTextureHandleToImTextureID(texture.getNativeHandle());
 }
 
-sf::Texture& GetFontTexture() { return *s_fontTexture; }
+sf::Texture& GetFontTexture() { return *s_currentWindowContext->fontTexture; }
 
 void SetActiveJoystickId(unsigned int joystickId) {
     assert(joystickId < sf::Joystick::Count);
-    s_joystickId = joystickId;
+    s_currentWindowContext->joystickId = joystickId;
 }
 
 void SetJoytickDPadThreshold(float threshold) {
     assert(threshold >= 0.f && threshold <= 100.f);
-    s_dPadInfo.threshold = threshold;
+    s_currentWindowContext->dPadInfo.threshold = threshold;
 }
 
 void SetJoytickLStickThreshold(float threshold) {
     assert(threshold >= 0.f && threshold <= 100.f);
-    s_lStickInfo.threshold = threshold;
+    s_currentWindowContext->lStickInfo.threshold = threshold;
 }
 
 void SetJoystickMapping(int action, unsigned int joystickButton) {
     assert(action < ImGuiNavInput_COUNT);
     assert(joystickButton < sf::Joystick::ButtonCount);
-    s_joystickMapping[action] = joystickButton;
+    s_currentWindowContext->joystickMapping[action] = joystickButton;
 }
 
 void SetDPadXAxis(sf::Joystick::Axis dPadXAxis, bool inverted) {
-    s_dPadInfo.xAxis = dPadXAxis;
-    s_dPadInfo.xInverted = inverted;
+    s_currentWindowContext->dPadInfo.xAxis = dPadXAxis;
+    s_currentWindowContext->dPadInfo.xInverted = inverted;
 }
 
 void SetDPadYAxis(sf::Joystick::Axis dPadYAxis, bool inverted) {
-    s_dPadInfo.yAxis = dPadYAxis;
-    s_dPadInfo.yInverted = inverted;
+    s_currentWindowContext->dPadInfo.yAxis = dPadYAxis;
+    s_currentWindowContext->dPadInfo.yInverted = inverted;
 }
 
 void SetLStickXAxis(sf::Joystick::Axis lStickXAxis, bool inverted) {
-    s_lStickInfo.xAxis = lStickXAxis;
-    s_lStickInfo.xInverted = inverted;
+    s_currentWindowContext->lStickInfo.xAxis = lStickXAxis;
+    s_currentWindowContext->lStickInfo.xInverted = inverted;
 }
 
 void SetLStickYAxis(sf::Joystick::Axis lStickYAxis, bool inverted) {
-    s_lStickInfo.yAxis = lStickYAxis;
-    s_lStickInfo.yInverted = inverted;
+    s_currentWindowContext->lStickInfo.yAxis = lStickYAxis;
+    s_currentWindowContext->lStickInfo.yInverted = inverted;
 }
 
 }  // end of namespace SFML
@@ -844,52 +874,53 @@ void initDefaultJoystickMapping() {
 
 void updateJoystickActionState(ImGuiIO& io, ImGuiNavInput_ action) {
     bool isPressed =
-        sf::Joystick::isButtonPressed(s_joystickId, s_joystickMapping[action]);
+        sf::Joystick::isButtonPressed(
+      s_currentWindowContext->joystickId, s_currentWindowContext->joystickMapping[action]);
     io.NavInputs[action] = isPressed ? 1.0f : 0.0f;
 }
 
 void updateJoystickDPadState(ImGuiIO& io) {
     float dpadXPos =
-        sf::Joystick::getAxisPosition(s_joystickId, s_dPadInfo.xAxis);
-    if (s_dPadInfo.xInverted) dpadXPos = -dpadXPos;
+        sf::Joystick::getAxisPosition(s_currentWindowContext->joystickId, s_currentWindowContext->dPadInfo.xAxis);
+    if (s_currentWindowContext->dPadInfo.xInverted) dpadXPos = -dpadXPos;
 
     float dpadYPos =
-        sf::Joystick::getAxisPosition(s_joystickId, s_dPadInfo.yAxis);
-    if (s_dPadInfo.yInverted) dpadYPos = -dpadYPos;
+        sf::Joystick::getAxisPosition(s_currentWindowContext->joystickId, s_currentWindowContext->dPadInfo.yAxis);
+    if (s_currentWindowContext->dPadInfo.yInverted) dpadYPos = -dpadYPos;
 
     io.NavInputs[ImGuiNavInput_DpadLeft] =
-        dpadXPos < -s_dPadInfo.threshold ? 1.0f : 0.0f;
+        dpadXPos < -s_currentWindowContext->dPadInfo.threshold ? 1.0f : 0.0f;
     io.NavInputs[ImGuiNavInput_DpadRight] =
-        dpadXPos > s_dPadInfo.threshold ? 1.0f : 0.0f;
+        dpadXPos > s_currentWindowContext->dPadInfo.threshold ? 1.0f : 0.0f;
 
     io.NavInputs[ImGuiNavInput_DpadUp] =
-        dpadYPos < -s_dPadInfo.threshold ? 1.0f : 0.0f;
+        dpadYPos < -s_currentWindowContext->dPadInfo.threshold ? 1.0f : 0.0f;
     io.NavInputs[ImGuiNavInput_DpadDown] =
-        dpadYPos > s_dPadInfo.threshold ? 1.0f : 0.0f;
+        dpadYPos > s_currentWindowContext->dPadInfo.threshold ? 1.0f : 0.0f;
 }
 
 void updateJoystickLStickState(ImGuiIO& io) {
     float lStickXPos =
-        sf::Joystick::getAxisPosition(s_joystickId, s_lStickInfo.xAxis);
-    if (s_lStickInfo.xInverted) lStickXPos = -lStickXPos;
+        sf::Joystick::getAxisPosition(s_currentWindowContext->joystickId, s_currentWindowContext->lStickInfo.xAxis);
+    if (s_currentWindowContext->lStickInfo.xInverted) lStickXPos = -lStickXPos;
 
     float lStickYPos =
-        sf::Joystick::getAxisPosition(s_joystickId, s_lStickInfo.yAxis);
-    if (s_lStickInfo.yInverted) lStickYPos = -lStickYPos;
+        sf::Joystick::getAxisPosition(s_currentWindowContext->joystickId, s_currentWindowContext->lStickInfo.yAxis);
+    if (s_currentWindowContext->lStickInfo.yInverted) lStickYPos = -lStickYPos;
 
-    if (lStickXPos < -s_lStickInfo.threshold) {
+    if (lStickXPos < -s_currentWindowContext->lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickLeft] = std::abs(lStickXPos / 100.f);
     }
 
-    if (lStickXPos > s_lStickInfo.threshold) {
+    if (lStickXPos > s_currentWindowContext->lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickRight] = lStickXPos / 100.f;
     }
 
-    if (lStickYPos < -s_lStickInfo.threshold) {
+    if (lStickYPos < -s_currentWindowContext->lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickUp] = std::abs(lStickYPos / 100.f);
     }
 
-    if (lStickYPos > s_lStickInfo.threshold) {
+    if (lStickYPos > s_currentWindowContext->lStickInfo.threshold) {
         io.NavInputs[ImGuiNavInput_LStickDown] = lStickYPos / 100.f;
     }
 }
@@ -906,9 +937,8 @@ const char* getClipboadText(void* /*userData*/) {
 
 void loadMouseCursor(ImGuiMouseCursor imguiCursorType,
                      sf::Cursor::Type sfmlCursorType) {
-    s_mouseCursors[imguiCursorType] = new sf::Cursor();
-    s_mouseCursorLoaded[imguiCursorType] =
-        s_mouseCursors[imguiCursorType]->loadFromSystem(sfmlCursorType);
+    s_currentWindowContext->mouseCursors[imguiCursorType] = new sf::Cursor();
+    s_currentWindowContext->mouseCursorLoaded[imguiCursorType] = s_currentWindowContext->mouseCursors[imguiCursorType]->loadFromSystem(sfmlCursorType);
 }
 
 void updateMouseCursor(sf::Window& window) {
@@ -920,9 +950,9 @@ void updateMouseCursor(sf::Window& window) {
         } else {
             window.setMouseCursorVisible(true);
 
-            sf::Cursor& c = s_mouseCursorLoaded[cursor]
-                                ? *s_mouseCursors[cursor]
-                                : *s_mouseCursors[ImGuiMouseCursor_Arrow];
+            sf::Cursor& c = s_currentWindowContext->mouseCursorLoaded[cursor]
+                                ? *s_currentWindowContext->mouseCursors[cursor]
+                                : *s_currentWindowContext->mouseCursors[ImGuiMouseCursor_Arrow];
             window.setMouseCursor(c);
         }
     }

@@ -122,6 +122,7 @@ void cartridge::parse_rom()
         spdlog::critical("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
     }
 
+    name_.clear();
     std::copy(
         begin(rom_) + *begin(rom_title_range),
         begin(rom_) + *end(rom_title_range),
