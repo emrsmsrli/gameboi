@@ -155,7 +155,7 @@ frontend::~frontend()
     std::ofstream config_file{config_file_name};
     config_file << std::setw(4) /*pretty print*/ << config_;
 
-    ImGui::SFML::Shutdown();
+    ImGui::SFML::Shutdown(window_);
 }
 
 void frontend::register_gameboy(const gameboy::observer<gameboy::gameboy> gb) noexcept
@@ -224,6 +224,8 @@ void frontend::render_frame() noexcept
 
 frontend::tick_result frontend::tick()
 {
+    ImGui::SFML::SetCurrentWindow(window_);
+
     while(window_.pollEvent(event_)) {
         ImGui::SFML::ProcessEvent(event_);
 

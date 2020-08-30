@@ -31,10 +31,19 @@ debugger::debugger(const observer<gameboy> gb)
 
     window_.resetGLStates();
     logger_->info("debugger initialized");
+
+    ImGui::SFML::Init(window_);
+}
+
+debugger::~debugger()
+{
+    ImGui::SFML::Shutdown(window_);
 }
 
 void debugger::tick()
 {
+    ImGui::SFML::SetCurrentWindow(window_);
+
     sf::Event event{};
     while(window_.pollEvent(event)) {
         ImGui::SFML::ProcessEvent(event);
