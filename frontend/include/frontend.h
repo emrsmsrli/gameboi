@@ -37,7 +37,6 @@ public:
 
     void on_new_rom(const on_new_rom_func on_new_rom) noexcept { on_new_rom_ = on_new_rom; }
 
-    /** @return true if should continue ticking, false otherwise */
     [[nodiscard]] tick_result tick();
 
     void play_sound(const gameboy::apu::sound_buffer& sound_buffer) noexcept;
