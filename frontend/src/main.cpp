@@ -1,8 +1,8 @@
-#include <thread>
 #include <chrono>
+#include <thread>
 
-#include <SFML/Window/Event.hpp>
 #include <cxxopts.hpp>
+#include <fmt/core.h>
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include <spdlog/spdlog.h>
 

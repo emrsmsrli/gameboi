@@ -1,13 +1,18 @@
 #include "frontend.h"
 
+#include <algorithm>
+#include <array>
 #include <chrono>
-#include <thread>
 #include <fstream>
 #include <iomanip>
+#include <string_view>
+#include <thread>
+#include <utility>
+
+#include <spdlog/spdlog.h>
 
 #include "imgui-SFML.h"
 #include "imgui.h"
-#include "sdl_core.h"
 
 namespace
 {

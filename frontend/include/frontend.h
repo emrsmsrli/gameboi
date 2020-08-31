@@ -1,14 +1,16 @@
 #ifndef GAMEBOY_FRONTEND_H
 #define GAMEBOY_FRONTEND_H
 
-#include <optional>
 #include <cstdint>
+#include <optional>
+#include <vector>
 
-#include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/Window/Event.hpp>
 #include <nlohmann/json.hpp>
 
 #include "gameboy/gameboy.h"
