@@ -267,6 +267,14 @@ void cartridge::load_rom(const filesystem::path& rom_path)
     parse_rom();
 }
 
+void cartridge::save_ram_rtc() const
+{
+    spdlog::trace("saving ram and rtc data");
+
+    save_ram();
+    save_rtc();
+}
+
 uint8_t cartridge::read_rom(const address16& address) const
 {
     const auto physical_addr = [&]() -> size_t {
