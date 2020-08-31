@@ -6,8 +6,6 @@
 #include <variant>
 #include <vector>
 
-#include <spdlog/spdlog.h>
-
 #include "gameboy/memory/addressfwd.h"
 #include "gameboy/memory/controller/mbc1.h"
 #include "gameboy/memory/controller/mbc2.h"
@@ -59,13 +57,7 @@ public:
     [[nodiscard]] const filesystem::path& get_rom_path() const noexcept { return rom_path_; };
 
     void load_rom(const filesystem::path& rom_path);
-    void save_ram_rtc() const
-    {
-        spdlog::trace("saving ram and rtc data");
-
-        save_ram();
-        save_rtc();
-    }
+    void save_ram_rtc() const;
 
 private:
     filesystem::path rom_path_;

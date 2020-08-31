@@ -1,14 +1,16 @@
 #ifndef GAMEBOY_FRONTEND_H
 #define GAMEBOY_FRONTEND_H
 
-#include <optional>
 #include <cstdint>
+#include <optional>
+#include <vector>
 
-#include <SFML/Window/Event.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SFML/System/Clock.hpp>
+#include <SFML/Window/Event.hpp>
 #include <nlohmann/json.hpp>
 
 #include "gameboy/gameboy.h"
@@ -47,7 +49,7 @@ public:
     void register_gameboy(gameboy::observer<gameboy::gameboy> gb) noexcept;
 
 private:
-    struct rom {
+    struct rom_entry {
         gameboy::filesystem::path path;
         std::optional<uint32_t> gb_palette_idx;
         bool is_favorite;
@@ -62,7 +64,7 @@ private:
     };
 
     nlohmann::json config_;
-    std::vector<rom> roms_;
+    std::vector<rom_entry> roms_;
 
     gameboy::observer<gameboy::gameboy> gb_;
     sf::Image window_buffer_;
@@ -95,7 +97,7 @@ private:
           !gb_->get_bus()->get_cartridge()->cgb_enabled();
     }
 
-    [[nodiscard]] static bool is_rom_favorite(const rom& entry) noexcept
+    [[nodiscard]] static bool is_rom_favorite(const rom_entry& entry) noexcept
     {
         return entry.is_favorite;
     }
