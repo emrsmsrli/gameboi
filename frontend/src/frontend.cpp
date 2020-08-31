@@ -98,7 +98,7 @@ frontend::frontend(
                 }
 
                 spdlog::trace("rom: {}", file_name);
-                roms_.push_back(rom{path, gb_palette_idx, is_favorite});
+                roms_.push_back(rom_entry{path, gb_palette_idx, is_favorite});
             }
         }
 
@@ -109,7 +109,7 @@ frontend::frontend(
     } else if(gameboy::filesystem::is_regular_file(rom_base_path) &&
       (rom_base_path.extension() == ".gb" || rom_base_path.extension() == ".gbc")) {
         state_ = state::game;
-        roms_.push_back(rom{rom_base_path, std::nullopt, false});
+        roms_.push_back(rom_entry{rom_base_path, std::nullopt, false});
     } else {
         spdlog::critical("incorrect folder or invalid rom file: {}", rom_base_path.string());
         std::terminate();
