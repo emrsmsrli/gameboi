@@ -77,11 +77,10 @@ int main(int argc, char* argv[])
             continue;
         }
 
-        if(const auto tick_result = gb_frontend.tick();
-           tick_result == frontend::tick_result::should_exit) {
-            break;
-        } else if(tick_result == frontend::tick_result::ticking) {
+        if(const auto tick_result = gb_frontend.tick(); tick_result == frontend::tick_result::ticking) {
             gb.tick_one_frame();
+        } else if(tick_result == frontend::tick_result::should_exit) {
+            break;
         }
 
 #if WITH_DEBUGGER
