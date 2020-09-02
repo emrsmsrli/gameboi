@@ -7,12 +7,21 @@
 namespace gameboy {
 
 gameboy::gameboy()
-    : gameboy(cartridge{}) {}
-gameboy::gameboy(const filesystem::path& rom_path)
-    : gameboy(cartridge{rom_path}) {}
+    : cartridge_{},
+      bus_{make_observer(this)},
+      mmu_{make_observer(bus_)},
+      cpu_{make_observer(bus_)},
+      ppu_{make_observer(bus_)},
+      apu_{make_observer(bus_)},
+      link_{make_observer(bus_)},
+      joypad_{make_observer(bus_)},
+      timer_{make_observer(bus_)}
+{
+    spdlog::info("gameboy v{}", version::version);
+}
 
-gameboy::gameboy(cartridge cart)
-    : cartridge_{std::move(cart)},
+gameboy::gameboy(const filesystem::path& rom_path)
+    : cartridge_{rom_path},
       bus_{make_observer(this)},
       mmu_{make_observer(bus_)},
       cpu_{make_observer(bus_)},
