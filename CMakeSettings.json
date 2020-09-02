@@ -7,7 +7,7 @@
             "inheritEnvironments": [ "msvc_x64_x64" ],
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DWITH_DEBUGGER=ON",
+            "cmakeCommandArgs": "-DWITH_DEBUGGER=OFF",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
             "variables": [
@@ -40,7 +40,7 @@
             "configurationType": "Release",
             "buildRoot": "${projectDir}\\out\\build\\${name}",
             "installRoot": "${projectDir}\\out\\install\\${name}",
-            "cmakeCommandArgs": "-DWITH_DEBUGGER=ON",
+            "cmakeCommandArgs": "-DWITH_DEBUGGER=OFF",
             "buildCommandArgs": "-v",
             "ctestCommandArgs": "",
             "inheritEnvironments": [ "msvc_x64_x64" ],
