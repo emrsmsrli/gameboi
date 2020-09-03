@@ -121,6 +121,7 @@ void cartridge::parse_rom()
 
     if(const auto expected = read(rom_, header_checksum_addr); checksum != expected) {
         spdlog::critical("rom checksum is not correct. expected: {}, calculated: {}", expected, checksum);
+        std::terminate();
     }
 
     name_.clear();
@@ -183,6 +184,7 @@ void cartridge::parse_rom()
         }
         default: {
             spdlog::critical("unimplemented cartridge type {:#04x}", magic_enum::enum_integer(mbc));
+            std::terminate();
         }
     }
 

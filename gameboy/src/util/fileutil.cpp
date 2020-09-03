@@ -13,6 +13,7 @@ std::vector<uint8_t> read_file(const filesystem::path& path)
     stream.unsetf(std::ios::skipws);
     if(!stream.is_open()) {
         spdlog::critical("stream could not be opened: {}", path.string());
+        std::terminate();
     }
 
     std::vector<uint8_t> bytes{
@@ -29,6 +30,7 @@ void write_file(const filesystem::path& path, const std::vector<uint8_t>& data)
     stream.unsetf(std::ios::skipws);
     if(!stream.is_open()) {
         spdlog::critical("stream could not be opened: {}", path.string());
+        std::terminate();
     }
 
     stream.write(reinterpret_cast<const char*>(data.data()), data.size());

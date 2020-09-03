@@ -1319,6 +1319,7 @@ uint8_t cpu::decode(const uint8_t inst, standard_instruction_set_t)
         }
         default: {
             spdlog::critical("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - info.length);
+            std::terminate();
         }
     }
 
@@ -2481,6 +2482,7 @@ uint8_t cpu::decode(const uint8_t inst, extended_instruction_set_t)
 
         default: {
             spdlog::critical("unknown instruction: {:#x}, address: {:#x}", inst, program_counter_.value() - 1);
+            std::terminate();
         }
     }
 
