@@ -5,15 +5,16 @@
 #include <optional>
 #include <vector>
 
+#include <SFML/Graphics/Font.hpp>
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SFML/System/Clock.hpp>
 #include <SFML/Window/Event.hpp>
 #include <nlohmann/json.hpp>
 
 #include "gameboy/gameboy.h"
+#include "list_view.h"
 #include "sdl_audio.h"
 
 class frontend {
@@ -59,7 +60,8 @@ private:
         main_menu,
         select_audio_device,
         select_gb_color_palette,
-        select_rom_file
+        select_rom_file,
+        quitting
     };
 
     nlohmann::json config_;
@@ -70,24 +72,31 @@ private:
     sf::Texture window_texture_;
     sf::Sprite window_sprite_;
     sf::RenderWindow window_;
-
+    sf::Font font_;
     sf::Event event_{};
-    sf::Clock dt_;
 
     sdl::audio_device audio_device_;
 
+    sf::RectangleShape menu_bg_;
+    sf::View menu_view_;
+
+    ui::list_view<ui::list_button> main_menu_;
+    ui::list_view<ui::list_button> select_audio_device_menu_;
+    ui::list_view<ui::list_button> select_gb_color_palette_menu_;
+    ui::list_view<ui::list_button> select_rom_file_menu_;
+
     state state_{state::select_rom_file};
-    int32_t menu_selected_index_ = -1;
-    int32_t menu_max_index_ = -1;
 
     on_new_rom_func on_new_rom_;
 
-    void handle_game_keys(const sf::Event& key_event) noexcept;
+    void on_main_menu_item_selected(size_t idx) noexcept;
+    void on_audio_device_selected(size_t idx) noexcept;
+    void on_gb_color_palette_selected(size_t idx) noexcept;
+    void on_rom_file_selected(size_t idx) noexcept;
 
-    void draw_menu() noexcept;
-    void draw_audio_device_select() noexcept;
-    void draw_gb_palette_select() noexcept;
-    void draw_rom_select() noexcept;
+    void generate_rom_select_menu_items() noexcept;
+
+    void handle_game_keys(const sf::Event& key_event) noexcept;
 
     [[nodiscard]] bool can_pick_gb_color_palette() noexcept
     {
