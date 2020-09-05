@@ -18,7 +18,7 @@
 
 class frontend {
 public:
-    enum class tick_result { ticking, paused, should_exit };
+    enum class tick_result { ticking, paused, should_quit };
 
     using on_new_rom_func = gameboy::delegate<void()>;
 
