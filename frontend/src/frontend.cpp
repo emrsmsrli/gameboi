@@ -128,12 +128,12 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
         fullscreen ? sf::Style::Fullscreen : sf::Style::Default
       ),
       audio_device_{
-      sdl::audio_device::device_name(config_.contains(config_key_audio_device)
-            ? config_[config_key_audio_device].get<int32_t>() : 0), 2u,
-      sdl::audio_device::format::s16,
-      gameboy::apu::sampling_rate,
-      gameboy::apu::sample_size
-    }
+        sdl::audio_device::device_name(config_.contains(config_key_audio_device)
+              ? config_[config_key_audio_device].get<int32_t>() : 0), 2u,
+        sdl::audio_device::format::s16,
+        gameboy::apu::sampling_rate,
+        gameboy::apu::sample_size
+      }
 {
     window_.setFramerateLimit(60u);
     window_.setVerticalSyncEnabled(false);
