@@ -98,7 +98,7 @@ public:
     {
         auto start_pos = position_;
         for(auto& entry : entries_) {
-            entry.draw(window, start_pos - sf::Vector2f{0.f, 600.f});
+            entry.draw(window, start_pos);
             start_pos.y += entry.height() + 2.f;
         }
 
