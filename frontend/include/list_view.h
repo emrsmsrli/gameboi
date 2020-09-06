@@ -26,12 +26,12 @@ void do_draw(sf::RenderWindow& w, T& t, const sf::Vector2f& offset) {
 
 } // namespace detail
 
-struct list_button {
+struct button {
     sf::Text text;
     sf::RectangleShape bg;
     bool disabled = false;
 
-    list_button(const sf::Font& f, const std::string& t, const uint32_t character_size = 30)
+    button(const sf::Font& f, const std::string& t, const uint32_t character_size = 30)
       : text{t, f, character_size},
         bg{{text.getGlobalBounds().width, text.getGlobalBounds().height}}
     {
