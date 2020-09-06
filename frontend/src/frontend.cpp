@@ -9,7 +9,6 @@
 #include <thread>
 #include <utility>
 
-#include <SFML/Graphics/Text.hpp>
 #include <spdlog/spdlog.h>
 
 namespace
