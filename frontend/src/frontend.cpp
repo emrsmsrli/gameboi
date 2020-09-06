@@ -130,7 +130,7 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
     main_menu_.emplace(font_, "Quit");
 
     for(auto& entry : main_menu_) {
-        entry.bg.setScale(2.f, 4.f);
+        entry.bg().setScale(2.f, 4.f);
     }
 
     // todo implement color menu
@@ -282,10 +282,10 @@ frontend::tick_result frontend::tick()
 
                         if(is_favorite) {
                             select_rom_file_menu_[select_rom_file_menu_.get_current_idx()]
-                              .text.setFillColor(sf::Color{0xFFFF00FF});
+                              .text().setFillColor(sf::Color{0xFFFF00FF});
                         } else {
                             select_rom_file_menu_[select_rom_file_menu_.get_current_idx()]
-                              .text.setFillColor(sf::Color::White);
+                              .text().setFillColor(sf::Color::White);
                         }
                     }
                     break;
@@ -426,7 +426,7 @@ void frontend::generate_rom_select_menu_items() noexcept
     std::for_each(begin(roms_), end(roms_), [&](const rom_entry& e) {
       auto& menu_entry = select_rom_file_menu_.emplace(font_, e.path.filename().string(), 18);
       if(e.is_favorite) {
-          menu_entry.text.setFillColor(sf::Color{0xFFFF00FF});
+          menu_entry.text().setFillColor(sf::Color{0xFFFF00FF});
       }
     });
     select_rom_file_menu_[0].set_selected(true);

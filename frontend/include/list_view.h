@@ -26,50 +26,57 @@ void do_draw(sf::RenderWindow& w, T& t, const sf::Vector2f& offset) {
 
 } // namespace detail
 
-struct button {
-    sf::Text text;
-    sf::RectangleShape bg;
-    bool disabled = false;
-
-    button(const sf::Font& f, const std::string& t, const uint32_t character_size = 30)
-      : text{t, f, character_size},
-        bg{{text.getGlobalBounds().width, text.getGlobalBounds().height}}
+class button {
+public:
+    button(const sf::Font& font, const std::string& text, const uint32_t character_size = 30)
+      : text_{text, font, character_size},
+        bg_{{text_.getGlobalBounds().width, text_.getGlobalBounds().height}}
     {
-        text.setFillColor(sf::Color::White);
-        bg.setFillColor(sf::Color::Black);
-        bg.setOutlineColor(sf::Color{0x575757FF});
-        bg.setOutlineThickness(.2f);
-        bg.setScale(2.f, 2.f);
+        text_.setFillColor(sf::Color::White);
+        bg_.setFillColor(sf::Color::Black);
+        bg_.setOutlineColor(sf::Color{0x575757FF});
+        bg_.setOutlineThickness(.2f);
+        bg_.setScale(2.f, 2.f);
     }
 
     void draw(sf::RenderWindow& w, const float y_offset) noexcept
     {
-        detail::do_draw(w, bg, sf::Vector2f{0.f, y_offset});
-        detail::do_draw(w, text, sf::Vector2f{4.f, y_offset});
+        detail::do_draw(w, bg_, sf::Vector2f{0.f, y_offset});
+        detail::do_draw(w, text_, sf::Vector2f{4.f, y_offset});
     }
 
-    void set_width(const float width) noexcept { bg.setSize({width, bg.getSize().y}); }
+    void set_width(const float width) noexcept { bg_.setSize({width, bg_.getSize().y}); }
 
+    [[nodiscard]] bool is_disabled() const noexcept { return disabled_; }
     void set_disabled(const bool d) noexcept
     {
-        disabled = d;
-        if(disabled) {
-            text.setFillColor(sf::Color{128, 128, 128, 255});
+        disabled_ = d;
+        if(disabled_) {
+            text_.setFillColor(sf::Color{128, 128, 128, 255});
         } else {
-            text.setFillColor(sf::Color::White);
+            text_.setFillColor(sf::Color::White);
         }
     }
 
     void set_selected(const bool selected) noexcept
     {
         if(selected) {
-            bg.setFillColor(sf::Color{0x343434FF});
+            bg_.setFillColor(sf::Color{0x343434FF});
         } else {
-            bg.setFillColor(sf::Color::Black);
+            bg_.setFillColor(sf::Color::Black);
         }
     }
 
-    float height() const noexcept { return bg.getGlobalBounds().height; }
+    [[nodiscard]] float height() const noexcept { return bg_.getGlobalBounds().height; }
+    sf::Text& text() noexcept { return text_; }
+    const sf::Text& text() const noexcept { return text_; }
+    sf::RectangleShape& bg() noexcept { return bg_; }
+    const sf::RectangleShape& bg() const noexcept { return bg_; }
+
+private:
+    sf::Text text_;
+    sf::RectangleShape bg_;
+    bool disabled_ = false;
 };
 
 template<typename TEntry>
@@ -125,7 +132,7 @@ public:
                     const auto rbegin = make_reverse_it(entries_.end()) + (entries_.size() - current_idx_);
                     const auto rend = make_reverse_it(entries_.begin());
                     auto it = std::find_if(rbegin, rend, [](const TEntry& e) {
-                      return !e.disabled;
+                      return !e.is_disabled();
                     });
 
                     if(it != rend) {
@@ -135,7 +142,7 @@ public:
                 }
                 case sf::Keyboard::Down: {
                     auto it = std::find_if(entries_.begin() + current_idx_ + 1, entries_.end(), [](const TEntry& e) {
-                      return !e.disabled;
+                      return !e.is_disabled();
                     });
 
                     if(it != entries_.end()) {
