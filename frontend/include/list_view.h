@@ -75,15 +75,6 @@ struct list_button {
 template<typename TEntry>
 class list_view {
 public:
-    list_view() = default;
-    list_view(std::initializer_list<TEntry> entries)
-      : entries_{entries}
-    {
-        if(!entries_.empty()) {
-            entries_.front().set_selected(true);
-        }
-    }
-
     template<typename ...TArgs>
     TEntry& emplace(TArgs&&... args) noexcept
     {
@@ -101,8 +92,6 @@ public:
             entry.draw(window, start_y);
             start_y += entry.height() + 2.f;
         }
-
-        // todo draw scrollbar
     }
 
     void on_item_selected(gameboy::delegate<void(size_t)> on_item_selected) noexcept { on_item_selected_ = on_item_selected; }
@@ -119,7 +108,7 @@ public:
           const float new_start_y = -(entries_[0].height() + 2.f) * new_current;
           if(new_start_y > scroll_offset_) {
               scroll_offset_ += entries_[0].height() + 2.f;
-          } else if(new_start_y < scroll_offset_ - bounds_.y) {
+          } else if(new_start_y - entries_[0].height() < scroll_offset_ - bounds_.y) {
               scroll_offset_ -= entries_[0].height() + 2.f;
           }
 
