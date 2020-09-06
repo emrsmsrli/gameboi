@@ -79,7 +79,7 @@ int main(int argc, char* argv[])
 
         if(const auto tick_result = gb_frontend.tick(); tick_result == frontend::tick_result::ticking) {
             gb.tick_one_frame();
-        } else if(tick_result == frontend::tick_result::should_exit) {
+        } else if(tick_result == frontend::tick_result::should_quit) {
             break;
         }
 

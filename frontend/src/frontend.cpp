@@ -11,9 +11,6 @@
 
 #include <spdlog/spdlog.h>
 
-#include "imgui-SFML.h"
-#include "imgui.h"
-
 namespace
 {
 
@@ -38,35 +35,6 @@ constexpr auto* config_file_name = "config.json";
 constexpr auto* config_key_favorite = "favorite";
 constexpr auto* config_key_gb_palette_idx = "gb_palette_idx";
 constexpr auto* config_key_audio_device = "last_audio_device_id";
-
-template<typename T>
-void draw_fullscreen_imgui_window(const char* tag, const char* title, const sf::Window& window, T&& draw_func)
-{
-    ImGui::SetNextWindowPos(ImVec2{0.f, 0.f});
-    ImGui::SetNextWindowSize(ImVec2(window.getSize().x, window.getSize().y));
-
-    if(ImGui::Begin(tag, nullptr,
-      ImGuiWindowFlags_NoMove |
-        ImGuiWindowFlags_NoTitleBar |
-        ImGuiWindowFlags_NoResize)) {
-        ImGui::PushFont(ImGui::GetIO().Fonts->Fonts[1]);
-
-        for(int i = 0; i < 2; ++i) {
-            ImGui::Spacing();
-        }
-
-        ImGui::TextUnformatted(title);
-
-        for(int i = 0; i < 6; ++i) {
-            ImGui::Spacing();
-        }
-
-        draw_func();
-
-        ImGui::PopFont();
-        ImGui::End();
-    }
-}
 
 } // namespace
 
@@ -102,10 +70,7 @@ frontend::frontend(
             }
         }
 
-        std::stable_partition(begin(roms_), end(roms_), is_rom_favorite);
-
-        menu_selected_index_ = 0;
-        menu_max_index_ = roms_.size();
+        generate_rom_select_menu_items();
     } else if(gameboy::filesystem::is_regular_file(rom_base_path) &&
       (rom_base_path.extension() == ".gb" || rom_base_path.extension() == ".gbc")) {
         state_ = state::game;
@@ -128,19 +93,20 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
         fullscreen ? sf::Style::Fullscreen : sf::Style::Default
       ),
       audio_device_{
-      sdl::audio_device::device_name(config_.contains(config_key_audio_device)
-            ? config_[config_key_audio_device].get<int32_t>() : 0), 2u,
-      sdl::audio_device::format::s16,
-      gameboy::apu::sampling_rate,
-      gameboy::apu::sample_size
-    }
+        sdl::audio_device::device_name(config_.contains(config_key_audio_device)
+              ? config_[config_key_audio_device].get<int32_t>() : 0), 2u,
+        sdl::audio_device::format::s16,
+        gameboy::apu::sampling_rate,
+        gameboy::apu::sample_size
+      },
+      menu_title_{"Pick ROM", font_, 45}
 {
+    menu_bg_.setFillColor(sf::Color{0x111111BB});
+
     window_.setFramerateLimit(60u);
     window_.setVerticalSyncEnabled(false);
     window_buffer_.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
     window_texture_.create(gameboy::screen_width, gameboy::screen_height);
-
-    ImGui::SFML::Init(window_);
 
     window_sprite_.setTexture(window_texture_);
 
@@ -152,16 +118,35 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
 
     audio_device_.resume();
 
-    ImGui::GetIO().Fonts->AddFontFromFileTTF("res/arcade.ttf", 18.f);
-    ImGui::SFML::UpdateFontTexture();
+    if(!font_.loadFromFile("res/arcade.ttf")) {
+        spdlog::critical("could not load arcade font");
+        std::terminate();
+    }
+
+    main_menu_.emplace(font_, "Resume").set_selected(true);
+    main_menu_.emplace(font_, "Select audio device");
+    main_menu_.emplace(font_, "Select GB Color palette");
+    main_menu_.emplace(font_, "Select ROM to play");
+    main_menu_.emplace(font_, "Quit");
+
+    for(auto& entry : main_menu_) {
+        entry.bg().setScale(2.f, 4.f);
+    }
+
+    for(const auto& [name, palette] : gb_palettes) {
+        select_gb_color_palette_menu_.emplace(font_, std::string{name}, palette);
+    }
+
+    main_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_main_menu_item_selected>, this});
+    select_audio_device_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_audio_device_selected>, this});
+    select_gb_color_palette_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_gb_color_palette_selected>, this});
+    select_rom_file_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_rom_file_selected>, this});
 }
 
 frontend::~frontend()
 {
     std::ofstream config_file{config_file_name};
     config_file << std::setw(4) /*pretty print*/ << config_;
-
-    ImGui::SFML::Shutdown(window_);
 }
 
 void frontend::register_gameboy(const gameboy::observer<gameboy::gameboy> gb) noexcept
@@ -202,6 +187,24 @@ void frontend::rescale_view() noexcept
     window_sprite_.setScale(scale, scale);
     window_sprite_.setPosition(width * .5f, height * .5f);
 
+    const auto sprite_global_bounds = window_sprite_.getGlobalBounds();
+
+    menu_view_ = window_.getView();
+    menu_view_.setViewport(sf::FloatRect{
+      sprite_global_bounds.left / width,
+      (sprite_global_bounds.top + sprite_global_bounds.height * .15f) / height,
+      sprite_global_bounds.width / width,
+      (sprite_global_bounds.height - sprite_global_bounds.height * .15f) / height,
+    });
+
+    menu_bg_.setSize(sf::Vector2f(width, height));
+    menu_title_.setPosition(sprite_global_bounds.left, sprite_global_bounds.top);
+
+    main_menu_.set_bounds(sf::Vector2f(width, height));
+    select_audio_device_menu_.set_bounds(sf::Vector2f(width, height));
+    select_gb_color_palette_menu_.set_bounds(sf::Vector2f(width, height));
+    select_rom_file_menu_.set_bounds(sf::Vector2f(width, height));
+
     draw_sprite();
 }
 
@@ -230,176 +233,205 @@ void frontend::render_frame() noexcept
 
 frontend::tick_result frontend::tick()
 {
-    // not needed, pi won't have debugger ImGui::SFML::SetCurrentWindow(window_);
+    if(state_ == state::quitting) {
+        return tick_result::should_quit;
+    }
 
     while(window_.pollEvent(event_)) {
-        ImGui::SFML::ProcessEvent(event_);
-
         if(event_.type == sf::Event::Closed ||
           (event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Q)) {
             window_.close();
-            return tick_result::should_exit;
+            return tick_result::should_quit;
         }
 
         if(event_.type == sf::Event::Resized) {
             const sf::FloatRect visible_area(0, 0, event_.size.width, event_.size.height);
             window_.setView(sf::View{visible_area});
             rescale_view();
-        }
-
-        if(state_ == state::game) {
-            handle_game_keys(event_);
-
-            if(event_.type == sf::Event::KeyReleased) {
-                if(event_.key.code == sf::Keyboard::Escape) {
-                    state_ = state::main_menu;
-                    menu_selected_index_ = main_menu_item::resume;
-                    menu_max_index_ = main_menu_item::count;
-                }
-            }
         } else {
-            if(event_.type == sf::Event::KeyPressed) {
-                if(event_.key.code == sf::Keyboard::Down && menu_selected_index_ < menu_max_index_ - 1) {
-                    ++menu_selected_index_;
-
-                    if(state_ == state::main_menu &&
-                      menu_selected_index_ == main_menu_item::select_gb_color_palette &&
-                      !can_pick_gb_color_palette()) {
-                        ++menu_selected_index_;
+            switch(state_) {
+                case state::game: {
+                    if(event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Escape) {
+                        state_ = state::main_menu;
+                        menu_title_.setString("Main Menu");
+                        main_menu_[2].set_disabled(!can_pick_gb_color_palette());
+                    } else {
+                        handle_game_keys(event_);
                     }
-                } else if(event_.key.code == sf::Keyboard::Up && menu_selected_index_ > 0) {
-                    --menu_selected_index_;
-
-                    if(state_ == state::main_menu &&
-                      menu_selected_index_ == main_menu_item::select_gb_color_palette &&
-                      !can_pick_gb_color_palette()) {
-                        --menu_selected_index_;
-                    }
+                    break;
                 }
-            } else if(event_.type == sf::Event::KeyReleased) {
-                if(state_ == state::select_rom_file &&
-                  (event_.key.code == sf::Keyboard::Left || event_.key.code == sf::Keyboard::Right)) {
-                    auto& rom = roms_[menu_selected_index_];
-                    auto& is_favorite = rom.is_favorite;
-
-                    rom.is_favorite = !rom.is_favorite;
-                    config_[rom.path.filename().string()][config_key_favorite] = rom.is_favorite;
-                } else if(event_.key.code == sf::Keyboard::Enter) {
-                    const auto prev_state = state_;
-                    const auto prev_selected_idx = menu_selected_index_;
-
-                    menu_selected_index_ = 0;
-                    state_ = state::game;
-
-                    switch(prev_state) {
-                        case state::main_menu: {
-                            switch(prev_selected_idx) {
-                                case main_menu_item::resume:
-                                    state_ = state::game;
-                                    break;
-                                case main_menu_item::select_audio_device:
-                                    menu_max_index_ = sdl::audio_device::num_devices();
-                                    state_ = state::select_audio_device;
-                                    break;
-                                case main_menu_item::select_gb_color_palette:
-                                    menu_max_index_ = gb_palettes.size();
-                                    state_ = state::select_gb_color_palette;
-                                    break;
-                                case main_menu_item::select_rom_file:
-                                    std::stable_partition(begin(roms_), end(roms_), is_rom_favorite);
-
-                                    menu_max_index_ = roms_.size();
-                                    state_ = state::select_rom_file;
-                                    break;
-                                case main_menu_item::quit:
-                                default:
-                                    window_.close();
-                                    return tick_result::should_exit;
-                            }
-                            break;
-                        }
-                        case state::select_audio_device: {
-                            config_[config_key_audio_device] = prev_selected_idx;
-
-                            audio_device_ = sdl::audio_device{
-                              sdl::audio_device::device_name(prev_selected_idx),
-                              2u, sdl::audio_device::format::s16,
-                              gameboy::apu::sampling_rate,
-                              gameboy::apu::sample_size
-                            };
-                            audio_device_.resume();
-                            break;
-                        }
-                        case state::select_gb_color_palette: {
-                            gb_->set_gb_palette(*gb_palettes[prev_selected_idx].second);
-                            config_
-                              [gb_->get_bus()->get_cartridge()->get_rom_path().filename().string()]
-                              [config_key_gb_palette_idx] = prev_selected_idx;
-                            break;
-                        }
-                        case state::select_rom_file: {
-                            state_ = state::game;
-
-                            const auto cartridge = gb_->get_bus()->get_cartridge();
-                            const auto& rom_path = roms_[prev_selected_idx].path;
-                            if(cartridge->get_rom_path() == rom_path) {
-                                break;
-                            }
-
-                            gb_->load_rom(rom_path);
-                            window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
-
-                            if(!cartridge->cgb_enabled()) {
-                                auto& rom_entry = config_[rom_path.filename().string()];
-                                if(auto palette_it = rom_entry.find(config_key_gb_palette_idx); palette_it != rom_entry.end()) {
-                                    gb_->set_gb_palette(*gb_palettes[palette_it->get<int32_t>()].second);
-                                }
-                            }
-
-                            if(on_new_rom_) {
-                                on_new_rom_();
-                            }
-                            break;
-                        }
-                        case state::game:
-                        default:
-                            break;
-                    }
+                case state::main_menu: {
+                    main_menu_.on_key_event(event_);
+                    break;
                 }
+                case state::select_audio_device: {
+                    select_audio_device_menu_.on_key_event(event_);
+                    break;
+                }
+                case state::select_gb_color_palette: {
+                    select_gb_color_palette_menu_.on_key_event(event_);
+                    break;
+                }
+                case state::select_rom_file: {
+                    if(!select_rom_file_menu_.on_key_event(event_) &&
+                      event_.type == sf::Event::KeyReleased &&
+                      (event_.key.code == sf::Keyboard::Left || event_.key.code == sf::Keyboard::Right)) {
+                        auto& rom = roms_[select_rom_file_menu_.get_current_idx()];
+                        auto& is_favorite = rom.is_favorite;
+
+                        is_favorite = !is_favorite;
+                        config_[rom.path.filename().string()][config_key_favorite] = is_favorite;
+
+                        if(is_favorite) {
+                            select_rom_file_menu_[select_rom_file_menu_.get_current_idx()]
+                              .text().setFillColor(sf::Color{0xFFFF00FF});
+                        } else {
+                            select_rom_file_menu_[select_rom_file_menu_.get_current_idx()]
+                              .text().setFillColor(sf::Color::White);
+                        }
+                    }
+                    break;
+                }
+                default:
+                case state::quitting:
+                    return tick_result::should_quit;
             }
         }
     }
 
-    const auto delta = dt_.restart();
-    ImGui::SFML::Update(window_, delta);
+    const auto draw_menu = [&](auto& menu) {
+      window_.clear(sf::Color::Black);
+      window_.draw(window_sprite_);
+      window_.draw(menu_bg_);
+
+      window_.draw(menu_title_);
+
+      const auto prev_view = window_.getView();
+      window_.setView(menu_view_);
+      menu.draw(window_);
+      window_.setView(prev_view);
+
+      window_.display();
+    };
 
     switch(state_) {
         case state::main_menu:
-            draw_menu();
+            draw_menu(main_menu_);
             break;
         case state::select_audio_device:
-            draw_audio_device_select();
+            draw_menu(select_audio_device_menu_);
             break;
         case state::select_gb_color_palette:
-            draw_gb_palette_select();
+            draw_menu(select_gb_color_palette_menu_);
             break;
         case state::select_rom_file:
-            draw_rom_select();
+            draw_menu(select_rom_file_menu_);
             break;
 
         case state::game:
+            return tick_result::ticking;
+
         default:
             break;
     }
 
-    window_.clear(sf::Color::Black);
-    window_.draw(window_sprite_);
-    ImGui::SFML::Render(window_);
-    window_.display();
+    return tick_result::paused;
+}
 
-    return state_ == state::game
-      ? tick_result::ticking
-      : tick_result::paused;
+void frontend::on_main_menu_item_selected(const size_t idx) noexcept
+{
+    switch(idx) {
+        case main_menu_item::resume:
+            state_ = state::game;
+            break;
+        case main_menu_item::select_audio_device:
+            select_audio_device_menu_.clear();
+            for(auto i = 0; i < sdl::audio_device::num_devices(); ++i) {
+                select_audio_device_menu_.emplace(font_, std::string{sdl::audio_device::device_name(i)}, 20.f);
+            }
+            select_audio_device_menu_[0].set_selected(true);
+
+            menu_title_.setString("Select Device");
+            state_ = state::select_audio_device;
+            break;
+        case main_menu_item::select_gb_color_palette:
+            menu_title_.setString("Select Palette");
+            state_ = state::select_gb_color_palette;
+            break;
+        case main_menu_item::select_rom_file:
+            generate_rom_select_menu_items();
+            menu_title_.setString("Select ROM");
+            state_ = state::select_rom_file;
+            break;
+        case main_menu_item::quit:
+        default:
+            window_.close();
+            state_ = state::quitting;
+            break;
+    }
+
+    // todo set relevant items disabled or enabled
+}
+
+void frontend::on_audio_device_selected(const size_t idx) noexcept
+{
+    state_ = state::game;
+    config_[config_key_audio_device] = idx;
+
+    audio_device_ = sdl::audio_device{
+      sdl::audio_device::device_name(idx),
+      2u, sdl::audio_device::format::s16,
+      gameboy::apu::sampling_rate,
+      gameboy::apu::sample_size
+    };
+    audio_device_.resume();
+}
+
+void frontend::on_gb_color_palette_selected(const size_t idx) noexcept
+{
+    state_ = state::game;
+    gb_->set_gb_palette(*gb_palettes[idx].second);
+    config_
+      [gb_->get_bus()->get_cartridge()->get_rom_path().filename().string()]
+      [config_key_gb_palette_idx] = idx;
+}
+
+void frontend::on_rom_file_selected(const size_t idx) noexcept
+{
+    state_ = state::game;
+    const auto cartridge = gb_->get_bus()->get_cartridge();
+    const auto& rom_path = roms_[idx].path;
+    if(cartridge->get_rom_path() == rom_path) {
+        return;
+    }
+
+    gb_->load_rom(rom_path);
+    window_.setTitle(fmt::format("GAMEBOY - {}", gb_->rom_name()));
+
+    if(!cartridge->cgb_enabled()) {
+        auto& rom_entry = config_[rom_path.filename().string()];
+        if(auto palette_it = rom_entry.find(config_key_gb_palette_idx); palette_it != rom_entry.end()) {
+            gb_->set_gb_palette(*gb_palettes[palette_it->get<int32_t>()].second);
+        }
+    }
+
+    if(on_new_rom_) {
+        on_new_rom_();
+    }
+}
+
+void frontend::generate_rom_select_menu_items() noexcept
+{
+    std::stable_partition(begin(roms_), end(roms_), is_rom_favorite);
+
+    select_rom_file_menu_.clear();
+    std::for_each(begin(roms_), end(roms_), [&](const rom_entry& e) {
+      auto& menu_entry = select_rom_file_menu_.emplace(font_, e.path.filename().string(), 18);
+      if(e.is_favorite) {
+          menu_entry.text().setFillColor(sf::Color{0xFFFF00FF});
+      }
+    });
+    select_rom_file_menu_[0].set_selected(true);
 }
 
 void frontend::handle_game_keys(const sf::Event& key_event) noexcept
@@ -481,97 +513,4 @@ void frontend::handle_game_keys(const sf::Event& key_event) noexcept
                 break;
         }
     }
-}
-
-void frontend::draw_menu() noexcept
-{
-    static constexpr std::array menu_items{
-        std::make_pair(main_menu_item::resume, "Resume"),
-        std::make_pair(main_menu_item::select_audio_device, "Select audio device"),
-        std::make_pair(main_menu_item::select_gb_color_palette, "Select GB Color palette"),
-        std::make_pair(main_menu_item::select_rom_file, "Select ROM to play"),
-        std::make_pair(main_menu_item::quit, "Quit")
-    };
-
-    draw_fullscreen_imgui_window("##menu", "", window_, [&]() {
-        for(const auto& [key, name] : menu_items) {
-            ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
-            if(key == main_menu_item::select_gb_color_palette && !can_pick_gb_color_palette()) {
-                flags = ImGuiSelectableFlags_Disabled;
-            }
-
-            const auto selected = menu_selected_index_ == key;
-            ImGui::Selectable(name, selected, flags, ImVec2{0.f, 80.f});
-            if(selected) {
-                ImGui::SetScrollHereY();
-            }
-        }
-    });
-}
-
-void frontend::draw_audio_device_select() noexcept
-{
-    draw_fullscreen_imgui_window("##select_audio_device", "Select an audio device:", window_, [&]() {
-        for(auto i = 0; i < sdl::audio_device::num_devices(); ++i) {
-            const auto selected = menu_selected_index_ == i;
-            ImGui::Selectable(sdl::audio_device::device_name(i).data(), selected);
-            if(selected) {
-                ImGui::SetScrollHereY();
-            }
-        }
-    });
-}
-
-void frontend::draw_gb_palette_select() noexcept
-{
-    draw_fullscreen_imgui_window("##select_gb_palette", "Select a color palette:", window_, [&]() {
-        auto idx = 0;
-        for(const auto& [name, palette] : gb_palettes) {
-            ImGui::Selectable(name.data(), idx == menu_selected_index_, ImGuiSelectableFlags_None, ImVec2{0.f, 80.f});
-
-            const auto cursor = ImGui::GetCursorPos();
-            ImGui::SetCursorPos(ImVec2{cursor.x, cursor.y - 60.f});
-
-            for(const auto& color : palette->colors) {
-                const ImVec4 color_float{color.red / 255.f, color.green / 255.f, color.blue / 255.f, 1.f};
-
-                ImGui::ColorButton("", color_float, ImGuiColorEditFlags_NoPicker, ImVec2{50.f, 50.f});
-                ImGui::SameLine(0, 10.f);
-            }
-
-            ImGui::SetCursorPos(ImVec2{cursor.x, cursor.y - 50.f});
-
-            ImGui::NewLine();
-            ++idx;
-        }
-    });
-}
-
-void frontend::draw_rom_select() noexcept
-{
-    draw_fullscreen_imgui_window("##select_rom", "Select a rom:", window_, [&]() {
-        ImGuiListClipper clipper(roms_.size());
-        while(clipper.Step()) {
-            for(auto i = clipper.DisplayStart; i < clipper.DisplayEnd; ++i) {
-                const auto selected = menu_selected_index_ == i;
-                auto name = roms_[i].path.filename();
-                name.replace_extension();
-
-                const auto is_favorite = roms_[i].is_favorite;
-                if(is_favorite) {
-                    ImGui::PushStyleColor(ImGuiCol_Text, ImVec4{1.f, 1.f, 0.f, 1.f});
-                }
-
-                ImGui::Selectable(name.string().c_str(), selected);
-
-                if(is_favorite) {
-                    ImGui::PopStyleColor();
-                }
-
-                if(selected) {
-                    ImGui::SetScrollHereY();
-                }
-            }
-        }
-    });
 }

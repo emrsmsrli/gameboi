@@ -14,7 +14,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         sfml-system
         sfml-window
         sfml-graphics
-        imgui::sfml
         gb::core
         $<$<BOOL:${WITH_DEBUGGER}>:gb::debugger>
         project_warnings
