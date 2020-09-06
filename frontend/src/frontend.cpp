@@ -188,29 +188,17 @@ void frontend::rescale_view() noexcept
 
     const auto sprite_global_bounds = window_sprite_.getGlobalBounds();
 
-    sf::FloatRect vp{
-      sprite_global_bounds.left / width,
-      (sprite_global_bounds.top + sprite_global_bounds.height * .1f) / height,
-      sprite_global_bounds.width / width,
-      sprite_global_bounds.height / height,
-    };
-
-    // fixme set center and size
     menu_view_ = window_.getView();
-    // menu_view_.setCenter(width * .5f, height * .5f);
-    // menu_view_.setSize(sprite_global_bounds.width*2, sprite_global_bounds.height*2);
-    menu_view_.setViewport(vp); // this clips
+    menu_view_.setViewport(sf::FloatRect{
+      sprite_global_bounds.left / width,
+      (sprite_global_bounds.top + sprite_global_bounds.height * .15f) / height,
+      sprite_global_bounds.width / width,
+      (sprite_global_bounds.height - sprite_global_bounds.height * .15f) / height,
+    });
 
     menu_bg_.setSize(sf::Vector2f(width, height));
     menu_title_.setPosition(sprite_global_bounds.left, sprite_global_bounds.top);
 
-    const sf::Vector2f menu_bounds{
-      sprite_global_bounds.left + sprite_global_bounds.width,
-      sprite_global_bounds.top + sprite_global_bounds.height - sprite_global_bounds.height * .1f
-    };
-
-    // todo wtf
-    // set scale instead
     main_menu_.set_bounds(sf::Vector2f(width, height));
     select_audio_device_menu_.set_bounds(sf::Vector2f(width, height));
     select_gb_color_palette_menu_.set_bounds(sf::Vector2f(width, height));
@@ -358,7 +346,7 @@ void frontend::on_main_menu_item_selected(const size_t idx) noexcept
         case main_menu_item::select_audio_device:
             select_audio_device_menu_.clear();
             for(auto i = 0; i < sdl::audio_device::num_devices(); ++i) {
-                select_audio_device_menu_.emplace(font_, std::string{sdl::audio_device::device_name(i)});
+                select_audio_device_menu_.emplace(font_, std::string{sdl::audio_device::device_name(i)}, 20.f);
             }
             select_audio_device_menu_[0].set_selected(true);
 
@@ -437,7 +425,7 @@ void frontend::generate_rom_select_menu_items() noexcept
 
     select_rom_file_menu_.clear();
     std::for_each(begin(roms_), end(roms_), [&](const rom_entry& e) {
-      auto& menu_entry = select_rom_file_menu_.emplace(font_, e.path.filename().string(), 24);
+      auto& menu_entry = select_rom_file_menu_.emplace(font_, e.path.filename().string(), 18);
       if(e.is_favorite) {
           menu_entry.text.setFillColor(sf::Color{0xFFFF00FF});
       }
