@@ -133,7 +133,9 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
         entry.bg().setScale(2.f, 4.f);
     }
 
-    // todo implement color menu
+    for(const auto& [name, palette] : gb_palettes) {
+        select_gb_color_palette_menu_.emplace(font_, std::string{name}, palette);
+    }
 
     main_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_main_menu_item_selected>, this});
     select_audio_device_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_audio_device_selected>, this});

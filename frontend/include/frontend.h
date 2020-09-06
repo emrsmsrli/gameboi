@@ -84,7 +84,7 @@ private:
 
     ui::list_view<ui::button> main_menu_;
     ui::list_view<ui::button> select_audio_device_menu_;
-    ui::list_view<ui::button> select_gb_color_palette_menu_;
+    ui::list_view<ui::palette_button> select_gb_color_palette_menu_;
     ui::list_view<ui::button> select_rom_file_menu_;
 
     state state_{state::select_rom_file};

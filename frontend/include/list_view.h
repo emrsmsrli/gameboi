@@ -12,6 +12,8 @@
 #include <SFML/Window/Event.hpp>
 #include <SFML/Window/Keyboard.hpp>
 
+#include "gameboy/ppu/data/palette.h"
+
 namespace ui {
 
 namespace detail {
@@ -77,6 +79,52 @@ private:
     sf::Text text_;
     sf::RectangleShape bg_;
     bool disabled_ = false;
+};
+
+class palette_button {
+public:
+    palette_button(const sf::Font& font, const std::string& name, const gameboy::palette* palette)
+      : button_{font, name}
+    {
+        button_.bg().setScale(2.f, 5.f);
+        const auto shape_size = button_.text().getLocalBounds().height * 2.5f;
+
+        size_t color_idx = 0;
+        for(auto& color_shape : color_shapes_) {
+            color_shape.setSize({shape_size, shape_size});
+            color_shape.setOutlineThickness(-1.2f);
+            color_shape.setOutlineColor(sf::Color::White);
+            color_shape.setFillColor(sf::Color{
+                palette->colors[color_idx].red,
+                palette->colors[color_idx].green,
+                palette->colors[color_idx].blue,
+            });
+
+            ++color_idx;
+        }
+    }
+
+    void draw(sf::RenderWindow& window, const float y_offset) noexcept
+    {
+        button_.draw(window, y_offset);
+
+        float x_offset = -5.f;
+        for(auto& shape : color_shapes_) {
+            x_offset += shape.getLocalBounds().width + 5.f;
+            shape.setOrigin(shape.getLocalBounds().width * .5f, 0.f);
+            detail::do_draw(window, shape, sf::Vector2f{x_offset, y_offset + 40.f});
+        }
+    }
+
+    void set_width(const float width) noexcept { button_.set_width(width); }
+    void set_disabled(const bool disabled) noexcept { button_.set_disabled(disabled); }
+    void set_selected(const bool selected) noexcept { button_.set_selected(selected); }
+    [[nodiscard]] bool is_disabled() const noexcept { return button_.is_disabled(); }
+    [[nodiscard]] float height() const noexcept { return button_.height(); }
+
+private:
+    button button_;
+    std::array<sf::RectangleShape, 4> color_shapes_;
 };
 
 template<typename TEntry>
