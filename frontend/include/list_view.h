@@ -39,18 +39,18 @@ public:
         bg_.setScale(2.f, 2.f);
     }
 
-    void draw(sf::RenderWindow& w, const float y_offset) noexcept
+    void draw(sf::RenderWindow& window, const float y_offset) noexcept
     {
-        detail::do_draw(w, bg_, sf::Vector2f{0.f, y_offset});
-        detail::do_draw(w, text_, sf::Vector2f{4.f, y_offset});
+        detail::do_draw(window, bg_, sf::Vector2f{0.f, y_offset});
+        detail::do_draw(window, text_, sf::Vector2f{4.f, y_offset});
     }
 
     void set_width(const float width) noexcept { bg_.setSize({width, bg_.getSize().y}); }
 
     [[nodiscard]] bool is_disabled() const noexcept { return disabled_; }
-    void set_disabled(const bool d) noexcept
+    void set_disabled(const bool disabled) noexcept
     {
-        disabled_ = d;
+        disabled_ = disabled;
         if(disabled_) {
             text_.setFillColor(sf::Color{128, 128, 128, 255});
         } else {
