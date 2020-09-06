@@ -9,6 +9,7 @@
 #include <SFML/Graphics/Image.hpp>
 #include <SFML/Graphics/RenderWindow.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics/Text.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <SFML/Window/Event.hpp>
 #include <nlohmann/json.hpp>
@@ -77,6 +78,7 @@ private:
 
     sdl::audio_device audio_device_;
 
+    sf::Text menu_title_;
     sf::RectangleShape menu_bg_;
     sf::View menu_view_;
 

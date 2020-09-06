@@ -99,7 +99,8 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
         sdl::audio_device::format::s16,
         gameboy::apu::sampling_rate,
         gameboy::apu::sample_size
-      }
+      },
+      menu_title_{"Pick ROM", font_, 45}
 {
     menu_bg_.setFillColor(sf::Color{0x111111BB});
 
@@ -201,6 +202,7 @@ void frontend::rescale_view() noexcept
     menu_view_.setViewport(vp); // this clips
 
     menu_bg_.setSize(sf::Vector2f(width, height));
+    menu_title_.setPosition(sprite_global_bounds.left, sprite_global_bounds.top);
 
     const sf::Vector2f menu_bounds{
       sprite_global_bounds.left + sprite_global_bounds.width,
@@ -262,6 +264,7 @@ frontend::tick_result frontend::tick()
                 case state::game: {
                     if(event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Escape) {
                         state_ = state::main_menu;
+                        menu_title_.setString("Main Menu");
                         main_menu_[2].set_disabled(!can_pick_gb_color_palette());
                     } else {
                         handle_game_keys(event_);
@@ -312,6 +315,8 @@ frontend::tick_result frontend::tick()
       window_.draw(window_sprite_);
       window_.draw(menu_bg_);
 
+      window_.draw(menu_title_);
+
       const auto prev_view = window_.getView();
       window_.setView(menu_view_);
       menu.draw(window_);
@@ -357,13 +362,16 @@ void frontend::on_main_menu_item_selected(const size_t idx) noexcept
             }
             select_audio_device_menu_[0].set_selected(true);
 
+            menu_title_.setString("Select Device");
             state_ = state::select_audio_device;
             break;
         case main_menu_item::select_gb_color_palette:
+            menu_title_.setString("Select Palette");
             state_ = state::select_gb_color_palette;
             break;
         case main_menu_item::select_rom_file:
             generate_rom_select_menu_items();
+            menu_title_.setString("Select ROM");
             state_ = state::select_rom_file;
             break;
         case main_menu_item::quit:
