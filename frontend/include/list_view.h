@@ -109,12 +109,21 @@ public:
 
     bool on_key_event(const sf::Event& event) noexcept
     {
-        const auto update_current_selected = [&]() {
+        const auto update_current_selected = [&](const size_t new_current) {
           std::size_t idx = 0;
           for(auto& entry : entries_) {
-              entry.set_selected(current_idx_ == idx);
+              entry.set_selected(new_current == idx);
               ++idx;
           }
+
+          const float new_start_y = -(entries_[0].height() + 2.f) * new_current;
+          if(new_start_y > scroll_offset_) {
+              scroll_offset_ += entries_[0].height() + 2.f;
+          } else if(new_start_y < scroll_offset_ - bounds_.y) {
+              scroll_offset_ -= entries_[0].height() + 2.f;
+          }
+
+          current_idx_ = new_current;
         };
 
         if(event.type == sf::Event::KeyPressed) {
