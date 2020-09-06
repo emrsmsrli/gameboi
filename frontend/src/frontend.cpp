@@ -312,10 +312,10 @@ frontend::tick_result frontend::tick()
       window_.draw(window_sprite_);
       window_.draw(menu_bg_);
 
-      //const auto prev_view = window_.getView();
-      //window_.setView(menu_view_);
+      const auto prev_view = window_.getView();
+      window_.setView(menu_view_);
       menu.draw(window_);
-      //window_.setView(prev_view);
+      window_.setView(prev_view);
 
       window_.display();
     };
