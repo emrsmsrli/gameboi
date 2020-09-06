@@ -14,7 +14,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE
         sfml-system
         sfml-window
         sfml-graphics
-        imgui::sfml
         SDL2::SDL2
         gb::core
         $<$<BOOL:${WITH_DEBUGGER}>:gb::debugger>

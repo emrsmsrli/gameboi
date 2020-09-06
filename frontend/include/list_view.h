@@ -42,10 +42,10 @@ struct list_button {
         bg.setScale(2.f, 2.f);
     }
 
-    void draw(sf::RenderWindow& w, const sf::Vector2f& offset) noexcept
+    void draw(sf::RenderWindow& w, const float y_offset) noexcept
     {
-        detail::do_draw(w, bg, offset);
-        detail::do_draw(w, text, offset + sf::Vector2f{3.f, 0.f});
+        detail::do_draw(w, bg, sf::Vector2f{0.f, y_offset});
+        detail::do_draw(w, text, sf::Vector2f{4.f, y_offset});
     }
 
     void set_width(const float width) noexcept { bg.setSize({width, bg.getSize().y}); }
@@ -88,7 +88,7 @@ public:
     TEntry& emplace(TArgs&&... args) noexcept
     {
         auto& entry = entries_.emplace_back(std::forward<TArgs>(args)...);
-        entry.set_width(width_);
+        entry.set_width(bounds_.x);
         return entry;
     }
 
@@ -96,10 +96,10 @@ public:
 
     void draw(sf::RenderWindow& window) noexcept
     {
-        auto start_pos = position_;
+        auto start_y = scroll_offset_;
         for(auto& entry : entries_) {
-            entry.draw(window, start_pos);
-            start_pos.y += entry.height() + 2.f;
+            entry.draw(window, start_y);
+            start_y += entry.height() + 2.f;
         }
 
         // todo draw scrollbar
@@ -131,8 +131,7 @@ public:
                     });
 
                     if(it != rend) {
-                        current_idx_ = std::distance(it, rend) - 1;
-                        update_current_selected();
+                        update_current_selected(std::distance(it, rend) - 1);
                     }
                     break;
                 }
@@ -142,8 +141,7 @@ public:
                     });
 
                     if(it != entries_.end()) {
-                        current_idx_ = std::distance(entries_.begin(), it);
-                        update_current_selected();
+                        update_current_selected(std::distance(entries_.begin(), it));
                     }
                     break;
                 }
@@ -157,8 +155,8 @@ public:
                         on_item_selected_(current_idx_);
                     }
 
-                    current_idx_ = 0;
-                    update_current_selected();
+                    update_current_selected(0);
+                    scroll_offset_ = 0.f;
                     break;
                 }
                 default:
@@ -169,11 +167,11 @@ public:
         return true;
     }
 
-    void set_width(const float width) noexcept
+    void set_bounds(const sf::Vector2f& bounds) noexcept
     {
-        width_ = width;
+        bounds_ = bounds;
         for(auto& entry : entries_) {
-            entry.set_width(width);
+            entry.set_width(bounds.x);
         }
     }
 
@@ -189,10 +187,10 @@ public:
 
 private:
     gameboy::delegate<void(size_t)> on_item_selected_;
-    sf::Vector2f position_;
+    sf::Vector2f bounds_;
     std::vector<TEntry> entries_;
     int32_t current_idx_ = 0;
-    float width_ = 0.f;
+    float scroll_offset_ = 0.f;
 };
 
 } // namespace ui

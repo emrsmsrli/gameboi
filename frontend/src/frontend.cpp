@@ -129,10 +129,11 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
     main_menu_.emplace(font_, "Select ROM to play");
     main_menu_.emplace(font_, "Quit");
 
-    main_menu_.set_width(window_sprite_.getGlobalBounds().width);
     for(auto& entry : main_menu_) {
         entry.bg.setScale(2.f, 4.f);
     }
+
+    // todo implement color menu
 
     main_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_main_menu_item_selected>, this});
     select_audio_device_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_audio_device_selected>, this});
@@ -186,19 +187,32 @@ void frontend::rescale_view() noexcept
 
     const auto sprite_global_bounds = window_sprite_.getGlobalBounds();
 
-    menu_view_.setViewport(sf::FloatRect{
+    sf::FloatRect vp{
       sprite_global_bounds.left / width,
       (sprite_global_bounds.top + sprite_global_bounds.height * .1f) / height,
-      (sprite_global_bounds.width + 1.f) / width,
+      sprite_global_bounds.width / width,
       sprite_global_bounds.height / height,
-    });
+    };
+
+    // fixme set center and size
+    menu_view_ = window_.getView();
+    // menu_view_.setCenter(width * .5f, height * .5f);
+    // menu_view_.setSize(sprite_global_bounds.width*2, sprite_global_bounds.height*2);
+    menu_view_.setViewport(vp); // this clips
 
     menu_bg_.setSize(sf::Vector2f(width, height));
 
-    main_menu_.set_width(sprite_global_bounds.width);
-    select_audio_device_menu_.set_width(sprite_global_bounds.width);
-    select_gb_color_palette_menu_.set_width(sprite_global_bounds.width);
-    select_rom_file_menu_.set_width(sprite_global_bounds.width);
+    const sf::Vector2f menu_bounds{
+      sprite_global_bounds.left + sprite_global_bounds.width,
+      sprite_global_bounds.top + sprite_global_bounds.height - sprite_global_bounds.height * .1f
+    };
+
+    // todo wtf
+    // set scale instead
+    main_menu_.set_bounds(sf::Vector2f(width, height));
+    select_audio_device_menu_.set_bounds(sf::Vector2f(width, height));
+    select_gb_color_palette_menu_.set_bounds(sf::Vector2f(width, height));
+    select_rom_file_menu_.set_bounds(sf::Vector2f(width, height));
 
     draw_sprite();
 }
@@ -298,10 +312,10 @@ frontend::tick_result frontend::tick()
       window_.draw(window_sprite_);
       window_.draw(menu_bg_);
 
-      const auto prev_view = window_.getView();
-      window_.setView(menu_view_);
+      //const auto prev_view = window_.getView();
+      //window_.setView(menu_view_);
       menu.draw(window_);
-      window_.setView(prev_view);
+      //window_.setView(prev_view);
 
       window_.display();
     };
