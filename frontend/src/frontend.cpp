@@ -16,6 +16,7 @@ namespace
 
 enum main_menu_item {
     resume = 0,
+    save,
     select_audio_device,
     select_gb_color_palette,
     select_rom_file,
@@ -124,6 +125,7 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
     }
 
     main_menu_.emplace(font_, "Resume").set_selected(true);
+    main_menu_.emplace(font_, "Save");
     main_menu_.emplace(font_, "Select audio device");
     main_menu_.emplace(font_, "Select GB Color palette");
     main_menu_.emplace(font_, "Select ROM to play");
@@ -141,12 +143,6 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
     select_audio_device_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_audio_device_selected>, this});
     select_gb_color_palette_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_gb_color_palette_selected>, this});
     select_rom_file_menu_.on_item_selected({gameboy::connect_arg<&frontend::on_rom_file_selected>, this});
-}
-
-frontend::~frontend()
-{
-    std::ofstream config_file{config_file_name};
-    config_file << std::setw(4) /*pretty print*/ << config_;
 }
 
 void frontend::register_gameboy(const gameboy::observer<gameboy::gameboy> gb) noexcept
@@ -255,7 +251,8 @@ frontend::tick_result frontend::tick()
                       (event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Escape)) {
                         state_ = state::main_menu;
                         menu_title_.setString("Main Menu");
-                        main_menu_[2].set_disabled(!can_pick_gb_color_palette());
+                        main_menu_[main_menu_item::save].set_disabled(!can_save_ram_rtc());
+                        main_menu_[main_menu_item::select_gb_color_palette].set_disabled(!can_pick_gb_color_palette());
                     } else {
                         handle_game_keys(event_);
                     }
@@ -345,6 +342,11 @@ void frontend::on_main_menu_item_selected(const size_t idx) noexcept
         case main_menu_item::resume:
             state_ = state::game;
             break;
+        case main_menu_item::save:
+            gb_->save_ram_rtc();
+            save_config();
+            state_ = state::game;
+            break;
         case main_menu_item::select_audio_device:
             select_audio_device_menu_.clear();
             for(auto i = 0; i < sdl::audio_device::num_devices(); ++i) {
@@ -370,8 +372,6 @@ void frontend::on_main_menu_item_selected(const size_t idx) noexcept
             state_ = state::quitting;
             break;
     }
-
-    // todo set relevant items disabled or enabled
 }
 
 void frontend::on_audio_device_selected(const size_t idx) noexcept
@@ -514,4 +514,10 @@ void frontend::handle_game_keys(const sf::Event& key_event) noexcept
                 break;
         }
     }
+}
+
+void frontend::save_config() noexcept
+{
+    std::ofstream config_file{config_file_name};
+    config_file << std::setw(4) /*pretty print*/ << config_;
 }

@@ -26,7 +26,7 @@ public:
 
     frontend(uint32_t width, uint32_t height, bool fullscreen, const gameboy::filesystem::path& rom_base_path) noexcept;
     frontend(uint32_t width, uint32_t height, bool fullscreen) noexcept;
-    ~frontend();
+    ~frontend() { save_config(); }
 
     frontend(const frontend&) = delete;
     frontend(frontend&&) = delete;
@@ -99,6 +99,15 @@ private:
     void generate_rom_select_menu_items() noexcept;
 
     void handle_game_keys(const sf::Event& key_event) noexcept;
+
+    void save_config() noexcept;
+
+    [[nodiscard]] bool can_save_ram_rtc() noexcept
+    {
+        return gb_ &&
+          !gb_->get_bus()->get_cartridge()->rom().empty() &&
+          (gb_->get_bus()->get_cartridge()->has_battery() || gb_->get_bus()->get_cartridge()->has_rtc());
+    }
 
     [[nodiscard]] bool can_pick_gb_color_palette() noexcept
     {
