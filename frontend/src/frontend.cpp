@@ -251,7 +251,8 @@ frontend::tick_result frontend::tick()
         } else {
             switch(state_) {
                 case state::game: {
-                    if(event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Escape) {
+                    if(event_.type == sf::Event::MouseButtonReleased ||
+                      (event_.type == sf::Event::KeyReleased && event_.key.code == sf::Keyboard::Escape)) {
                         state_ = state::main_menu;
                         menu_title_.setString("Main Menu");
                         main_menu_[2].set_disabled(!can_pick_gb_color_palette());
