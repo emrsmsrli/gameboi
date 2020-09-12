@@ -71,6 +71,10 @@ frontend::frontend(
             }
         }
 
+        std::sort(begin(roms_), end(roms_), [](const rom_entry& r1, const rom_entry& r2) {
+          return r1.path.filename() < r2.path.filename();
+        });
+
         generate_rom_select_menu_items();
     } else if(gameboy::filesystem::is_regular_file(rom_base_path) &&
       (rom_base_path.extension() == ".gb" || rom_base_path.extension() == ".gbc")) {
