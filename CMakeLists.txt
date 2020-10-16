@@ -31,8 +31,6 @@ else()
     target_link_libraries(project_options INTERFACE stdc++fs)
 endif()
 
-target_compile_options(project_options INTERFACE -march=native)
-
 option(PROFILE "Enable profiler output" OFF)
 if(PROFILE)
     target_compile_options(project_options INTERFACE -O2 -pg -ggdb)
