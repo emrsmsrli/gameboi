@@ -72,8 +72,11 @@ int main(int argc, char* argv[])
             && !gb.tick_enabled && !debugger.has_focus()
 #endif //WITH_DEBUGGER
         ) {
+            sf::Event e;
+            while(gb_frontend.window().pollEvent(e)) {}
+
             using namespace std::chrono_literals;
-            std::this_thread::sleep_for(50ms);
+            std::this_thread::sleep_for(100ms);
             continue;
         }
 
