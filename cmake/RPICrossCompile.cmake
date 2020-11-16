@@ -27,13 +27,12 @@
 
 set(RASPBERRY_VERSION 3)
 
-# RASPBIAN_ROOTFS should point to the local directory which contains all the libraries and includes from the target raspi.
-# Get them with:
-# rsync -vR --progress -rl --delete-after --safe-links pi@192.168.1.PI:/{lib,usr,opt/vc/lib} $HOME/rpi/rootfs
-# Then RASPBIAN_ROOTFS=$HOME/rpi/rootfs
-
 # TODO build on WSL:
-# cmake -G Ninja -DWITH_DEBUGGER=OFF -DCMAKE_TOOLCHAIN_FILE=/mnt/d/Documents/CLionProjects/gameboi/cmake/RPICrossCompile.cmake ..
+# rsync -vR --progress -rl --delete-after --safe-links pi@192.168.1.PI:/{lib,usr,opt/vc/lib} $HOME/rpi/sysroot (optional sysroot sync)
+# export PATH=/opt/cross-pi-gcc/bin:$PATH
+# cmake -G Ninja
+#   -DRPI_SYSROOT_PATH=$RPI_SYSROOT
+#   -DCMAKE_TOOLCHAIN_FILE=$GB_PATH/cmake/RPICrossCompile.cmake ..
 set(SYSROOT_PATH /mnt/c/Users/Emre/Desktop/rpi-cross/sysroot)
 set(TOOLCHAIN_HOST "arm-linux-gnueabihf")
 
