@@ -108,9 +108,8 @@ frontend::frontend(const uint32_t width, const uint32_t height, const bool fulls
 {
     menu_bg_.setFillColor(sf::Color{0x111111BB});
 
-    window_.setFramerateLimit(60u);
     window_.setMouseCursorVisible(false);
-    window_.setVerticalSyncEnabled(false);
+    window_.setVerticalSyncEnabled(true);
     window_buffer_.create(gameboy::screen_width, gameboy::screen_height, sf::Color::White);
     window_texture_.create(gameboy::screen_width, gameboy::screen_height);
 
