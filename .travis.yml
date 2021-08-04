@@ -41,30 +41,30 @@ jobs:
         - CMAKE_ARGS="-DENABLE_TESTING=ON -DENABLE_COVERAGE=ON -DWITH_LIBCXX=OFF"
         - REPORT_COVERAGE=1
 
-    # - name: "linux-clang"
-    #   compiler: clang
-    #   addons:
-    #     <<: *addons_base
-    #     apt:
-    #       sources:
-    #         - ubuntu-toolchain-r-test
-    #         - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
-    #           key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
-    #       packages:
-    #         - clang-9
-    #         - libc++-9-dev
-    #         - libc++abi-9-dev
-    #         # sfml dependencies
-    #         - libx11-dev
-    #         - libxrandr-dev
-    #         - libxi-dev
-    #         - libudev-dev
-    #         - libgl1-mesa-dev
-    #   env:
-    #     - CC=/usr/bin/clang-9
-    #     - CXX=/usr/bin/clang++-9
-    #     - CMAKE_ARGS="-DWITH_LIBCXX=ON"
-    #     - REPORT_COVERAGE=0
+    - name: "linux-clang"
+      compiler: clang
+      addons:
+        <<: *addons_base
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+            - sourceline: 'deb https://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
+          packages:
+            - clang-9
+            - libc++-9-dev
+            - libc++abi-9-dev
+            # sfml dependencies
+            - libx11-dev
+            - libxrandr-dev
+            - libxi-dev
+            - libudev-dev
+            - libgl1-mesa-dev
+      env:
+        - CC=/usr/bin/clang-9
+        - CXX=/usr/bin/clang++-9
+        - CMAKE_ARGS="-DWITH_LIBCXX=ON"
+        - REPORT_COVERAGE=0
 
 before_script:
   - git clone https://github.com/Microsoft/vcpkg.git
